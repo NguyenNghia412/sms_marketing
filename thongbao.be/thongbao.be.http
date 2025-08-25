@@ -1,0 +1,6 @@
+@thongbao.be_HostAddress = http://localhost:5069
+
+GET {{thongbao.be_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
