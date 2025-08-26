@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace thongbao.be.shared.HttpRequest.Error
+{
+    public static class ErrorCodes
+    {
+        //Các mã lỗi căn bản
+        public const int System = 1;
+        public const int BadRequest = 400;
+        public const int Unauthorized = 401;
+        public const int NotFound = 404;
+        public const int InternalServerError = 500;
+    }
+}

@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\thongbao.be.application\thongbao.be.application.csproj" />
     <ProjectReference Include="..\thongbao.be.infrastructure.data\thongbao.be.infrastructure.data.csproj" />
   </ItemGroup>
 

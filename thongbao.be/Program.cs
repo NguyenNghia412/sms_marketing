@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Cors.Infrastructure;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using thongbao.be.application.Base;
+using thongbao.be.application.GuiTinNhan.Implements;
+using thongbao.be.application.GuiTinNhan.Interfaces;
 using thongbao.be.infrastructure.data;
 using thongbao.be.shared.Constants.Auth;
-using thongbao.be.shared.Constants.Db;
 
 var builder = WebApplication.CreateBuilder(args);
 
 Console.WriteLine("EnvironmentName => " + builder.Environment.EnvironmentName);
-
 
 #region db
 string connectionString = builder.Configuration.GetConnectionString("SMS_MARKETING")
@@ -49,7 +51,16 @@ builder.Services.AddCors(options =>
 #endregion
 
 // Add services to the container.
+#region service
+builder.Services.AddScoped<IChienDichService, ChienDichService>();
+#endregion
 
+#region mapper
+// Build mapper configuration
+builder.Services.AddAutoMapper(cfg => {}, typeof(MappingProfile));
+#endregion
+
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
