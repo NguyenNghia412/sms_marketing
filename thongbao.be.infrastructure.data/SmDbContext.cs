@@ -21,6 +21,8 @@ namespace thongbao.be.infrastructure.data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.UseOpenIddict();
+
             modelBuilder.Entity<ChienDich>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);

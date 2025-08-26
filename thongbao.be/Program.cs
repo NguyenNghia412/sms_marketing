@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using OpenIddict.Validation.AspNetCore;
+using System;
 using thongbao.be.application.Base;
 using thongbao.be.application.GuiTinNhan.Implements;
 using thongbao.be.application.GuiTinNhan.Interfaces;
 using thongbao.be.infrastructure.data;
 using thongbao.be.shared.Constants.Auth;
+using thongbao.be.Workers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +25,7 @@ builder.Services.AddDbContext<SmDbContext>(options =>
         //options.MigrationsAssembly(typeof(Program).Namespace);
         //options.MigrationsHistoryTable(DbSchemas.TableMigrationsHistory, DbSchemas.Core);
     });
+    options.UseOpenIddict(); // Register OpenIddict entities
 }, ServiceLifetime.Scoped);
 #endregion
 
@@ -50,14 +54,52 @@ builder.Services.AddCors(options =>
 });
 #endregion
 
-// Add services to the container.
-#region service
-builder.Services.AddScoped<IChienDichService, ChienDichService>();
+#region auth
+builder.Services.AddOpenIddict()
+    .AddCore(opt =>
+    {
+        opt.UseEntityFrameworkCore()
+           .UseDbContext<SmDbContext>();
+    })
+    // Register the OpenIddict server components.
+    .AddServer(options =>
+    {
+        // Enable the token endpoint.
+        options.SetTokenEndpointUris("connect/token");
+
+        // Enable the client credentials flow.
+        options.AllowClientCredentialsFlow();
+
+        options.AllowPasswordFlow();
+        options.AllowRefreshTokenFlow();
+
+        options.AcceptAnonymousClients();
+
+        // Register the signing and encryption credentials.
+        options.AddDevelopmentEncryptionCertificate()
+               .AddDevelopmentSigningCertificate();
+
+        // Register the ASP.NET Core host and configure the ASP.NET Core options.
+        options.UseAspNetCore()
+               .EnableTokenEndpointPassthrough();
+    });
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+});
+
+builder.Services.AddHostedService<AuthWorker>();
 #endregion
 
 #region mapper
 // Build mapper configuration
-builder.Services.AddAutoMapper(cfg => {}, typeof(MappingProfile));
+builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
+#endregion
+
+// Add services to the container.
+#region service
+builder.Services.AddScoped<IChienDichService, ChienDichService>();
 #endregion
 
 builder.Services.AddHttpContextAccessor();
@@ -76,6 +118,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(ProgramExtensions.CorsPolicy);
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
