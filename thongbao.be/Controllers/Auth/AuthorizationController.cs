@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using System.Security.Claims;
+using System.Security.Principal;
+using thongbao.be.shared.HttpRequest.Error;
+using thongbao.be.shared.HttpRequest.Exception;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace thongbao.be.Controllers.Auth
@@ -22,6 +26,10 @@ namespace thongbao.be.Controllers.Auth
         public async Task<IActionResult> Exchange()
         {
             var request = HttpContext.GetOpenIddictServerRequest();
+            // Create a new ClaimsIdentity containing the claims that
+            // will be used to create an id_token, a token or a code.
+            var identity = new ClaimsIdentity(TokenValidationParameters.DefaultAuthenticationType, Claims.Name, Claims.Role);
+
             if (request.IsClientCredentialsGrantType())
             {
                 // Note: the client credentials are automatically validated by OpenIddict:
@@ -30,9 +38,7 @@ namespace thongbao.be.Controllers.Auth
                 var application = await _applicationManager.FindByClientIdAsync(request.ClientId) ??
                     throw new InvalidOperationException("The application cannot be found.");
 
-                // Create a new ClaimsIdentity containing the claims that
-                // will be used to create an id_token, a token or a code.
-                var identity = new ClaimsIdentity(TokenValidationParameters.DefaultAuthenticationType, Claims.Name, Claims.Role);
+                
 
                 // Use the client_id as the subject identifier.
                 identity.SetClaim(Claims.Subject, await _applicationManager.GetClientIdAsync(application));
@@ -50,6 +56,80 @@ namespace thongbao.be.Controllers.Auth
                 });
 
                 return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            }
+            else if (request.IsPasswordGrantType())
+            {
+                // Note: the client credentials are automatically validated by OpenIddict:
+                // if client_id or client_secret are invalid, this action won't be invoked.
+
+                var application = await _applicationManager.FindByClientIdAsync(request.ClientId) ??
+                    throw new InvalidOperationException("The application cannot be found.");
+
+                // Use the client_id as the subject identifier.
+                identity.SetClaim(Claims.Subject, await _applicationManager.GetClientIdAsync(application));
+                identity.SetClaim(Claims.Name, await _applicationManager.GetDisplayNameAsync(application));
+                identity.SetScopes(
+                        new[]
+                        {
+                            Scopes.OpenId,
+                            Scopes.Email,
+                            Scopes.Profile,
+                            Scopes.Roles,
+                            Scopes.OfflineAccess
+                        }.Intersect(request.GetScopes())
+                    );
+                identity.SetDestinations(static claim => claim.Type switch
+                {
+                    // Allow the "name" claim to be stored in both the access and identity tokens
+                    // when the "profile" scope was granted (by calling principal.SetScopes(...)).
+                    Claims.Name when claim.Subject.HasScope(Scopes.Profile)
+                        => [Destinations.AccessToken, Destinations.IdentityToken],
+
+                    // Otherwise, only store the claim in the access tokens.
+                    _ => [Destinations.AccessToken]
+                });
+
+                return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            }
+            else if (request.IsRefreshTokenGrantType())
+            {
+                var result = await HttpContext.AuthenticateAsync(
+                    OpenIddictServerAspNetCoreDefaults.AuthenticationScheme
+                );
+                //string subject = result.Principal!.GetClaim(Claims.Subject)!;
+                //string userId = result.Principal!.GetClaim(UserClaimTypes.UserId)!;
+
+                var application = await _applicationManager.FindByClientIdAsync(request.ClientId) ??
+                    throw new InvalidOperationException("The application cannot be found.");
+
+                // Use the client_id as the subject identifier.
+                identity.SetClaim(Claims.Subject, await _applicationManager.GetClientIdAsync(application));
+                identity.SetClaim(Claims.Name, await _applicationManager.GetDisplayNameAsync(application));
+                identity.SetScopes(
+                        new[]
+                        {
+                            Scopes.OpenId,
+                            Scopes.Email,
+                            Scopes.Profile,
+                            Scopes.Roles,
+                            Scopes.OfflineAccess
+                        }.Intersect(request.GetScopes())
+                    );
+                identity.SetDestinations(static claim => claim.Type switch
+                {
+                    // Allow the "name" claim to be stored in both the access and identity tokens
+                    // when the "profile" scope was granted (by calling principal.SetScopes(...)).
+                    Claims.Name when claim.Subject.HasScope(Scopes.Profile)
+                        => [Destinations.AccessToken, Destinations.IdentityToken],
+
+                    // Otherwise, only store the claim in the access tokens.
+                    _ => [Destinations.AccessToken]
+                });
+
+                return SignIn(
+                    new ClaimsPrincipal(identity),
+                    OpenIddictServerAspNetCoreDefaults.AuthenticationScheme
+                );
             }
 
             throw new NotImplementedException("The specified grant is not implemented.");
