@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +13,7 @@ using System.Text;
 using thongbao.be.application.Base;
 using thongbao.be.application.GuiTinNhan.Implements;
 using thongbao.be.application.GuiTinNhan.Interfaces;
+using thongbao.be.domain.Auth;
 using thongbao.be.infrastructure.data;
 using thongbao.be.shared.Constants.Auth;
 using thongbao.be.Workers;
@@ -58,6 +60,13 @@ builder.Services.AddCors(options =>
         }
     );
 });
+#endregion
+
+#region identity
+// 2. Add Identity
+builder.Services.AddIdentity<AppUser, IdentityRole>()
+    .AddEntityFrameworkStores<SmDbContext>()
+    .AddDefaultTokenProviders();
 #endregion
 
 #region auth

@@ -1,21 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using thongbao.be.domain.Auth;
 using thongbao.be.domain.GuiTinNhan;
 using thongbao.be.shared.Constants.Db;
 
 namespace thongbao.be.infrastructure.data
 {
-    public class SmDbContext : DbContext
+    public class SmDbContext : IdentityDbContext<AppUser>
     {
-        public SmDbContext() {}
-
-        public SmDbContext(
-            DbContextOptions<SmDbContext> options
-        ) : base(options) { }
+        public SmDbContext(DbContextOptions<SmDbContext> options) : base(options)
+        {
+        }
 
         public DbSet<ChienDich> ChienDiches { get; set; }
 
