@@ -1,9 +1,14 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Validation.AspNetCore;
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using thongbao.be.application.Base;
 using thongbao.be.application.GuiTinNhan.Implements;
 using thongbao.be.application.GuiTinNhan.Interfaces;
@@ -56,6 +61,8 @@ builder.Services.AddCors(options =>
 #endregion
 
 #region auth
+string secretKey = builder.Configuration.GetSection("AuthServer:SecretKey").Value!;
+
 builder.Services.AddOpenIddict()
     .AddCore(opt =>
     {
@@ -75,12 +82,18 @@ builder.Services.AddOpenIddict()
         options.AllowRefreshTokenFlow();
 
         options.AcceptAnonymousClients();
+        options.DisableAccessTokenEncryption();
 
         options.RegisterScopes(OpenIddictConstants.Scopes.OpenId, OpenIddictConstants.Scopes.OfflineAccess, OpenIddictConstants.Scopes.Profile);
 
         // Register the signing and encryption credentials.
         options.AddDevelopmentEncryptionCertificate()
                .AddDevelopmentSigningCertificate();
+
+        // 🔑 Symmetric signing key
+        var secret = Encoding.UTF8.GetBytes(secretKey);
+        options.AddEncryptionKey(new SymmetricSecurityKey(secret));
+        options.AddSigningKey(new SymmetricSecurityKey(secret));
 
         // Register the ASP.NET Core host and configure the ASP.NET Core options.
         options.UseAspNetCore()
@@ -89,10 +102,54 @@ builder.Services.AddOpenIddict()
 
     });
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
-});
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(
+        options =>
+        {
+            //var rsaSecurityKey = CryptographyUtils.ReadKey(
+            //    builder.Configuration.GetValue<string>("IdentityServer:PublicKey")!,
+            //    builder.Configuration.GetValue<string>("IdentityServer:PrivateKey")!
+            //);
+            options.Events = new JwtBearerEvents
+            {
+                OnAuthenticationFailed = ctx =>
+                {
+                    Console.WriteLine("Auth failed: " + ctx.Exception.Message);
+                    return Task.CompletedTask;
+                },
+                OnChallenge = ctx =>
+                {
+                    Console.WriteLine("Auth challenge: " + ctx.ErrorDescription);
+                    return Task.CompletedTask;
+                },
+                OnTokenValidated = ctx =>
+                {
+                    Console.WriteLine("Token validated for: " + ctx.Principal?.Identity?.Name);
+                    return Task.CompletedTask;
+                }
+            };
+
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateLifetime = true,        // ✅ only check exp & nbf
+                ClockSkew = TimeSpan.Zero, // no extra leeway
+
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateIssuerSigningKey = true,
+                // Symmetric key (HMAC) example
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(secretKey)
+                ),
+
+                // 👇 Accept both "JWT" and "at+jwt" as token types
+                ValidTypes = new[] { "JWT", "at+jwt" }
+            };
+            options.RequireHttpsMetadata = false;
+        }
+    );
+builder.Services.AddAuthorization();
+
 
 builder.Services.AddHostedService<AuthWorker>();
 #endregion
@@ -111,7 +168,37 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "My API", Version = "v1" });
+
+    // 🔑 Add Bearer JWT Security Definition
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Enter 'Bearer' [space] and then your valid token.\r\n\r\nExample: \"Bearer eyJhbGciOiJIUzI1NiIs...\"",
+    });
+
+    // 🔐 Add Security Requirement (apply globally to all endpoints)
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 var app = builder.Build();
 

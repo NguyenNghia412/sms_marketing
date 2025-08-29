@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.application.GuiTinNhan.Interfaces;
@@ -32,6 +33,7 @@ namespace thongbao.be.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("")]
         public ApiResponse Create([FromBody] CreateChienDichDto dto)
         {
