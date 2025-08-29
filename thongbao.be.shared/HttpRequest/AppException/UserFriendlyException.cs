@@ -13,7 +13,7 @@ namespace thongbao.be.shared.HttpRequest.Exception
         {
         }
 
-        public UserFriendlyException(int errorCode, string? messageLocalize) : base(errorCode, messageLocalize)
+        public UserFriendlyException(int errorCode, string? messsage) : base(errorCode, messsage)
         {
         }
     }

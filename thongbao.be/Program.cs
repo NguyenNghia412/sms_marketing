@@ -15,6 +15,7 @@ using thongbao.be.application.GuiTinNhan.Implements;
 using thongbao.be.application.GuiTinNhan.Interfaces;
 using thongbao.be.domain.Auth;
 using thongbao.be.infrastructure.data;
+using thongbao.be.infrastructure.data.Seeder;
 using thongbao.be.shared.Constants.Auth;
 using thongbao.be.Workers;
 
@@ -210,6 +211,18 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+#region Seed data
+// Run seeding inside scope
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    await SeedUser.SeedAsync(userManager, roleManager);
+
+}
+#endregion
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

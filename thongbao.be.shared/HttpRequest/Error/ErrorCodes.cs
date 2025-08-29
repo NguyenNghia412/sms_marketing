@@ -14,5 +14,7 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int Unauthorized = 401;
         public const int NotFound = 404;
         public const int InternalServerError = 500;
+
+        public const int AuthInvalidPassword = 101;
     }
 }
