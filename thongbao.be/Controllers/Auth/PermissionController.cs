@@ -1,13 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using thongbao.be.application.Auth.Interfaces;
+using thongbao.be.Attributes;
 using thongbao.be.Controllers.Base;
+using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.HttpRequest;
 
 namespace thongbao.be.Controllers.Auth
 {
     [Route("api/app/permissions")]
     [ApiController]
+    [Authorize]
     public class PermissionController : BaseController
     {
         private readonly IPermissionsService _permissionsService;
@@ -21,6 +25,7 @@ namespace thongbao.be.Controllers.Auth
         /// </summary>
         /// <returns></returns>
         [HttpGet("")]
+        [Permission(PermissionKeys.RoleView)]
         public ApiResponse GetAll()
         {
             try

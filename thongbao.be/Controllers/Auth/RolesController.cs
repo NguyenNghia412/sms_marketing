@@ -1,14 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using thongbao.be.application.Auth.Dtos.Role;
 using thongbao.be.application.Auth.Interfaces;
+using thongbao.be.Attributes;
 using thongbao.be.Controllers.Base;
+using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.HttpRequest;
 
 namespace thongbao.be.Controllers.Auth
 {
     [Route("api/app/roles")]
     [ApiController]
+    [Authorize]
     public class RolesController : BaseController
     {
         private readonly IRoleService _roleService;
@@ -18,6 +22,7 @@ namespace thongbao.be.Controllers.Auth
             _roleService = roleService;
         }
 
+        [Permission(PermissionKeys.RoleAdd)]
         [HttpPost("")]
         public async Task<ApiResponse> Create([FromBody] CreateRoleDto dto)
         {
@@ -32,6 +37,7 @@ namespace thongbao.be.Controllers.Auth
             }
         }
 
+        [Permission(PermissionKeys.RoleUpdate)]
         [HttpPut("")]
         public async Task<ApiResponse> Update([FromBody] UpdateRoleDto dto)
         {
@@ -46,6 +52,7 @@ namespace thongbao.be.Controllers.Auth
             }
         }
 
+        [Permission(PermissionKeys.RoleView)]
         [HttpGet("")]
         public async Task<ApiResponse> Find([FromQuery] FindPagingRoleDto dto)
         {
@@ -60,6 +67,8 @@ namespace thongbao.be.Controllers.Auth
             }
         }
 
+
+        [Permission(PermissionKeys.RoleView)]
         [HttpGet("{id}")]
         public async Task<ApiResponse> GetById([FromRoute] string id)
         {

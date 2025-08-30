@@ -16,6 +16,7 @@ namespace thongbao.be.shared.Constants.Auth
         public const string UserUpdate = Function + "UserUpdate";
         public const string UserDelete = Function + "UserDelete";
         public const string UserView = Function + "UserView";
+        public const string UserSetRoles = Function + "UserSetRoles";
 
         public const string CategoryRole = "QL Role";
         public const string RoleAdd = Function + "Add";
@@ -35,6 +36,7 @@ namespace thongbao.be.shared.Constants.Auth
             (UserUpdate, "Cập nhật User" , CategoryUser),
             (UserDelete, "Xoá User" , CategoryUser),
             (UserView, "Xem User" , CategoryUser),
+            (UserSetRoles, "Gán role cho User" , CategoryUser),
 
             (RoleAdd, "Thêm Role", CategoryRole),
             (RoleUpdate, "Cập nhật Role", CategoryRole),

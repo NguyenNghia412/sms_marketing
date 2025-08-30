@@ -3,13 +3,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.application.GuiTinNhan.Interfaces;
+using thongbao.be.Attributes;
 using thongbao.be.Controllers.Base;
+using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.HttpRequest;
 
 namespace thongbao.be.Controllers
 {
     [Route("api/core/chien-dich")]
     [ApiController]
+    [Authorize]
     public class ChienDichController : BaseController
     {
         private readonly IChienDichService _chienDichService;
@@ -19,6 +22,7 @@ namespace thongbao.be.Controllers
             _chienDichService = chienDichService;
         }
 
+        [Permission(PermissionKeys.ChienDichView)]
         [HttpGet("")]
         public ApiResponse Find([FromQuery] FindPagingChienDichDto dto)
         {
@@ -33,7 +37,7 @@ namespace thongbao.be.Controllers
             }
         }
 
-        [Authorize]
+        [Permission(PermissionKeys.ChienDichAdd)]
         [HttpPost("")]
         public ApiResponse Create([FromBody] CreateChienDichDto dto)
         {
