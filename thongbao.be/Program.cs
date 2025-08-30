@@ -10,6 +10,8 @@ using OpenIddict.Validation.AspNetCore;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using thongbao.be.application.Auth.Implements;
+using thongbao.be.application.Auth.Interfaces;
 using thongbao.be.application.Base;
 using thongbao.be.application.GuiTinNhan.Implements;
 using thongbao.be.application.GuiTinNhan.Interfaces;
@@ -112,7 +114,11 @@ builder.Services.AddOpenIddict()
 
     });
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
     .AddJwtBearer(
         options =>
         {
@@ -171,6 +177,7 @@ builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
 
 // Add services to the container.
 #region service
+builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IChienDichService, ChienDichService>();
 #endregion
 

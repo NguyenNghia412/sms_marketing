@@ -15,6 +15,7 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.BadRequest, "Request không hợp lệ" },
             { ErrorCodes.NotFound, "Không tìm thấy trong hệ thống" },
             { ErrorCodes.Unauthorized, "Không được phân quyền" },
+            { ErrorCodes.AuthErrorUserNotFound, "User không tồn tại" },
         };
 
         public static string GetMessage(int code)

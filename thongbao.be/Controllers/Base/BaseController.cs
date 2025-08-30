@@ -38,9 +38,9 @@ namespace thongbao.be.Controllers.Base
                 errorCode = userFriendlyException.ErrorCode;
                 try
                 {
-                    if (!string.IsNullOrWhiteSpace(userFriendlyException.ErrorMessage))
+                    if (!string.IsNullOrWhiteSpace(userFriendlyException.MessageLocalize))
                     {
-                        message = userFriendlyException.ErrorMessage;
+                        message = userFriendlyException.MessageLocalize;
                     }
                     else
                     {

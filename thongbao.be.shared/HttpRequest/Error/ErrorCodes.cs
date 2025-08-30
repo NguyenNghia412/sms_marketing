@@ -16,5 +16,7 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int InternalServerError = 500;
 
         public const int AuthInvalidPassword = 101;
+        public const int AuthErrorCreateUser = 102;
+        public const int AuthErrorUserNotFound = 103;
     }
 }
