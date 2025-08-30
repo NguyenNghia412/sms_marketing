@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using thongbao.be.application.Auth.Dtos.Role;
 using thongbao.be.application.Auth.Dtos.User;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.domain.Auth;
@@ -18,6 +20,7 @@ namespace thongbao.be.application.Base
             // CreateMap<Source, Destination>();
             CreateMap<ChienDich, ViewChienDichDto>();
             CreateMap<AppUser, ViewUserDto>();
+            CreateMap<IdentityRole, ViewRoleDto>();
         }
     }
 }

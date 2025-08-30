@@ -178,6 +178,8 @@ builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
 // Add services to the container.
 #region service
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IPermissionsService, PermissionsService>();
 builder.Services.AddScoped<IChienDichService, ChienDichService>();
 #endregion
 

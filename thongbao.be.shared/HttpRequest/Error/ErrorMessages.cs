@@ -16,6 +16,10 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.NotFound, "Không tìm thấy trong hệ thống" },
             { ErrorCodes.Unauthorized, "Không được phân quyền" },
             { ErrorCodes.AuthErrorUserNotFound, "User không tồn tại" },
+            { ErrorCodes.AuthErrorRoleNotFound, "Role không tồn tại" },
+            { ErrorCodes.AuthInvalidPassword, "Mật khẩu không đúng" },
+            { ErrorCodes.AuthErrorCreateUser, "Lỗi tạo user" },
+            { ErrorCodes.AuthErrorCreateRole, "Lỗi tạo role" },
         };
 
         public static string GetMessage(int code)
