@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +19,7 @@ using thongbao.be.application.GuiTinNhan.Interfaces;
 using thongbao.be.domain.Auth;
 using thongbao.be.infrastructure.data;
 using thongbao.be.infrastructure.data.Seeder;
+using thongbao.be.infrastructure.external.BackgroundJob;
 using thongbao.be.shared.Constants.Auth;
 using thongbao.be.Workers;
 
@@ -28,6 +30,9 @@ Console.WriteLine("EnvironmentName => " + builder.Environment.EnvironmentName);
 #region db
 string connectionString = builder.Configuration.GetConnectionString("SMS_MARKETING")
     ?? throw new InvalidOperationException("Không tìm thấy connection string \"SMS_MARKETING\" trong appsettings.json");
+
+string hangfireConnectionString = builder.Configuration.GetConnectionString("HANGFIRE")
+    ?? throw new InvalidOperationException("Không tìm thấy connection string \"HANGFIRE\" trong appsettings.json");
 
 builder.Services.AddDbContext<SmDbContext>(options =>
 {
@@ -175,6 +180,10 @@ builder.Services.AddHostedService<AuthWorker>();
 builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
 #endregion
 
+#region hangfire
+builder.Services.ConfigureHangfire(hangfireConnectionString);
+#endregion
+
 // Add services to the container.
 #region service
 builder.Services.AddScoped<IUsersService, UsersService>();
@@ -246,5 +255,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseHangfireDashboard();
 
 app.Run();

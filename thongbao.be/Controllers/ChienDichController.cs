@@ -51,5 +51,20 @@ namespace thongbao.be.Controllers
                 return OkException(ex);
             }
         }
+
+        [AllowAnonymous]
+        [HttpPost("test")]
+        public ApiResponse TestSendEmail()
+        {
+            try
+            {
+                _chienDichService.TestSendEmail();
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

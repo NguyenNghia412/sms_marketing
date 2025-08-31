@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
@@ -60,6 +61,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 Items = items,
                 TotalItems = query.Count()
             };
+        }
+
+        public void TestSendEmail()
+        {
+            BackgroundJob.Enqueue(() => Console.WriteLine("Test send email!"));
         }
     }
 }
