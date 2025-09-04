@@ -1,0 +1,15 @@
+/* You can add global styles to this file, and also import other style files */
+@import "primeflex/primeflex.css";
+
+html, body {
+  height: 100%;       /* required so child 100% works */
+  margin: 0;          /* remove default body margin */
+}
+
+body {
+  background-color: #eee;
+}
+
+html, body, app-root {
+  font-family: 'Inter', 'MyCustomFont', sans-serif;
+}

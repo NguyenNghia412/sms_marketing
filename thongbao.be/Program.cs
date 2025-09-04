@@ -14,6 +14,8 @@ using System.Text;
 using thongbao.be.application.Auth.Implements;
 using thongbao.be.application.Auth.Interfaces;
 using thongbao.be.application.Base;
+using thongbao.be.application.DiemDanh.Implements;
+using thongbao.be.application.DiemDanh.Interfaces;
 using thongbao.be.application.GuiTinNhan.Implements;
 using thongbao.be.application.GuiTinNhan.Interfaces;
 using thongbao.be.domain.Auth;
@@ -47,7 +49,7 @@ builder.Services.AddDbContext<SmDbContext>(options =>
 
 #region cors
 string allowOrigins = builder.Configuration.GetSection("AllowedHosts")!.Value!;
-//File.WriteAllText("cors.now.txt", $"CORS: {allowOrigins}");
+//File.WriteAllText("cors.now.txt", $"CORS: {allowOrigins}");;/'\,
 Console.WriteLine($"CORS: {allowOrigins}");
 var origins = allowOrigins
     .Split(';')
@@ -190,8 +192,9 @@ builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IPermissionsService, PermissionsService>();
 builder.Services.AddScoped<IChienDichService, ChienDichService>();
+builder.Services.AddScoped<IHopTrucTuyenService, HopTrucTuyenService>();
 #endregion
-
+builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
