@@ -138,17 +138,17 @@ namespace thongbao.be.Controllers.DiemDanh
         }
         [Permission(PermissionKeys.HopTrucTuyenUpdate)]
         [HttpPut("trang-thai-diem-danh")]
-        public async Task<ApiResponse> UpdateTrangThaiDiemDanhAsync([FromBody] UpdateTrangThaiDiemDanhDto dto)
+        public async Task<ApiResponse> UpdateTrangThaiDiemDanhAsync([FromQuery] int idCuocHop,[FromBody] UpdateTrangThaiDiemDanhDto dto)
         {
             try
             {
-                await _hopTrucTuyenService.UpdateTrangThaiDiemDanh(dto);
+                await _hopTrucTuyenService.UpdateTrangThaiDiemDanh(idCuocHop,dto);
                 return new();
             }
             catch (Exception ex)
             {
                 return OkException(ex);
-            }
+            } 
         }
         }
 }

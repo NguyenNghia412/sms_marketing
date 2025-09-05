@@ -18,7 +18,7 @@ namespace thongbao.be.application.DiemDanh.Interfaces
         public Task<MettingIdDto> GetThongTinCuocHop(GraphApiGetThongTinCuocHopDto dto, string accessToken);
 
         public Task<MettingIdDto> GetAndSaveMeetingInfo(GraphApiGetThongTinCuocHopDto dto, string accessToken);
-        public Task UpdateTrangThaiDiemDanh(UpdateTrangThaiDiemDanhDto dto);
+        public Task UpdateTrangThaiDiemDanh(int idCuocHop,UpdateTrangThaiDiemDanhDto dto);
 
     }
 }

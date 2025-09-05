@@ -77,43 +77,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             var data = query.Paging(dto).ToList();
             var items = _mapper.Map<List<ViewCuocHopDto>>(data);
 
-            foreach (var item in items)
-            {
-                var cuocHop = data.FirstOrDefault(x => x.Id == item.Id);
-                if (cuocHop?.UserIdCreated != null && !string.IsNullOrEmpty(cuocHop.UserIdCreated))
-                {
-                    var user = _smDbContext.Users.FirstOrDefault(u => u.Id == cuocHop.UserIdCreated);
-                    if (user != null)
-                    {
-                        if (Guid.TryParse(user.Id, out Guid userIdGuid))
-                        {
-                            item.Item = new UserCreateCuocHopDto
-                            {
-                                Id = userIdGuid,
-                                UserName = user.UserName ?? "",
-                                Email = user.Email ?? "",
-                                FullName = user.FullName ?? ""
-                            };
-                            var userRole = _smDbContext.UserRoles.FirstOrDefault(ur => ur.UserId == user.Id);
-                            if (userRole != null)
-                            {
-                                var role = _smDbContext.Roles.FirstOrDefault(r => r.Id == userRole.RoleId);
-                                if (role != null)
-                                {
-                                    if (Guid.TryParse(role.Id, out Guid roleIdGuid))
-                                    {
-                                        item.Item.Item = new RoleUserDto
-                                        {
-                                            Id = roleIdGuid,
-                                            Name = role.Name ?? ""
-                                        };
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+           
 
             return new BaseResponsePagingDto<ViewCuocHopDto>
             {
@@ -769,24 +733,25 @@ namespace thongbao.be.application.DiemDanh.Implements
             await _smDbContext.SaveChangesAsync();
             _logger.LogInformation($"Successfully saved meeting data for IdCuocHop: {dto.IdCuocHop}");
         }
-        public async Task UpdateTrangThaiDiemDanh(UpdateTrangThaiDiemDanhDto dto)
+        public async Task UpdateTrangThaiDiemDanh(int idCuocHop,UpdateTrangThaiDiemDanhDto dto)
         {
             _logger.LogInformation($"{nameof(UpdateTrangThaiDiemDanh)} started");
 
             var vietnamNow = GetVietnamTime();
 
             var cuocHop = await _smDbContext.HopTrucTuyens
-                .FirstOrDefaultAsync(h => h.Id == dto.IdCuocHop && !h.Deleted);
+                .FirstOrDefaultAsync(h => h.Id == idCuocHop && !h.Deleted);
 
             if (cuocHop == null)
             {
-                throw new UserFriendlyException(404,$"Cuộc họp với ID {dto.IdCuocHop} không tồn tại");
+                throw new UserFriendlyException(404,$"Cuộc họp với ID {idCuocHop} không tồn tại");
             }
 
             cuocHop.ThoiGianDiemDanh = dto.ThoiGianDiemDanh;
 
             var diemDanhData = await (from ttdd in _smDbContext.ThongTinDiemDanhs
-                                      where ttdd.IdHopTrucTuyen == dto.IdCuocHop && !ttdd.Deleted
+                                      where ttdd.IdHopTrucTuyen == idCuocHop && !ttdd.Deleted
+                                      where ttdd.IdHopTrucTuyen == idCuocHop && !ttdd.Deleted
                                       select new
                                       {
                                           DiemDanh = ttdd,
