@@ -116,6 +116,39 @@ namespace thongbao.be.Controllers.DiemDanh
             }
         }
 
-
-    }
+        [HttpPost("thong-tin-cuoc-hop")]
+        public async Task<ApiResponse> GetThongTinCuocHop([FromQuery] GraphApiGetThongTinCuocHopDto dto, [FromBody] GraphApiGetUserInfoRequestDto input)
+        {
+            try
+            {
+                var meetingInfo = await _hopTrucTuyenService.GetAndSaveMeetingInfo(
+                    new GraphApiGetThongTinCuocHopDto
+                    {
+                        JoinWebUrl = dto.JoinWebUrl,
+                        IdCuocHop = dto.IdCuocHop
+                    },
+                    input.AccessToken
+                );
+                return new(meetingInfo);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.HopTrucTuyenUpdate)]
+        [HttpPut("trang-thai-diem-danh")]
+        public async Task<ApiResponse> UpdateTrangThaiDiemDanhAsync([FromBody] UpdateTrangThaiDiemDanhDto dto)
+        {
+            try
+            {
+                await _hopTrucTuyenService.UpdateTrangThaiDiemDanh(dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        }
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using thongbao.be.shared.Constants.Db;
+using thongbao.be.shared.Interfaces;
 
 namespace thongbao.be.domain.DiemDanh
 {
@@ -16,7 +17,7 @@ namespace thongbao.be.domain.DiemDanh
         IsUnique = false,
         Name = $"IX_{nameof(HopTrucTuyen)}"
     )]
-public  class HopTrucTuyen
+public  class HopTrucTuyen : ISoftDelted
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -33,6 +34,7 @@ public  class HopTrucTuyen
         public string IdTinNhanChung { get; set; } = String.Empty;
         public string? UserIdCreated { get; set; } = String.Empty;
         public int? ThoiHanDiemDanh { get; set; }
+        public DateTime? ThoiGianTaoCuocHop { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }

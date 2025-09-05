@@ -23,6 +23,7 @@ namespace thongbao.be.infrastructure.data
         public DbSet<ChienDich> ChienDiches { get; set; }
         public DbSet<HopTrucTuyen> HopTrucTuyens { get; set; }
         public DbSet<ThongTinDiemDanh> ThongTinDiemDanhs { get; set; }
+        public DbSet<TinNhanHopTrucTuyen> TinNhanHopTrucTuyens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,6 +48,13 @@ namespace thongbao.be.infrastructure.data
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+               
+            });
+            modelBuilder.Entity<TinNhanHopTrucTuyen>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+
             });
 
 

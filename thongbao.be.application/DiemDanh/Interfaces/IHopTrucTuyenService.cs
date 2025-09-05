@@ -15,6 +15,10 @@ namespace thongbao.be.application.DiemDanh.Interfaces
         public GraphApiAuthUrlResponseDto GenerateMicrosoftAuthUrl();
         public  Task<GraphApiTokenResponseDto> HandleMicrosoftCallback(GraphApiCallbackDto dto);
         public  Task<GraphApiUserInforResponseDto> GetUserInfo(string accessToken);
+        public Task<MettingIdDto> GetThongTinCuocHop(GraphApiGetThongTinCuocHopDto dto, string accessToken);
+
+        public Task<MettingIdDto> GetAndSaveMeetingInfo(GraphApiGetThongTinCuocHopDto dto, string accessToken);
+        public Task UpdateTrangThaiDiemDanh(UpdateTrangThaiDiemDanhDto dto);
 
     }
 }

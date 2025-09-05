@@ -13,6 +13,7 @@ namespace thongbao.be.application.DiemDanh.Dtos
         public DateTime? ThoiGianBatDau { get; set; }
         public DateTime? ThoiGianKetThuc { get; set; }
         public DateTime? ThoiGianDiemDanh { get; set; }
-        public string? LinkCuocHop { get; set; } = String.Empty;
+        //public string? LinkCuocHop { get; set; } = String.Empty;
+        public int? ThoiHanDiemDanh { get; set; }
     }
 }
