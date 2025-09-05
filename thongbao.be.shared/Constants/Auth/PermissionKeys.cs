@@ -30,6 +30,14 @@ namespace thongbao.be.shared.Constants.Auth
         public const string ChienDichDelete = Function + "ChienDichDelete";
         public const string ChienDichView = Function + "ChienDichView";
 
+
+        public const string CategoryHopTrucTuyen = "QL Họp trực tuyến";
+        public const string HopTrucTuyenAdd = Function + "HopTrucTuyenAdd";
+        public const string HopTrucTuyenUpdate = Function + "HopTrucTuyenUpdate";
+        public const string HopTrucTuyenDelete = Function + "HopTrucTuyenDelete";
+        public const string HopTrucTuyenView = Function + "HopTrucTuyenView";
+
+
         public static readonly (string Key, string Name, string Category)[] All =
         {
             (UserAdd, "Thêm user", CategoryUser),
@@ -43,10 +51,15 @@ namespace thongbao.be.shared.Constants.Auth
             (RoleDelete, "Xoá Role", CategoryRole),
             (RoleView, "Xem Role", CategoryRole),
 
-            (ChienDichAdd, "Thêm Role", CategoryChienDich),
-            (ChienDichUpdate, "Cập nhật Role", CategoryChienDich),
-            (ChienDichDelete, "Xoá Role", CategoryChienDich),
-            (ChienDichView, "Xem Role", CategoryRole),
+            (ChienDichAdd, "Thêm Chiến dịch", CategoryChienDich),
+            (ChienDichUpdate, "Cập nhật Chiến dịch", CategoryChienDich),
+            (ChienDichDelete, "Xoá Chiến dịch", CategoryChienDich),
+            (ChienDichView, "Xem Chiến dịch", CategoryChienDich),
+
+             (HopTrucTuyenAdd, "Thêm Cuộc họp trực tuyến ", CategoryHopTrucTuyen),
+            (HopTrucTuyenUpdate, "Cập nhật Cuộc họp trực tuyến", CategoryHopTrucTuyen),
+            (HopTrucTuyenDelete, "Xoá Cuộc họp trực tuyến", CategoryHopTrucTuyen),
+            (HopTrucTuyenView, "Xem Cuộc họp trực tuyến", CategoryHopTrucTuyen),
 
         };
     }
