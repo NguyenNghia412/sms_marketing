@@ -1,12 +1,8 @@
 import { AppFloatingConfigurator } from '@/layout/component/app.floatingconfigurator';
+import { SharedImports } from '@/shared/import.shared';
 import { Component, inject } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { RippleModule } from 'primeng/ripple';
+import { AbstractControl, FormControl, FormGroup,  Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
 export const ValidationMessages: Record<string, Record<string, string>> = {
     username: {
@@ -19,7 +15,7 @@ export const ValidationMessages: Record<string, Record<string, string>> = {
 
 @Component({
     selector: 'app-login',
-    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, ReactiveFormsModule],
+    imports: [...SharedImports, AppFloatingConfigurator],
     templateUrl: './login.html',
     styleUrl: './login.scss'
 })

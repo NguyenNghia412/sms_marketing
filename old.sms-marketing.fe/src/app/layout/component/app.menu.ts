@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
-import { IAppMenuItem } from '../model/app-menu-item.model';
 
 @Component({
     selector: 'app-menu',
@@ -17,61 +16,13 @@ import { IAppMenuItem } from '../model/app-menu-item.model';
     </ul> `
 })
 export class AppMenu {
-    model: IAppMenuItem[] = [];
+    model: MenuItem[] = [];
 
     ngOnInit() {
         this.model = [
             {
-                items:[
-                    {
-                        label: 'Dashboard',
-                        routerLink: ['/']
-                    }
-                ]
-            },
-            {
-                items: [
-                    {
-                        label: 'Kênh marketing',
-                        items: [
-                            { label: 'SMS', heroIcon: 'heroChatBubbleBottomCenterText', routerLink: ['/channel/sms'] },
-                            { label: 'Email', heroIcon: 'heroEnvelope', routerLink: ['/channel/email'] },
-                            { label: 'ZNS', heroIcon: 'heroSquare3Stack3d', routerLink: ['/channel/zns'] }
-                        ]
-                    }
-                ]
-            },
-            {
-                items: [
-                    {
-                        label: 'Templates',
-                        routerLink: ['/templates']
-                    }
-                ]
-            },
-            {
-                items: [
-                    {
-                        label: 'Danh bạ',
-                        routerLink: ['/contacts']
-                    }
-                ]
-            },
-            {
-                items: [
-                    {
-                        label: 'Tài khoản',
-                        routerLink: ['/contacts']
-                    }
-                ]
-            },
-            {
-                items: [
-                    {
-                        label: 'Audit log',
-                        routerLink: ['/contacts']
-                    }
-                ]
+                label: 'Home',
+                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
             },
             {
                 label: 'UI Components',

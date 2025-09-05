@@ -1,0 +1,41 @@
+<p-table #dt1 [value]="data() || []" dataKey="id" [rows]="pageSize()" [loading]="loading()" [rowHover]="true" [showGridlines]="true" [paginator]="true" responsiveLayout="scroll">
+    <ng-template #header>
+        <tr>
+            @for (col of (columns()); track $index) {
+            <th [style]="col.headerContainerStyle">
+                <div class="flex justify-between cols-center">{{ col.header }}</div>
+            </th>
+            }
+        </tr>
+    </ng-template>
+    <ng-template #body let-row>
+        <tr>
+          @for (col of (columns()); track $index) {
+            <td [style]="col.cellStyle" [ngClass]="col.cellClass">
+              @if (col.cellRender) {
+                <div [innerHTML]="sanitizer.bypassSecurityTrustHtml(row[col.field || ''])"></div>
+              }
+              @else if (col.cellViewType === cellViewTypes.DATE) {
+                {{ get(row, col.field || '') | date: (col.dateFormat || 'dd/MM/yyyy') }}
+              }
+              @else if (col.cellViewType === cellViewTypes.CURRENCY) {
+                {{ get(row, col.field || '') | currency: 'USD' : 'symbol' }}
+              }
+              @else if ('field' in col) {
+                {{ get(row, col.field || '') }}
+              }
+            </td>
+          }
+        </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+        <tr>
+            <td [attr.colspan]="columns().length">Không có dữ liệu</td>
+        </tr>
+    </ng-template>
+    <ng-template #loadingbody>
+        <tr>
+            <td [attr.colspan]="columns().length">Đang tải dữ liệu...</td>
+        </tr>
+    </ng-template>
+</p-table>
