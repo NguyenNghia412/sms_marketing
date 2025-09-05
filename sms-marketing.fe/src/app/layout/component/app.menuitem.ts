@@ -7,16 +7,22 @@ import { CommonModule } from '@angular/common';
 import { RippleModule } from 'primeng/ripple';
 import { MenuItem } from 'primeng/api';
 import { LayoutService } from '../service/layout.service';
+import { NgIcon } from '@ng-icons/core';
+import { IAppMenuItem } from '../model/app-menu-item.model';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: '[app-menuitem]',
-    imports: [CommonModule, RouterModule, RippleModule],
+    imports: [CommonModule, RouterModule, RippleModule, NgIcon],
     template: `
         <ng-container>
             <div *ngIf="root && item.visible !== false" class="layout-menuitem-root-text">{{ item.label }}</div>
             <a *ngIf="(!item.routerLink || item.items) && item.visible !== false" [attr.href]="item.url" (click)="itemClick($event)" [ngClass]="item.styleClass" [attr.target]="item.target" tabindex="0" pRipple>
-                <i [ngClass]="item.icon" class="layout-menuitem-icon"></i>
+                @if (item.heroIcon) {
+                    <ng-icon [name]="item.heroIcon" class="mr-2"></ng-icon>
+                } @else {
+                    <i [ngClass]="item.icon" class="layout-menuitem-icon"></i>
+                }
                 <span class="layout-menuitem-text">{{ item.label }}</span>
                 <i class="pi pi-fw pi-angle-down layout-submenu-toggler" *ngIf="item.items"></i>
             </a>
@@ -38,7 +44,12 @@ import { LayoutService } from '../service/layout.service';
                 tabindex="0"
                 pRipple
             >
-                <i [ngClass]="item.icon" class="layout-menuitem-icon"></i>
+                @if (item.heroIcon) {
+                    <ng-icon [name]="item.heroIcon" class="mr-2"></ng-icon>
+                } @else {
+                    <i [ngClass]="item.icon" class="layout-menuitem-icon"></i>
+                }
+
                 <span class="layout-menuitem-text">{{ item.label }}</span>
                 <i class="pi pi-fw pi-angle-down layout-submenu-toggler" *ngIf="item.items"></i>
             </a>
@@ -70,7 +81,7 @@ import { LayoutService } from '../service/layout.service';
     providers: [LayoutService]
 })
 export class AppMenuitem {
-    @Input() item!: MenuItem;
+    @Input() item!: IAppMenuItem;
 
     @Input() index!: number;
 

@@ -18,7 +18,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { TagModule } from 'primeng/tag';
 import { Customer, CustomerService, Representative } from '../service/customer.service';
 import { Product, ProductService } from '../service/product.service';
-import {ObjectUtils} from "primeng/utils";
+import { ObjectUtils } from "primeng/utils";
 
 interface expandedRows {
     [key: string]: boolean;

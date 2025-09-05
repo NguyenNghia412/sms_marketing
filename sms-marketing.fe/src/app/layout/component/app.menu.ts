@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
+import { IAppMenuItem } from '../model/app-menu-item.model';
 
 @Component({
     selector: 'app-menu',
@@ -16,14 +17,14 @@ import { AppMenuitem } from './app.menuitem';
     </ul> `
 })
 export class AppMenu {
-    model: MenuItem[] = [];
+    model: IAppMenuItem[] = [];
 
     ngOnInit() {
         this.model = [
             {
                 items:[
                     {
-                        label: 'Home',
+                        label: 'Dashboard',
                         routerLink: ['/']
                     }
                 ]
@@ -33,9 +34,9 @@ export class AppMenu {
                     {
                         label: 'Kênh marketing',
                         items: [
-                            { label: 'SMS', icon: 'pi pi-fw pi-home', routerLink: ['/channel/sms'] },
-                            { label: 'Email', icon: 'pi pi-fw pi-home', routerLink: ['/channel/email'] },
-                            { label: 'ZNS', icon: 'pi pi-fw pi-home', routerLink: ['/channel/zns'] }
+                            { label: 'SMS', heroIcon: 'heroChatBubbleBottomCenterText', routerLink: ['/channel/sms'] },
+                            { label: 'Email', heroIcon: 'heroEnvelope', routerLink: ['/channel/email'] },
+                            { label: 'ZNS', heroIcon: 'heroSquare3Stack3d', routerLink: ['/channel/zns'] }
                         ]
                     }
                 ]
@@ -72,11 +73,6 @@ export class AppMenu {
                     }
                 ]
             },
-            {
-                label: 'Home',
-                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
-            },
-
             {
                 label: 'UI Components',
                 items: [
