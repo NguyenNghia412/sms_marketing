@@ -192,10 +192,5 @@ namespace thongbao.be.Controllers.Auth
                    }
                );
         }
-        [HttpPost("/test")]
-        public IActionResult TestEndpoint()
-        {
-            return Ok(new { message = "Test successful", time = DateTime.Now });
-        }
     }
 }
