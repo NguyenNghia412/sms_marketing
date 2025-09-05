@@ -24,20 +24,22 @@
                     <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">SMS MARKETING</div>
                     <span class="text-muted-color font-medium">Đăng nhập hệ thống</span>
                 </div>
-
+                @if (errorMsg) {
+                  <p-message severity="error" [life]="10000" closable>{{ errorMsg }}</p-message>
+                }
                 <form [formGroup]="loginForm" class="w-full py-2" (ngSubmit)="onSubmit()">
                     <div class="mb-8">
                         <label for="username" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Tài khoản</label>
                         <input formControlName="username" pInputText id="username" type="text" class="w-full md:w-120 mb-1" />
                         @if (loginForm.get('username')?.hasError('required') && loginForm.get('username')?.touched) {
-                        <small class="text-red-500 mt-1 block"> {{ getError('username') }} </small>
+                        <p-message severity="error" variant="simple" size="small">{{ getError('username') }} </p-message>
                         }
                     </div>
                     <div class="mb-8">
                         <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
                         <p-password formControlName="password" id="password1" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false"></p-password>
                         @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
-                        <small class="text-red-500 mt-1 block"> {{ getError('password') }} </small>
+                        <p-message severity="error" variant="simple" size="small">{{ getError('password') }} </p-message>
                         }
                     </div>
                     <!-- <div class="flex items-center justify-between mt-2 mb-8 gap-8">
@@ -47,7 +49,7 @@
                         </div>
                         <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                     </div> -->
-                    <p-button label="Đăng nhập" styleClass="w-full" type="submit"></p-button>
+                    <p-button label="Đăng nhập" styleClass="w-full" type="submit" [loading]="loading"></p-button>
                 </form>
             </div>
         </div>
