@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { concatMap, of } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,15 +11,16 @@ import { concatMap, of } from 'rxjs';
 export class AuthService {
   http = inject(HttpClient)
   router = inject(Router);
+  baseUrl = environment.baseUrl;
 
   login(username: string, password: string) {
     const body = new HttpParams()
       .set('username', username)
       .set('password', password)
-      .set('grant_type', 'password')
-      .set('client_id', 'client-web')
-      .set('client_secret', 'mBSQUHmZ4be5bQYfhwS7hjJZ2zFOCU2e')
-      .set('scope', 'openid offline_access')
+      .set('grant_type', environment.authGrantType)
+      .set('client_id', environment.authClientId)
+      .set('client_secret', environment.authClientSecret)
+      .set('scope', environment.authScope)
       ;
 
     const headers = new HttpHeaders({
@@ -26,7 +28,7 @@ export class AuthService {
       Accept: 'text/plain',
     });
 
-    return this.http.post('http://localhost:5069/connect/token', body.toString(), { headers }).pipe(
+    return this.http.post(`${this.baseUrl}/connect/token`, body.toString(), { headers }).pipe(
       concatMap((res: any) => {
         Utils.setLocalStorage('auth', {
           accessToken: res.access_token,

@@ -36,7 +36,7 @@
                         }
                     </div>
                     <div class="mb-8">
-                        <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
+                        <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Mật khẩu</label>
                         <p-password formControlName="password" id="password1" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false"></p-password>
                         @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
                         <p-message severity="error" variant="simple" size="small">{{ getError('password') }} </p-message>
