@@ -12,6 +12,16 @@ export class Utils {
         localStorage.setItem(key, JSON.stringify(data));
     }
 
+    public static getAccessToken() {
+        const auth = this.getLocalStorage('auth')
+        return auth?.accessToken
+    }
+
+    public static getRefreshToken() {
+        const auth = this.getLocalStorage('auth')
+        return auth?.refreshToken
+    }
+
     public static refreshData(data: any) {
         return JSON.parse(JSON.stringify(data));
     }

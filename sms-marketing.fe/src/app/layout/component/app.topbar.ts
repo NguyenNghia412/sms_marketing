@@ -7,7 +7,7 @@ import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
-import { AuthService } from '@/pages/auth/services/auth.service';
+import { AuthService } from '@/services/auth.service';
 
 @Component({
     selector: 'app-topbar',

@@ -3,7 +3,7 @@ import { SharedImports } from '@/shared/import.shared';
 import { Component, inject } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../../../services/auth.service';
 import { MessageService } from 'primeng/api';
 
 export const ValidationMessages: Record<string, Record<string, string>> = {
