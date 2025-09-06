@@ -28,12 +28,12 @@ public  class HopTrucTuyen : ISoftDelted
         public string MoTa { get; set; } = String.Empty;
         public DateTime? ThoiGianBatDau { get; set; }
         public DateTime?ThoiGianKetThuc { get; set; }
-        public DateTime? ThoiGianDiemDanh{ get; set; }
+        public DateTime? BatDauDiemDanh{ get; set; }
         public string IdCuocHop { get; set; } = String.Empty;
         public string? LinkCuocHop { get; set; } = String.Empty;
         public string IdTinNhanChung { get; set; } = String.Empty;
         public string? UserIdCreated { get; set; } = String.Empty;
-        public int? ThoiHanDiemDanh { get; set; }
+        public DateTime? KetThucDiemDanh { get; set; }
         public DateTime? ThoiGianTaoCuocHop { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }

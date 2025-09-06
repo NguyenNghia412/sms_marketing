@@ -24,6 +24,7 @@ namespace thongbao.be.application.Base
             CreateMap<AppUser, ViewUserDto>();
             CreateMap<IdentityRole, ViewRoleDto>();
             CreateMap<HopTrucTuyen, ViewCuocHopDto>();
+            CreateMap<ThongTinDiemDanh, ViewThongTinDiemDanhDto>();
         }
     }
 }

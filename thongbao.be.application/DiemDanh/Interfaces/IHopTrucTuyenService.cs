@@ -12,13 +12,17 @@ namespace thongbao.be.application.DiemDanh.Interfaces
     {
         public void Create(CreateCuocHopDto dto);
         public BaseResponsePagingDto<ViewCuocHopDto> Find(FindPagingCuocHopDto dto);
-       // public GraphApiAuthUrlResponseDto GenerateMicrosoftAuthUrl();
-       // public  Task<GraphApiTokenResponseDto> HandleMicrosoftCallback(GraphApiCallbackDto dto);
-       // public  Task<GraphApiUserInforResponseDto> GetUserInfo(string accessToken);
+        public void Update(int idCuocHop,UpdateCuochopDto dto);
+        public void Delete(int idCuocHop);
+        public BaseResponsePagingDto<ViewThongTinDiemDanhDto> ThongTinDiemDanhPaging(int idCuocHop,FindPagingThongTinDiemDanhDto dto);
+        // public GraphApiAuthUrlResponseDto GenerateMicrosoftAuthUrl();
+        // public  Task<GraphApiTokenResponseDto> HandleMicrosoftCallback(GraphApiCallbackDto dto);
+        // public  Task<GraphApiUserInforResponseDto> GetUserInfo(string accessToken);
         public Task<MettingIdDto> GetThongTinCuocHop(GraphApiGetThongTinCuocHopDto dto,string userId);
         public Task<MettingIdDto> GetAndSaveMeetingInfo(GraphApiGetThongTinCuocHopDto dto, string userId);
         public  Task<string> GetUserIdByEmailAsync(string email);
         public Task UpdateTrangThaiDiemDanh(int idCuocHop,UpdateTrangThaiDiemDanhDto dto);
+        public Task<byte[]> ExportDanhSachDiemDanhToExcel(int idCuocHop);
 
     }
 }

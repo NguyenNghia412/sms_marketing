@@ -41,8 +41,8 @@ namespace thongbao.be.infrastructure.data
                entity.Property(e => e.Deleted).HasDefaultValue(0);
                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
                entity.Property(e => e.ThoiGianBatDau).HasDefaultValueSql("getdate()");
-               entity.Property(e => e.ThoiGianDiemDanh).HasDefaultValueSql("getdate()");
-               entity.Property(e => e.ThoiGianDiemDanh).HasDefaultValueSql("getdate()");
+               entity.Property(e => e.BatDauDiemDanh).HasDefaultValueSql("getdate()");
+               entity.Property(e => e.KetThucDiemDanh).HasDefaultValueSql("getdate()");
                entity.Property(e => e.ThoiGianKetThuc).HasDefaultValueSql("getdate()");
             });
             modelBuilder.Entity<ThongTinDiemDanh>(entity =>

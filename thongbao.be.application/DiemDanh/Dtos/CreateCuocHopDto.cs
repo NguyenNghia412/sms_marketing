@@ -12,8 +12,8 @@ namespace thongbao.be.application.DiemDanh.Dtos
         public string MoTa { get; set; } = String.Empty;
         public DateTime? ThoiGianBatDau { get; set; }
         public DateTime? ThoiGianKetThuc { get; set; }
-        public DateTime? ThoiGianDiemDanh { get; set; }
+        //public DateTime? BatDauDiemDanh { get; set; }
         //public string? LinkCuocHop { get; set; } = String.Empty;
-        public int? ThoiHanDiemDanh { get; set; }
+        //public DateTime? KetThucDiemDanh { get; set; }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Azure.Identity;
+using ClosedXML.Excel;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -9,6 +11,7 @@ using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -49,23 +52,48 @@ namespace thongbao.be.application.DiemDanh.Implements
         public void Create(CreateCuocHopDto dto)
         {
             _logger.LogInformation($"{nameof(Create)} dto={JsonSerializer.Serialize(dto)}");
-            //var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             var vietnamNow = GetVietnamTime();
+
+            var existingCuocHop = _smDbContext.HopTrucTuyens
+                .FirstOrDefault(h => h.TenCuocHop.ToLower() == dto.TenCuocHop.ToLower() && !h.Deleted);
+
+            if (existingCuocHop != null)
+            {
+                throw new UserFriendlyException(409, "Tên cuộc họp đã tồn tại");
+            }
+            if (dto.ThoiGianBatDau.HasValue && dto.ThoiGianBatDau.Value < vietnamNow)
+            {
+                throw new UserFriendlyException(400, "Thời gian bắt đầu cuộc họp phải lớn hơn hoặc bằng thời gian hiện tại");
+            }
+
+            if (dto.ThoiGianKetThuc.HasValue && dto.ThoiGianKetThuc.Value < vietnamNow)
+            {
+                throw new UserFriendlyException(400, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian hiện tại");
+            }
+
+            var thoiGianBatDau = dto.ThoiGianBatDau ?? vietnamNow;
+            var thoiGianKetThuc = dto.ThoiGianKetThuc ?? vietnamNow;
+
+            if (thoiGianKetThuc < thoiGianBatDau)
+            {
+                throw new UserFriendlyException(400, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
+            }
+
             var cuocHop = new domain.DiemDanh.HopTrucTuyen
             {
                 TenCuocHop = dto.TenCuocHop,
                 MoTa = dto.MoTa,
-                ThoiGianBatDau = dto.ThoiGianBatDau ?? vietnamNow,
-                ThoiGianKetThuc = dto.ThoiGianKetThuc ?? vietnamNow,
-                ThoiGianDiemDanh = dto.ThoiGianDiemDanh ?? vietnamNow,
-                ThoiHanDiemDanh = dto.ThoiHanDiemDanh ?? 0,
-                //LinkCuocHop = dto.LinkCuocHop,
-                //UserIdCreated = userId,
+                ThoiGianBatDau = thoiGianBatDau,
+                ThoiGianKetThuc = thoiGianKetThuc,
                 CreatedDate = vietnamNow,
                 Deleted = false
             };
+
             _smDbContext.HopTrucTuyens.Add(cuocHop);
             _smDbContext.SaveChanges();
+
+            _logger.LogInformation($"Đã tạo cuộc họp thành công: {dto.TenCuocHop}");
         }
 
         public BaseResponsePagingDto<ViewCuocHopDto> Find(FindPagingCuocHopDto dto)
@@ -87,9 +115,88 @@ namespace thongbao.be.application.DiemDanh.Implements
             };
         }
 
-        public void Update(UpdateCuochopDto dto)
+        public void Update(int idCuocHop,UpdateCuochopDto dto)
         {
             _logger.LogInformation($"{nameof(Update)} dto={JsonSerializer.Serialize(dto)}");
+
+            var vietnamNow = GetVietnamTime();
+            var existingCuocHop = _smDbContext.HopTrucTuyens
+                .FirstOrDefault(h => h.Id == idCuocHop && !h.Deleted);
+            if (existingCuocHop == null)
+            {
+                throw new UserFriendlyException(404,"Cuộc họp không tồn tại.");
+            }
+
+            var existingTenCuocHop = _smDbContext.HopTrucTuyens
+                .FirstOrDefault(h => h.TenCuocHop.ToLower() == dto.TenCuocHop.ToLower() && !h.Deleted);
+
+            if (existingTenCuocHop != null)
+            {
+                throw new UserFriendlyException(409, "Tên cuộc họp đã tồn tại");
+            }
+
+            if (dto.ThoiGianBatDau.HasValue && dto.ThoiGianBatDau.Value < vietnamNow)
+            {
+                throw new UserFriendlyException(400, "Thời gian bắt đầu cuộc họp phải lớn hơn hoặc bằng thời gian hiện tại");
+            }
+
+
+            if (dto.ThoiGianKetThuc.HasValue && dto.ThoiGianKetThuc.Value < vietnamNow)
+            {
+                throw new UserFriendlyException(400, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian hiện tại");
+            }
+
+            var thoiGianBatDau = dto.ThoiGianBatDau ?? vietnamNow;
+            var thoiGianKetThuc = dto.ThoiGianKetThuc ?? vietnamNow;
+
+            if (thoiGianKetThuc < thoiGianBatDau)
+            {
+                throw new UserFriendlyException(400, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
+            }
+            existingCuocHop.TenCuocHop = dto.TenCuocHop;
+            existingCuocHop.MoTa = dto.MoTa;
+            existingCuocHop.ThoiGianBatDau = dto.ThoiGianBatDau;
+            existingCuocHop.ThoiGianKetThuc = dto.ThoiGianKetThuc;
+
+            _smDbContext.SaveChanges();
+
+        }
+        public void Delete(int idCuocHop)
+        {
+            _logger.LogInformation($"{nameof(Delete)}");
+            var vietNamNow = GetVietnamTime();
+            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var existingCuocHop = _smDbContext.HopTrucTuyens
+                .FirstOrDefault(h => h.Id == idCuocHop && !h.Deleted);
+
+            if( existingCuocHop == null)
+            {
+                throw new UserFriendlyException(400, "Cuộc họp không tồn tại");
+            }
+            existingCuocHop.Deleted = true;
+            existingCuocHop.DeletedDate = vietNamNow;
+
+
+            var thongTinDiemDanhList =_smDbContext.ThongTinDiemDanhs
+                .Where(h => h.IdHopTrucTuyen == idCuocHop && !h.Deleted)
+                .ToList();
+
+            foreach( var thongtinDiemDanh in thongTinDiemDanhList)
+            {
+                thongtinDiemDanh.Deleted = true;
+                thongtinDiemDanh.DeletedDate = vietNamNow;
+            }
+
+            var tinNhanHopTrucTuyenList = _smDbContext.TinNhanHopTrucTuyens
+                .Where(h => h.CuocHopId == idCuocHop && !h.Deleted)
+                .ToList() ;
+
+            foreach(var tinNhanHopTrucTuyen in tinNhanHopTrucTuyenList)
+            {
+                tinNhanHopTrucTuyen.Deleted = true;
+                tinNhanHopTrucTuyen.DeletedDate = vietNamNow;
+            }
+            _smDbContext.SaveChanges();
         }
 
        /* public GraphApiAuthUrlResponseDto GenerateMicrosoftAuthUrl()
@@ -214,7 +321,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                     return users.Value.First().Id ?? string.Empty;
                 }
 
-                throw new ArgumentException($"Không tìm thấy user với email: {email}");
+                throw new UserFriendlyException(404, $"Không tìm thấy user với email: {email}");
             }
             catch (Exception ex)
             {
@@ -253,7 +360,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                 if (!IsValidJoinWebUrl(dto.JoinWebUrl))
                 {
-                    throw new ArgumentException("Invalid Join Web URL");
+                    throw new UserFriendlyException(400, "Invalid Join Web URL");
                 }
 
                 var encodedUrl = HttpUtility.UrlEncode(dto.JoinWebUrl);
@@ -269,7 +376,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                 if (result.Value == null || result.Value.Count == 0)
                 {
-                    throw new InvalidOperationException("Meeting not found");
+                    throw new UserFriendlyException(404, "Meeting not found");
                 }
 
                 foreach (var meeting in result.Value)
@@ -756,13 +863,13 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (existingMeeting == null)
             {
-                throw new ArgumentException($"Cuộc họp với ID {dto.IdCuocHop} không tồn tại");
+                throw new UserFriendlyException(404,$"Cuộc họp không tồn tại");
             }
 
             var meeting = meetingData.Value?.FirstOrDefault();
             if (meeting == null)
             {
-                throw new ArgumentException("Không tìm thấy thông tin meeting");
+                throw new UserFriendlyException(404,"Không tìm thấy thông tin meeting");
             }
 
             existingMeeting.IdCuocHop = meeting.Id;
@@ -852,10 +959,10 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (cuocHop == null)
             {
-                throw new UserFriendlyException(404, $"Cuộc họp với ID {idCuocHop} không tồn tại");
+                throw new UserFriendlyException(404, $"Cuộc họp  không tồn tại");
             }
 
-            cuocHop.ThoiGianDiemDanh = dto.ThoiGianDiemDanh;
+            cuocHop.BatDauDiemDanh = dto.BatDauDiemDanh;
 
             var diemDanhData = await (from ttdd in _smDbContext.ThongTinDiemDanhs
                                       where ttdd.IdHopTrucTuyen == idCuocHop && !ttdd.Deleted
@@ -869,8 +976,8 @@ namespace thongbao.be.application.DiemDanh.Implements
                                               .ToList()
                                       }).ToListAsync();
 
-            var thoiGianBatDau = dto.ThoiGianDiemDanh;
-            var thoiGianKetThuc = dto.ThoiGianDiemDanh.AddMinutes(cuocHop.ThoiHanDiemDanh ?? 0);
+            var thoiGianBatDau = dto.BatDauDiemDanh;
+            var thoiGianKetThuc = dto.KetThucDiemDanh;
             var updateTasks = diemDanhData.Select(async item =>
             {
                 var diemDanh = item.DiemDanh;
@@ -904,6 +1011,194 @@ namespace thongbao.be.application.DiemDanh.Implements
             await Task.WhenAll(updateTasks);
             await _smDbContext.SaveChangesAsync();
         }
+
+
+        public BaseResponsePagingDto<ViewThongTinDiemDanhDto> ThongTinDiemDanhPaging (int idCuocHop,FindPagingThongTinDiemDanhDto dto)
+        {
+            _logger.LogInformation($"{nameof(ThongTinDiemDanh)} dto={JsonSerializer.Serialize(dto)}");
+            var query = from ttdd in _smDbContext.ThongTinDiemDanhs
+                        where ttdd.IdHopTrucTuyen == idCuocHop
+                        where ttdd.Deleted == false
+                        orderby ttdd.Id descending
+                        select ttdd;
+            var data = query.Paging(dto).ToList();
+            var items = _mapper.Map<List<ViewThongTinDiemDanhDto>>(data);
+            return new BaseResponsePagingDto<ViewThongTinDiemDanhDto>
+            {
+                Items = items,
+                TotalItems = query.Count()
+            };
+
+        }
+        public async Task<byte[]> ExportDanhSachDiemDanhToExcel(int idCuocHop)
+        {
+            _logger.LogInformation($"{nameof(ExportDanhSachDiemDanhToExcel)} started for IdCuocHop: {idCuocHop}");
+
+            var cuocHopInfo = await (from ch in _smDbContext.HopTrucTuyens
+                                     where ch.Id == idCuocHop && !ch.Deleted
+                                     select ch).FirstOrDefaultAsync();
+
+            if (cuocHopInfo == null)
+            {
+                throw new UserFriendlyException(404, $"Cuộc họp không tồn tại");
+            }
+
+            var danhSachDiemDanh = await (from ttdd in _smDbContext.ThongTinDiemDanhs
+                                          where ttdd.IdHopTrucTuyen == idCuocHop && !ttdd.Deleted
+                                          orderby ttdd.Id
+                                          select ttdd).ToListAsync();
+
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("Danh sách điểm danh");
+
+            worksheet.Cell(1, 1).Value = $"DANH SÁCH ĐIỂM DANH - {cuocHopInfo.TenCuocHop}";
+            worksheet.Range(1, 1, 1, 15).Merge();
+            worksheet.Cell(1, 1).Style.Font.Bold = true;
+            worksheet.Cell(1, 1).Style.Font.FontSize = 16;
+            worksheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            worksheet.Cell(1, 1).Style.Fill.BackgroundColor = XLColor.LightBlue;
+
+
+            worksheet.Cell(2, 1).Value = $"Thời gian tạo: {DateTime.Now:dd/MM/yyyy HH:mm:ss}";
+            worksheet.Cell(2, 1).Style.Font.Italic = true;
+            worksheet.Range(2, 1, 2, 15).Merge();
+
+
+            var headers = new string[]
+            {
+                "STT", "MSSV", "Họ Tên", "Họ đệm", "Tên", "Khoa",
+                "Lớp quản lý", "Email Huce", "Điện thoại",
+                "Trạng thái điểm danh", "Link meeting", "Thời gian Bắt Đầu Điểm Danh",
+                "Thời Gian Kết Thúc Điểm Danh", "Thời Gian Bắt Đầu Cuộc Họp", "Thời Gian Kết Thúc Cuộc Họp"
+            };
+
+            for (int i = 0; i < headers.Length; i++)
+            {
+                var cell = worksheet.Cell(4, i + 1);
+                cell.Value = headers[i];
+                cell.Style.Font.Bold = true;
+                cell.Style.Fill.BackgroundColor = XLColor.LightGray;
+                cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            }
+
+            int rowIndex = 5;
+            int stt = 1;
+
+            foreach (var item in danhSachDiemDanh)
+            {
+                worksheet.Cell(rowIndex, 1).Value = stt;
+                worksheet.Cell(rowIndex, 2).Value = item.MaSoSinhVien;
+                worksheet.Cell(rowIndex, 3).Value = item.HoVaTen;
+                worksheet.Cell(rowIndex, 4).Value = item.HoDem;
+                worksheet.Cell(rowIndex, 5).Value = item.Ten;
+                worksheet.Cell(rowIndex, 6).Value = item.Khoa;
+                worksheet.Cell(rowIndex, 7).Value = item.LopQuanLy;
+                worksheet.Cell(rowIndex, 8).Value = item.EmailHuce;
+                worksheet.Cell(rowIndex, 9).Value = item.SoDienThoai;
+                worksheet.Cell(rowIndex, 10).Value = ConvertTrangThaiDiemDanh(item.TrangThaiDiemDanh);
+                worksheet.Cell(rowIndex, 11).Value = cuocHopInfo.LinkCuocHop ?? "";
+                worksheet.Cell(rowIndex, 12).Value = cuocHopInfo.BatDauDiemDanh?.ToString("dd/MM/yyyy HH:mm:ss") ?? "";
+                worksheet.Cell(rowIndex, 13).Value = cuocHopInfo.KetThucDiemDanh?.ToString("dd/MM/yyyy HH:mm:ss") ?? "";
+                worksheet.Cell(rowIndex, 14).Value = cuocHopInfo.ThoiGianBatDau?.ToString("dd/MM/yyyy HH:mm:ss") ?? "";
+                worksheet.Cell(rowIndex, 15).Value = cuocHopInfo.ThoiGianKetThuc?.ToString("dd/MM/yyyy HH:mm:ss") ?? "";
+
+                for (int col = 1; col <= headers.Length; col++)
+                {
+                    var cell = worksheet.Cell(rowIndex, col);
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                    if (col == 1 || col == 10)
+                    {
+                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    }
+
+
+                    if (col == 10)
+                    {
+                        switch (item.TrangThaiDiemDanh)
+                        {
+                            case ThongTinDiemDanh.DaDiemDanh:
+                                cell.Style.Fill.BackgroundColor = XLColor.LightGreen;
+                                break;
+                            case ThongTinDiemDanh.VangMat:
+                                cell.Style.Fill.BackgroundColor = XLColor.LightPink;
+                                break;
+                            case ThongTinDiemDanh.ChuaDiemDanh:
+                                cell.Style.Fill.BackgroundColor = XLColor.LightYellow;
+                                break;
+                        }
+                    }
+                }
+
+                rowIndex++;
+                stt++;
+            }
+
+            // Auto-fit columns
+            worksheet.Columns().AdjustToContents();
+
+            worksheet.Column(1).Width = 5;  
+            worksheet.Column(2).Width = 12; 
+            worksheet.Column(3).Width = 25;  
+            worksheet.Column(8).Width = 30;  
+            worksheet.Column(10).Width = 18;
+            worksheet.Column(11).Width = 50; 
+
+            // Thống kê
+            var tongSo = danhSachDiemDanh.Count;
+            var daDiemDanh = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.DaDiemDanh);
+            var vangMat = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.VangMat);
+            var chuaDiemDanh = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.ChuaDiemDanh);
+
+            int statsRow = rowIndex + 2;
+            worksheet.Cell(statsRow, 1).Value = "THỐNG KÊ:";
+            worksheet.Cell(statsRow, 1).Style.Font.Bold = true;
+            worksheet.Range(statsRow, 1, statsRow, 3).Merge();
+
+            statsRow++;
+            worksheet.Cell(statsRow, 1).Value = $"Tổng số sinh viên: {tongSo}";
+            worksheet.Cell(statsRow, 1).Style.Fill.BackgroundColor = XLColor.LightBlue;
+            worksheet.Range(statsRow, 1, statsRow, 3).Merge();
+
+            statsRow++;
+            worksheet.Cell(statsRow, 1).Value = $"Đã điểm danh: {daDiemDanh}";
+            worksheet.Cell(statsRow, 1).Style.Fill.BackgroundColor = XLColor.LightGreen;
+            worksheet.Range(statsRow, 1, statsRow, 3).Merge();
+
+            statsRow++;
+            worksheet.Cell(statsRow, 1).Value = $"Vắng mặt: {vangMat}";
+            worksheet.Cell(statsRow, 1).Style.Fill.BackgroundColor = XLColor.LightPink;
+            worksheet.Range(statsRow, 1, statsRow, 3).Merge();
+
+            statsRow++;
+            worksheet.Cell(statsRow, 1).Value = $"Chưa điểm danh: {chuaDiemDanh}";
+            worksheet.Cell(statsRow, 1).Style.Fill.BackgroundColor = XLColor.LightYellow;
+            worksheet.Range(statsRow, 1, statsRow, 3).Merge();
+
+            // Freeze panes
+            worksheet.SheetView.FreezeRows(4);
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+
+            _logger.LogInformation($"{nameof(ExportDanhSachDiemDanhToExcel)} completed for IdCuocHop: {idCuocHop}");
+            return stream.ToArray();
+        }
+
+        private string ConvertTrangThaiDiemDanh(int trangThai)
+        {
+            return trangThai switch
+            {
+                ThongTinDiemDanh.DaDiemDanh => "Đã điểm danh",
+                ThongTinDiemDanh.VangMat => "Vắng mặt",
+                ThongTinDiemDanh.ChuaDiemDanh => "Chưa điểm danh",
+                _ => "Không xác định"
+            };
+        }
+
         private static string BuildFullName(string surName, string givenName)
         {
             var fullName = new StringBuilder();
