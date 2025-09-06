@@ -53,7 +53,7 @@ namespace thongbao.be.Controllers.DiemDanh
                 return OkException(ex);
             }
         }
-        [HttpGet("microsoft-auth-url")]
+        /*[HttpGet("microsoft-auth-url")]
         public ApiResponse GetMicrosoftAuthUrl()
         {
             try
@@ -114,21 +114,18 @@ namespace thongbao.be.Controllers.DiemDanh
             {
                 return OkException(ex);
             }
-        }
-
+        }*/
         [HttpPost("thong-tin-cuoc-hop")]
-        public async Task<ApiResponse> GetThongTinCuocHop([FromQuery] GraphApiGetThongTinCuocHopDto dto, [FromBody] GraphApiGetUserInfoRequestDto input)
+        public async Task<ApiResponse> GetThongTinCuocHop([FromQuery] GraphApiGetThongTinCuocHopDto dto)
         {
             try
             {
+                var userId = await _hopTrucTuyenService.GetUserIdByEmailAsync(dto.EmailOrganizer);
+
                 var meetingInfo = await _hopTrucTuyenService.GetAndSaveMeetingInfo(
-                    new GraphApiGetThongTinCuocHopDto
-                    {
-                        JoinWebUrl = dto.JoinWebUrl,
-                        IdCuocHop = dto.IdCuocHop
-                    },
-                    input.AccessToken
+                    dto, userId
                 );
+
                 return new(meetingInfo);
             }
             catch (Exception ex)
