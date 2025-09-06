@@ -24,6 +24,7 @@ namespace thongbao.be.infrastructure.data
         public DbSet<HopTrucTuyen> HopTrucTuyens { get; set; }
         public DbSet<ThongTinDiemDanh> ThongTinDiemDanhs { get; set; }
         public DbSet<TinNhanHopTrucTuyen> TinNhanHopTrucTuyens { get; set; }
+        public DbSet<MsTeamConfig> MsTeamConfigs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

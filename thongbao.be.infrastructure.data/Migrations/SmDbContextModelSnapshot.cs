@@ -515,6 +515,40 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.ToTable("HopTrucTuyen", "core");
                 });
 
+            modelBuilder.Entity("thongbao.be.domain.DiemDanh.MsTeamConfig", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "Id" }, "IX_MsTeamConfig");
+
+                    b.ToTable("MsTeamConfig", "core");
+                });
+
             modelBuilder.Entity("thongbao.be.domain.DiemDanh.ThongTinDiemDanh", b =>
                 {
                     b.Property<int>("Id")

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Identity;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,7 @@ using thongbao.be.shared.HttpRequest.Exception;
 
 namespace thongbao.be.application.DiemDanh.Implements
 {
-    public class HopTrucTuyenService : BaseService, IHopTrucTuyenService
+    public class HopTrucTuyenService : BaseService,  IHopTrucTuyenService 
     {
         private readonly IConfiguration _configuration;
         private readonly GraphServiceClient _graphServiceClient;
@@ -77,7 +78,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             var data = query.Paging(dto).ToList();
             var items = _mapper.Map<List<ViewCuocHopDto>>(data);
 
-           
+
 
             return new BaseResponsePagingDto<ViewCuocHopDto>
             {
@@ -91,7 +92,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             _logger.LogInformation($"{nameof(Update)} dto={JsonSerializer.Serialize(dto)}");
         }
 
-        public GraphApiAuthUrlResponseDto GenerateMicrosoftAuthUrl()
+       /* public GraphApiAuthUrlResponseDto GenerateMicrosoftAuthUrl()
         {
             _logger.LogInformation($"{nameof(GenerateMicrosoftAuthUrl)} started");
 
@@ -175,19 +176,81 @@ namespace thongbao.be.application.DiemDanh.Implements
                 _logger.LogError(ex, $"Error in {nameof(GetUserInfo)}");
                 throw;
             }
-        }
-        public async Task<MettingIdDto> GetAndSaveMeetingInfo(GraphApiGetThongTinCuocHopDto dto, string accessToken)
+        }*/
+        public async Task<string> GetUserIdByEmailAsync(string email)
         {
-            var meetingData = await GetThongTinCuocHop(dto, accessToken);
-            await SaveMeetingInfoAsync(dto, meetingData);
-            return meetingData;
-        }
-        public async Task<MettingIdDto> GetThongTinCuocHop(GraphApiGetThongTinCuocHopDto dto, string accessToken)
-        {
-            _logger.LogInformation($"{nameof(GetThongTinCuocHop)} dto={JsonSerializer.Serialize(dto)}");
+            _logger.LogInformation($"{nameof(GetUserIdByEmailAsync)} email={email}");
 
             try
             {
+                var tenantId = _configuration["AzureAd:TenantId"];
+                var clientId = _configuration["AzureAd:ClientId"];
+                var clientSecret = _configuration["AzureAd:ClientSecret"];
+
+                var scopes = new[]
+                {
+            "https://graph.microsoft.com/.default"
+        };
+
+                var options = new TokenCredentialOptions
+                {
+                    AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+                };
+
+                var clientSecretCredential = new ClientSecretCredential(
+                    tenantId, clientId, clientSecret, options);
+                var graphClient = new GraphServiceClient(clientSecretCredential, scopes);
+
+                var users = await graphClient.Users
+                    .GetAsync(requestConfiguration =>
+                    {
+                        requestConfiguration.QueryParameters.Filter = $"mail eq '{email}' or userPrincipalName eq '{email}'";
+                        requestConfiguration.QueryParameters.Select = new[] { "id" };
+                        requestConfiguration.QueryParameters.Top = 1;
+                    });
+
+                if (users?.Value != null && users.Value.Any())
+                {
+                    return users.Value.First().Id ?? string.Empty;
+                }
+
+                throw new ArgumentException($"Không tìm thấy user với email: {email}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in {nameof(GetUserIdByEmailAsync)} for email: {email}");
+                throw;
+            }
+        }
+        public async Task<MettingIdDto> GetAndSaveMeetingInfo(GraphApiGetThongTinCuocHopDto dto, string userId)
+        {
+            var meetingData = await GetThongTinCuocHop(dto, userId);
+            await SaveMeetingInfoAsync(dto, meetingData);
+            return meetingData;
+        }
+        public async Task<MettingIdDto> GetThongTinCuocHop(GraphApiGetThongTinCuocHopDto dto, string userId)
+        {
+            _logger.LogInformation($"{nameof(GetThongTinCuocHop)} dto={JsonSerializer.Serialize(dto)}, userId={userId}");
+
+            try
+            {
+                var tenantId = _configuration["AzureAd:TenantId"];
+                var clientId = _configuration["AzureAd:ClientId"];
+                var clientSecret = _configuration["AzureAd:ClientSecret"];
+
+                var scopes = new[]
+                {
+            "https://graph.microsoft.com/.default"
+        };
+                var options = new TokenCredentialOptions
+                {
+                    AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+                };
+
+                var clientSecretCredential = new ClientSecretCredential(
+                    tenantId, clientId, clientSecret, options);
+                var userGraphClient = new GraphServiceClient(clientSecretCredential, scopes);
+
                 if (!IsValidJoinWebUrl(dto.JoinWebUrl))
                 {
                     throw new ArgumentException("Invalid Join Web URL");
@@ -196,8 +259,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                 var encodedUrl = HttpUtility.UrlEncode(dto.JoinWebUrl);
                 var filter = $"JoinWebUrl eq '{encodedUrl}'";
 
-                var userGraphClient = CreateUserGraphClient(accessToken);
-                var meetings = await userGraphClient.Me.OnlineMeetings
+                var meetings = await userGraphClient.Users[userId].OnlineMeetings
                     .GetAsync(requestConfiguration =>
                     {
                         requestConfiguration.QueryParameters.Filter = filter;
@@ -214,7 +276,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                 {
                     if (!string.IsNullOrEmpty(meeting.ChatInfo?.ThreadId))
                     {
-                        var chatMembers = await GetMeetingChatMembersAsync(meeting.ChatInfo.ThreadId, accessToken);
+                        var chatMembers = await GetMeetingChatMembersAsync(meeting.ChatInfo.ThreadId);
 
                         foreach (var member in chatMembers)
                         {
@@ -223,7 +285,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                             if (member.Identity?.User != null)
                             {
-                                var userMessages = await GetChatMessagesForUserAsync(meeting.ChatInfo.ThreadId, memberGuid, member.Identity.User.Id, accessToken);
+                                var userMessages = await GetChatMessagesForUserAsync(meeting.ChatInfo.ThreadId, memberGuid, member.Identity.User.Id);
                                 member.Identity.User.ChatMessages = userMessages;
                             }
 
@@ -264,11 +326,27 @@ namespace thongbao.be.application.DiemDanh.Implements
             }
         }
 
-        private async Task<List<IdentitySetDto>> GetMeetingChatMembersAsync(string threadId, string accessToken)
+        private async Task<List<IdentitySetDto>> GetMeetingChatMembersAsync(string threadId)
         {
             try
             {
-                var userGraphClient = CreateUserGraphClient(accessToken);
+
+                var tenantId = _configuration["AzureAd:TenantId"];
+                var clientId = _configuration["AzureAd:ClientId"];
+                var clientSecret = _configuration["AzureAd:ClientSecret"];
+
+                var scopes = new[]
+                {
+                    "https://graph.microsoft.com/.default"
+                };
+                var options = new TokenCredentialOptions
+                {
+                    AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+                };
+
+                var clientSecretCredential = new ClientSecretCredential(
+                    tenantId, clientId, clientSecret, options);
+                var userGraphClient = new GraphServiceClient(clientSecretCredential, scopes);
                 var chatMembers = await userGraphClient.Chats[threadId].Members.GetAsync();
                 var participants = new List<IdentitySetDto>();
 
@@ -342,13 +420,28 @@ namespace thongbao.be.application.DiemDanh.Implements
             }
         }
 
-        private async Task<List<ChatMessageDto>> GetChatMessagesForUserAsync(string threadId, string memberGuid, string memberId, string accessToken)
+        private async Task<List<ChatMessageDto>> GetChatMessagesForUserAsync(string threadId, string memberGuid, string memberId)
         {
             try
             {
                 _logger.LogInformation($"GetChatMessages - ThreadId: {threadId}, MemberGuid: {memberGuid}, MemberId: {memberId}");
 
-                var userGraphClient = CreateUserGraphClient(accessToken);
+                var tenantId = _configuration["AzureAd:TenantId"];
+                var clientId = _configuration["AzureAd:ClientId"];
+                var clientSecret = _configuration["AzureAd:ClientSecret"];
+
+                var scopes = new[]
+                {
+                    "https://graph.microsoft.com/.default"
+                };
+                var options = new TokenCredentialOptions
+                {
+                    AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+                };
+
+                var clientSecretCredential = new ClientSecretCredential(
+                    tenantId, clientId, clientSecret, options);
+                var userGraphClient = new GraphServiceClient(clientSecretCredential, scopes);
                 var messages = await userGraphClient.Chats[threadId].Messages
                     .GetAsync(requestConfiguration =>
                     {
@@ -705,7 +798,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                         };
 
                         _smDbContext.ThongTinDiemDanhs.Add(diemDanh);
-                        await _smDbContext.SaveChangesAsync(); 
+                        await _smDbContext.SaveChangesAsync();
                         if (attendee.Identity?.User?.ChatMessages != null && attendee.Identity.User.ChatMessages.Any())
                         {
                             foreach (var chatMessage in attendee.Identity.User.ChatMessages)
@@ -715,7 +808,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                                     var tinNhan = new domain.DiemDanh.TinNhanHopTrucTuyen
                                     {
                                         CuocHopId = dto.IdCuocHop,
-                                        ThongTinDiemDanhId = diemDanh.Id, 
+                                        ThongTinDiemDanhId = diemDanh.Id,
                                         NoiDung = CleanHtmlContent(chatMessage.Body.Content),
                                         ThoiGianGui = chatMessage.CreatedDateTime ?? vietnamNow,
                                         CreatedDate = vietnamNow,
@@ -733,7 +826,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             await _smDbContext.SaveChangesAsync();
             _logger.LogInformation($"Successfully saved meeting data for IdCuocHop: {dto.IdCuocHop}");
         }
-        public async Task UpdateTrangThaiDiemDanh(int idCuocHop,UpdateTrangThaiDiemDanhDto dto)
+        public async Task UpdateTrangThaiDiemDanh(int idCuocHop, UpdateTrangThaiDiemDanhDto dto)
         {
             _logger.LogInformation($"{nameof(UpdateTrangThaiDiemDanh)} started");
 
@@ -744,7 +837,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (cuocHop == null)
             {
-                throw new UserFriendlyException(404,$"Cuộc họp với ID {idCuocHop} không tồn tại");
+                throw new UserFriendlyException(404, $"Cuộc họp với ID {idCuocHop} không tồn tại");
             }
 
             cuocHop.ThoiGianDiemDanh = dto.ThoiGianDiemDanh;
@@ -829,7 +922,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             return parts.Length >= 2 ? parts[parts.Length - 1].Trim() : string.Empty;
         }
 
- 
+
         private string CleanHtmlContent(string htmlContent)
         {
             if (string.IsNullOrEmpty(htmlContent)) return string.Empty;
