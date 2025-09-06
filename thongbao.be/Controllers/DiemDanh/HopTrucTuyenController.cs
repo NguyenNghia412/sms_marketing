@@ -18,7 +18,7 @@ namespace thongbao.be.Controllers.DiemDanh
     {
 
        private readonly IHopTrucTuyenService _hopTrucTuyenService;
-        private static readonly Dictionary<string, string> _pkceStorage = new();
+        //private static readonly Dictionary<string, string> _pkceStorage = new();
         public HopTrucTuyenController(ILogger<HopTrucTuyenController> logger, IHopTrucTuyenService hopTrucTuyenService): base(logger)
         {
             _hopTrucTuyenService = hopTrucTuyenService;

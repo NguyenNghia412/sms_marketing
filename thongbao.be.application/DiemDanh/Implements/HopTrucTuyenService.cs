@@ -506,11 +506,26 @@ namespace thongbao.be.application.DiemDanh.Implements
             }
         }
 
-        public async Task<List<ChatMessageDto>> GetChatMessagesAsync(string threadId, string accessToken)
+        public async Task<List<ChatMessageDto>> GetChatMessagesAsync(string threadId)
         {
             try
             {
-                var userGraphClient = CreateUserGraphClient(accessToken);
+                var tenantId = _configuration["AzureAd:TenantId"];
+                var clientId = _configuration["AzureAd:ClientId"];
+                var clientSecret = _configuration["AzureAd:ClientSecret"];
+
+                var scopes = new[]
+                {
+                    "https://graph.microsoft.com/.default"
+                };
+                var options = new TokenCredentialOptions
+                {
+                    AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+                };
+
+                var clientSecretCredential = new ClientSecretCredential(
+                    tenantId, clientId, clientSecret, options);
+                var userGraphClient = new GraphServiceClient(clientSecretCredential, scopes);
                 var messages = await userGraphClient.Chats[threadId].Messages
                     .GetAsync(requestConfiguration =>
                     {
@@ -555,7 +570,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             }
         }
 
-        private async Task<GraphApiTokenResponseDto> ExchangeCodeForTokenAsync(string authorizationCode, string codeVerifier = null)
+        /*private async Task<GraphApiTokenResponseDto> ExchangeCodeForTokenAsync(string authorizationCode, string codeVerifier = null)
         {
             _logger.LogInformation($"{nameof(ExchangeCodeForTokenAsync)} started");
 
@@ -606,7 +621,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                 Scope = tokenData.TryGetProperty("scope", out var scopeElement) ? scopeElement.GetString() ?? "" : "",
                 RefreshToken = tokenData.TryGetProperty("refresh_token", out var refreshElement) ? refreshElement.GetString() ?? "" : ""
             };
-        }
+        }*/
 
         private static DateTime? ParseAndConvertDateTime(DateTimeOffset? dateTimeOffset)
         {
@@ -938,7 +953,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                             .Replace("&quot;", "\"");
             return decoded.Trim();
         }
-        private GraphServiceClient CreateUserGraphClient(string accessToken)
+       /* private GraphServiceClient CreateUserGraphClient(string accessToken)
         {
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization =
@@ -985,7 +1000,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                     .Replace('/', '_')
                     .TrimEnd('=');
             }
-        }
+        }*/
         private static DateTime GetVietnamTime()
         {
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);
