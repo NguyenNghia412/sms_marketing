@@ -192,7 +192,7 @@ namespace thongbao.be.Controllers.DiemDanh
         }
 
         [Permission(PermissionKeys.HopTrucTuyenView)]
-        [HttpGet("export-excel-download")]
+        [HttpGet("export-excel")]
         public async Task<IActionResult> DownloadDanhSachDiemDanhExcel([FromQuery] int idCuocHop)
         {
             try
