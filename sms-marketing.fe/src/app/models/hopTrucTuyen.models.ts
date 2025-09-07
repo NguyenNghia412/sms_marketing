@@ -5,6 +5,7 @@ export interface IFindPagingHopTrucTuyen extends IBaseRequestPaging {}
 export type ICreateHopTrucTuyen = {
   tenCuocHop: string,
   moTa?: string,
+  linkCuocHop?: string,
   thoiGianBatDau: string,
   thoiGianKetThuc: string
 }
@@ -12,6 +13,7 @@ export type ICreateHopTrucTuyen = {
 export type IViewRowHopTrucTuyen = {
   id?: number
   tenCuocHop?: string,
+  linkCuocHop?: string,
   moTa?: string,
   thoiGianBatDau?: string,
   thoiGianKetThuc?: string

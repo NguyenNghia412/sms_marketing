@@ -11,5 +11,11 @@ export type IBaseResponse = {
 }
 
 export type IBaseResponsePaging<T> = IBaseResponse & {
-  data: T
+  data: IBaseResponsePagingData<T>
+}
+
+export type IBaseResponsePagingData<T> = {
+  custommData: any
+  items: T[]
+  totalItems: number
 }

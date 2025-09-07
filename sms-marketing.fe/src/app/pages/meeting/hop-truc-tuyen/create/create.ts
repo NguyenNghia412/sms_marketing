@@ -19,12 +19,16 @@ export class Create extends BaseComponent {
     override form: FormGroup = new FormGroup({
         tenCuocHop: new FormControl('', [Validators.required]),
         moTa: new FormControl(''),
+        linkCuocHop: new FormControl('', [Validators.required]),
         thoiGianBatDau: new FormControl(new Date(), [Validators.required]),
         thoiGianKetThuc: new FormControl(new Date(), [Validators.required])
     });
 
     override ValidationMessages: Record<string, Record<string, string>> = {
         tenCuocHop: {
+            required: 'Không được bỏ trống'
+        },
+        linkCuocHop: {
             required: 'Không được bỏ trống'
         },
         thoiGianBatDau: {

@@ -13,7 +13,7 @@ export class HopTrucTuyenService {
   http = inject(HttpClient)
 
   findPaging(query: IFindPagingHopTrucTuyen) {
-    return this.http.get<Observable<IBaseResponsePaging<IViewRowHopTrucTuyen>>>(this.api, {
+    return this.http.get<IBaseResponsePaging<IViewRowHopTrucTuyen>>(this.api, {
       params: {...query}
     })
   }
