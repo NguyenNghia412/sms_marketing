@@ -51,6 +51,34 @@ namespace thongbao.be.Controllers.ChienDich
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.ChienDichUpdate)]
+        [HttpPut("")]
+        public ApiResponse Update([FromQuery] int idChienDich, [FromBody] UpdateChienDichDto dto)
+        {
+            try
+            {
+                _chienDichService.Update(idChienDich, dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.ChienDichDelete)]
+        [HttpDelete("")]
+        public ApiResponse Delete([FromQuery] int idChienDich)
+        {
+            try
+            {
+                _chienDichService.Delete(idChienDich);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
 
         [AllowAnonymous]
         [HttpPost("test")]
