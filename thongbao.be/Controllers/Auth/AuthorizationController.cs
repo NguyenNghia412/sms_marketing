@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
+using OpenIddict.Client.AspNetCore;
 using OpenIddict.Server.AspNetCore;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -191,6 +193,36 @@ namespace thongbao.be.Controllers.Auth
                        ErrorDescription = "The specified grant type is not supported."
                    }
                );
+        }
+
+        [HttpGet("login/google")]
+        public IActionResult LoginGoogle(string returnUrl = "/")
+        {
+            var props = new AuthenticationProperties { RedirectUri = "/auth/sso/google" };
+            return Challenge(props, GoogleDefaults.AuthenticationScheme);
+        }
+
+        [HttpGet("signin-google")]
+        public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null)
+        {
+
+            // Authenticate using Google scheme
+            var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+            if (!result.Succeeded)
+                return BadRequest("Google authentication failed");
+
+            var claims = result.Principal!.Identities.First().Claims;
+            var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
+            // 🔑 Here you can look up/create a local user in your DB
+            // Example: find by email, if not exists create one
+
+            // Step 3: Issue your own JWT for Angular
+            //var token = GenerateJwtToken(email!, name!);
+
+            // Option A: return as JSON (Angular fetches it)
+            return Ok();
         }
     }
 }

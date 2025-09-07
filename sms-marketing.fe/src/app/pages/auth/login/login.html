@@ -50,6 +50,9 @@
                         <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                     </div> -->
                     <p-button label="Đăng nhập" styleClass="w-full" type="submit" [loading]="loading"></p-button>
+                    <div class="mt-5">
+                        <p-button label="Đăng nhập bằng Google" styleClass="w-full" class="!bg-orange-300 !text-white" type="p-button" (onClick)="redirectBackendAuthorize()"></p-button>
+                    </div>
                 </form>
             </div>
         </div>

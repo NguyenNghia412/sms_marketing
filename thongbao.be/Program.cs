@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Azure.Identity;
 using Hangfire;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
@@ -83,6 +84,9 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 
 #region auth
 string secretKey = builder.Configuration.GetSection("AuthServer:SecretKey").Value!;
+string googleClientId = builder.Configuration.GetSection("AuthServer:Google:ClientId").Value!;
+string googleClientSecret = builder.Configuration.GetSection("AuthServer:Google:ClientSecret").Value!;
+string googleRedirectUri = builder.Configuration.GetSection("AuthServer:Google:RedirectUri").Value!;
 
 builder.Services.AddOpenIddict()
     .AddCore(opt =>
@@ -94,13 +98,17 @@ builder.Services.AddOpenIddict()
     .AddServer(options =>
     {
         // Enable the token endpoint.
-        options.SetTokenEndpointUris("connect/token");
+        options.SetTokenEndpointUris("connect/token")
+            .SetAuthorizationEndpointUris("/connect/authorize")
+        ;
 
         // Enable the client credentials flow.
-        options.AllowClientCredentialsFlow();
-
-        options.AllowPasswordFlow();
-        options.AllowRefreshTokenFlow();
+        options.AllowClientCredentialsFlow()
+                .AllowPasswordFlow()
+                .AllowRefreshTokenFlow()
+                .AllowAuthorizationCodeFlow()
+                .RequireProofKeyForCodeExchange()
+                ;
 
         options.AcceptAnonymousClients();
         options.DisableAccessTokenEncryption();
@@ -118,6 +126,7 @@ builder.Services.AddOpenIddict()
 
         // Register the ASP.NET Core host and configure the ASP.NET Core options.
         options.UseAspNetCore()
+                .EnableAuthorizationEndpointPassthrough()
                .EnableTokenEndpointPassthrough()
                .DisableTransportSecurityRequirement();
 
@@ -131,29 +140,6 @@ builder.Services.AddAuthentication(options =>
     .AddJwtBearer(
         options =>
         {
-            //var rsaSecurityKey = CryptographyUtils.ReadKey(
-            //    builder.Configuration.GetValue<string>("IdentityServer:PublicKey")!,
-            //    builder.Configuration.GetValue<string>("IdentityServer:PrivateKey")!
-            //);
-            options.Events = new JwtBearerEvents
-            {
-                OnAuthenticationFailed = ctx =>
-                {
-                    Console.WriteLine("Auth failed: " + ctx.Exception.Message);
-                    return Task.CompletedTask;
-                },
-                OnChallenge = ctx =>
-                {
-                    Console.WriteLine("Auth challenge: " + ctx.ErrorDescription);
-                    return Task.CompletedTask;
-                },
-                OnTokenValidated = ctx =>
-                {
-                    Console.WriteLine("Token validated for: " + ctx.Principal?.Identity?.Name);
-                    return Task.CompletedTask;
-                }
-            };
-
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateLifetime = true,        // ✅ only check exp & nbf
@@ -172,7 +158,15 @@ builder.Services.AddAuthentication(options =>
             };
             options.RequireHttpsMetadata = false;
         }
-    );
+    )
+    .AddGoogle(options =>
+    {
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
+        options.ReturnUrlParameter = "redirect_uri";
+        options.CallbackPath = googleRedirectUri;
+    });
+
 builder.Services.AddAuthorization();
 
 
