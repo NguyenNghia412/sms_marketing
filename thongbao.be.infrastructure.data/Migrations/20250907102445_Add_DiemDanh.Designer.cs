@@ -12,8 +12,8 @@ using thongbao.be.infrastructure.data;
 namespace thongbao.be.infrastructure.data.Migrations
 {
     [DbContext(typeof(SmDbContext))]
-    [Migration("20250906173415_Update_DiemDanh")]
-    partial class Update_DiemDanh
+    [Migration("20250907102445_Add_DiemDanh")]
+    partial class Add_DiemDanh
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

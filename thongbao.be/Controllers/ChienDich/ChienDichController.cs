@@ -8,7 +8,7 @@ using thongbao.be.Controllers.Base;
 using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.HttpRequest;
 
-namespace thongbao.be.Controllers
+namespace thongbao.be.Controllers.ChienDich
 {
     [Route("api/core/chien-dich")]
     [ApiController]

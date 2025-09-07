@@ -78,6 +78,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                 MoTa = dto.MoTa,
                 ThoiGianBatDau = thoiGianBatDau,
                 ThoiGianKetThuc = thoiGianKetThuc,
+                LinkCuocHop = dto.LinkCuocHop,
                 CreatedDate = vietnamNow,
                 Deleted = false
             };
@@ -139,6 +140,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             existingCuocHop.MoTa = dto.MoTa;
             existingCuocHop.ThoiGianBatDau = dto.ThoiGianBatDau;
             existingCuocHop.ThoiGianKetThuc = dto.ThoiGianKetThuc;
+            existingCuocHop.LinkCuocHop = dto.LinkCuocHop;
 
             _smDbContext.SaveChanges();
 
