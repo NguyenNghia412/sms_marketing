@@ -11,6 +11,13 @@
         <input pInputText formControlName="moTa" id="moTa" type="text" class="w-full mb-2" />
     </div>
     <div class="mb-3">
+        <label for="linkCuocHop" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Link cuộc họp (*)</label>
+        <input pInputText formControlName="linkCuocHop" id="linkCuocHop" type="text" class="w-full mb-2" />
+        @if (form.get('linkCuocHop')?.hasError('required') && form.get('linkCuocHop')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('linkCuocHop') }} </p-message>
+        }
+    </div>
+    <div class="mb-3">
         <label for="thoiGianBatDau" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Thời gian bắt đầu (*)</label>
         <p-datepicker formControlName="thoiGianBatDau" id="thoiGianBatDau" class="w-full mb-2" [readonlyInput]="false" [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" [showTime]="true" />
         @if (form.get('thoiGianBatDau')?.hasError('required') && form.get('thoiGianBatDau')?.touched) {

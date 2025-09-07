@@ -4,8 +4,10 @@ import { Component, inject } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Create } from './create/create';
 import { HopTrucTuyenService } from '@/services/hop-truc-tuyen.service';
-import { IFindPagingHopTrucTuyen } from '@/models/hopTrucTuyen.models';
+import { IFindPagingHopTrucTuyen, IViewRowHopTrucTuyen } from '@/models/hopTrucTuyen.models';
 import { BaseComponent } from '@/shared/components/base/base-component';
+import { CellViewTypes } from '@/shared/constants/data-table.constants';
+import { IColumn } from '@/shared/models/data-table.models';
 
 @Component({
     selector: 'app-hop-truc-tuyen',
@@ -23,10 +25,19 @@ export class HopTrucTuyen extends BaseComponent {
         status: new FormControl('')
     });
 
+    columns: IColumn[] = [
+        { header: 'STT', cellViewType: CellViewTypes.INDEX },
+        { header: 'Tên', field: 'tenCuocHop', headerContainerStyle: 'min-width: 12rem' },
+        { header: 'Link', field: 'linkCuocHop' },
+        { header: 'Thời gian bắt đầu', field: 'thoiGianBatDau', headerContainerStyle: 'min-width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
+        { header: 'Thời gian kết thúc', field: 'thoiGianKetThuc', headerContainerStyle: 'min-width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
+    ];
+
     query: IFindPagingHopTrucTuyen = {
         pageNumber: 1,
         pageSize: this.MAX_PAGE_SIZE
     };
+    data: IViewRowHopTrucTuyen[] = [];
 
     override ngOnInit(): void {
         this.getData();
@@ -37,7 +48,9 @@ export class HopTrucTuyen extends BaseComponent {
         this._hopTrucTuyenService
             .findPaging(this.query)
             .subscribe((res) => {
-                console.log(res);
+                if (this.isResponseSucceed(res)) {
+                    this.data = res.data.items;
+                }
             })
             .add(() => {
                 this.loading = false;
