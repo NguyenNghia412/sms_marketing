@@ -3,3 +3,13 @@ export interface IBaseRequestPaging {
   pageNumber: number
   keyword?: string
 }
+
+export type IBaseResponse = {
+  status: number
+  code: number
+  message: string
+}
+
+export type IBaseResponsePaging<T> = IBaseResponse & {
+  data: T
+}
