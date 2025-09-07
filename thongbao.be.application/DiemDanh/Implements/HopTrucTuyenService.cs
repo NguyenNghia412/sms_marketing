@@ -62,15 +62,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             {
                 throw new UserFriendlyException(409, "Tên cuộc họp đã tồn tại");
             }
-            if (dto.ThoiGianBatDau.HasValue && dto.ThoiGianBatDau.Value < vietnamNow)
-            {
-                throw new UserFriendlyException(400, "Thời gian bắt đầu cuộc họp phải lớn hơn hoặc bằng thời gian hiện tại");
-            }
 
-            if (dto.ThoiGianKetThuc.HasValue && dto.ThoiGianKetThuc.Value < vietnamNow)
-            {
-                throw new UserFriendlyException(400, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian hiện tại");
-            }
 
             var thoiGianBatDau = dto.ThoiGianBatDau ?? vietnamNow;
             var thoiGianKetThuc = dto.ThoiGianKetThuc ?? vietnamNow;
@@ -135,16 +127,6 @@ namespace thongbao.be.application.DiemDanh.Implements
                 throw new UserFriendlyException(409, "Tên cuộc họp đã tồn tại");
             }
 
-            if (dto.ThoiGianBatDau.HasValue && dto.ThoiGianBatDau.Value < vietnamNow)
-            {
-                throw new UserFriendlyException(400, "Thời gian bắt đầu cuộc họp phải lớn hơn hoặc bằng thời gian hiện tại");
-            }
-
-
-            if (dto.ThoiGianKetThuc.HasValue && dto.ThoiGianKetThuc.Value < vietnamNow)
-            {
-                throw new UserFriendlyException(400, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian hiện tại");
-            }
 
             var thoiGianBatDau = dto.ThoiGianBatDau ?? vietnamNow;
             var thoiGianKetThuc = dto.ThoiGianKetThuc ?? vietnamNow;
@@ -1187,7 +1169,40 @@ namespace thongbao.be.application.DiemDanh.Implements
             _logger.LogInformation($"{nameof(ExportDanhSachDiemDanhToExcel)} completed for IdCuocHop: {idCuocHop}");
             return stream.ToArray();
         }
+        public ViewThongKeDiemDanhResponseDto ThongKeDiemDanh(ViewThongKeDiemDanhRequestDto dto)
+        {
+            _logger.LogInformation($"{nameof(ThongKeDiemDanh)} dto={JsonSerializer.Serialize(dto)}");
 
+            var cuocHop = _smDbContext.HopTrucTuyens
+                .FirstOrDefault(h => h.Id == dto.IdCuocHop && !h.Deleted);
+
+            if (cuocHop == null)
+            {
+                throw new UserFriendlyException(404, "Cuộc họp không tồn tại");
+            }
+
+            var query = _smDbContext.ThongTinDiemDanhs
+                .Where(ttdd => ttdd.IdHopTrucTuyen == dto.IdCuocHop && !ttdd.Deleted);
+
+            if (!string.IsNullOrWhiteSpace(dto.Filter))
+            {
+                var filterValue = dto.Filter.Trim();
+                query = query.Where(ttdd =>
+                    ttdd.LopQuanLy.Contains(filterValue) ||
+                    ttdd.Khoa.Contains(filterValue));
+            }
+
+            var danhSachDiemDanh = query.ToList();
+
+            var tongSoSinhVienThamGia = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.DaDiemDanh);
+            var tongSoSinhVienVang = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.VangMat);
+
+            return new ViewThongKeDiemDanhResponseDto
+            {
+                TongSoSinhVienThamGia = tongSoSinhVienThamGia,
+                TongSoSinhVienVang = tongSoSinhVienVang
+            };
+        }
         private string ConvertTrangThaiDiemDanh(int trangThai)
         {
             return trangThai switch

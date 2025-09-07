@@ -211,5 +211,19 @@ namespace thongbao.be.Controllers.DiemDanh
                 return BadRequest(new ApiResponse(ex.Message));
             }
         }
+        [Permission(PermissionKeys.HopTrucTuyenView)]
+        [HttpGet("thong-ke-diem-danh")]
+        public ApiResponse ThongKeDiemDanh([FromQuery] ViewThongKeDiemDanhRequestDto dto)
+        {
+            try
+            {
+                var data = _hopTrucTuyenService.ThongKeDiemDanh(dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

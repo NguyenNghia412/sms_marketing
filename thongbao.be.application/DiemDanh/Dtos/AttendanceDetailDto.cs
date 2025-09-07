@@ -9,9 +9,9 @@ namespace thongbao.be.application.DiemDanh.Dtos
     public class AttendanceDetailDto
     {
         public List<ParticipantActivityDto> AttendanceIntervals { get; set; } = new List<ParticipantActivityDto>();
-        public int TotalAttendanceInSeconds { get; set; }  // Tổng thời gian tham gia
+        public int TotalAttendanceInSeconds { get; set; }  
         public TimeSpan TotalAttendanceTime => TimeSpan.FromSeconds(TotalAttendanceInSeconds);
-        public int TotalJoinCount => AttendanceIntervals.Count;  // Số lần join
+        public int TotalJoinCount => AttendanceIntervals.Count; 
         public string EmailAddress { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public DateTime? FirstJoinTime { get; set; }
