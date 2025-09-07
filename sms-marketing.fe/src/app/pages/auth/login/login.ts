@@ -6,15 +6,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { MessageService } from 'primeng/api';
 import { environment } from 'src/environments/environment';
-
-export const ValidationMessages: Record<string, Record<string, string>> = {
-    username: {
-        required: 'Không được bỏ trống'
-    },
-    password: {
-        required: 'Không được bỏ trống'
-    }
-};
+import { BaseComponent } from '@/shared/components/base/base-component';
 
 @Component({
     selector: 'app-login',
@@ -22,29 +14,34 @@ export const ValidationMessages: Record<string, Record<string, string>> = {
     templateUrl: './login.html',
     styleUrl: './login.scss'
 })
-export class Login {
-    private router = inject(Router);
+export class Login extends BaseComponent {
     private _authService = inject(AuthService);
 
-    loginForm = new FormGroup({
+    override form = new FormGroup({
         username: new FormControl('', [Validators.required]),
         password: new FormControl('', [Validators.required])
     });
 
+    override ValidationMessages: Record<string, Record<string, string>> = {
+        username: {
+            required: 'Không được bỏ trống'
+        },
+        password: {
+            required: 'Không được bỏ trống'
+        }
+    };
+
+    override  loading: boolean = false;
     errorMsg: string = '';
-    loading: boolean = false;
 
     onSubmit() {
-        if (this.loginForm.invalid) {
-            this.loginForm.markAllAsTouched(); // force show errors
-            return;
-        }
+        if (this.isFormInvalid()) return;
 
         this.errorMsg = '';
         this.loading = true;
 
         this._authService
-            .login(this.loginForm.value.username!, this.loginForm.value.password!)
+            .login(this.form.value.username!, this.form.value.password!)
             .subscribe({
                 next: (res) => {
                     this.router.navigate(['/']);
@@ -63,8 +60,6 @@ export class Login {
         const clientId = environment.authClientId;
         const redirectUri = 'http://localhost:4200/auth/callback';
         const { codeChallenge, codeVerifier } = await this.generatePKCECodes();
-
-        console.log(codeChallenge)
 
         // window.location.href = `${backendUrl}/connect/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid offline_access&code_challenge=${codeChallenge}&code_challenge_method=S256`;
         window.location.href = `${backendUrl}/login/google`;
@@ -89,24 +84,5 @@ export class Login {
         const codeChallenge = this.base64UrlEncode(digest);
 
         return { codeVerifier, codeChallenge };
-    }
-
-    getErrorMessage(control: AbstractControl | null, fieldName: string): string | null {
-        if (!control || !control.errors || !control.touched) return null;
-
-        const errors = control.errors;
-        const messages = ValidationMessages[fieldName];
-
-        for (const errorKey of Object.keys(errors)) {
-            if (messages[errorKey]) {
-                return messages[errorKey];
-            }
-        }
-
-        return null;
-    }
-
-    getError(field: string) {
-        return this.getErrorMessage(this.loginForm.get(field), field);
     }
 }

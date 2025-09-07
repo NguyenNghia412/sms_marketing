@@ -44,6 +44,16 @@ export class AppMenu {
             {
                 items: [
                     {
+                        label: 'MS Teams',
+                        items: [
+                            { label: 'Họp trực tuyến', heroIcon: 'heroRadio', routerLink: ['/meeting/hop-truc-tuyen'] },
+                        ]
+                    }
+                ]
+            },
+            {
+                items: [
+                    {
                         label: 'Templates',
                         routerLink: ['/templates']
                     }
