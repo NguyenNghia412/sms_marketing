@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 export class Utils {
     // LOCAL STORAGE
     public static getLocalStorage(key: string) {
@@ -13,13 +15,13 @@ export class Utils {
     }
 
     public static getAccessToken() {
-        const auth = this.getLocalStorage('auth')
-        return auth?.accessToken
+        const auth = this.getLocalStorage('auth');
+        return auth?.accessToken;
     }
 
     public static getRefreshToken() {
-        const auth = this.getLocalStorage('auth')
-        return auth?.refreshToken
+        const auth = this.getLocalStorage('auth');
+        return auth?.refreshToken;
     }
 
     public static refreshData(data: any) {
@@ -122,5 +124,19 @@ export class Utils {
         str = str.replace(/Đ/g, 'D');
 
         return str;
+    }
+
+    static formatDateCallApi(date: string | Date | null | undefined, format = 'YYYY-MM-DDTHH:mm:ss') {
+        if (moment(date).isValid()) {
+            return moment(date).format(format);
+        }
+        return ''
+    }
+
+    static formatDateView(date: string | Date | null | undefined, format = 'DD/MM/YYYY') {
+        if (moment(date).isValid()) {
+            return moment(date).format(format);
+        }
+        return ''
     }
 }

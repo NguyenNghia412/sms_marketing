@@ -8,4 +8,11 @@ export type IColumn = {
   cellViewType?: string,
   cellRender?: string,
   dateFormat?: string,
+  customComponent?: any
+}
+
+
+export type ICustomEmit<T> = {
+  type: string,
+  data: T
 }

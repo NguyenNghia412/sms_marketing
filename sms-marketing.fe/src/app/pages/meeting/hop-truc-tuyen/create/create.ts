@@ -5,6 +5,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ICreateHopTrucTuyen } from '@/models/hopTrucTuyen.models';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Utils } from '@/shared/utils';
 
 @Component({
     selector: 'app-create',
@@ -13,8 +14,8 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
     styleUrl: './create.scss'
 })
 export class Create extends BaseComponent {
-    private hopTrucTuyenService = inject(HopTrucTuyenService);
-    ref: DynamicDialogRef | undefined;
+    private _hopTrucTuyenService = inject(HopTrucTuyenService);
+    private ref = inject(DynamicDialogRef) 
 
     override form: FormGroup = new FormGroup({
         tenCuocHop: new FormControl('', [Validators.required]),
@@ -43,8 +44,10 @@ export class Create extends BaseComponent {
         if (this.isFormInvalid()) return;
 
         const body: ICreateHopTrucTuyen = this.form.value;
+        body.thoiGianBatDau = Utils.formatDateCallApi(body.thoiGianBatDau)
+        body.thoiGianKetThuc = Utils.formatDateCallApi(body.thoiGianKetThuc)
 
-        this.hopTrucTuyenService.create(body).subscribe(
+        this._hopTrucTuyenService.create(body).subscribe(
             (res) => {
                 if (this.isResponseSucceed(res, true, 'Tạo phòng thành công')) {
                   this.ref?.close(true);

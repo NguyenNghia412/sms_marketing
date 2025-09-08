@@ -8,6 +8,7 @@ import { IFindPagingHopTrucTuyen, IViewRowHopTrucTuyen } from '@/models/hopTrucT
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { CellViewTypes } from '@/shared/constants/data-table.constants';
 import { IColumn } from '@/shared/models/data-table.models';
+import { TblAction } from './tbl-action/tbl-action';
 
 @Component({
     selector: 'app-hop-truc-tuyen',
@@ -31,6 +32,9 @@ export class HopTrucTuyen extends BaseComponent {
         { header: 'Link', field: 'linkCuocHop' },
         { header: 'Thời gian bắt đầu', field: 'thoiGianBatDau', headerContainerStyle: 'min-width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
         { header: 'Thời gian kết thúc', field: 'thoiGianKetThuc', headerContainerStyle: 'min-width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
+        { header: 'Thao tác', cellViewType: CellViewTypes.CUSTOM_COMP,
+            customComponent: TblAction,
+        }
     ];
 
     query: IFindPagingHopTrucTuyen = {
@@ -68,5 +72,9 @@ export class HopTrucTuyen extends BaseComponent {
 
     onSearch() {
         this.getData();
+    }
+
+    onCustomEmit(data: any) {
+        console.log(data);
     }
 }

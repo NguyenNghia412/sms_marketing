@@ -12,7 +12,11 @@
         <tr>
           @for (col of (columns()); track $index) {
             <td [style]="col.cellStyle" [ngClass]="col.cellClass">
-              @if (col.cellViewType === cellViewTypes.INDEX) {
+              @if (col.cellViewType === cellViewTypes.CUSTOM_COMP) {
+                <ng-container *ngComponentOutlet="col.customComponent; injector: customInjector ; inputs: {row, rowIndex, data: get(row, col.field || '') }"
+                ></ng-container>
+              }
+              @else if (col.cellViewType === cellViewTypes.INDEX) {
                 <span>{{ rowIndex + 1 }}</span>
               }
               @else if (col.cellRender) {

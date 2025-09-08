@@ -42,8 +42,6 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
                             refreshToken: res.refresh_token
                         });
 
-                        console.log(res)
-
                         // Retry original request with new token
                         const newReq = req.clone({
                             setHeaders: {
