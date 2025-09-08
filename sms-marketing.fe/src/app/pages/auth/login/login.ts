@@ -31,7 +31,7 @@ export class Login extends BaseComponent {
         }
     };
 
-    override  loading: boolean = false;
+    override loading: boolean = false;
     errorMsg: string = '';
 
     onSubmit() {
@@ -63,6 +63,22 @@ export class Login extends BaseComponent {
 
         // window.location.href = `${backendUrl}/connect/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid offline_access&code_challenge=${codeChallenge}&code_challenge_method=S256`;
         window.location.href = `${backendUrl}/login/google`;
+    }
+
+    async loginMs() {
+        const backendUrl = environment.baseUrl;
+        const redirectUri = 'http://localhost:4200/auth/callback';
+        const { codeChallenge, codeVerifier } = await this.generatePKCECodes();
+
+        const url =
+            `${backendUrl}/connect/authorize?` +
+            `client_id=${encodeURIComponent(environment.authClientId)}` +
+            `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+            `&response_type=code` +
+            `&scope=openid offline_access` +
+            `&prompt=login&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+
+        window.location.href = url;
     }
 
     base64UrlEncode(arrayBuffer: ArrayBuffer) {

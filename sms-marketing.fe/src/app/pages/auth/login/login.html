@@ -51,7 +51,10 @@
                     </div> -->
                     <p-button label="Đăng nhập" styleClass="w-full" type="submit" [loading]="loading"></p-button>
                     <div class="mt-5">
-                        <p-button label="Đăng nhập bằng Google" styleClass="w-full" class="!bg-orange-300 !text-white" type="p-button" (onClick)="redirectBackendAuthorize()"></p-button>
+                        <p-button label="Đăng nhập bằng Google" styleClass="w-full" class="!bg-orange-300 !text-white" type="button" (onClick)="redirectBackendAuthorize()"></p-button>
+                    </div>
+                    <div class="mt-5">
+                        <p-button label="Đăng nhập bằng MS" styleClass="w-full" class="!bg-orange-300 !text-white" type="button" (onClick)="loginMs()"></p-button>
                     </div>
                 </form>
             </div>

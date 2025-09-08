@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Azure.Identity;
 using Hangfire;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -26,6 +27,7 @@ using thongbao.be.infrastructure.data;
 using thongbao.be.infrastructure.data.Seeder;
 using thongbao.be.infrastructure.external.BackgroundJob;
 using thongbao.be.shared.Constants.Auth;
+using thongbao.be.shared.Settings;
 using thongbao.be.Workers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -88,6 +90,15 @@ string googleClientId = builder.Configuration.GetSection("AuthServer:Google:Clie
 string googleClientSecret = builder.Configuration.GetSection("AuthServer:Google:ClientSecret").Value!;
 string googleRedirectUri = builder.Configuration.GetSection("AuthServer:Google:RedirectUri").Value!;
 
+string msClientId = builder.Configuration.GetSection("AuthServer:MS:ClientId").Value!;
+string msClientSecret = builder.Configuration.GetSection("AuthServer:MS:ClientSecret").Value!;
+string msRedirectUri = builder.Configuration.GetSection("AuthServer:MS:RedirectUri").Value!;
+
+builder.Services.Configure<AuthServerSettings>(builder.Configuration.GetSection("AuthServer"));
+builder.Services.Configure<AuthGoogleSettings>(builder.Configuration.GetSection("AuthServer:Google"));
+builder.Services.Configure<AuthMsSettings>(builder.Configuration.GetSection("AuthServer:MS"));
+
+
 builder.Services.AddOpenIddict()
     .AddCore(opt =>
     {
@@ -134,8 +145,9 @@ builder.Services.AddOpenIddict()
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 })
     .AddJwtBearer(
         options =>
@@ -159,12 +171,18 @@ builder.Services.AddAuthentication(options =>
             options.RequireHttpsMetadata = false;
         }
     )
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddGoogle(options =>
     {
         options.ClientId = googleClientId;
         options.ClientSecret = googleClientSecret;
         options.ReturnUrlParameter = "redirect_uri";
         options.CallbackPath = googleRedirectUri;
+    })
+    .AddMicrosoftAccount(options =>
+    {
+        options.ClientId = msClientId;
+        options.ClientSecret = msClientSecret;
     });
 
 builder.Services.AddAuthorization();

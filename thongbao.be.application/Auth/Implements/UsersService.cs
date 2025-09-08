@@ -66,6 +66,16 @@ namespace thongbao.be.application.Auth.Implements
             return _mapper.Map<ViewUserDto>(user);
         }
 
+        public async Task<ViewUserDto> FindByMsAccount(string msAccount)
+        {
+            _logger.LogInformation($"{nameof(FindByMsAccount)} id={msAccount}");
+
+            var user = await _userManager.Users.AsNoTracking().FirstOrDefaultAsync(x => x.MsAccount == msAccount)
+                ?? throw new UserFriendlyException(ErrorCodes.AuthErrorUserNotFound);
+
+            return _mapper.Map<ViewUserDto>(user);
+        }
+
         public async Task<BaseResponsePagingDto<ViewUserDto>> FindPaging(FindPagingUserDto dto)
         {
             _logger.LogInformation($"{nameof(FindPaging)} dto={JsonSerializer.Serialize(dto)}");

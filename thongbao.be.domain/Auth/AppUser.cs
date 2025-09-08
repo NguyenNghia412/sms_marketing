@@ -12,5 +12,8 @@ namespace thongbao.be.domain.Auth
     {
         [MaxLength(250)]
         public string FullName { get; set; } = String.Empty;
+
+        [MaxLength(250)]
+        public string MsAccount { get; set; } = String.Empty;
     }
 }
