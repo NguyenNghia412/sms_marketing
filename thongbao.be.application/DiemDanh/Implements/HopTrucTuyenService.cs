@@ -25,6 +25,7 @@ using thongbao.be.application.DiemDanh.Interfaces;
 using thongbao.be.infrastructure.data;
 using thongbao.be.shared.Constants.DiemDanh;
 using thongbao.be.shared.HttpRequest.BaseRequest;
+using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
 
 namespace thongbao.be.application.DiemDanh.Implements
@@ -60,7 +61,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (existingCuocHop != null)
             {
-                throw new UserFriendlyException(409, "Tên cuộc họp đã tồn tại");
+                throw new UserFriendlyException(ErrorCodes.Found, "Tên cuộc họp đã tồn tại");
             }
 
 
@@ -69,7 +70,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (thoiGianKetThuc < thoiGianBatDau)
             {
-                throw new UserFriendlyException(400, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
+                throw new UserFriendlyException(ErrorCodes.NotFound, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
             }
 
             var cuocHop = new domain.DiemDanh.HopTrucTuyen
@@ -117,7 +118,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                 .FirstOrDefault(h => h.Id == idCuocHop && !h.Deleted);
             if (existingCuocHop == null)
             {
-                throw new UserFriendlyException(404,"Cuộc họp không tồn tại.");
+                throw new UserFriendlyException(ErrorCodes.NotFound,"Cuộc họp không tồn tại.");
             }
 
             var existingTenCuocHop = _smDbContext.HopTrucTuyens
@@ -125,7 +126,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (existingTenCuocHop != null)
             {
-                throw new UserFriendlyException(409, "Tên cuộc họp đã tồn tại");
+                throw new UserFriendlyException(ErrorCodes.Found, "Tên cuộc họp đã tồn tại");
             }
 
 
@@ -134,7 +135,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (thoiGianKetThuc < thoiGianBatDau)
             {
-                throw new UserFriendlyException(400, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
+                throw new UserFriendlyException(ErrorCodes.BadRequest, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
             }
             existingCuocHop.TenCuocHop = dto.TenCuocHop;
             existingCuocHop.MoTa = dto.MoTa;
@@ -155,7 +156,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if( existingCuocHop == null)
             {
-                throw new UserFriendlyException(400, "Cuộc họp không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.NotFound, "Cuộc họp không tồn tại");
             }
             existingCuocHop.Deleted = true;
             existingCuocHop.DeletedDate = vietNamNow;
@@ -280,8 +281,8 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                 var scopes = new[]
                 {
-            "https://graph.microsoft.com/.default"
-        };
+                    "https://graph.microsoft.com/.default"
+                };
 
                 var options = new TokenCredentialOptions
                 {
@@ -305,7 +306,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                     return users.Value.First().Id ?? string.Empty;
                 }
 
-                throw new UserFriendlyException(404, $"Không tìm thấy user với email: {email}");
+                throw new UserFriendlyException(ErrorCodes.NotFound, $"Không tìm thấy user với email: {email}");
             }
             catch (Exception ex)
             {
@@ -344,7 +345,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                 if (!IsValidJoinWebUrl(dto.JoinWebUrl))
                 {
-                    throw new UserFriendlyException(400, "Invalid Join Web URL");
+                    throw new UserFriendlyException(ErrorCodes.BadRequest, "Invalid Join Web URL");
                 }
 
                 var encodedUrl = HttpUtility.UrlEncode(dto.JoinWebUrl);
@@ -360,7 +361,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                 if (result.Value == null || result.Value.Count == 0)
                 {
-                    throw new UserFriendlyException(404, "Meeting not found");
+                    throw new UserFriendlyException(ErrorCodes.NotFound, "Meeting not found");
                 }
 
                 foreach (var meeting in result.Value)
@@ -847,13 +848,13 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (existingMeeting == null)
             {
-                throw new UserFriendlyException(404,$"Cuộc họp không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.NotFound,$"Cuộc họp không tồn tại");
             }
 
             var meeting = meetingData.Value?.FirstOrDefault();
             if (meeting == null)
             {
-                throw new UserFriendlyException(404,"Không tìm thấy thông tin meeting");
+                throw new UserFriendlyException(ErrorCodes.NotFound,"Không tìm thấy thông tin meeting");
             }
 
             existingMeeting.IdCuocHop = meeting.Id;
@@ -943,7 +944,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (cuocHop == null)
             {
-                throw new UserFriendlyException(404, $"Cuộc họp  không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.NotFound, $"Cuộc họp  không tồn tại");
             }
 
             cuocHop.BatDauDiemDanh = dto.BatDauDiemDanh;
@@ -1024,7 +1025,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (cuocHopInfo == null)
             {
-                throw new UserFriendlyException(404, $"Cuộc họp không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.NotFound, $"Cuộc họp không tồn tại");
             }
 
             var danhSachDiemDanh = await (from ttdd in _smDbContext.ThongTinDiemDanhs
@@ -1180,7 +1181,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (cuocHop == null)
             {
-                throw new UserFriendlyException(404, "Cuộc họp không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.NotFound, "Cuộc họp không tồn tại");
             }
 
             var query = _smDbContext.ThongTinDiemDanhs
