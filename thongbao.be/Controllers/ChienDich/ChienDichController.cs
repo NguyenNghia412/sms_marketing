@@ -8,7 +8,7 @@ using thongbao.be.Controllers.Base;
 using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.HttpRequest;
 
-namespace thongbao.be.Controllers
+namespace thongbao.be.Controllers.ChienDich
 {
     [Route("api/core/chien-dich")]
     [ApiController]
@@ -44,6 +44,34 @@ namespace thongbao.be.Controllers
             try
             {
                 _chienDichService.Create(dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.ChienDichUpdate)]
+        [HttpPut("")]
+        public ApiResponse Update([FromQuery] int idChienDich, [FromBody] UpdateChienDichDto dto)
+        {
+            try
+            {
+                _chienDichService.Update(idChienDich, dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.ChienDichDelete)]
+        [HttpDelete("")]
+        public ApiResponse Delete([FromQuery] int idChienDich)
+        {
+            try
+            {
+                _chienDichService.Delete(idChienDich);
                 return new();
             }
             catch (Exception ex)

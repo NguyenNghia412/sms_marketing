@@ -22,7 +22,8 @@ namespace thongbao.be.application.GuiTinNhan.Interfaces
         /// <param name="dto"></param>
         /// <returns></returns>
         public BaseResponsePagingDto<ViewChienDichDto> Find(FindPagingChienDichDto dto);
-
+        public void Update(int idChienDich, UpdateChienDichDto dto);
+        public void Delete(int idChienDich);
         public void TestSendEmail();
     }
 }

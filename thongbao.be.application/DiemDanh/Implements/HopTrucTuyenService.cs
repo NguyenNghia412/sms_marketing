@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using Azure.Identity;
+using ClosedXML.Excel;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -8,6 +11,7 @@ using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -21,11 +25,12 @@ using thongbao.be.application.DiemDanh.Interfaces;
 using thongbao.be.infrastructure.data;
 using thongbao.be.shared.Constants.DiemDanh;
 using thongbao.be.shared.HttpRequest.BaseRequest;
+using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
 
 namespace thongbao.be.application.DiemDanh.Implements
 {
-    public class HopTrucTuyenService : BaseService, IHopTrucTuyenService
+    public class HopTrucTuyenService : BaseService,  IHopTrucTuyenService 
     {
         private readonly IConfiguration _configuration;
         private readonly GraphServiceClient _graphServiceClient;
@@ -48,23 +53,41 @@ namespace thongbao.be.application.DiemDanh.Implements
         public void Create(CreateCuocHopDto dto)
         {
             _logger.LogInformation($"{nameof(Create)} dto={JsonSerializer.Serialize(dto)}");
-            //var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             var vietnamNow = GetVietnamTime();
+
+            var existingCuocHop = _smDbContext.HopTrucTuyens
+                .FirstOrDefault(h => h.TenCuocHop.ToLower() == dto.TenCuocHop.ToLower() && !h.Deleted);
+
+            if (existingCuocHop != null)
+            {
+                throw new UserFriendlyException(ErrorCodes.Found, "Tên cuộc họp đã tồn tại");
+            }
+
+
+            var thoiGianBatDau = dto.ThoiGianBatDau ?? vietnamNow;
+            var thoiGianKetThuc = dto.ThoiGianKetThuc ?? vietnamNow;
+
+            if (thoiGianKetThuc < thoiGianBatDau)
+            {
+                throw new UserFriendlyException(ErrorCodes.NotFound, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
+            }
+
             var cuocHop = new domain.DiemDanh.HopTrucTuyen
             {
                 TenCuocHop = dto.TenCuocHop,
                 MoTa = dto.MoTa,
-                ThoiGianBatDau = dto.ThoiGianBatDau ?? vietnamNow,
-                ThoiGianKetThuc = dto.ThoiGianKetThuc ?? vietnamNow,
-                ThoiGianDiemDanh = dto.ThoiGianDiemDanh ?? vietnamNow,
-                ThoiHanDiemDanh = dto.ThoiHanDiemDanh ?? 0,
-                //LinkCuocHop = dto.LinkCuocHop,
-                //UserIdCreated = userId,
+                ThoiGianBatDau = thoiGianBatDau,
+                ThoiGianKetThuc = thoiGianKetThuc,
+                LinkCuocHop = dto.LinkCuocHop,
                 CreatedDate = vietnamNow,
                 Deleted = false
             };
+
             _smDbContext.HopTrucTuyens.Add(cuocHop);
             _smDbContext.SaveChanges();
+
+            _logger.LogInformation($"Đã tạo cuộc họp thành công: {dto.TenCuocHop}");
         }
 
         public BaseResponsePagingDto<ViewCuocHopDto> Find(FindPagingCuocHopDto dto)
@@ -77,43 +100,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             var data = query.Paging(dto).ToList();
             var items = _mapper.Map<List<ViewCuocHopDto>>(data);
 
-            foreach (var item in items)
-            {
-                var cuocHop = data.FirstOrDefault(x => x.Id == item.Id);
-                if (cuocHop?.UserIdCreated != null && !string.IsNullOrEmpty(cuocHop.UserIdCreated))
-                {
-                    var user = _smDbContext.Users.FirstOrDefault(u => u.Id == cuocHop.UserIdCreated);
-                    if (user != null)
-                    {
-                        if (Guid.TryParse(user.Id, out Guid userIdGuid))
-                        {
-                            item.Item = new UserCreateCuocHopDto
-                            {
-                                Id = userIdGuid,
-                                UserName = user.UserName ?? "",
-                                Email = user.Email ?? "",
-                                FullName = user.FullName ?? ""
-                            };
-                            var userRole = _smDbContext.UserRoles.FirstOrDefault(ur => ur.UserId == user.Id);
-                            if (userRole != null)
-                            {
-                                var role = _smDbContext.Roles.FirstOrDefault(r => r.Id == userRole.RoleId);
-                                if (role != null)
-                                {
-                                    if (Guid.TryParse(role.Id, out Guid roleIdGuid))
-                                    {
-                                        item.Item.Item = new RoleUserDto
-                                        {
-                                            Id = roleIdGuid,
-                                            Name = role.Name ?? ""
-                                        };
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+
 
             return new BaseResponsePagingDto<ViewCuocHopDto>
             {
@@ -122,12 +109,82 @@ namespace thongbao.be.application.DiemDanh.Implements
             };
         }
 
-        public void Update(UpdateCuochopDto dto)
+        public void Update(int idCuocHop,UpdateCuochopDto dto)
         {
             _logger.LogInformation($"{nameof(Update)} dto={JsonSerializer.Serialize(dto)}");
+
+            var vietnamNow = GetVietnamTime();
+            var existingCuocHop = _smDbContext.HopTrucTuyens
+                .FirstOrDefault(h => h.Id == idCuocHop && !h.Deleted);
+            if (existingCuocHop == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.NotFound,"Cuộc họp không tồn tại.");
+            }
+
+            var existingTenCuocHop = _smDbContext.HopTrucTuyens
+                .FirstOrDefault(h => h.TenCuocHop.ToLower() == dto.TenCuocHop.ToLower() && !h.Deleted);
+
+            if (existingTenCuocHop != null)
+            {
+                throw new UserFriendlyException(ErrorCodes.Found, "Tên cuộc họp đã tồn tại");
+            }
+
+
+            var thoiGianBatDau = dto.ThoiGianBatDau ?? vietnamNow;
+            var thoiGianKetThuc = dto.ThoiGianKetThuc ?? vietnamNow;
+
+            if (thoiGianKetThuc < thoiGianBatDau)
+            {
+                throw new UserFriendlyException(ErrorCodes.BadRequest, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
+            }
+            existingCuocHop.TenCuocHop = dto.TenCuocHop;
+            existingCuocHop.MoTa = dto.MoTa;
+            existingCuocHop.ThoiGianBatDau = dto.ThoiGianBatDau;
+            existingCuocHop.ThoiGianKetThuc = dto.ThoiGianKetThuc;
+            existingCuocHop.LinkCuocHop = dto.LinkCuocHop;
+
+            _smDbContext.SaveChanges();
+
+        }
+        public void Delete(int idCuocHop)
+        {
+            _logger.LogInformation($"{nameof(Delete)}");
+            var vietNamNow = GetVietnamTime();
+            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var existingCuocHop = _smDbContext.HopTrucTuyens
+                .FirstOrDefault(h => h.Id == idCuocHop && !h.Deleted);
+
+            if( existingCuocHop == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.NotFound, "Cuộc họp không tồn tại");
+            }
+            existingCuocHop.Deleted = true;
+            existingCuocHop.DeletedDate = vietNamNow;
+
+
+            var thongTinDiemDanhList =_smDbContext.ThongTinDiemDanhs
+                .Where(h => h.IdHopTrucTuyen == idCuocHop && !h.Deleted)
+                .ToList();
+
+            foreach( var thongtinDiemDanh in thongTinDiemDanhList)
+            {
+                thongtinDiemDanh.Deleted = true;
+                thongtinDiemDanh.DeletedDate = vietNamNow;
+            }
+
+            var tinNhanHopTrucTuyenList = _smDbContext.TinNhanHopTrucTuyens
+                .Where(h => h.CuocHopId == idCuocHop && !h.Deleted)
+                .ToList() ;
+
+            foreach(var tinNhanHopTrucTuyen in tinNhanHopTrucTuyenList)
+            {
+                tinNhanHopTrucTuyen.Deleted = true;
+                tinNhanHopTrucTuyen.DeletedDate = vietNamNow;
+            }
+            _smDbContext.SaveChanges();
         }
 
-        public GraphApiAuthUrlResponseDto GenerateMicrosoftAuthUrl()
+       /* public GraphApiAuthUrlResponseDto GenerateMicrosoftAuthUrl()
         {
             _logger.LogInformation($"{nameof(GenerateMicrosoftAuthUrl)} started");
 
@@ -211,29 +268,90 @@ namespace thongbao.be.application.DiemDanh.Implements
                 _logger.LogError(ex, $"Error in {nameof(GetUserInfo)}");
                 throw;
             }
-        }
-        public async Task<MettingIdDto> GetAndSaveMeetingInfo(GraphApiGetThongTinCuocHopDto dto, string accessToken)
+        }*/
+        public async Task<string> GetUserIdByEmailAsync(string email)
         {
-            var meetingData = await GetThongTinCuocHop(dto, accessToken);
-            await SaveMeetingInfoAsync(dto, meetingData);
-            return meetingData;
-        }
-        public async Task<MettingIdDto> GetThongTinCuocHop(GraphApiGetThongTinCuocHopDto dto, string accessToken)
-        {
-            _logger.LogInformation($"{nameof(GetThongTinCuocHop)} dto={JsonSerializer.Serialize(dto)}");
+            _logger.LogInformation($"{nameof(GetUserIdByEmailAsync)} email={email}");
 
             try
             {
+                var tenantId = _configuration["AzureAd:TenantId"];
+                var clientId = _configuration["AzureAd:ClientId"];
+                var clientSecret = _configuration["AzureAd:ClientSecret"];
+
+                var scopes = new[]
+                {
+                    "https://graph.microsoft.com/.default"
+                };
+
+                var options = new TokenCredentialOptions
+                {
+                    AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+                };
+
+                var clientSecretCredential = new ClientSecretCredential(
+                    tenantId, clientId, clientSecret, options);
+                var graphClient = new GraphServiceClient(clientSecretCredential, scopes);
+
+                var users = await graphClient.Users
+                    .GetAsync(requestConfiguration =>
+                    {
+                        requestConfiguration.QueryParameters.Filter = $"mail eq '{email}' or userPrincipalName eq '{email}'";
+                        requestConfiguration.QueryParameters.Select = new[] { "id" };
+                        requestConfiguration.QueryParameters.Top = 1;
+                    });
+
+                if (users?.Value != null && users.Value.Any())
+                {
+                    return users.Value.First().Id ?? string.Empty;
+                }
+
+                throw new UserFriendlyException(ErrorCodes.NotFound, $"Không tìm thấy user với email: {email}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in {nameof(GetUserIdByEmailAsync)} for email: {email}");
+                throw;
+            }
+        }
+        public async Task<MettingIdDto> GetAndSaveMeetingInfo(GraphApiGetThongTinCuocHopDto dto, string userId)
+        {
+            var meetingData = await GetThongTinCuocHop(dto, userId);
+            await SaveMeetingInfoAsync(dto, meetingData);
+            return meetingData;
+        }
+        public async Task<MettingIdDto> GetThongTinCuocHop(GraphApiGetThongTinCuocHopDto dto, string userId)
+        {
+            _logger.LogInformation($"{nameof(GetThongTinCuocHop)} dto={JsonSerializer.Serialize(dto)}, userId={userId}");
+
+            try
+            {
+                var tenantId = _configuration["AzureAd:TenantId"];
+                var clientId = _configuration["AzureAd:ClientId"];
+                var clientSecret = _configuration["AzureAd:ClientSecret"];
+
+                var scopes = new[]
+                {
+            "https://graph.microsoft.com/.default"
+        };
+                var options = new TokenCredentialOptions
+                {
+                    AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+                };
+
+                var clientSecretCredential = new ClientSecretCredential(
+                    tenantId, clientId, clientSecret, options);
+                var userGraphClient = new GraphServiceClient(clientSecretCredential, scopes);
+
                 if (!IsValidJoinWebUrl(dto.JoinWebUrl))
                 {
-                    throw new ArgumentException("Invalid Join Web URL");
+                    throw new UserFriendlyException(ErrorCodes.BadRequest, "Invalid Join Web URL");
                 }
 
                 var encodedUrl = HttpUtility.UrlEncode(dto.JoinWebUrl);
                 var filter = $"JoinWebUrl eq '{encodedUrl}'";
 
-                var userGraphClient = CreateUserGraphClient(accessToken);
-                var meetings = await userGraphClient.Me.OnlineMeetings
+                var meetings = await userGraphClient.Users[userId].OnlineMeetings
                     .GetAsync(requestConfiguration =>
                     {
                         requestConfiguration.QueryParameters.Filter = filter;
@@ -243,14 +361,14 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                 if (result.Value == null || result.Value.Count == 0)
                 {
-                    throw new InvalidOperationException("Meeting not found");
+                    throw new UserFriendlyException(ErrorCodes.NotFound, "Meeting not found");
                 }
 
                 foreach (var meeting in result.Value)
                 {
                     if (!string.IsNullOrEmpty(meeting.ChatInfo?.ThreadId))
                     {
-                        var chatMembers = await GetMeetingChatMembersAsync(meeting.ChatInfo.ThreadId, accessToken);
+                        var chatMembers = await GetMeetingChatMembersAsync(meeting.ChatInfo.ThreadId);
 
                         foreach (var member in chatMembers)
                         {
@@ -259,7 +377,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                             if (member.Identity?.User != null)
                             {
-                                var userMessages = await GetChatMessagesForUserAsync(meeting.ChatInfo.ThreadId, memberGuid, member.Identity.User.Id, accessToken);
+                                var userMessages = await GetChatMessagesForUserAsync(meeting.ChatInfo.ThreadId, memberGuid, member.Identity.User.Id);
                                 member.Identity.User.ChatMessages = userMessages;
                             }
 
@@ -300,11 +418,27 @@ namespace thongbao.be.application.DiemDanh.Implements
             }
         }
 
-        private async Task<List<IdentitySetDto>> GetMeetingChatMembersAsync(string threadId, string accessToken)
+        private async Task<List<IdentitySetDto>> GetMeetingChatMembersAsync(string threadId)
         {
             try
             {
-                var userGraphClient = CreateUserGraphClient(accessToken);
+
+                var tenantId = _configuration["AzureAd:TenantId"];
+                var clientId = _configuration["AzureAd:ClientId"];
+                var clientSecret = _configuration["AzureAd:ClientSecret"];
+
+                var scopes = new[]
+                {
+                    "https://graph.microsoft.com/.default"
+                };
+                var options = new TokenCredentialOptions
+                {
+                    AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+                };
+
+                var clientSecretCredential = new ClientSecretCredential(
+                    tenantId, clientId, clientSecret, options);
+                var userGraphClient = new GraphServiceClient(clientSecretCredential, scopes);
                 var chatMembers = await userGraphClient.Chats[threadId].Members.GetAsync();
                 var participants = new List<IdentitySetDto>();
 
@@ -378,13 +512,28 @@ namespace thongbao.be.application.DiemDanh.Implements
             }
         }
 
-        private async Task<List<ChatMessageDto>> GetChatMessagesForUserAsync(string threadId, string memberGuid, string memberId, string accessToken)
+        private async Task<List<ChatMessageDto>> GetChatMessagesForUserAsync(string threadId, string memberGuid, string memberId)
         {
             try
             {
                 _logger.LogInformation($"GetChatMessages - ThreadId: {threadId}, MemberGuid: {memberGuid}, MemberId: {memberId}");
 
-                var userGraphClient = CreateUserGraphClient(accessToken);
+                var tenantId = _configuration["AzureAd:TenantId"];
+                var clientId = _configuration["AzureAd:ClientId"];
+                var clientSecret = _configuration["AzureAd:ClientSecret"];
+
+                var scopes = new[]
+                {
+                    "https://graph.microsoft.com/.default"
+                };
+                var options = new TokenCredentialOptions
+                {
+                    AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+                };
+
+                var clientSecretCredential = new ClientSecretCredential(
+                    tenantId, clientId, clientSecret, options);
+                var userGraphClient = new GraphServiceClient(clientSecretCredential, scopes);
                 var messages = await userGraphClient.Chats[threadId].Messages
                     .GetAsync(requestConfiguration =>
                     {
@@ -449,11 +598,26 @@ namespace thongbao.be.application.DiemDanh.Implements
             }
         }
 
-        public async Task<List<ChatMessageDto>> GetChatMessagesAsync(string threadId, string accessToken)
+        public async Task<List<ChatMessageDto>> GetChatMessagesAsync(string threadId)
         {
             try
             {
-                var userGraphClient = CreateUserGraphClient(accessToken);
+                var tenantId = _configuration["AzureAd:TenantId"];
+                var clientId = _configuration["AzureAd:ClientId"];
+                var clientSecret = _configuration["AzureAd:ClientSecret"];
+
+                var scopes = new[]
+                {
+                    "https://graph.microsoft.com/.default"
+                };
+                var options = new TokenCredentialOptions
+                {
+                    AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+                };
+
+                var clientSecretCredential = new ClientSecretCredential(
+                    tenantId, clientId, clientSecret, options);
+                var userGraphClient = new GraphServiceClient(clientSecretCredential, scopes);
                 var messages = await userGraphClient.Chats[threadId].Messages
                     .GetAsync(requestConfiguration =>
                     {
@@ -498,7 +662,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             }
         }
 
-        private async Task<GraphApiTokenResponseDto> ExchangeCodeForTokenAsync(string authorizationCode, string codeVerifier = null)
+        /*private async Task<GraphApiTokenResponseDto> ExchangeCodeForTokenAsync(string authorizationCode, string codeVerifier = null)
         {
             _logger.LogInformation($"{nameof(ExchangeCodeForTokenAsync)} started");
 
@@ -549,7 +713,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                 Scope = tokenData.TryGetProperty("scope", out var scopeElement) ? scopeElement.GetString() ?? "" : "",
                 RefreshToken = tokenData.TryGetProperty("refresh_token", out var refreshElement) ? refreshElement.GetString() ?? "" : ""
             };
-        }
+        }*/
 
         private static DateTime? ParseAndConvertDateTime(DateTimeOffset? dateTimeOffset)
         {
@@ -684,13 +848,13 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (existingMeeting == null)
             {
-                throw new ArgumentException($"Cuộc họp với ID {dto.IdCuocHop} không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.NotFound,$"Cuộc họp không tồn tại");
             }
 
             var meeting = meetingData.Value?.FirstOrDefault();
             if (meeting == null)
             {
-                throw new ArgumentException("Không tìm thấy thông tin meeting");
+                throw new UserFriendlyException(ErrorCodes.NotFound,"Không tìm thấy thông tin meeting");
             }
 
             existingMeeting.IdCuocHop = meeting.Id;
@@ -741,7 +905,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                         };
 
                         _smDbContext.ThongTinDiemDanhs.Add(diemDanh);
-                        await _smDbContext.SaveChangesAsync(); 
+                        await _smDbContext.SaveChangesAsync();
                         if (attendee.Identity?.User?.ChatMessages != null && attendee.Identity.User.ChatMessages.Any())
                         {
                             foreach (var chatMessage in attendee.Identity.User.ChatMessages)
@@ -751,7 +915,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                                     var tinNhan = new domain.DiemDanh.TinNhanHopTrucTuyen
                                     {
                                         CuocHopId = dto.IdCuocHop,
-                                        ThongTinDiemDanhId = diemDanh.Id, 
+                                        ThongTinDiemDanhId = diemDanh.Id,
                                         NoiDung = CleanHtmlContent(chatMessage.Body.Content),
                                         ThoiGianGui = chatMessage.CreatedDateTime ?? vietnamNow,
                                         CreatedDate = vietnamNow,
@@ -769,7 +933,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             await _smDbContext.SaveChangesAsync();
             _logger.LogInformation($"Successfully saved meeting data for IdCuocHop: {dto.IdCuocHop}");
         }
-        public async Task UpdateTrangThaiDiemDanh(int idCuocHop,UpdateTrangThaiDiemDanhDto dto)
+        public async Task UpdateTrangThaiDiemDanh(int idCuocHop, UpdateTrangThaiDiemDanhDto dto)
         {
             _logger.LogInformation($"{nameof(UpdateTrangThaiDiemDanh)} started");
 
@@ -780,12 +944,13 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (cuocHop == null)
             {
-                throw new UserFriendlyException(404,$"Cuộc họp với ID {idCuocHop} không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.NotFound, $"Cuộc họp  không tồn tại");
             }
 
-            cuocHop.ThoiGianDiemDanh = dto.ThoiGianDiemDanh;
+            cuocHop.BatDauDiemDanh = dto.BatDauDiemDanh;
 
             var diemDanhData = await (from ttdd in _smDbContext.ThongTinDiemDanhs
+                                      where ttdd.IdHopTrucTuyen == idCuocHop && !ttdd.Deleted
                                       where ttdd.IdHopTrucTuyen == idCuocHop && !ttdd.Deleted
                                       select new
                                       {
@@ -796,8 +961,8 @@ namespace thongbao.be.application.DiemDanh.Implements
                                               .ToList()
                                       }).ToListAsync();
 
-            var thoiGianBatDau = dto.ThoiGianDiemDanh;
-            var thoiGianKetThuc = dto.ThoiGianDiemDanh.AddMinutes(cuocHop.ThoiHanDiemDanh ?? 0);
+            var thoiGianBatDau = dto.BatDauDiemDanh;
+            var thoiGianKetThuc = dto.KetThucDiemDanh;
             var updateTasks = diemDanhData.Select(async item =>
             {
                 var diemDanh = item.DiemDanh;
@@ -831,6 +996,227 @@ namespace thongbao.be.application.DiemDanh.Implements
             await Task.WhenAll(updateTasks);
             await _smDbContext.SaveChangesAsync();
         }
+
+
+        public BaseResponsePagingDto<ViewThongTinDiemDanhDto> ThongTinDiemDanhPaging (int idCuocHop,FindPagingThongTinDiemDanhDto dto)
+        {
+            _logger.LogInformation($"{nameof(ThongTinDiemDanh)} dto={JsonSerializer.Serialize(dto)}");
+            var query = from ttdd in _smDbContext.ThongTinDiemDanhs
+                        where ttdd.IdHopTrucTuyen == idCuocHop
+                        where ttdd.Deleted == false
+                        orderby ttdd.Id descending
+                        select ttdd;
+            var data = query.Paging(dto).ToList();
+            var items = _mapper.Map<List<ViewThongTinDiemDanhDto>>(data);
+            return new BaseResponsePagingDto<ViewThongTinDiemDanhDto>
+            {
+                Items = items,
+                TotalItems = query.Count()
+            };
+
+        }
+        public async Task<byte[]> ExportDanhSachDiemDanhToExcel(int idCuocHop)
+        {
+            _logger.LogInformation($"{nameof(ExportDanhSachDiemDanhToExcel)} started for IdCuocHop: {idCuocHop}");
+
+            var cuocHopInfo = await (from ch in _smDbContext.HopTrucTuyens
+                                     where ch.Id == idCuocHop && !ch.Deleted
+                                     select ch).FirstOrDefaultAsync();
+
+            if (cuocHopInfo == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.NotFound, $"Cuộc họp không tồn tại");
+            }
+
+            var danhSachDiemDanh = await (from ttdd in _smDbContext.ThongTinDiemDanhs
+                                          where ttdd.IdHopTrucTuyen == idCuocHop && !ttdd.Deleted
+                                          orderby ttdd.Id
+                                          select ttdd).ToListAsync();
+
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("Danh sách điểm danh");
+
+            worksheet.Cell(1, 1).Value = $"DANH SÁCH ĐIỂM DANH - {cuocHopInfo.TenCuocHop}";
+            worksheet.Range(1, 1, 1, 15).Merge();
+            worksheet.Cell(1, 1).Style.Font.Bold = true;
+            worksheet.Cell(1, 1).Style.Font.FontSize = 16;
+            worksheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            worksheet.Cell(1, 1).Style.Fill.BackgroundColor = XLColor.LightBlue;
+
+
+            worksheet.Cell(2, 1).Value = $"Thời gian tạo: {DateTime.Now:dd/MM/yyyy HH:mm:ss}";
+            worksheet.Cell(2, 1).Style.Font.Italic = true;
+            worksheet.Range(2, 1, 2, 15).Merge();
+
+
+            var headers = new string[]
+            {
+                "STT", "MSSV", "Họ Tên", "Họ đệm", "Tên", "Khoa",
+                "Lớp quản lý", "Email Huce", "Điện thoại",
+                "Trạng thái điểm danh", "Link meeting", "Thời gian Bắt Đầu Điểm Danh",
+                "Thời Gian Kết Thúc Điểm Danh", "Thời Gian Bắt Đầu Cuộc Họp", "Thời Gian Kết Thúc Cuộc Họp"
+            };
+
+            for (int i = 0; i < headers.Length; i++)
+            {
+                var cell = worksheet.Cell(4, i + 1);
+                cell.Value = headers[i];
+                cell.Style.Font.Bold = true;
+                cell.Style.Fill.BackgroundColor = XLColor.LightGray;
+                cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            }
+
+            int rowIndex = 5;
+            int stt = 1;
+
+            foreach (var item in danhSachDiemDanh)
+            {
+                worksheet.Cell(rowIndex, 1).Value = stt;
+                worksheet.Cell(rowIndex, 2).Value = item.MaSoSinhVien;
+                worksheet.Cell(rowIndex, 3).Value = item.HoVaTen;
+                worksheet.Cell(rowIndex, 4).Value = item.HoDem;
+                worksheet.Cell(rowIndex, 5).Value = item.Ten;
+                worksheet.Cell(rowIndex, 6).Value = item.Khoa;
+                worksheet.Cell(rowIndex, 7).Value = item.LopQuanLy;
+                worksheet.Cell(rowIndex, 8).Value = item.EmailHuce;
+                worksheet.Cell(rowIndex, 9).Value = item.SoDienThoai;
+                worksheet.Cell(rowIndex, 10).Value = ConvertTrangThaiDiemDanh(item.TrangThaiDiemDanh);
+                worksheet.Cell(rowIndex, 11).Value = cuocHopInfo.LinkCuocHop ?? "";
+                worksheet.Cell(rowIndex, 12).Value = cuocHopInfo.BatDauDiemDanh?.ToString("dd/MM/yyyy HH:mm:ss") ?? "";
+                worksheet.Cell(rowIndex, 13).Value = cuocHopInfo.KetThucDiemDanh?.ToString("dd/MM/yyyy HH:mm:ss") ?? "";
+                worksheet.Cell(rowIndex, 14).Value = cuocHopInfo.ThoiGianBatDau?.ToString("dd/MM/yyyy HH:mm:ss") ?? "";
+                worksheet.Cell(rowIndex, 15).Value = cuocHopInfo.ThoiGianKetThuc?.ToString("dd/MM/yyyy HH:mm:ss") ?? "";
+
+                for (int col = 1; col <= headers.Length; col++)
+                {
+                    var cell = worksheet.Cell(rowIndex, col);
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                    if (col == 1 || col == 10)
+                    {
+                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    }
+
+
+                    if (col == 10)
+                    {
+                        switch (item.TrangThaiDiemDanh)
+                        {
+                            case ThongTinDiemDanh.DaDiemDanh:
+                                cell.Style.Fill.BackgroundColor = XLColor.LightGreen;
+                                break;
+                            case ThongTinDiemDanh.VangMat:
+                                cell.Style.Fill.BackgroundColor = XLColor.LightPink;
+                                break;
+                            case ThongTinDiemDanh.ChuaDiemDanh:
+                                cell.Style.Fill.BackgroundColor = XLColor.LightYellow;
+                                break;
+                        }
+                    }
+                }
+
+                rowIndex++;
+                stt++;
+            }
+
+            // Auto-fit columns
+            worksheet.Columns().AdjustToContents();
+
+            worksheet.Column(1).Width = 5;  
+            worksheet.Column(2).Width = 12; 
+            worksheet.Column(3).Width = 25;  
+            worksheet.Column(8).Width = 30;  
+            worksheet.Column(10).Width = 18;
+            worksheet.Column(11).Width = 50; 
+
+            // Thống kê
+            var tongSo = danhSachDiemDanh.Count;
+            var daDiemDanh = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.DaDiemDanh);
+            var vangMat = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.VangMat);
+            var chuaDiemDanh = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.ChuaDiemDanh);
+
+            int statsRow = rowIndex + 2;
+            worksheet.Cell(statsRow, 1).Value = "THỐNG KÊ:";
+            worksheet.Cell(statsRow, 1).Style.Font.Bold = true;
+            worksheet.Range(statsRow, 1, statsRow, 3).Merge();
+
+            statsRow++;
+            worksheet.Cell(statsRow, 1).Value = $"Tổng số sinh viên: {tongSo}";
+            worksheet.Cell(statsRow, 1).Style.Fill.BackgroundColor = XLColor.LightBlue;
+            worksheet.Range(statsRow, 1, statsRow, 3).Merge();
+
+            statsRow++;
+            worksheet.Cell(statsRow, 1).Value = $"Đã điểm danh: {daDiemDanh}";
+            worksheet.Cell(statsRow, 1).Style.Fill.BackgroundColor = XLColor.LightGreen;
+            worksheet.Range(statsRow, 1, statsRow, 3).Merge();
+
+            statsRow++;
+            worksheet.Cell(statsRow, 1).Value = $"Vắng mặt: {vangMat}";
+            worksheet.Cell(statsRow, 1).Style.Fill.BackgroundColor = XLColor.LightPink;
+            worksheet.Range(statsRow, 1, statsRow, 3).Merge();
+
+            statsRow++;
+            worksheet.Cell(statsRow, 1).Value = $"Chưa điểm danh: {chuaDiemDanh}";
+            worksheet.Cell(statsRow, 1).Style.Fill.BackgroundColor = XLColor.LightYellow;
+            worksheet.Range(statsRow, 1, statsRow, 3).Merge();
+
+            // Freeze panes
+            worksheet.SheetView.FreezeRows(4);
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+
+            _logger.LogInformation($"{nameof(ExportDanhSachDiemDanhToExcel)} completed for IdCuocHop: {idCuocHop}");
+            return stream.ToArray();
+        }
+        public ViewThongKeDiemDanhResponseDto ThongKeDiemDanh(ViewThongKeDiemDanhRequestDto dto)
+        {
+            _logger.LogInformation($"{nameof(ThongKeDiemDanh)} dto={JsonSerializer.Serialize(dto)}");
+
+            var cuocHop = _smDbContext.HopTrucTuyens
+                .FirstOrDefault(h => h.Id == dto.IdCuocHop && !h.Deleted);
+
+            if (cuocHop == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.NotFound, "Cuộc họp không tồn tại");
+            }
+
+            var query = _smDbContext.ThongTinDiemDanhs
+                .Where(ttdd => ttdd.IdHopTrucTuyen == dto.IdCuocHop && !ttdd.Deleted);
+
+            if (!string.IsNullOrWhiteSpace(dto.Filter))
+            {
+                var filterValue = dto.Filter.Trim();
+                query = query.Where(ttdd =>
+                    ttdd.LopQuanLy.Contains(filterValue) ||
+                    ttdd.Khoa.Contains(filterValue));
+            }
+
+            var danhSachDiemDanh = query.ToList();
+
+            var tongSoSinhVienThamGia = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.DaDiemDanh);
+            var tongSoSinhVienVang = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.VangMat);
+
+            return new ViewThongKeDiemDanhResponseDto
+            {
+                TongSoSinhVienThamGia = tongSoSinhVienThamGia,
+                TongSoSinhVienVang = tongSoSinhVienVang
+            };
+        }
+        private string ConvertTrangThaiDiemDanh(int trangThai)
+        {
+            return trangThai switch
+            {
+                ThongTinDiemDanh.DaDiemDanh => "Đã điểm danh",
+                ThongTinDiemDanh.VangMat => "Vắng mặt",
+                ThongTinDiemDanh.ChuaDiemDanh => "Chưa điểm danh",
+                _ => "Không xác định"
+            };
+        }
+
         private static string BuildFullName(string surName, string givenName)
         {
             var fullName = new StringBuilder();
@@ -864,7 +1250,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             return parts.Length >= 2 ? parts[parts.Length - 1].Trim() : string.Empty;
         }
 
- 
+
         private string CleanHtmlContent(string htmlContent)
         {
             if (string.IsNullOrEmpty(htmlContent)) return string.Empty;
@@ -880,7 +1266,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                             .Replace("&quot;", "\"");
             return decoded.Trim();
         }
-        private GraphServiceClient CreateUserGraphClient(string accessToken)
+       /* private GraphServiceClient CreateUserGraphClient(string accessToken)
         {
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization =
@@ -927,7 +1313,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                     .Replace('/', '_')
                     .TrimEnd('=');
             }
-        }
+        }*/
         private static DateTime GetVietnamTime()
         {
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);

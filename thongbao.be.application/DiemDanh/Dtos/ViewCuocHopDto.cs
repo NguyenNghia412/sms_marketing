@@ -6,19 +6,7 @@ using System.Threading.Tasks;
 
 namespace thongbao.be.application.DiemDanh.Dtos
 {
-    public class RoleUserDto {
-        public Guid Id { get; set; }
-        public string? Name { get; set; } = String.Empty;
-    }
 
-    public class UserCreateCuocHopDto { 
-        public Guid Id { get; set; }
-        public string? UserName { get; set; } = String.Empty;
-        public string? Email { get; set; } = String.Empty;
-        public string? FullName { get; set; } = String.Empty;
-        public RoleUserDto Item { get; set; } = new RoleUserDto();
-
-    }
     public class ViewCuocHopDto
     {
         public int Id { get; set; }
@@ -30,7 +18,8 @@ namespace thongbao.be.application.DiemDanh.Dtos
         public string? IdCuocHop { get; set; } = String.Empty;
         public string? LinkCuocHop { get; set; } = String.Empty;
         public string IdTinNhanChung { get; set; }  = String.Empty;
-        public UserCreateCuocHopDto Item { get; set; } = new UserCreateCuocHopDto();
+        public DateTime? ThoiGianTao { get; set; }
+
 
 
 

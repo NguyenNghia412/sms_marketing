@@ -17,9 +17,9 @@ namespace thongbao.be.Controllers.DiemDanh
     public class HopTrucTuyenController : BaseController
     {
 
-       private readonly IHopTrucTuyenService _hopTrucTuyenService;
-        private static readonly Dictionary<string, string> _pkceStorage = new();
-        public HopTrucTuyenController(ILogger<HopTrucTuyenController> logger, IHopTrucTuyenService hopTrucTuyenService): base(logger)
+        private readonly IHopTrucTuyenService _hopTrucTuyenService;
+        //private static readonly Dictionary<string, string> _pkceStorage = new();
+        public HopTrucTuyenController(ILogger<HopTrucTuyenController> logger, IHopTrucTuyenService hopTrucTuyenService) : base(logger)
         {
             _hopTrucTuyenService = hopTrucTuyenService;
         }
@@ -31,7 +31,7 @@ namespace thongbao.be.Controllers.DiemDanh
         {
             try
             {
-                 _hopTrucTuyenService.Create(dto);
+                _hopTrucTuyenService.Create(dto);
                 return new();
             }
             catch (Exception ex)
@@ -53,7 +53,50 @@ namespace thongbao.be.Controllers.DiemDanh
                 return OkException(ex);
             }
         }
-        [HttpGet("microsoft-auth-url")]
+        [Permission(PermissionKeys.HopTrucTuyenUpdate)]
+        [HttpPut("")]
+
+        public ApiResponse Update([FromQuery] int idCuocHop, [FromBody] UpdateCuochopDto dto)
+        {
+            try
+            {
+                _hopTrucTuyenService.Update(idCuocHop, dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.HopTrucTuyenDelete)]
+        [HttpDelete("")]
+        public ApiResponse Delete([FromQuery] int idCuocHop)
+        {
+            try
+            {
+                _hopTrucTuyenService.Delete(idCuocHop);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.HopTrucTuyenView)]
+        [HttpGet("thong-tin-diem-danh")]
+        public ApiResponse ThongTinDiemDanhPaging([FromQuery] int idCuocHop, [FromQuery] FindPagingThongTinDiemDanhDto dto)
+        {
+            try
+            {
+                var data = _hopTrucTuyenService.ThongTinDiemDanhPaging(idCuocHop, dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        /*[HttpGet("microsoft-auth-url")]
         public ApiResponse GetMicrosoftAuthUrl()
         {
             try
@@ -114,21 +157,18 @@ namespace thongbao.be.Controllers.DiemDanh
             {
                 return OkException(ex);
             }
-        }
-
+        }*/
         [HttpPost("thong-tin-cuoc-hop")]
-        public async Task<ApiResponse> GetThongTinCuocHop([FromQuery] GraphApiGetThongTinCuocHopDto dto, [FromBody] GraphApiGetUserInfoRequestDto input)
+        public async Task<ApiResponse> GetThongTinCuocHop([FromQuery] GraphApiGetThongTinCuocHopDto dto)
         {
             try
             {
+                var userId = await _hopTrucTuyenService.GetUserIdByEmailAsync(dto.EmailOrganizer);
+
                 var meetingInfo = await _hopTrucTuyenService.GetAndSaveMeetingInfo(
-                    new GraphApiGetThongTinCuocHopDto
-                    {
-                        JoinWebUrl = dto.JoinWebUrl,
-                        IdCuocHop = dto.IdCuocHop
-                    },
-                    input.AccessToken
+                    dto, userId
                 );
+
                 return new(meetingInfo);
             }
             catch (Exception ex)
@@ -137,18 +177,53 @@ namespace thongbao.be.Controllers.DiemDanh
             }
         }
         [Permission(PermissionKeys.HopTrucTuyenUpdate)]
-        [HttpPut("trang-thai-diem-danh")]
-        public async Task<ApiResponse> UpdateTrangThaiDiemDanhAsync([FromQuery] int idCuocHop,[FromBody] UpdateTrangThaiDiemDanhDto dto)
+        [HttpPatch("trang-thai-diem-danh")]
+        public async Task<ApiResponse> UpdateTrangThaiDiemDanhAsync([FromQuery] int idCuocHop, [FromBody] UpdateTrangThaiDiemDanhDto dto)
         {
             try
             {
-                await _hopTrucTuyenService.UpdateTrangThaiDiemDanh(idCuocHop,dto);
+                await _hopTrucTuyenService.UpdateTrangThaiDiemDanh(idCuocHop, dto);
                 return new();
             }
             catch (Exception ex)
             {
                 return OkException(ex);
-            } 
+            }
         }
+
+        [Permission(PermissionKeys.HopTrucTuyenView)]
+        [HttpGet("export-excel")]
+        public async Task<IActionResult> DownloadDanhSachDiemDanhExcel([FromQuery] int idCuocHop)
+        {
+            try
+            {
+                var excelData = await _hopTrucTuyenService.ExportDanhSachDiemDanhToExcel(idCuocHop);
+                var fileName = $"Danh_sach_diem_danh_Ms_Team_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                return File(
+                    excelData,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    fileName
+                );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse(ex.Message));
+            }
         }
+        [Permission(PermissionKeys.HopTrucTuyenView)]
+        [HttpGet("thong-ke-diem-danh")]
+        public ApiResponse ThongKeDiemDanh([FromQuery] ViewThongKeDiemDanhRequestDto dto)
+        {
+            try
+            {
+                var data = _hopTrucTuyenService.ThongKeDiemDanh(dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+    }
 }

@@ -40,6 +40,10 @@ namespace thongbao.be.Workers
                 {
                     ClientId = "client-web",
                     ClientSecret = "mBSQUHmZ4be5bQYfhwS7hjJZ2zFOCU2e",
+                    RedirectUris =
+                    {
+                        new Uri("http://localhost:4200/auth/callback")
+                    },
                     Permissions =
                     {
                         Permissions.Endpoints.Token,

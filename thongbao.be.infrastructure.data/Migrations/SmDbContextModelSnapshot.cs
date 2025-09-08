@@ -445,6 +445,11 @@ namespace thongbao.be.infrastructure.data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("BatDauDiemDanh")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
@@ -472,6 +477,11 @@ namespace thongbao.be.infrastructure.data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("KetThucDiemDanh")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
                     b.Property<string>("LinkCuocHop")
                         .HasColumnType("nvarchar(max)");
 
@@ -489,11 +499,6 @@ namespace thongbao.be.infrastructure.data.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<DateTime?>("ThoiGianDiemDanh")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
-
                     b.Property<DateTime?>("ThoiGianKetThuc")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -501,9 +506,6 @@ namespace thongbao.be.infrastructure.data.Migrations
 
                     b.Property<DateTime?>("ThoiGianTaoCuocHop")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("ThoiHanDiemDanh")
-                        .HasColumnType("int");
 
                     b.Property<string>("UserIdCreated")
                         .HasColumnType("nvarchar(max)");

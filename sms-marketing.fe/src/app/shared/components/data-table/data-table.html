@@ -8,11 +8,14 @@
             }
         </tr>
     </ng-template>
-    <ng-template #body let-row>
+    <ng-template #body let-row let-rowIndex="rowIndex">
         <tr>
           @for (col of (columns()); track $index) {
             <td [style]="col.cellStyle" [ngClass]="col.cellClass">
-              @if (col.cellRender) {
+              @if (col.cellViewType === cellViewTypes.INDEX) {
+                <span>{{ rowIndex + 1 }}</span>
+              }
+              @else if (col.cellRender) {
                 <div [innerHTML]="sanitizer.bypassSecurityTrustHtml(row[col.field || ''])"></div>
               }
               @else if (col.cellViewType === cellViewTypes.DATE) {

@@ -22,5 +22,6 @@ namespace thongbao.be.application.DiemDanh.Dtos
         //public DateTime? Birthday { get; set; }
 
         public List<ChatMessageDto> ChatMessages { get; set; } = new();
+        public AttendanceDetailDto AttendanceDetail { get; set; } = new AttendanceDetailDto();
     }
 }
