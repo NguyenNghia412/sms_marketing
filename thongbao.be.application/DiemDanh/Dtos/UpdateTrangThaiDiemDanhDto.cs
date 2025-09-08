@@ -8,7 +8,6 @@ namespace thongbao.be.application.DiemDanh.Dtos
 {
     public class UpdateTrangThaiDiemDanhDto
     {
-        public int IdCuocHop { get; set; }
         public DateTime ThoiGianDiemDanh { get; set; }
     }
 }

@@ -769,24 +769,24 @@ namespace thongbao.be.application.DiemDanh.Implements
             await _smDbContext.SaveChangesAsync();
             _logger.LogInformation($"Successfully saved meeting data for IdCuocHop: {dto.IdCuocHop}");
         }
-        public async Task UpdateTrangThaiDiemDanh(UpdateTrangThaiDiemDanhDto dto)
+        public async Task UpdateTrangThaiDiemDanh(int idCuocHop,UpdateTrangThaiDiemDanhDto dto)
         {
             _logger.LogInformation($"{nameof(UpdateTrangThaiDiemDanh)} started");
 
             var vietnamNow = GetVietnamTime();
 
             var cuocHop = await _smDbContext.HopTrucTuyens
-                .FirstOrDefaultAsync(h => h.Id == dto.IdCuocHop && !h.Deleted);
+                .FirstOrDefaultAsync(h => h.Id == idCuocHop && !h.Deleted);
 
             if (cuocHop == null)
             {
-                throw new UserFriendlyException(404,$"Cuộc họp với ID {dto.IdCuocHop} không tồn tại");
+                throw new UserFriendlyException(404,$"Cuộc họp với ID {idCuocHop} không tồn tại");
             }
 
             cuocHop.ThoiGianDiemDanh = dto.ThoiGianDiemDanh;
 
             var diemDanhData = await (from ttdd in _smDbContext.ThongTinDiemDanhs
-                                      where ttdd.IdHopTrucTuyen == dto.IdCuocHop && !ttdd.Deleted
+                                      where ttdd.IdHopTrucTuyen == idCuocHop && !ttdd.Deleted
                                       select new
                                       {
                                           DiemDanh = ttdd,
