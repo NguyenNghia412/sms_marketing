@@ -14,6 +14,26 @@ export class Utils {
         localStorage.setItem(key, JSON.stringify(data));
     }
 
+    public static clearLocalStorage() {
+        localStorage.clear();
+    }
+
+    public static setSessionStorage(key: string, data: any) {
+        sessionStorage.setItem(key, data);
+    }
+
+    public static getSessionStorage(key: string) {
+        return sessionStorage.getItem(key);
+    }
+
+    public static clearSessionStorage() {
+        sessionStorage.clear()
+    }
+
+    public static removeSessionStorage(key: string) {
+        sessionStorage.removeItem(key)
+    }
+
     public static getAccessToken() {
         const auth = this.getLocalStorage('auth');
         return auth?.accessToken;

@@ -1,13 +1,14 @@
 import { IBaseResponse } from '@/shared/models/request-paging.base.models';
 import { Directive, inject, OnInit } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 
 @Directive()
 export abstract class BaseComponent implements OnInit {
     protected router = inject(Router);
+    protected _activatedRoute = inject(ActivatedRoute);
     protected messageService = inject(MessageService);
     protected _dialogService = inject(DialogService);
 

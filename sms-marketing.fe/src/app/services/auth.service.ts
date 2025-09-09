@@ -1,3 +1,4 @@
+import { AuthConstants } from '@/shared/constants/auth.constants';
 import { Utils } from '@/shared/utils';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -19,7 +20,7 @@ export class AuthService {
             .set('password', password)
             .set('grant_type', environment.authGrantType)
             .set('client_id', environment.authClientId)
-            .set('client_secret', environment.authClientSecret ?? "")
+            .set('client_secret', environment.authClientSecret ?? '')
             .set('scope', environment.authScope);
         const headers = new HttpHeaders({
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -32,6 +33,12 @@ export class AuthService {
                     accessToken: res.access_token,
                     refreshToken: res.refresh_token
                 });
+
+                const redirect_uri = Utils.getSessionStorage(AuthConstants.REDIRECT_URI_AFTER_LOGIN) || '/';
+                // Utils.removeSessionStorage(AuthConstants.REDIRECT_URI_AFTER_LOGIN)
+
+                this.router.navigate([redirect_uri]);
+
                 return of(res);
             })
         );
@@ -58,14 +65,21 @@ export class AuthService {
                     accessToken: res.access_token,
                     refreshToken: res.refresh_token
                 });
-                this.router.navigate(['/']);
+                Utils.removeSessionStorage(AuthConstants.SESSION_PKCE_CODE_VERIFIER);
+                Utils.removeSessionStorage(AuthConstants.PKCE_CODE_CHALLENGE_METHOD);
+
+                const redirect_uri = Utils.getSessionStorage(AuthConstants.REDIRECT_URI_AFTER_LOGIN) || '/';
+                // Utils.removeSessionStorage(AuthConstants.REDIRECT_URI_AFTER_LOGIN)
+
+                this.router.navigate([redirect_uri]);
             },
             error: (err) => console.error('Token exchange failed', err)
         });
     }
 
     logout() {
-        Utils.setLocalStorage('auth', '');
+        Utils.clearLocalStorage();
+        Utils.clearSessionStorage();
         this.router.navigate(['auth/login']);
     }
 }

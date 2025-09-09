@@ -35,6 +35,14 @@ export class Login extends BaseComponent {
 
     override loading: boolean = false;
     errorMsg: string = '';
+    redirectUri: string | null | undefined = ''
+
+    override ngOnInit(): void {
+        this._activatedRoute.queryParamMap.subscribe((params) => {
+            this.redirectUri = params.get('redirect_uri') || '/';
+            Utils.setSessionStorage(AuthConstants.REDIRECT_URI_AFTER_LOGIN, this.redirectUri)
+        });
+    }
 
     onSubmit() {
         if (this.isFormInvalid()) return;
@@ -46,7 +54,7 @@ export class Login extends BaseComponent {
             .login(this.form.value.username!, this.form.value.password!)
             .subscribe({
                 next: (res) => {
-                    this.router.navigate(['/']);
+                    
                 },
                 error: (resErr) => {
                     this.errorMsg = resErr?.error?.error_description || 'Có sự cố xảy ra. Vui lòng thử lại sau';
@@ -83,6 +91,4 @@ export class Login extends BaseComponent {
 
         window.location.href = url;
     }
-
-    
 }

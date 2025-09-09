@@ -31,11 +31,14 @@ namespace thongbao.be.Controllers.Auth
     {
         private readonly IOpenIddictApplicationManager _applicationManager;
         private readonly IUsersService _usersService;
+        private readonly AuthServerSettings _authServerSettings;
 
-        public AuthorizationController(IOpenIddictApplicationManager applicationManager, IUsersService usersService)
+
+        public AuthorizationController(IOpenIddictApplicationManager applicationManager, IUsersService usersService, IOptions<AuthServerSettings> options)
         {
             _applicationManager = applicationManager;
             _usersService = usersService;
+            _authServerSettings = options.Value;
         }
             
 

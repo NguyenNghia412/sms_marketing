@@ -53,7 +53,8 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
                         return next(newReq);
                     }),
                     catchError((refreshErr) => {
-                        Utils.setLocalStorage('auth', {});
+                        Utils.clearLocalStorage();
+                        Utils.clearSessionStorage();
                         router.navigate(['/auth/login']);
                         return throwError(() => refreshErr);
                     })

@@ -20,6 +20,7 @@ export const appRoutes: Routes = [
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
         ]
     },
+    { path: 'diem-danh', canActivate: [authGuard], loadChildren: () => import('./app/pages/diem-danh/diem-danh.routes')  },
     { path: 'landing', component: Landing },
     { path: 'notfound', component: Notfound },
     { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },
