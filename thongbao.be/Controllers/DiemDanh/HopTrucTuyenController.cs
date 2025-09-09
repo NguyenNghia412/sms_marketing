@@ -7,12 +7,13 @@ using thongbao.be.Controllers.Base;
 using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.HttpRequest;
 using thongbao.be.shared.HttpRequest.Exception;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace thongbao.be.Controllers.DiemDanh
 {
     [Route("api/core/hop-truc-tuyen")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
     public class HopTrucTuyenController : BaseController
     {
@@ -142,14 +143,14 @@ namespace thongbao.be.Controllers.DiemDanh
             {
                 return OkException(ex);
             }
-        }
+        }*/
 
-        [HttpPost("user-info")]
-        public async Task<ApiResponse> GetUserInfo([FromBody] GraphApiGetUserInfoRequestDto dto)
+        [HttpGet("user-info")]
+        public async Task<ApiResponse> GetUserInfo([FromQuery] string userEmailHuce)
         {
             try
             {
-                var userInfo = await _hopTrucTuyenService.GetUserInfo(dto.AccessToken);
+                var userInfo = await _hopTrucTuyenService.GetUserInfo(userEmailHuce);
 
                 return new(userInfo);
             }
@@ -157,7 +158,7 @@ namespace thongbao.be.Controllers.DiemDanh
             {
                 return OkException(ex);
             }
-        }*/
+        }
         [HttpPost("thong-tin-cuoc-hop")]
         public async Task<ApiResponse> GetThongTinCuocHop([FromQuery] GraphApiGetThongTinCuocHopDto dto)
         {
@@ -227,11 +228,11 @@ namespace thongbao.be.Controllers.DiemDanh
         }
         [Permission(PermissionKeys.HopTrucTuyenAdd)]
         [HttpPost("dot-diem-danh")]
-        public ApiResponse CreateDotDiemDanh([FromBody] CreateDotDiemDanhDto dto)
+        public ApiResponse CreateDotDiemDanh([FromQuery] int idCuocHop,[FromBody] CreateDotDiemDanhDto dto)
         {
             try
             {
-                _hopTrucTuyenService.CreateDotDiemDanh(dto);
+                _hopTrucTuyenService.CreateDotDiemDanh(idCuocHop,dto);
                 return new();
             }
             catch (Exception ex)
@@ -240,5 +241,64 @@ namespace thongbao.be.Controllers.DiemDanh
             }
             
         }
+        [Permission(PermissionKeys.HopTrucTuyenUpdate)]
+        [HttpPut("dot-diem-danh")]
+        public ApiResponse UpdateDotDiemDanh([FromQuery] int idCuocHop, [FromQuery] int idDotDiemDanh, [FromBody] UpdateDotDiemDanhDto dto)
+        {
+            try
+            {
+                _hopTrucTuyenService.UpdateDotDiemDanh(idCuocHop, idDotDiemDanh, dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.HopTrucTuyenDelete)]
+        [HttpDelete("dot-diem-danh")]
+        public ApiResponse DeleteDotDiemDanh([FromQuery] int idCuocHop, [FromQuery] int idDotDiemDanh)
+        {
+            try
+            {
+                _hopTrucTuyenService.DeleteDotDiemDanh(idCuocHop, idDotDiemDanh);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.HopTrucTuyenView)]
+        [HttpPost("dot-diem-danh/{idDotDiemDanh}/qr-code")]
+        public IActionResult GetQrCodeImage(int idDotDiemDanh)
+        {
+            try
+            {
+                var qrImageBytes = _hopTrucTuyenService.GenerateQrCodeImageForDiemDanh(idDotDiemDanh);
+                return File(qrImageBytes, "image/png");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse(ex.Message));
+            }
+        }
+        [Permission(PermissionKeys.HopTrucTuyenView)]
+        [HttpGet("dot-diem-danh/{idDotDiemDanh}/qr-code/download")]
+        public IActionResult DownloadQrCodeImage(int idDotDiemDanh)
+        {
+            try
+            {
+                var qrImageBytes = _hopTrucTuyenService.GenerateQrCodeImageForDiemDanh(idDotDiemDanh);
+                var fileName = $"QR_DiemDanh_{idDotDiemDanh}_{DateTime.Now:yyyyMMdd}.png";
+
+                return File(qrImageBytes, "image/png", fileName);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse(ex.Message));
+            }
+        }
+
     }
 }

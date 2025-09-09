@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Client.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using OpenIddict.Server.AspNetCore;
 using System.Linq.Dynamic.Core.Tokenizer;
 using System.Security.Claims;

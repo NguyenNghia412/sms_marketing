@@ -7,12 +7,13 @@ using thongbao.be.Attributes;
 using thongbao.be.Controllers.Base;
 using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.HttpRequest;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace thongbao.be.Controllers.ChienDich
 {
     [Route("api/core/chien-dich")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ChienDichController : BaseController
     {
         private readonly IChienDichService _chienDichService;

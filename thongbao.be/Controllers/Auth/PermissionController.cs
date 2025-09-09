@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using thongbao.be.application.Auth.Interfaces;
 using thongbao.be.Attributes;
 using thongbao.be.Controllers.Base;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.HttpRequest;
 
@@ -11,7 +13,7 @@ namespace thongbao.be.Controllers.Auth
 {
     [Route("api/app/permissions")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PermissionController : BaseController
     {
         private readonly IPermissionsService _permissionsService;

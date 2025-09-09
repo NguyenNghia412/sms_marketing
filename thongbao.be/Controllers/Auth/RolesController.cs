@@ -7,12 +7,14 @@ using thongbao.be.Attributes;
 using thongbao.be.Controllers.Base;
 using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.HttpRequest;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 
 namespace thongbao.be.Controllers.Auth
 {
     [Route("api/app/roles")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class RolesController : BaseController
     {
         private readonly IRoleService _roleService;
