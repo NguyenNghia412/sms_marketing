@@ -9,9 +9,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
+using QRCoder;
+
+using System.Drawing;
+using System.Drawing.Imaging;
+
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -182,91 +187,126 @@ namespace thongbao.be.application.DiemDanh.Implements
             _smDbContext.SaveChanges();
         }
 
-       /* public GraphApiAuthUrlResponseDto GenerateMicrosoftAuthUrl()
+        /* public GraphApiAuthUrlResponseDto GenerateMicrosoftAuthUrl()
+         {
+             _logger.LogInformation($"{nameof(GenerateMicrosoftAuthUrl)} started");
+
+             var tenantId = _configuration["AzureAd:TenantId"];
+             var clientId = _configuration["AzureAd:ClientId"];
+             var redirectUri = _configuration["AzureAd:RedirectUri"];
+
+             var pkce = GeneratePKCE();
+
+             var scopes = new[]
+             {
+                 "https://graph.microsoft.com/User.Read",
+                 "https://graph.microsoft.com/User.Read.All",
+                 "https://graph.microsoft.com/User.ReadBasic.All",
+                 "https://graph.microsoft.com/OnlineMeetings.Read",
+                 "https://graph.microsoft.com/OnlineMeetings.ReadWrite",
+                 "https://graph.microsoft.com/Chat.Read",
+                 "https://graph.microsoft.com/Chat.ReadWrite",
+                 "https://graph.microsoft.com/Calendars.Read",
+                 "https://graph.microsoft.com/Calendars.ReadWrite"
+             };
+
+             var scopeString = string.Join(" ", scopes);
+
+             var queryParams = HttpUtility.ParseQueryString(string.Empty);
+             queryParams["client_id"] = clientId;
+             queryParams["response_type"] = "code";
+             queryParams["redirect_uri"] = redirectUri;
+             queryParams["response_mode"] = "query";
+             queryParams["scope"] = scopeString;
+             queryParams["state"] = pkce.State;
+             queryParams["prompt"] = "select_account";
+             queryParams["code_challenge"] = pkce.CodeChallenge;
+             queryParams["code_challenge_method"] = "S256";
+
+             var authorizationUrl = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize?{queryParams}";
+
+             _logger.LogInformation($"{nameof(GenerateMicrosoftAuthUrl)} generated URL successfully");
+
+             return new GraphApiAuthUrlResponseDto
+             {
+                 AuthUrl = authorizationUrl,
+                 State = pkce.State,
+                 CodeVerifier = pkce.CodeVerifier
+             };
+         }
+
+         public async Task<GraphApiTokenResponseDto> HandleMicrosoftCallback(GraphApiCallbackDto dto)
+         {
+             _logger.LogInformation($"{nameof(HandleMicrosoftCallback)} dto={JsonSerializer.Serialize(dto)}");
+             var tokenResponse = await ExchangeCodeForTokenAsync(dto.Code, dto.CodeVerifier);
+             return tokenResponse;
+         }*/
+
+        public async Task<GraphApiUserInforResponseDto> GetUserInfo(string userEmailHuce)
         {
-            _logger.LogInformation($"{nameof(GenerateMicrosoftAuthUrl)} started");
-
-            var tenantId = _configuration["AzureAd:TenantId"];
-            var clientId = _configuration["AzureAd:ClientId"];
-            var redirectUri = _configuration["AzureAd:RedirectUri"];
-
-            var pkce = GeneratePKCE();
-
-            var scopes = new[]
-            {
-                "https://graph.microsoft.com/User.Read",
-                "https://graph.microsoft.com/User.Read.All",
-                "https://graph.microsoft.com/User.ReadBasic.All",
-                "https://graph.microsoft.com/OnlineMeetings.Read",
-                "https://graph.microsoft.com/OnlineMeetings.ReadWrite",
-                "https://graph.microsoft.com/Chat.Read",
-                "https://graph.microsoft.com/Chat.ReadWrite",
-                "https://graph.microsoft.com/Calendars.Read",
-                "https://graph.microsoft.com/Calendars.ReadWrite"
-            };
-
-            var scopeString = string.Join(" ", scopes);
-
-            var queryParams = HttpUtility.ParseQueryString(string.Empty);
-            queryParams["client_id"] = clientId;
-            queryParams["response_type"] = "code";
-            queryParams["redirect_uri"] = redirectUri;
-            queryParams["response_mode"] = "query";
-            queryParams["scope"] = scopeString;
-            queryParams["state"] = pkce.State;
-            queryParams["prompt"] = "select_account";
-            queryParams["code_challenge"] = pkce.CodeChallenge;
-            queryParams["code_challenge_method"] = "S256";
-
-            var authorizationUrl = $"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize?{queryParams}";
-
-            _logger.LogInformation($"{nameof(GenerateMicrosoftAuthUrl)} generated URL successfully");
-
-            return new GraphApiAuthUrlResponseDto
-            {
-                AuthUrl = authorizationUrl,
-                State = pkce.State,
-                CodeVerifier = pkce.CodeVerifier
-            };
-        }
-
-        public async Task<GraphApiTokenResponseDto> HandleMicrosoftCallback(GraphApiCallbackDto dto)
-        {
-            _logger.LogInformation($"{nameof(HandleMicrosoftCallback)} dto={JsonSerializer.Serialize(dto)}");
-            var tokenResponse = await ExchangeCodeForTokenAsync(dto.Code, dto.CodeVerifier);
-            return tokenResponse;
-        }
-
-        public async Task<GraphApiUserInforResponseDto> GetUserInfo(string accessToken)
-        {
-            _logger.LogInformation($"{nameof(GetUserInfo)} started");
+            _logger.LogInformation($"{nameof(GetUserInfo)} userEmailHuce={userEmailHuce}");
 
             try
             {
-                var userGraphClient = CreateUserGraphClient(accessToken);
-                var user = await userGraphClient.Me.GetAsync();
+                var tenantId = _configuration["AzureAd:TenantId"];
+                var clientId = _configuration["AzureAd:ClientId"];
+                var clientSecret = _configuration["AzureAd:ClientSecret"];
+
+                var scopes = new[]
+                {
+            "https://graph.microsoft.com/.default"
+        };
+
+                var options = new TokenCredentialOptions
+                {
+                    AuthorityHost = AzureAuthorityHosts.AzurePublicCloud,
+                };
+
+                var clientSecretCredential = new ClientSecretCredential(
+                    tenantId, clientId, clientSecret, options);
+                var graphClient = new GraphServiceClient(clientSecretCredential, scopes);
+
+                // Tìm user theo email thay vì dùng Me endpoint
+                var users = await graphClient.Users
+                    .GetAsync(requestConfiguration =>
+                    {
+                        requestConfiguration.QueryParameters.Filter = $"mail eq '{userEmailHuce}' or userPrincipalName eq '{userEmailHuce}'";
+                        requestConfiguration.QueryParameters.Select = new[] {
+                    "id", "displayName", "givenName", "surname", "mail",
+                    "userPrincipalName", "jobTitle", "officeLocation", "mobilePhone"
+                        };
+                        requestConfiguration.QueryParameters.Top = 1;
+                    });
+
+                if (users?.Value == null || !users.Value.Any())
+                {
+                    throw new UserFriendlyException(ErrorCodes.NotFound, $"Không tìm thấy user với email: {userEmailHuce}");
+                }
+
+                var user = users.Value.First();
 
                 var userInfo = new GraphApiUserInforResponseDto
                 {
-                    Id = user?.Id ?? "",
-                    DisplayName = user?.DisplayName ?? "",
-                    GivenName = user?.GivenName ?? "",
-                    Surname = user?.Surname ?? "",
-                    Mail = user?.Mail ?? "",
-                    UserPrincipalName = user?.UserPrincipalName ?? "",
-                    JobTitle = user?.JobTitle ?? "",
-                    OfficeLocation = user?.OfficeLocation ?? "",
-                    MobilePhone = user?.MobilePhone ?? ""
+                    Id = user.Id ?? "",
+                    DisplayName = user.DisplayName ?? "",
+                    GivenName = user.GivenName ?? "",
+                    Surname = user.Surname ?? "",
+                    Mail = user.Mail ?? "",
+                    UserPrincipalName = user.UserPrincipalName ?? "",
+                    JobTitle = user.JobTitle ?? "",
+                    OfficeLocation = user.OfficeLocation ?? "",
+                    MobilePhone = user.MobilePhone ?? ""
                 };
 
+                _logger.LogInformation($"Successfully retrieved user info for: {userEmailHuce}");
                 return userInfo;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error in {nameof(GetUserInfo)}");
+                _logger.LogError(ex, $"Error in {nameof(GetUserInfo)} for email: {userEmailHuce}");
                 throw;
             }
-        }*/
+        }
         public async Task<string> GetUserIdByEmailAsync(string email)
         {
             _logger.LogInformation($"{nameof(GetUserIdByEmailAsync)} email={email}");
@@ -1237,6 +1277,77 @@ namespace thongbao.be.application.DiemDanh.Implements
             _smDbContext.SaveChanges();
             _logger.LogInformation($"{nameof(CreateDotDiemDanh)} completed");
         }
+        public void UpdateDotDiemDanh(int idCuocHop, int idDotDiemDanh, UpdateDotDiemDanhDto dto)
+        {
+            _logger.LogInformation($"{nameof(UpdateDotDiemDanh)} dto={JsonSerializer.Serialize(dto)}");
+            var vietnamNow = GetVietnamTime();
+            var cuocHop = _smDbContext.HopTrucTuyens
+                .FirstOrDefault(h => h.Id == idCuocHop && !h.Deleted);
+            if (cuocHop == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.NotFound, "Cuộc họp không tồn tại");
+            }
+            var dotDiemDanh = _smDbContext.DotDiemDanhs
+                .FirstOrDefault(dd => dd.Id == idDotDiemDanh && !dd.Deleted);
+            if (dotDiemDanh == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.NotFound, "Đợt điểm danh không tồn tại");
+            }
+            var thoiGianBatDau = dto.ThoiGianBatDau ?? vietnamNow;
+            var thoiGianKetThuc = dto.ThoiGianKetThuc ?? vietnamNow;
+            if (thoiGianKetThuc < thoiGianBatDau)
+            {
+                throw new UserFriendlyException(ErrorCodes.BadRequest, "Thời gian kết thúc điểm danh phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
+            }
+            dotDiemDanh.TenDotDiemDanh = dto.TenDotDiemDanh;
+            dotDiemDanh.TenMonHoc = dto.TenMonHoc;
+            dotDiemDanh.MaMonHoc = dto.MaMonHoc;
+            dotDiemDanh.ThoiGianBatDau = thoiGianBatDau;
+            dotDiemDanh.ThoiGianKetThuc = thoiGianKetThuc;
+            dotDiemDanh.GhiChu = dto.GhiChu ?? string.Empty;
+            _smDbContext.SaveChanges();
+        }
+        public void DeleteDotDiemDanh(int idCuocHop, int idDotDiemDanh)
+        {
+            _logger.LogInformation($"{nameof(DeleteDotDiemDanh)} started for IdCuocHop: {idCuocHop}, IdDotDiemDanh: {idDotDiemDanh}");
+            var vietnamNow = GetVietnamTime();
+            var cuocHop = _smDbContext.HopTrucTuyens
+                .FirstOrDefault(h => h.Id == idCuocHop && !h.Deleted);
+            if (cuocHop == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.NotFound, "Cuộc họp không tồn tại");
+            }
+            var dotDiemDanh = _smDbContext.DotDiemDanhs
+                .FirstOrDefault(dd => dd.Id == idDotDiemDanh && !dd.Deleted);
+            if (dotDiemDanh == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.NotFound, "Đợt điểm danh không tồn tại");
+            }
+            dotDiemDanh.Deleted = true;
+            dotDiemDanh.DeletedDate = vietnamNow;
+            _smDbContext.SaveChanges();
+            _logger.LogInformation($"{nameof(DeleteDotDiemDanh)} completed for IdCuocHop: {idCuocHop}, IdDotDiemDanh: {idDotDiemDanh}");
+        }
+        public byte[] GenerateQrCodeImageForDiemDanh(int idDotDiemDanh)
+        {
+            _logger.LogInformation($"{nameof(GenerateQrCodeImageForDiemDanh)} idDotDiemDanh={idDotDiemDanh}");
+
+            var dotDiemDanh = _smDbContext.DotDiemDanhs
+                .FirstOrDefault(dd => dd.Id == idDotDiemDanh && !dd.Deleted);
+
+            if (dotDiemDanh == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.NotFound, "Đợt điểm danh không tồn tại");
+            }
+            var qrUrl = $"http://localhost:4200/diem-danh/qr?dot-diem-danh={idDotDiemDanh}";
+
+            using var qrGenerator = new QRCodeGenerator();
+            using var qrCodeData = qrGenerator.CreateQrCode(qrUrl, QRCodeGenerator.ECCLevel.Q);
+            using var qrCode = new PngByteQRCode(qrCodeData);
+
+            return qrCode.GetGraphic(20);
+        }
+
         private string ConvertTrangThaiDiemDanh(int trangThai)
         {
             return trangThai switch
