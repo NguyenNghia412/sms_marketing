@@ -7,6 +7,8 @@ import { AuthService } from '../../../services/auth.service';
 import { MessageService } from 'primeng/api';
 import { environment } from 'src/environments/environment';
 import { BaseComponent } from '@/shared/components/base/base-component';
+import { AuthConstants } from '@/shared/constants/auth.constants';
+import { Utils } from '@/shared/utils';
 
 @Component({
     selector: 'app-login',
@@ -59,16 +61,17 @@ export class Login extends BaseComponent {
         const backendUrl = environment.baseUrl;
         const clientId = environment.authClientId;
         const redirectUri = 'http://localhost:4200/auth/callback';
-        const { codeChallenge, codeVerifier } = await this.generatePKCECodes();
+        const { codeChallenge, codeVerifier } = await Utils.generatePKCECodes();
 
-        // window.location.href = `${backendUrl}/connect/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid offline_access&code_challenge=${codeChallenge}&code_challenge_method=S256`;
         window.location.href = `${backendUrl}/login/google`;
     }
 
     async loginMs() {
         const backendUrl = environment.baseUrl;
-        const redirectUri = 'http://localhost:4200/auth/callback';
-        const { codeChallenge, codeVerifier } = await this.generatePKCECodes();
+        const redirectUri = `${environment.appUrl}/auth/callback`;
+        const { codeChallenge, codeVerifier } = await Utils.generatePKCECodes();
+
+        sessionStorage.setItem(AuthConstants.SESSION_PKCE_CODE_VERIFIER, codeVerifier);
 
         const url =
             `${backendUrl}/connect/authorize?` +
@@ -76,29 +79,10 @@ export class Login extends BaseComponent {
             `&redirect_uri=${encodeURIComponent(redirectUri)}` +
             `&response_type=code` +
             `&scope=openid offline_access` +
-            `&prompt=login&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+            `&prompt=login&code_challenge=${codeChallenge}&code_challenge_method=${AuthConstants.PKCE_CODE_CHALLENGE_METHOD}`;
 
         window.location.href = url;
     }
 
-    base64UrlEncode(arrayBuffer: ArrayBuffer) {
-        let str = String.fromCharCode(...new Uint8Array(arrayBuffer));
-        return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    }
-
-    async generatePKCECodes() {
-        const array = new Uint8Array(32);
-        crypto.getRandomValues(array);
-
-        // code_verifier
-        const codeVerifier = this.base64UrlEncode(array.buffer);
-
-        // code_challenge = SHA256(code_verifier)
-        const encoder = new TextEncoder();
-        const data = encoder.encode(codeVerifier);
-        const digest = await crypto.subtle.digest('SHA-256', data);
-        const codeChallenge = this.base64UrlEncode(digest);
-
-        return { codeVerifier, codeChallenge };
-    }
+    
 }

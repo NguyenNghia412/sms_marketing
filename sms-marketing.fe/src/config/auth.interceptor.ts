@@ -26,7 +26,7 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
                     router.navigate(['/auth/login']);
                 }
 
-                const body = new HttpParams().set('grant_type', 'refresh_token').set('client_id', environment.authClientId).set('refresh_token', refreshToken).set('client_secret', environment.authClientSecret);
+                const body = new HttpParams().set('grant_type', 'refresh_token').set('client_id', environment.authClientId).set('refresh_token', refreshToken).set('client_secret', environment.authClientSecret ?? "");
                 const headers = new HttpHeaders({
                     'Content-Type': 'application/x-www-form-urlencoded',
                     Accept: 'text/plain'

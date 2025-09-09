@@ -1,8 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
+import { Component, inject, OnInit } from '@angular/core';
+import { AuthService } from '@/services/auth.service';
+import { AuthConstants } from '@/shared/constants/auth.constants';
 
 @Component({
     selector: 'app-callback',
@@ -10,13 +8,15 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
     template: ``
 })
 export class AuthCallback implements OnInit {
+
+    _authService = inject(AuthService);
+
     ngOnInit(): void {
         const query = window.location.search.substring(1); // ?code=...&state=...
         this.handleAuthCallback(query);
     }
 
     handleAuthCallback(query: string) {
-        console.log('query', query);
         const params = new URLSearchParams(query);
         const code = params.get('code');
 
@@ -25,21 +25,8 @@ export class AuthCallback implements OnInit {
             return;
         }
 
-        // Exchange code for tokens
-        const body = new URLSearchParams({
-            grant_type: 'authorization_code',
-            code: code,
-            redirect_uri: 'http://localhost:4200/callback',
-            client_id: 'angular-client'
-        });
+        const verifier = sessionStorage.getItem(AuthConstants.SESSION_PKCE_CODE_VERIFIER);
 
-        //   this.http.post<any>('http://localhost:5000/connect/token', body).subscribe({
-        //     next: (tokens) => {
-        //       localStorage.setItem('access_token', tokens.access_token);
-        //       localStorage.setItem('refresh_token', tokens.refresh_token);
-        //       this.router.navigate(['/']);
-        //     },
-        //     error: (err) => console.error('Token exchange failed', err)
-        //   });
+        this._authService.postConnectAuthorize(code, verifier ?? "");
     }
 }

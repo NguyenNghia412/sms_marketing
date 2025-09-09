@@ -40,5 +40,7 @@ namespace thongbao.be.application.Auth.Dtos.User
         public string? FullName { get; set; }
 
         public List<string> RoleNames { get; set; } = new List<string>();
+
+        public string? MsAccount { get; set; }
     }
 }

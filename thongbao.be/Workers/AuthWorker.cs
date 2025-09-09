@@ -47,15 +47,38 @@ namespace thongbao.be.Workers
                     Permissions =
                     {
                         Permissions.Endpoints.Token,
-                            Permissions.Endpoints.Authorization,
-                            Permissions.Endpoints.Revocation,
-                            Permissions.GrantTypes.Password,
-                            Permissions.GrantTypes.RefreshToken,
-                            //Permissions.GrantTypes.ClientCredentials,
-                            Permissions.GrantTypes.Password,
-                            Permissions.GrantTypes.AuthorizationCode,
-                            Permissions.ResponseTypes.Code,
-                            Permissions.Scopes.Roles,
+                        Permissions.Endpoints.Authorization,
+                        Permissions.Endpoints.Revocation,
+                        Permissions.GrantTypes.Password,
+                        Permissions.GrantTypes.RefreshToken,
+                        Permissions.GrantTypes.AuthorizationCode,
+                        Permissions.ResponseTypes.Code,
+                        Permissions.Scopes.Roles,
+
+                    }
+                });
+            }
+
+            if (await manager.FindByClientIdAsync("client-web2") is null)
+            {
+                await manager.CreateAsync(new OpenIddictApplicationDescriptor
+                {
+                    ClientId = "client-web2",
+                    RedirectUris =
+                    {
+                        new Uri("http://localhost:4200/auth/callback")
+                    },
+                    Permissions =
+                    {
+                        Permissions.Endpoints.Token,
+                        Permissions.Endpoints.Authorization,
+                        Permissions.Endpoints.Revocation,
+                        Permissions.GrantTypes.Password,
+                        Permissions.GrantTypes.RefreshToken,
+                        Permissions.GrantTypes.AuthorizationCode,
+                        Permissions.ResponseTypes.Code,
+                        Permissions.Scopes.Roles,
+
                     }
                 });
             }
