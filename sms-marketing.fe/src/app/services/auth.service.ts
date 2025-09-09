@@ -71,7 +71,7 @@ export class AuthService {
                 const redirect_uri = Utils.getSessionStorage(AuthConstants.REDIRECT_URI_AFTER_LOGIN) || '/';
                 // Utils.removeSessionStorage(AuthConstants.REDIRECT_URI_AFTER_LOGIN)
 
-                this.router.navigate([redirect_uri]);
+                this.router.navigateByUrl(redirect_uri);
             },
             error: (err) => console.error('Token exchange failed', err)
         });
