@@ -19,6 +19,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using thongbao.be.application.Auth.Interfaces;
 using thongbao.be.domain.Auth;
+using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
 using thongbao.be.shared.Settings;
@@ -90,10 +91,15 @@ namespace thongbao.be.Controllers.Auth
                     );
                     string subject = result.Principal!.GetClaim(Claims.Subject)!;
 
+                    var user = await userManager.FindByIdAsync(subject)
+                        ?? throw new UserFriendlyException(ErrorCodes.AuthErrorUserNotFound);
+
                     // Use the client_id as the subject identifier.
                     identity.SetClaim(Claims.Subject, subject);
-                    //identity.SetClaim(Claims.Name, user.FullName);
-                    //identity.SetClaim(Claims.Username, user.UserName);
+                    identity.SetClaim(Claims.Subject, subject);
+                    identity.SetClaim(Claims.Name, user.FullName);
+                    identity.SetClaim(Claims.Username, user.UserName);
+                    identity.SetClaim(CustomClaimTypes.UserType, "SV");
                     identity.SetScopes(
                             new[]
                             {
@@ -264,7 +270,7 @@ namespace thongbao.be.Controllers.Auth
                 };
                 return Challenge(props, MicrosoftAccountDefaults.AuthenticationScheme);
             }
-            var ss = User.Claims.ToList();
+
             // At this point, the user info is already in cookie (from ExternalCallback)
             var identity = new ClaimsIdentity(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 
@@ -284,10 +290,13 @@ namespace thongbao.be.Controllers.Auth
                 // when the "profile" scope was granted (by calling principal.SetScopes(...)).
                 Claims.Name when claim.Subject.HasScope(Scopes.Profile)
                     => [Destinations.AccessToken, Destinations.IdentityToken],
-
+                CustomClaimTypes.UserType when true
+                => [Destinations.AccessToken, Destinations.IdentityToken],
                 // Otherwise, only store the claim in the access tokens.
                 _ => [Destinations.AccessToken]
             });
+
+
 
             var principal = new ClaimsPrincipal(identity);
 
@@ -330,12 +339,17 @@ namespace thongbao.be.Controllers.Auth
             identity.SetClaim(Claims.Subject, user.Id);
             identity.SetClaim(Claims.Name, user.FullName);
             identity.SetClaim(Claims.Username, user.UserName);
+            identity.SetClaim(CustomClaimTypes.UserType, "SV");
+
 
             identity.SetDestinations(static claim => claim.Type switch
             {
                 // Allow the "name" claim to be stored in both the access and identity tokens
                 // when the "profile" scope was granted (by calling principal.SetScopes(...)).
                 Claims.Name when claim.Subject.HasScope(Scopes.Profile)
+                    => [Destinations.AccessToken, Destinations.IdentityToken],
+
+                CustomClaimTypes.UserType when true
                     => [Destinations.AccessToken, Destinations.IdentityToken],
 
                 // Otherwise, only store the claim in the access tokens.

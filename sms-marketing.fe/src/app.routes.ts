@@ -5,6 +5,7 @@ import { Documentation } from './app/pages/documentation/documentation';
 import { Landing } from './app/pages/landing/landing';
 import { Notfound } from './app/pages/notfound/notfound';
 import { authGuard } from '@/shared/guard/auth-guard';
+import { diemDanhGuard } from '@/shared/guard/diem-danh-guard';
 
 export const appRoutes: Routes = [
     {
@@ -20,7 +21,7 @@ export const appRoutes: Routes = [
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
         ]
     },
-    { path: 'diem-danh', canActivate: [authGuard], loadChildren: () => import('./app/pages/diem-danh/diem-danh.routes')  },
+    { path: 'diem-danh', canActivate: [diemDanhGuard], loadChildren: () => import('./app/pages/diem-danh/diem-danh.routes')  },
     { path: 'landing', component: Landing },
     { path: 'notfound', component: Notfound },
     { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },

@@ -1,4 +1,7 @@
 import moment from 'moment';
+import {jwtDecode} from 'jwt-decode';
+import { IJwtPayload } from './models/jwt-payload.models';
+
 
 export class Utils {
     // LOCAL STORAGE
@@ -42,6 +45,11 @@ export class Utils {
     public static getRefreshToken() {
         const auth = this.getLocalStorage('auth');
         return auth?.refreshToken;
+    }
+
+    public static getDecodedJwtPayload() {
+        const token = this.getAccessToken();
+        return jwtDecode<IJwtPayload>(token);
     }
 
     public static refreshData(data: any) {
