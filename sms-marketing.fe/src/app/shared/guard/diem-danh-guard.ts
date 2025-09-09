@@ -2,7 +2,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { Utils } from '../utils';
 import { inject } from '@angular/core';
 
-export const authGuard: CanActivateFn = (route, state) => {
+export const diemDanhGuard: CanActivateFn = (route, state) => {
 
   const router = inject(Router);
 
@@ -16,12 +16,6 @@ export const authGuard: CanActivateFn = (route, state) => {
         redirect_uri: state.url
       }
     })
-  }
-
-  const jwtPayload = Utils.getDecodedJwtPayload();
-  if (jwtPayload.user_type === 'SV') {
-    const uri = 'auth/access'
-    router.navigate([uri]);
   }
 
   return true;
