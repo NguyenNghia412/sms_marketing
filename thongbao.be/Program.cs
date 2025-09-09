@@ -145,10 +145,10 @@ builder.Services.AddOpenIddict()
 
 builder.Services.AddAuthentication(options =>
 {
-    //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    //options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 })
     .AddJwtBearer(
         options =>
@@ -182,7 +182,6 @@ builder.Services.AddAuthentication(options =>
     })
     .AddMicrosoftAccount(options =>
     {
-        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         options.ClientId = msClientId;
         options.ClientSecret = msClientSecret;
     });

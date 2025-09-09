@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using thongbao.be.application.GuiTinNhan.Dtos;
@@ -13,8 +12,7 @@ namespace thongbao.be.Controllers.ChienDich
 {
     [Route("api/core/chien-dich")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-
+    [Authorize]
     public class ChienDichController : BaseController
     {
         private readonly IChienDichService _chienDichService;

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using thongbao.be.application.DiemDanh.Dtos;
 using thongbao.be.application.DiemDanh.Interfaces;
@@ -11,10 +10,9 @@ using thongbao.be.shared.HttpRequest.Exception;
 
 namespace thongbao.be.Controllers.DiemDanh
 {
-
     [Route("api/core/hop-truc-tuyen")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize]
 
     public class HopTrucTuyenController : BaseController
     {
@@ -144,14 +142,14 @@ namespace thongbao.be.Controllers.DiemDanh
             {
                 return OkException(ex);
             }
-        }*/
+        }
 
-        [HttpGet("user-info")]
-        public async Task<ApiResponse> GetUserInfo([FromQuery] string userEmailHuce)
+        [HttpPost("user-info")]
+        public async Task<ApiResponse> GetUserInfo([FromBody] GraphApiGetUserInfoRequestDto dto)
         {
             try
             {
-                var userInfo = await _hopTrucTuyenService.GetUserInfo(userEmailHuce);
+                var userInfo = await _hopTrucTuyenService.GetUserInfo(dto.AccessToken);
 
                 return new(userInfo);
             }
@@ -159,7 +157,7 @@ namespace thongbao.be.Controllers.DiemDanh
             {
                 return OkException(ex);
             }
-        }
+        }*/
         [HttpPost("thong-tin-cuoc-hop")]
         public async Task<ApiResponse> GetThongTinCuocHop([FromQuery] GraphApiGetThongTinCuocHopDto dto)
         {
@@ -229,11 +227,11 @@ namespace thongbao.be.Controllers.DiemDanh
         }
         [Permission(PermissionKeys.HopTrucTuyenAdd)]
         [HttpPost("dot-diem-danh")]
-        public ApiResponse CreateDotDiemDanh([FromQuery] int idCuocHop,[FromBody] CreateDotDiemDanhDto dto)
+        public ApiResponse CreateDotDiemDanh([FromBody] CreateDotDiemDanhDto dto)
         {
             try
             {
-                _hopTrucTuyenService.CreateDotDiemDanh(idCuocHop,dto);
+                _hopTrucTuyenService.CreateDotDiemDanh(dto);
                 return new();
             }
             catch (Exception ex)
@@ -242,64 +240,5 @@ namespace thongbao.be.Controllers.DiemDanh
             }
             
         }
-        [Permission(PermissionKeys.HopTrucTuyenUpdate)]
-        [HttpPut("dot-diem-danh")]
-        public ApiResponse UpdateDotDiemDanh([FromQuery] int idCuocHop, [FromQuery] int idDotDiemDanh, [FromBody] UpdateDotDiemDanhDto dto)
-        {
-            try
-            {
-                _hopTrucTuyenService.UpdateDotDiemDanh(idCuocHop, idDotDiemDanh, dto);
-                return new();
-            }
-            catch (Exception ex)
-            {
-                return OkException(ex);
-            }
-        }
-        [Permission(PermissionKeys.HopTrucTuyenDelete)]
-        [HttpDelete("dot-diem-danh")]
-        public ApiResponse DeleteDotDiemDanh([FromQuery] int idCuocHop, [FromQuery] int idDotDiemDanh)
-        {
-            try
-            {
-                _hopTrucTuyenService.DeleteDotDiemDanh(idCuocHop, idDotDiemDanh);
-                return new();
-            }
-            catch (Exception ex)
-            {
-                return OkException(ex);
-            }
-        }
-        [Permission(PermissionKeys.HopTrucTuyenView)]
-        [HttpPost("dot-diem-danh/{idDotDiemDanh}/qr-code")]
-        public IActionResult GetQrCodeImage(int idDotDiemDanh)
-        {
-            try
-            {
-                var qrImageBytes = _hopTrucTuyenService.GenerateQrCodeImageForDiemDanh(idDotDiemDanh);
-                return File(qrImageBytes, "image/png");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ApiResponse(ex.Message));
-            }
-        }
-        [Permission(PermissionKeys.HopTrucTuyenView)]
-        [HttpGet("dot-diem-danh/{idDotDiemDanh}/qr-code/download")]
-        public IActionResult DownloadQrCodeImage(int idDotDiemDanh)
-        {
-            try
-            {
-                var qrImageBytes = _hopTrucTuyenService.GenerateQrCodeImageForDiemDanh(idDotDiemDanh);
-                var fileName = $"QR_DiemDanh_{idDotDiemDanh}_{DateTime.Now:yyyyMMdd}.png";
-
-                return File(qrImageBytes, "image/png", fileName);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ApiResponse(ex.Message));
-            }
-        }
-
     }
 }
