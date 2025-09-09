@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using thongbao.be.application.DiemDanh.Dtos;
 using thongbao.be.application.DiemDanh.Interfaces;
@@ -10,9 +11,10 @@ using thongbao.be.shared.HttpRequest.Exception;
 
 namespace thongbao.be.Controllers.DiemDanh
 {
+
     [Route("api/core/hop-truc-tuyen")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
     public class HopTrucTuyenController : BaseController
     {
