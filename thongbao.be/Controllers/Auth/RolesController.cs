@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using thongbao.be.application.Auth.Dtos.Role;
@@ -12,7 +13,7 @@ namespace thongbao.be.Controllers.Auth
 {
     [Route("api/app/roles")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class RolesController : BaseController
     {
         private readonly IRoleService _roleService;
