@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using thongbao.be.infrastructure.data;
 
@@ -11,9 +12,11 @@ using thongbao.be.infrastructure.data;
 namespace thongbao.be.infrastructure.data.Migrations
 {
     [DbContext(typeof(SmDbContext))]
-    partial class SmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250909172252_Add_DotDiemDanh_GhiNhanDiemDanh")]
+    partial class Add_DotDiemDanh_GhiNhanDiemDanh
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -472,9 +475,6 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.Property<string>("GhiChu")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("IdCuocHop")
-                        .HasColumnType("int");
 
                     b.Property<string>("MaMonHoc")
                         .IsRequired()

@@ -225,5 +225,20 @@ namespace thongbao.be.Controllers.DiemDanh
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.HopTrucTuyenAdd)]
+        [HttpPost("dot-diem-danh")]
+        public ApiResponse CreateDotDiemDanh([FromBody] CreateDotDiemDanhDto dto)
+        {
+            try
+            {
+                _hopTrucTuyenService.CreateDotDiemDanh(dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+            
+        }
     }
 }

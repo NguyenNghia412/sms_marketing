@@ -24,6 +24,7 @@ namespace thongbao.be.application.DiemDanh.Interfaces
         public Task UpdateTrangThaiDiemDanh(int idCuocHop,UpdateTrangThaiDiemDanhDto dto);
         public Task<byte[]> ExportDanhSachDiemDanhToExcel(int idCuocHop);
         public ViewThongKeDiemDanhResponseDto ThongKeDiemDanh(ViewThongKeDiemDanhRequestDto dto);
+        public void CreateDotDiemDanh(CreateDotDiemDanhDto dto);
 
     }
 }

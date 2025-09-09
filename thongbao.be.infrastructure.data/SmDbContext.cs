@@ -24,6 +24,8 @@ namespace thongbao.be.infrastructure.data
         public DbSet<HopTrucTuyen> HopTrucTuyens { get; set; }
         public DbSet<ThongTinDiemDanh> ThongTinDiemDanhs { get; set; }
         public DbSet<TinNhanHopTrucTuyen> TinNhanHopTrucTuyens { get; set; }
+        public DbSet<DotDiemDanh> DotDiemDanhs { get; set; }
+        public DbSet<GhiNhanDiemDanh> GhiNhanDiemDanhs { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -57,7 +59,20 @@ namespace thongbao.be.infrastructure.data
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
 
             });
+            modelBuilder.Entity<DotDiemDanh>(entity =>
+            {
+                entity.Property(e => e.ThoiGianBatDau).HasDefaultValueSql("getdate()");
+                entity.Property(e => e.ThoiGianKetThuc).HasDefaultValueSql("getdate()");
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
 
+            });
+            modelBuilder.Entity<GhiNhanDiemDanh>(entity =>
+            {
+                entity.Property(e => e.ThoiGianDiemDanh).HasDefaultValueSql("getdate()");
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
 
             modelBuilder.HasDefaultSchema(DbSchemas.Core);
 

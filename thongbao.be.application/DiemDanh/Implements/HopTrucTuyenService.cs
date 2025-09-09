@@ -100,8 +100,6 @@ namespace thongbao.be.application.DiemDanh.Implements
             var data = query.Paging(dto).ToList();
             var items = _mapper.Map<List<ViewCuocHopDto>>(data);
 
-
-
             return new BaseResponsePagingDto<ViewCuocHopDto>
             {
                 Items = items,
@@ -1205,6 +1203,39 @@ namespace thongbao.be.application.DiemDanh.Implements
                 TongSoSinhVienThamGia = tongSoSinhVienThamGia,
                 TongSoSinhVienVang = tongSoSinhVienVang
             };
+        }
+        public void CreateDotDiemDanh(int idCuocHop,CreateDotDiemDanhDto dto)
+        {
+            _logger.LogInformation($"{nameof(CreateDotDiemDanh)} dto={JsonSerializer.Serialize(dto)}");
+            var vietnamNow = GetVietnamTime();
+            var cuocHop = _smDbContext.HopTrucTuyens
+                .FirstOrDefault(h => h.Id == idCuocHop && !h.Deleted);
+            if (cuocHop == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.NotFound, "Cuộc họp không tồn tại");
+            }
+            var thoiGianBatDau = dto.ThoiGianBatDau ?? vietnamNow;
+            var thoiGianKetThuc = dto.ThoiGianKetThuc ?? vietnamNow;
+            if (thoiGianKetThuc < thoiGianBatDau)
+            {
+                throw new UserFriendlyException(ErrorCodes.BadRequest, "Thời gian kết thúc điểm danh phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
+            }
+            var dotDiemDanh = new domain.DiemDanh.DotDiemDanh
+            {
+                TenDotDiemDanh = dto.TenDotDiemDanh,
+                TenMonHoc = dto.TenMonHoc,
+                MaMonHoc = dto.MaMonHoc,
+                ThoiGianBatDau = thoiGianBatDau,
+                ThoiGianKetThuc = thoiGianKetThuc,
+                GhiChu = dto.GhiChu ?? string.Empty,
+                CreatedDate = vietnamNow,
+                Deleted = false
+            };
+
+            _smDbContext.DotDiemDanhs.Add(dotDiemDanh);
+
+            _smDbContext.SaveChanges();
+            _logger.LogInformation($"{nameof(CreateDotDiemDanh)} completed");
         }
         private string ConvertTrangThaiDiemDanh(int trangThai)
         {

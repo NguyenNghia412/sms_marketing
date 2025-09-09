@@ -145,9 +145,10 @@ builder.Services.AddOpenIddict()
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    //options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 })
     .AddJwtBearer(
         options =>
