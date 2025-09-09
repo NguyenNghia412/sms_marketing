@@ -90,7 +90,7 @@ string googleClientId = builder.Configuration.GetSection("AuthServer:Google:Clie
 string googleClientSecret = builder.Configuration.GetSection("AuthServer:Google:ClientSecret").Value!;
 string googleRedirectUri = builder.Configuration.GetSection("AuthServer:Google:RedirectUri").Value!;
 
-string msClientId = builder.Configuration.GetSection("AuthServer:MS:ClientId").Value!;
+string msClientId = builder.Configuration["AuthServer:MS:ClientId"];
 string msClientSecret = builder.Configuration.GetSection("AuthServer:MS:ClientSecret").Value!;
 string msRedirectUri = builder.Configuration.GetSection("AuthServer:MS:RedirectUri").Value!;
 

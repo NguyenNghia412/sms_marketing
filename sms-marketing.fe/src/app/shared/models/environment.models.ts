@@ -4,5 +4,6 @@ export interface IEnvironment {
   authGrantType: string,
   authClientId: string,
   authClientSecret: string,
-  authScope: string
+  authScope: string,
+  appUrl: string,
 }

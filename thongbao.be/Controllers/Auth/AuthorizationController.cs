@@ -34,9 +34,10 @@ namespace thongbao.be.Controllers.Auth
         private readonly AuthServerSettings _authServerSettings;
 
 
-        public AuthorizationController(IOpenIddictApplicationManager applicationManager, IOptions<AuthServerSettings> options, IUsersService usersService)
+        public AuthorizationController(IOpenIddictApplicationManager applicationManager, IUsersService usersService, IOptions<AuthServerSettings> options)
         {
             _applicationManager = applicationManager;
+            _usersService = usersService;
             _authServerSettings = options.Value;
         }
             
@@ -65,6 +66,43 @@ namespace thongbao.be.Controllers.Auth
                     identity.SetClaim(Claims.Subject, await _applicationManager.GetClientIdAsync(application));
                     identity.SetClaim(Claims.Name, await _applicationManager.GetDisplayNameAsync(application));
 
+                    identity.SetDestinations(static claim => claim.Type switch
+                    {
+                        // Allow the "name" claim to be stored in both the access and identity tokens
+                        // when the "profile" scope was granted (by calling principal.SetScopes(...)).
+                        Claims.Name when claim.Subject.HasScope(Scopes.Profile)
+                            => [Destinations.AccessToken, Destinations.IdentityToken],
+
+                        // Otherwise, only store the claim in the access tokens.
+                        _ => [Destinations.AccessToken]
+                    });
+
+                    return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+                }
+                else if (request.IsAuthorizationCodeGrantType())
+                {
+                    // Note: the client credentials are automatically validated by OpenIddict:
+                    // if client_id or client_secret are invalid, this action won't be invoked.
+
+                    var result = await HttpContext.AuthenticateAsync(
+                        OpenIddictServerAspNetCoreDefaults.AuthenticationScheme
+                    );
+                    string subject = result.Principal!.GetClaim(Claims.Subject)!;
+
+                    // Use the client_id as the subject identifier.
+                    identity.SetClaim(Claims.Subject, subject);
+                    //identity.SetClaim(Claims.Name, user.FullName);
+                    //identity.SetClaim(Claims.Username, user.UserName);
+                    identity.SetScopes(
+                            new[]
+                            {
+                            Scopes.OpenId,
+                            Scopes.Email,
+                            Scopes.Profile,
+                            Scopes.Roles,
+                            Scopes.OfflineAccess
+                            }.Intersect(request.GetScopes())
+                        );
                     identity.SetDestinations(static claim => claim.Type switch
                     {
                         // Allow the "name" claim to be stored in both the access and identity tokens
@@ -210,13 +248,6 @@ namespace thongbao.be.Controllers.Auth
                );
         }
 
-        [HttpGet("login/google")]
-        public IActionResult LoginGoogle(string returnUrl = "/")
-        {
-            var props = new AuthenticationProperties { RedirectUri = "/auth/sso/google" };
-            return Challenge(props, GoogleDefaults.AuthenticationScheme);
-        }
-
         [HttpGet("~/connect/authorize")]
         public async Task<IActionResult> ConnectAuthorize([FromServices] UserManager<AppUser> userManager, string returnUrl = "/")
         {
@@ -237,15 +268,14 @@ namespace thongbao.be.Controllers.Auth
             var identity = new ClaimsIdentity(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 
             // Copy claims from cookie identity into OpenIddict identity
-            //foreach (var claim in User.Claims)
-            //{
-            //    identity.AddClaim(claim.Type, claim.Value,
-            //        destinations: new[] { OpenIddictConstants.Destinations.AccessToken, OpenIddictConstants.Destinations.IdentityToken });
-            //}
+            foreach (var claim in User.Claims)
+            {
+                identity.SetClaim(claim.Type, claim.Value);
+            }
 
             // Use the client_id as the subject identifier.
-            identity.SetClaim(Claims.Subject, "test");
-            identity.SetClaim(Claims.Name, "nghia test");
+            //identity.SetClaim(Claims.Subject, "test");
+            //identity.SetClaim(Claims.Name, "nghia test");
 
             identity.SetDestinations(static claim => claim.Type switch
             {
@@ -263,29 +293,6 @@ namespace thongbao.be.Controllers.Auth
             // ✅ Tell OpenIddict to issue tokens
             return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 
-        }
-
-        [HttpGet("signin-google")]
-        public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null)
-        {
-
-            // Authenticate using Google scheme
-            var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
-            if (!result.Succeeded)
-                return BadRequest("Google authentication failed");
-
-            var claims = result.Principal!.Identities.First().Claims;
-            var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-            var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-
-            // 🔑 Here you can look up/create a local user in your DB
-            // Example: find by email, if not exists create one
-
-            // Step 3: Issue your own JWT for Angular
-            //var token = GenerateJwtToken(email!, name!);
-
-            // Option A: return as JSON (Angular fetches it)
-            return Ok();
         }
 
         [HttpGet("~/external-callback")]
@@ -307,20 +314,21 @@ namespace thongbao.be.Controllers.Auth
 
             if (user == null)
             {
-                user = new AppUser
+                user = await _usersService.Create(new application.Auth.Dtos.User.CreateUserDto
                 {
                     UserName = email,
                     Email = email,
                     MsAccount = email!,
                     FullName = name ?? "",
-                };
-                await userManager.CreateAsync(user, "password");
+                    Password = "Password@7"
+                });
             }
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             // Use the client_id as the subject identifier.
-            //identity.SetClaim(Claims.Subject, await _applicationManager.GetClientIdAsync(application));
-            //identity.SetClaim(Claims.Name, await _applicationManager.GetDisplayNameAsync(application));
+            identity.SetClaim(Claims.Subject, user.Id);
+            identity.SetClaim(Claims.Name, user.FullName);
+            identity.SetClaim(Claims.Username, user.UserName);
 
             identity.SetDestinations(static claim => claim.Type switch
             {

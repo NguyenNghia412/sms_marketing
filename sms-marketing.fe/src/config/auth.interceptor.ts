@@ -26,7 +26,7 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
                     router.navigate(['/auth/login']);
                 }
 
-                const body = new HttpParams().set('grant_type', 'refresh_token').set('client_id', environment.authClientId).set('refresh_token', refreshToken).set('client_secret', environment.authClientSecret);
+                const body = new HttpParams().set('grant_type', 'refresh_token').set('client_id', environment.authClientId).set('refresh_token', refreshToken).set('client_secret', environment.authClientSecret ?? "");
                 const headers = new HttpHeaders({
                     'Content-Type': 'application/x-www-form-urlencoded',
                     Accept: 'text/plain'
@@ -53,7 +53,8 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
                         return next(newReq);
                     }),
                     catchError((refreshErr) => {
-                        Utils.setLocalStorage('auth', {});
+                        Utils.clearLocalStorage();
+                        Utils.clearSessionStorage();
                         router.navigate(['/auth/login']);
                         return throwError(() => refreshErr);
                     })

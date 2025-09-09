@@ -32,7 +32,7 @@ namespace thongbao.be.application.Auth.Implements
             _userManager = userManager;
         }
 
-        public async Task Create(CreateUserDto dto)
+        public async Task<AppUser> Create(CreateUserDto dto)
         {
             _logger.LogInformation($"{nameof(Create)} dto={JsonSerializer.Serialize(dto)}");
 
@@ -43,6 +43,7 @@ namespace thongbao.be.application.Auth.Implements
                 Email = dto.Email,
                 FullName = dto.FullName ?? "",
                 PhoneNumber = dto.PhoneNumber,
+                MsAccount = dto.MsAccount ?? "",
             };
             var result = await _userManager.CreateAsync(newUser, dto.Password);
 
@@ -55,6 +56,8 @@ namespace thongbao.be.application.Auth.Implements
 
             await _smDbContext.SaveChangesAsync();
             await transaction.CommitAsync();
+
+            return newUser;
         }
 
         public async Task<ViewUserDto> FindById(string id)

@@ -10,7 +10,12 @@ export const authGuard: CanActivateFn = (route, state) => {
   const accessToken = authObject?.accessToken;
 
   if (!accessToken) {
-    router.navigate(['auth/login'])
+    const uri = `auth/login`
+    router.navigate([uri], {
+      queryParams: {
+        redirect_uri: state.url
+      }
+    })
   }
 
   return true;
