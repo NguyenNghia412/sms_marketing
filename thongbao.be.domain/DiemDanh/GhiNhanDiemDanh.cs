@@ -25,7 +25,6 @@ namespace thongbao.be.domain.DiemDanh
         public int Id { get; set; }
         public int IdDotDiemDanh { get; set; }
         public string EmailHuce { get; set; } = String.Empty;
-        public string HoVaTen { get; set; } = String.Empty;
         public DateTime ThoiGianDiemDanh { get; set; }
         public bool TrangThaiHoanTatDiemDanh { get; set; }
         public int? CreatedBy { get; set; }

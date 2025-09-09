@@ -28,6 +28,7 @@ namespace thongbao.be.application.DiemDanh.Interfaces
         public void UpdateDotDiemDanh(int idCuocHop, int idDotDiemDanh, UpdateDotDiemDanhDto dto);
         public void DeleteDotDiemDanh(int idCuocHop, int idDotDiemDanh);
         public byte[] GenerateQrCodeImageForDiemDanh(int idDotDiemDanh);
+        public void XacNhanDiemDanh(GhiNhanDiemDanhRequestDto dto);
 
     }
 }

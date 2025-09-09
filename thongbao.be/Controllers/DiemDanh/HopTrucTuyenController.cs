@@ -299,6 +299,18 @@ namespace thongbao.be.Controllers.DiemDanh
                 return BadRequest(new ApiResponse(ex.Message));
             }
         }
-
+        [HttpPost("xac-nhan-diem-danh")]
+        public ApiResponse XacNhanDiemDanh([FromQuery] GhiNhanDiemDanhRequestDto dto)
+        {
+            try
+            {
+                _hopTrucTuyenService.XacNhanDiemDanh(dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

@@ -12,4 +12,9 @@ namespace thongbao.be.shared.Constants.DiemDanh
         public const int VangMat = 1;
         public const int ChuaDiemDanh = 0;
     }
+    public static class TrangThaiHoanTatDiemDanh
+    {
+        public const int ThanhCong = 1;
+        public const int Loi = 0;
+    }
 }
