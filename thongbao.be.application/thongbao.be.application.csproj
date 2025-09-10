@@ -12,6 +12,8 @@
     <PackageReference Include="Hangfire.Core" Version="1.8.21" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
     <PackageReference Include="Microsoft.Graph" Version="5.91.0" />
+    <PackageReference Include="NLog" Version="6.0.3" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="6.0.3" />
     <PackageReference Include="QRCoder" Version="1.6.0" />
     <PackageReference Include="Volo.Abp.Security" Version="9.3.2" />
   </ItemGroup>

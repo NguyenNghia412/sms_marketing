@@ -1345,20 +1345,19 @@ namespace thongbao.be.application.DiemDanh.Implements
         public byte[] GenerateQrCodeImageForDiemDanh(int idDotDiemDanh)
         {
             _logger.LogInformation($"{nameof(GenerateQrCodeImageForDiemDanh)} idDotDiemDanh={idDotDiemDanh}");
-
             var dotDiemDanh = _smDbContext.DotDiemDanhs
                 .FirstOrDefault(dd => dd.Id == idDotDiemDanh && !dd.Deleted);
-
             if (dotDiemDanh == null)
             {
                 throw new UserFriendlyException(ErrorCodes.NotFound, "Đợt điểm danh không tồn tại");
             }
-            var qrUrl = $"http://localhost:4200/diem-danh/qr?dot-diem-danh={idDotDiemDanh}";
+
+            var baseQrUrl = _configuration["QrCodeSettings:DiemDanhUrl"];
+            var qrUrl = $"{baseQrUrl}?dot-diem-danh={idDotDiemDanh}";
 
             using var qrGenerator = new QRCodeGenerator();
             using var qrCodeData = qrGenerator.CreateQrCode(qrUrl, QRCodeGenerator.ECCLevel.Q);
             using var qrCode = new PngByteQRCode(qrCodeData);
-
             return qrCode.GetGraphic(20);
         }
         public void XacNhanDiemDanh(GhiNhanDiemDanhRequestDto dto)
