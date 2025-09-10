@@ -127,8 +127,12 @@ builder.Services.AddOpenIddict()
         options.RegisterScopes(OpenIddictConstants.Scopes.OpenId, OpenIddictConstants.Scopes.OfflineAccess, OpenIddictConstants.Scopes.Profile);
 
         // Register the signing and encryption credentials.
-        options.AddDevelopmentEncryptionCertificate()
-               .AddDevelopmentSigningCertificate();
+        //options.AddDevelopmentEncryptionCertificate()
+        //       .AddDevelopmentSigningCertificate();
+
+        // Development: ephemeral keys (or dev certs if you want)
+        options.AddEphemeralEncryptionKey()
+               .AddEphemeralSigningKey();
 
         // 🔑 Symmetric signing key
         var secret = Encoding.UTF8.GetBytes(secretKey);
@@ -214,6 +218,7 @@ builder.Services.AddScoped<IHopTrucTuyenService, HopTrucTuyenService>();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<GraphServiceClient>(serviceProvider =>
@@ -294,5 +299,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseHangfireDashboard();
-
+app.MapHealthChecks("/health");
 app.Run();
