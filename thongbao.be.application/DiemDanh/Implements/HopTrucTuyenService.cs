@@ -1364,6 +1364,9 @@ namespace thongbao.be.application.DiemDanh.Implements
         public void XacNhanDiemDanh(GhiNhanDiemDanhRequestDto dto)
         {
             _logger.LogInformation($"{nameof(XacNhanDiemDanh)} dto={JsonSerializer.Serialize(dto)}");
+
+            using var transaction = _smDbContext.Database.BeginTransaction();
+
             try
             {
                 var vietnamNow = GetVietnamTime();
@@ -1408,14 +1411,20 @@ namespace thongbao.be.application.DiemDanh.Implements
                 _smDbContext.GhiNhanDiemDanhs.Add(ghiNhanDiemDanh);
                 _smDbContext.SaveChanges();
                 UpdateTrangThaiDiemDanhThanhCong(emailHuce, existingDotDiemDanh.IdCuocHop);
+
+                transaction.Commit();
+
                 _logger.LogInformation($"Điểm danh thành công cho email: {emailHuce}, đợt: {dto.IdDotDiemDanh}");
             }
             catch (UserFriendlyException)
             {
+                transaction.Rollback();
                 throw;
             }
             catch (Exception ex)
             {
+                transaction.Rollback();
+
                 string emailForLog = string.Empty;
                 try
                 {
