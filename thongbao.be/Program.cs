@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using NLog;
+using NLog.Web;
 using OpenIddict.Abstractions;
 using OpenIddict.Validation.AspNetCore;
 using System;
@@ -29,10 +31,15 @@ using thongbao.be.infrastructure.external.BackgroundJob;
 using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.Settings;
 using thongbao.be.Workers;
-
+var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+logger.Info("Starting application...");
 var builder = WebApplication.CreateBuilder(args);
 
 Console.WriteLine("EnvironmentName => " + builder.Environment.EnvironmentName);
+
+
+builder.Logging.ClearProviders();
+builder.Host.UseNLog();
 
 #region db
 string connectionString = builder.Configuration.GetConnectionString("SMS_MARKETING")

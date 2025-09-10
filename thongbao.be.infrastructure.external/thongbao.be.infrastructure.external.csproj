@@ -15,4 +15,9 @@
     <PackageReference Include="NLog.Extensions.Logging" Version="6.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Log\Archive\" />
+    <Folder Include="Log\Logs\" />
+  </ItemGroup>
+
 </Project>
