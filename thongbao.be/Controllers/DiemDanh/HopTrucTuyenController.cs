@@ -269,6 +269,22 @@ namespace thongbao.be.Controllers.DiemDanh
                 return OkException(ex);
             }
         }
+
+        [Permission(PermissionKeys.HopTrucTuyenDelete)]
+        [HttpGet("dot-diem-danh")]
+        public ApiResponse FindPagingDotDiemDanh([FromQuery] int idCuocHop, [FromQuery] FindPagingDotDiemDanhDto dto)
+        {
+            try
+            {
+                var data = _hopTrucTuyenService.FindPagingDotDiemDanh(idCuocHop, dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
         /*[Permission(PermissionKeys.HopTrucTuyenView)]
         [HttpPost("dot-diem-danh/{idDotDiemDanh}/qr-code")]
         public IActionResult GetQrCodeImage(int idDotDiemDanh)
