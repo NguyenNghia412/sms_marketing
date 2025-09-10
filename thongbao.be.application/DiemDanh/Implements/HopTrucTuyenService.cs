@@ -1352,7 +1352,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                 throw new UserFriendlyException(ErrorCodes.NotFound, "Đợt điểm danh không tồn tại");
             }
 
-            var baseQrUrl = _configuration["QrCodeSettings:DiemDanhUrl"];
+            var baseQrUrl = _configuration["QrCodeDiemDanh:DiemDanhUrl"];
             var qrUrl = $"{baseQrUrl}?dot-diem-danh={idDotDiemDanh}";
 
             using var qrGenerator = new QRCodeGenerator();
