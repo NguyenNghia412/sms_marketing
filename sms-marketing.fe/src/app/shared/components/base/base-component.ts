@@ -2,7 +2,7 @@ import { IBaseResponse } from '@/shared/models/request-paging.base.models';
 import { Directive, inject, OnInit } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 
 @Directive()
@@ -11,6 +11,7 @@ export abstract class BaseComponent implements OnInit {
     protected _activatedRoute = inject(ActivatedRoute);
     protected messageService = inject(MessageService);
     protected _dialogService = inject(DialogService);
+    protected _confirmationService = inject(ConfirmationService);
 
     ValidationMessages: Record<string, Record<string, string>> = {};
     MAX_PAGE_SIZE = 10;
@@ -75,6 +76,30 @@ export abstract class BaseComponent implements OnInit {
             severity: 'error',
             detail: msg || 'Có sự cố xảy ra. Vui lòng thử lại sau.',
             life: 5000
+        });
+    }
+
+    confirmDelete(opt: {header: string, message: string} ,acceptCallback = () => {}) {
+        this._confirmationService.confirm({
+            message: opt.message,
+            header: opt.header,
+            closable: true,
+            closeOnEscape: true,
+            icon: 'pi pi-exclamation-triangle',
+            rejectButtonProps: {
+                label: 'Thoát',
+                severity: 'seconday',
+                outlined: true
+            },
+            acceptButtonProps: {
+                label: 'Xóa',
+                severity: 'danger'
+            },
+            accept: () => {
+                if (acceptCallback) {
+                    acceptCallback()
+                }
+            }
         });
     }
 }

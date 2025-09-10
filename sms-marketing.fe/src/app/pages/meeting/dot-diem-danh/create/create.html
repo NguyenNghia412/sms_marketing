@@ -1,0 +1,38 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+        <label for="tenDotDiemDanh" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên đợt điểm danh (*)</label>
+        <input pInputText formControlName="tenDotDiemDanh" id="tenDotDiemDanh" type="text" class="w-full mb-2" />
+        @if (form.get('tenDotDiemDanh')?.hasError('required') && form.get('tenDotDiemDanh')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('tenDotDiemDanh') }} </p-message>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="maMonHoc" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Mã môn học</label>
+        <input pInputText formControlName="maMonHoc" id="maMonHoc" type="text" class="w-full mb-2" />
+    </div>
+    <div class="mb-3">
+        <label for="tenMonHoc" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên môn học</label>
+        <input pInputText formControlName="tenMonHoc" id="tenMonHoc" type="text" class="w-full mb-2" />
+    </div>
+    <div class="mb-3">
+        <label for="thoiGianBatDau" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Thời gian bắt đầu (*)</label>
+        <p-datepicker formControlName="thoiGianBatDau" id="thoiGianBatDau" class="w-full mb-2" [readonlyInput]="false" [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" [showTime]="true" />
+        @if (form.get('thoiGianBatDau')?.hasError('required') && form.get('thoiGianBatDau')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('thoiGianBatDau') }} </p-message>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="thoiGianKetThuc" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Thời gian kết thúc (*)</label>
+        <p-datepicker formControlName="thoiGianKetThuc" id="thoiGianKetThuc" class="w-full mb-2" [readonlyInput]="false" [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" [showTime]="true" />
+        @if (form.get('thoiGianKetThuc')?.hasError('required') && form.get('thoiGianKetThuc')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('thoiGianKetThuc') }} </p-message>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="ghiChu" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Ghi chú</label>
+        <textarea pTextarea formControlName="ghiChu" id="ghiChu" type="text" class="w-full mb-2"></textarea>
+    </div>
+    <div class="mt-5 flex flex-row justify-end">
+        <p-button label="Lưu" icon="pi pi-save" type="submit" />
+    </div>
+</form>

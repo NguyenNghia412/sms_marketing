@@ -8,7 +8,7 @@ import { appRoutes } from './app.routes';
 import { provideIcons, provideNgIconsConfig } from '@ng-icons/core';
 import { heroIcons } from './config/icons';
 import { authInterceptor } from './config/auth.interceptor';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 
 export const appConfig: ApplicationConfig = {
@@ -23,5 +23,6 @@ export const appConfig: ApplicationConfig = {
         provideIcons({...heroIcons}),
         MessageService,
         DialogService,
+        ConfirmationService,
     ]
 };

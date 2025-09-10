@@ -5,21 +5,23 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class HopTrucTuyenService {
-  
-  api = '/api/core/hop-truc-tuyen'
-  http = inject(HttpClient)
+    api = '/api/core/hop-truc-tuyen';
+    http = inject(HttpClient);
 
-  findPaging(query: IFindPagingHopTrucTuyen) {
-    return this.http.get<IBaseResponsePaging<IViewRowHopTrucTuyen>>(this.api, {
-      params: {...query}
-    })
-  }
+    findPaging(query: IFindPagingHopTrucTuyen) {
+        return this.http.get<IBaseResponsePaging<IViewRowHopTrucTuyen>>(this.api, {
+            params: { ...query }
+        });
+    }
 
-  create(body: ICreateHopTrucTuyen) {
-    return this.http.post<IBaseResponse>(this.api, body);
-  }
+    create(body: ICreateHopTrucTuyen) {
+        return this.http.post<IBaseResponse>(this.api, body);
+    }
 
+    delete(idCuocHop: number) {
+        return this.http.delete<IBaseResponse>(`${this.api}?idCuocHop=${idCuocHop}`);
+    }
 }

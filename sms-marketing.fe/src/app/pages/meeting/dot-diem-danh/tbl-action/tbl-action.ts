@@ -1,8 +1,7 @@
-import { IViewRowHopTrucTuyen } from '@/models/hopTrucTuyen.models';
+import { IViewRowDotDiemDanh } from '@/models/dot-diem-danh.models';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { TBL_CUSTOM_COMP_EMIT } from '@/shared/components/data-table/data-table';
 import { SharedImports } from '@/shared/import.shared';
-import { ICustomEmit } from '@/shared/models/data-table.models';
 import { Component, inject, Input, output } from '@angular/core';
 
 export const TblActionTypes = {
@@ -19,7 +18,7 @@ export const TblActionTypes = {
 export class TblAction extends BaseComponent {
     tblEmit = inject(TBL_CUSTOM_COMP_EMIT); // comes from parent
 
-    @Input() row: IViewRowHopTrucTuyen = {};
+    @Input() row: IViewRowDotDiemDanh = {};
     @Input() rowIndex: number = 0;
     @Input() data: any;
 
