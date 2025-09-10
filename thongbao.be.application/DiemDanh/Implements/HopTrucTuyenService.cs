@@ -10,13 +10,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using QRCoder;
-
-using System.Drawing;
-using System.Drawing.Imaging;
-
 using System;
 using System.Collections.Generic;
-
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -32,6 +29,7 @@ using thongbao.be.shared.Constants.DiemDanh;
 using thongbao.be.shared.HttpRequest.BaseRequest;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace thongbao.be.application.DiemDanh.Implements
 {
@@ -1369,26 +1367,39 @@ namespace thongbao.be.application.DiemDanh.Implements
             try
             {
                 var vietnamNow = GetVietnamTime();
+
+                var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(Claims.Subject)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    throw new UserFriendlyException(ErrorCodes.Unauthorized, "Bạn cần đăng nhập để thực hiện điểm danh");
+                }
+
+                var user = _smDbContext.Users.FirstOrDefault(u => u.Id == userId);
+                if (user == null || string.IsNullOrEmpty(user.MsAccount))
+                {
+                    throw new UserFriendlyException(ErrorCodes.NotFound, "Không tìm thấy thông tin email HUCE của người dùng");
+                }
+
+                string emailHuce = user.MsAccount;
+
                 var existingDotDiemDanh = _smDbContext.DotDiemDanhs
                     .FirstOrDefault(dd => dd.Id == dto.IdDotDiemDanh && !dd.Deleted);
                 if (existingDotDiemDanh == null)
                 {
                     throw new UserFriendlyException(ErrorCodes.NotFound, "Đợt điểm danh không tồn tại");
                 }
-
                 var existingGhiNhan = _smDbContext.GhiNhanDiemDanhs
                     .FirstOrDefault(gn => gn.IdDotDiemDanh == dto.IdDotDiemDanh
-                                         && gn.EmailHuce == dto.EmailHuce
+                                         && gn.EmailHuce == emailHuce
                                          && !gn.Deleted);
                 if (existingGhiNhan != null)
                 {
                     throw new UserFriendlyException(ErrorCodes.BadRequest, "Bạn đã điểm danh cho đợt này rồi");
                 }
-
                 var ghiNhanDiemDanh = new domain.DiemDanh.GhiNhanDiemDanh
                 {
                     IdDotDiemDanh = dto.IdDotDiemDanh,
-                    EmailHuce = dto.EmailHuce,
+                    EmailHuce = emailHuce,
                     ThoiGianDiemDanh = vietnamNow,
                     TrangThaiHoanTatDiemDanh = true,
                     CreatedDate = vietnamNow,
@@ -1396,10 +1407,8 @@ namespace thongbao.be.application.DiemDanh.Implements
                 };
                 _smDbContext.GhiNhanDiemDanhs.Add(ghiNhanDiemDanh);
                 _smDbContext.SaveChanges();
-
-                UpdateTrangThaiDiemDanhThanhCong(dto.EmailHuce, existingDotDiemDanh.IdCuocHop);
-
-                _logger.LogInformation($"Điểm danh thành công cho email: {dto.EmailHuce}, đợt: {dto.IdDotDiemDanh}");
+                UpdateTrangThaiDiemDanhThanhCong(emailHuce, existingDotDiemDanh.IdCuocHop);
+                _logger.LogInformation($"Điểm danh thành công cho email: {emailHuce}, đợt: {dto.IdDotDiemDanh}");
             }
             catch (UserFriendlyException)
             {
@@ -1407,24 +1416,40 @@ namespace thongbao.be.application.DiemDanh.Implements
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Lỗi khi điểm danh cho email: {dto.EmailHuce}, đợt: {dto.IdDotDiemDanh}");
+                string emailForLog = string.Empty;
                 try
                 {
-                    var ghiNhanDiemDanhLoi = new domain.DiemDanh.GhiNhanDiemDanh
+                    var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(Claims.Subject)?.Value;
+                    if (!string.IsNullOrEmpty(userId))
                     {
-                        IdDotDiemDanh = dto.IdDotDiemDanh,
-                        EmailHuce = dto.EmailHuce,
-                        ThoiGianDiemDanh = GetVietnamTime(),
-                        TrangThaiHoanTatDiemDanh = false,
-                        CreatedDate = GetVietnamTime(),
-                        Deleted = false
-                    };
-                    _smDbContext.GhiNhanDiemDanhs.Add(ghiNhanDiemDanhLoi);
-                    _smDbContext.SaveChanges();
+                        var user = _smDbContext.Users.FirstOrDefault(u => u.Id == userId);
+                        emailForLog = user?.MsAccount ?? string.Empty;
+                    }
                 }
-                catch (Exception saveEx)
+                catch { }
+
+                _logger.LogError(ex, $"Lỗi khi điểm danh cho email: {emailForLog}, đợt: {dto.IdDotDiemDanh}");
+
+                if (!string.IsNullOrEmpty(emailForLog))
                 {
-                    _logger.LogError(saveEx, "Không thể lưu bản ghi lỗi điểm danh");
+                    try
+                    {
+                        var ghiNhanDiemDanhLoi = new domain.DiemDanh.GhiNhanDiemDanh
+                        {
+                            IdDotDiemDanh = dto.IdDotDiemDanh,
+                            EmailHuce = emailForLog,
+                            ThoiGianDiemDanh = GetVietnamTime(),
+                            TrangThaiHoanTatDiemDanh = false,
+                            CreatedDate = GetVietnamTime(),
+                            Deleted = false
+                        };
+                        _smDbContext.GhiNhanDiemDanhs.Add(ghiNhanDiemDanhLoi);
+                        _smDbContext.SaveChanges();
+                    }
+                    catch (Exception saveEx)
+                    {
+                        _logger.LogError(saveEx, "Không thể lưu bản ghi lỗi điểm danh");
+                    }
                 }
                 throw new UserFriendlyException(ErrorCodes.InternalServerError, "Có lỗi xảy ra khi thực hiện điểm danh");
             }
@@ -1441,8 +1466,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                 if (thongTinDiemDanh != null)
                 {
-
-                    thongTinDiemDanh.TrangThaiDiemDanh = shared.Constants.DiemDanh.ThongTinDiemDanh.DaDiemDanh; 
+                    thongTinDiemDanh.TrangThaiDiemDanh = shared.Constants.DiemDanh.ThongTinDiemDanh.DaDiemDanh;
                     _smDbContext.SaveChanges();
 
                     _logger.LogInformation($"Đã cập nhật trạng thái điểm danh cho email: {emailHuce}, IdHopTrucTuyen: {idCuocHop}");
@@ -1455,7 +1479,6 @@ namespace thongbao.be.application.DiemDanh.Implements
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Lỗi khi cập nhật trạng thái điểm danh cho email: {emailHuce}, IdHopTrucTuyen: {idCuocHop}");
-
             }
         }
         private string ConvertTrangThaiDiemDanh(int trangThai)

@@ -9,6 +9,5 @@ namespace thongbao.be.application.DiemDanh.Dtos
     public class GhiNhanDiemDanhRequestDto
     {
         public int IdDotDiemDanh { get; set; }
-        public string EmailHuce { get; set; } = String.Empty;
     }
 }
