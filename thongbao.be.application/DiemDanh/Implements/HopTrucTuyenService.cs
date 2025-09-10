@@ -1328,6 +1328,22 @@ namespace thongbao.be.application.DiemDanh.Implements
             _smDbContext.SaveChanges();
             _logger.LogInformation($"{nameof(DeleteDotDiemDanh)} completed for IdCuocHop: {idCuocHop}, IdDotDiemDanh: {idDotDiemDanh}");
         }
+        public BaseResponsePagingDto<ViewDotDiemDanhDto> FindPagingDotDiemDanh(int idCuocHop, FindPagingDotDiemDanhDto dto)
+        {
+            _logger.LogInformation($"{nameof(FindPagingDotDiemDanh)} dto={JsonSerializer.Serialize(dto)}");
+
+            var query = from ddd in _smDbContext.DotDiemDanhs
+                        where ddd.IdCuocHop == idCuocHop && !ddd.Deleted
+                        orderby ddd.Id descending
+                        select ddd;
+            var data = query.Paging(dto).ToList();
+            var items = _mapper.Map<List<ViewDotDiemDanhDto>>(data);
+            return new BaseResponsePagingDto<ViewDotDiemDanhDto>
+            {
+                Items = items,
+                TotalItems = query.Count()
+            };
+        }
         public byte[] GenerateQrCodeImageForDiemDanh(int idDotDiemDanh)
         {
             _logger.LogInformation($"{nameof(GenerateQrCodeImageForDiemDanh)} idDotDiemDanh={idDotDiemDanh}");
@@ -1485,8 +1501,6 @@ namespace thongbao.be.application.DiemDanh.Implements
             var parts = displayName.Split('-');
             return parts.Length >= 2 ? parts[parts.Length - 1].Trim() : string.Empty;
         }
-
-
         private string CleanHtmlContent(string htmlContent)
         {
             if (string.IsNullOrEmpty(htmlContent)) return string.Empty;
