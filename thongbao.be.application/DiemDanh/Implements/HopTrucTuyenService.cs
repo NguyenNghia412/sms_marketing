@@ -1370,7 +1370,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             {
                 var vietnamNow = GetVietnamTime();
 
-                var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(Claims.Subject)?.Value;
+                var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId))
                 {
                     throw new UserFriendlyException(ErrorCodes.Unauthorized, "Bạn cần đăng nhập để thực hiện điểm danh");
