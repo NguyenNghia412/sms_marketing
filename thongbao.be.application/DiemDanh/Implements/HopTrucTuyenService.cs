@@ -1040,8 +1040,7 @@ namespace thongbao.be.application.DiemDanh.Implements
         {
             _logger.LogInformation($"{nameof(ThongTinDiemDanh)} dto={JsonSerializer.Serialize(dto)}");
             var query = from ttdd in _smDbContext.ThongTinDiemDanhs
-                        where ttdd.IdHopTrucTuyen == idCuocHop
-                        where ttdd.Deleted == false
+                        where ttdd.IdHopTrucTuyen == idCuocHop && ttdd.Deleted == false
                         orderby ttdd.Id descending
                         select ttdd;
             var data = query.Paging(dto).ToList();
@@ -1262,6 +1261,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             }
             var dotDiemDanh = new domain.DiemDanh.DotDiemDanh
             {
+                IdCuocHop = idCuocHop,
                 TenDotDiemDanh = dto.TenDotDiemDanh,
                 TenMonHoc = dto.TenMonHoc,
                 MaMonHoc = dto.MaMonHoc,
