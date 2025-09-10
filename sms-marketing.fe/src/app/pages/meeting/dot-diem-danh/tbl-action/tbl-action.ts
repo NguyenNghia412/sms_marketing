@@ -6,6 +6,7 @@ import { Component, inject, Input, output } from '@angular/core';
 
 export const TblActionTypes = {
     diemDanh: 'diemDanh',
+    downloadQr: 'downloadQr',
     delete: 'delete',
     update: 'update',
 }

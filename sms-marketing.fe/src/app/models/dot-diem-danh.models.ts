@@ -23,3 +23,8 @@ export type IViewRowDotDiemDanh = {
   thoiGianKetThuc?: string;  // ISO date string
   ghiChu?: string;
 }
+
+export type IXacNhanDiemDanh = {
+  IdDotDiemDanh: number
+  EmailHuce?: string
+}

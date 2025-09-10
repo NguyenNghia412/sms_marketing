@@ -9,6 +9,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Create } from './create/create';
 import { TblAction, TblActionTypes } from './tbl-action/tbl-action';
+import { concatMap } from 'rxjs';
 
 @Component({
     selector: 'app-dot-diem-danh',
@@ -90,6 +91,8 @@ export class DotDiemDanh extends BaseComponent {
     onCustomEmit(data: { type: string; data: IViewRowDotDiemDanh }) {
         if (data.type === TblActionTypes.delete) {
             this.onDelete(data.data);
+        } else if (data.type === TblActionTypes.downloadQr) {
+            this.onDownloadQr(data.data);
         }
     }
 
@@ -106,5 +109,24 @@ export class DotDiemDanh extends BaseComponent {
                 }
             );
         });
+    }
+
+    onDownloadQr(data: IViewRowDotDiemDanh) {
+      this._dotDiemDanhService.downloadQrDiemDanh(data.id ?? 0);
+        // this._dotDiemDanhService
+        //     .generateQrDiemDanh(data.id ?? 0)
+        //     .pipe(
+        //         concatMap((res) => {
+        //             return this._dotDiemDanhService.downloadQrDiemDanh(data.id ?? 0);
+        //         })
+        //     )
+        //     .subscribe(
+        //         (res) => {
+        //             console.log(res);
+        //         },
+        //         (err) => {
+        //             this.messageError(err?.message);
+        //         }
+        //     );
     }
 }
