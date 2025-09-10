@@ -1,7 +1,6 @@
 import { IXacNhanDiemDanh } from '@/models/dot-diem-danh.models';
 import { DotDiemDanhService } from '@/services/dot-diem-danh.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
-import { Utils } from '@/shared/utils';
 import { Component, inject } from '@angular/core';
 import { ButtonDirective } from 'primeng/button';
 import { Toast } from "primeng/toast";
@@ -26,7 +25,6 @@ export class DiemDanhQr extends BaseComponent {
     onDiemDanh() {
         const body: IXacNhanDiemDanh = {
             IdDotDiemDanh: this.dotDiemDanh,
-            EmailHuce: 'nghiant@huce.edu.vn'
         };
         this.loading = true;
 
