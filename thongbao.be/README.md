@@ -5,6 +5,7 @@ dotnet ef database update --project thongbao.be.infrastructure.data --startup-pr
 ```
 
 ```
-dotnet user-secrets set "AuthServer:MS:ClientId" "" --project thongbao.be
-dotnet user-secrets set "AuthServer:MS:ClientSecret" "" --project thongbao.be
+dotnet user-secrets init
+dotnet user-secrets set "AuthServer:MS:ClientId" "" 
+dotnet user-secrets set "AuthServer:MS:ClientSecret" "" 
 ```
