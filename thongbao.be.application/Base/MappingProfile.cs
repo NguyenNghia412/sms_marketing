@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using thongbao.be.application.Auth.Dtos.Role;
 using thongbao.be.application.Auth.Dtos.User;
+using thongbao.be.application.DanhBa.Dtos;
 using thongbao.be.application.DiemDanh.Dtos;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.domain.Auth;
@@ -26,6 +27,7 @@ namespace thongbao.be.application.Base
             CreateMap<HopTrucTuyen, ViewCuocHopDto>();
             CreateMap<ThongTinDiemDanh, ViewThongTinDiemDanhDto>();
             CreateMap<DotDiemDanh, ViewDotDiemDanhDto>();
+            CreateMap<thongbao.be.domain.DanhBa.DanhBa, ViewDanhBaDto>();
         }
     }
 }

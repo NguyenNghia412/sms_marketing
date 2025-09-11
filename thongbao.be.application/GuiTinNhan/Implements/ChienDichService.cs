@@ -13,6 +13,7 @@ using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.application.GuiTinNhan.Interfaces;
 using thongbao.be.infrastructure.data;
 using thongbao.be.shared.HttpRequest.BaseRequest;
+using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
 
 namespace thongbao.be.application.GuiTinNhan.Implements
@@ -71,7 +72,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
             if (chienDich == null)
             {
-                throw new UserFriendlyException(404,$"Chiến dịch không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound,ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
             }
             chienDich.TenChienDich = dto.TenChienDich;
    
@@ -89,7 +90,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
             if (chienDich == null)
             {
-                throw new UserFriendlyException(404, $"Chiến dịch không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
             }
             chienDich.Deleted = true;
             chienDich.DeletedDate = vietnamNow;

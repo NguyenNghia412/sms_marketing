@@ -37,6 +37,12 @@ namespace thongbao.be.shared.Constants.Auth
         public const string HopTrucTuyenDelete = Function + "HopTrucTuyenDelete";
         public const string HopTrucTuyenView = Function + "HopTrucTuyenView";
 
+        public const string CategoryDanhBa = "QL Danh bạ";
+        public const string DanhBaAdd = Function + "DanhBaAdd";
+        public const string DanhBaUpdate = Function + "DanhBaUpdate";
+        public const string DanhBaDelete = Function + "DanhBaDelete";
+        public const string DanhBaView = Function + "DanhBaView";
+
 
         public static readonly (string Key, string Name, string Category)[] All =
         {
@@ -56,10 +62,15 @@ namespace thongbao.be.shared.Constants.Auth
             (ChienDichDelete, "Xoá Chiến dịch", CategoryChienDich),
             (ChienDichView, "Xem Chiến dịch", CategoryChienDich),
 
-             (HopTrucTuyenAdd, "Thêm Cuộc họp trực tuyến ", CategoryHopTrucTuyen),
+            (HopTrucTuyenAdd, "Thêm Cuộc họp trực tuyến ", CategoryHopTrucTuyen),
             (HopTrucTuyenUpdate, "Cập nhật Cuộc họp trực tuyến", CategoryHopTrucTuyen),
             (HopTrucTuyenDelete, "Xoá Cuộc họp trực tuyến", CategoryHopTrucTuyen),
             (HopTrucTuyenView, "Xem Cuộc họp trực tuyến", CategoryHopTrucTuyen),
+
+            (DanhBaAdd, "Thêm Danh bạ ", CategoryDanhBa),
+            (DanhBaUpdate, "Cập nhật Danh bạ", CategoryDanhBa),
+            (DanhBaDelete, "Xoá Danh bạ", CategoryDanhBa),
+            (DanhBaView, "Xem Danh bạ", CategoryDanhBa),
 
         };
     }

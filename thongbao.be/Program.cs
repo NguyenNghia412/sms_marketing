@@ -20,6 +20,8 @@ using System.Text;
 using thongbao.be.application.Auth.Implements;
 using thongbao.be.application.Auth.Interfaces;
 using thongbao.be.application.Base;
+using thongbao.be.application.DanhBa.Implements;
+using thongbao.be.application.DanhBa.Interfaces;
 using thongbao.be.application.DiemDanh.Implements;
 using thongbao.be.application.DiemDanh.Interfaces;
 using thongbao.be.application.GuiTinNhan.Implements;
@@ -220,6 +222,7 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IPermissionsService, PermissionsService>();
 builder.Services.AddScoped<IChienDichService, ChienDichService>();
 builder.Services.AddScoped<IHopTrucTuyenService, HopTrucTuyenService>();
+builder.Services.AddScoped<IDanhBaService, DanhBaService>();
 #endregion
 
 builder.Services.AddHttpClient();

@@ -23,13 +23,20 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int AuthErrorRoleNotFound = 105;
         public const int AuthErrorUserEmailHuceNotFound = 106;
 
-        public const int CuocHopErrorNotFound = 107;
-        public const int CuocHopErrorNameFound = 108;
-        public const int CuocHopErrorTime = 109;
-        public const int CuocHopErrorTimeDotDiemDanh = 200;
-        public const int CuocHopErrorInvalidJoinWebUrl = 201;
-        public const int CuocHopErrorMeetingNotFound = 202;
-        public const int CuocHopErrorDotDiemDanhNotFound = 203;
-        public const int CuocHopErrorDaDiemDanh = 204;
+        public const int CuocHopErrorNotFound = 201;
+        public const int CuocHopErrorNameFound = 202;
+        public const int CuocHopErrorTime = 203;
+        public const int CuocHopErrorTimeDotDiemDanh = 204;
+        public const int CuocHopErrorInvalidJoinWebUrl = 205;
+        public const int CuocHopErrorMeetingNotFound = 206;
+        public const int CuocHopErrorDotDiemDanhNotFound = 207;
+        public const int CuocHopErrorDaDiemDanh = 208;
+
+
+        public const int ChienDichErrorNotFound = 301;
+
+        public const int DanhBaErrorNotFound = 501;
+
+
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using thongbao.be.infrastructure.data;
 
@@ -11,9 +12,11 @@ using thongbao.be.infrastructure.data;
 namespace thongbao.be.infrastructure.data.Migrations
 {
     [DbContext(typeof(SmDbContext))]
-    partial class SmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250911092312_Add_DanhBa")]
+    partial class Add_DanhBa
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -469,13 +472,11 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("GhiChu")
+                    b.Property<string>("HoVaTen")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Mota")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TenDanhBa")
+                    b.Property<string>("SoDienThoai")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

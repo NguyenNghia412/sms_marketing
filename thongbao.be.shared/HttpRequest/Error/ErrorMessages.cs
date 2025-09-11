@@ -29,7 +29,9 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.CuocHopErrorMeetingNotFound, "Meeting không tồn tại" },
             { ErrorCodes.CuocHopErrorDotDiemDanhNotFound, "Đợt điểm danh không tồn tại" },
             { ErrorCodes.AuthErrorUserEmailHuceNotFound, "Không tìm thấy thông tin email HUCE của người dùng" },
-            { ErrorCodes.CuocHopErrorDaDiemDanh, "Bạn đã điểm danh cho đợt này rồi"}
+            { ErrorCodes.CuocHopErrorDaDiemDanh, "Bạn đã điểm danh cho đợt này rồi"},
+            { ErrorCodes.ChienDichErrorNotFound, "Chiến dịch không tồn tại"},
+            { ErrorCodes.DanhBaErrorNotFound, "Danh bạ không tồn tại"},
         };
 
         public static string GetMessage(int code)

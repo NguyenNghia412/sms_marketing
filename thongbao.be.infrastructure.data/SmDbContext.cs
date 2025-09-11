@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using thongbao.be.domain.Auth;
-
+using thongbao.be.domain.DanhBa;
 using thongbao.be.domain.DiemDanh;
 using thongbao.be.domain.GuiTinNhan;
 using thongbao.be.shared.Constants.Db;
@@ -26,6 +26,11 @@ namespace thongbao.be.infrastructure.data
         public DbSet<TinNhanHopTrucTuyen> TinNhanHopTrucTuyens { get; set; }
         public DbSet<DotDiemDanh> DotDiemDanhs { get; set; }
         public DbSet<GhiNhanDiemDanh> GhiNhanDiemDanhs { get; set; }
+        public DbSet<DanhBa> DanhBas { get; set; }
+        public DbSet<TruongData> TruongDatas { get; set; }
+        public DbSet<ThongTinDanhBa> ThongTinDanhBas { get; set; }
+        public DbSet<DanhBaData> DataDanhBas { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -70,6 +75,26 @@ namespace thongbao.be.infrastructure.data
             modelBuilder.Entity<GhiNhanDiemDanh>(entity =>
             {
                 entity.Property(e => e.ThoiGianDiemDanh).HasDefaultValueSql("getdate()");
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<DanhBa>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<TruongData>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<ThongTinDanhBa>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<DanhBaData>(entity =>
+            {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
