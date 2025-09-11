@@ -26,6 +26,7 @@ namespace thongbao.be.domain.DanhBa
         public int Id { get; set; }
         public int IdDanhBa { get; set; }
         public string HoVaTen { get; set; } = String.Empty;
+        public string Mssv { get; set; } = String.Empty;
         public string SoDienThoai { get; set; } = String.Empty;
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
