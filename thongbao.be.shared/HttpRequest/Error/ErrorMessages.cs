@@ -20,6 +20,16 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.AuthInvalidPassword, "Mật khẩu không đúng" },
             { ErrorCodes.AuthErrorCreateUser, "Lỗi tạo user" },
             { ErrorCodes.AuthErrorCreateRole, "Lỗi tạo role" },
+            { ErrorCodes.Found, "Đã tồn tại trong hệ thống" },
+            { ErrorCodes.CuocHopErrorNotFound, "Cuộc họp không tồn tại" },
+            { ErrorCodes.CuocHopErrorNameFound, "Tên cuộc họp đã tồn tại" },
+            { ErrorCodes.CuocHopErrorTime, "Thời gian cuộc họp không hợp lệ" },
+            { ErrorCodes.CuocHopErrorTimeDotDiemDanh, "Thời gian điểm danh cuộc họp không hợp lệ" },
+            { ErrorCodes.CuocHopErrorInvalidJoinWebUrl, "Link tham gia cuộc họp không hợp lệ" },
+            { ErrorCodes.CuocHopErrorMeetingNotFound, "Meeting không tồn tại" },
+            { ErrorCodes.CuocHopErrorDotDiemDanhNotFound, "Đợt điểm danh không tồn tại" },
+            { ErrorCodes.AuthErrorUserEmailHuceNotFound, "Không tìm thấy thông tin email HUCE của người dùng" },
+            { ErrorCodes.CuocHopErrorDaDiemDanh, "Bạn đã điểm danh cho đợt này rồi"}
         };
 
         public static string GetMessage(int code)

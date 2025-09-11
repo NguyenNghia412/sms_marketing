@@ -21,5 +21,15 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int AuthErrorUserNotFound = 103;
         public const int AuthErrorCreateRole = 104;
         public const int AuthErrorRoleNotFound = 105;
+        public const int AuthErrorUserEmailHuceNotFound = 106;
+
+        public const int CuocHopErrorNotFound = 107;
+        public const int CuocHopErrorNameFound = 108;
+        public const int CuocHopErrorTime = 109;
+        public const int CuocHopErrorTimeDotDiemDanh = 200;
+        public const int CuocHopErrorInvalidJoinWebUrl = 201;
+        public const int CuocHopErrorMeetingNotFound = 202;
+        public const int CuocHopErrorDotDiemDanhNotFound = 203;
+        public const int CuocHopErrorDaDiemDanh = 204;
     }
 }

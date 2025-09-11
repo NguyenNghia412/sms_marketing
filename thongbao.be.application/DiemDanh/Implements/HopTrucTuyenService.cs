@@ -64,7 +64,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (existingCuocHop != null)
             {
-                throw new UserFriendlyException(ErrorCodes.Found, "Tên cuộc họp đã tồn tại");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorNameFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorNameFound));
             }
 
 
@@ -73,7 +73,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (thoiGianKetThuc < thoiGianBatDau)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorTime, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorTime));
             }
 
             var cuocHop = new domain.DiemDanh.HopTrucTuyen
@@ -97,7 +97,7 @@ namespace thongbao.be.application.DiemDanh.Implements
         {
             _logger.LogInformation($"{nameof(Find)} dto={JsonSerializer.Serialize(dto)}");
             var query = from ch in _smDbContext.HopTrucTuyens
-                        where ch.Deleted == false
+                        where !ch.Deleted
                         orderby ch.CreatedDate descending
                         select ch;
             var data = query.Paging(dto).ToList();
@@ -119,7 +119,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                 .FirstOrDefault(h => h.Id == idCuocHop && !h.Deleted);
             if (existingCuocHop == null)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound,"Cuộc họp không tồn tại.");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorNotFound));
             }
 
             var existingTenCuocHop = _smDbContext.HopTrucTuyens
@@ -127,7 +127,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (existingTenCuocHop != null)
             {
-                throw new UserFriendlyException(ErrorCodes.Found, "Tên cuộc họp đã tồn tại");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorNameFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorNameFound));
             }
 
 
@@ -136,7 +136,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (thoiGianKetThuc < thoiGianBatDau)
             {
-                throw new UserFriendlyException(ErrorCodes.BadRequest, "Thời gian kết thúc cuộc họp phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorTime, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorTime));
             }
             existingCuocHop.TenCuocHop = dto.TenCuocHop;
             existingCuocHop.MoTa = dto.MoTa;
@@ -157,7 +157,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if( existingCuocHop == null)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound, "Cuộc họp không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorNotFound));
             }
             existingCuocHop.Deleted = true;
             existingCuocHop.DeletedDate = vietNamNow;
@@ -278,7 +278,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                 if (users?.Value == null || !users.Value.Any())
                 {
-                    throw new UserFriendlyException(ErrorCodes.NotFound, $"Không tìm thấy user với email: {userEmailHuce}");
+                    throw new UserFriendlyException(ErrorCodes.AuthErrorUserNotFound,ErrorMessages.GetMessage(ErrorCodes.AuthErrorUserNotFound));
                 }
 
                 var user = users.Value.First();
@@ -342,7 +342,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                     return users.Value.First().Id ?? string.Empty;
                 }
 
-                throw new UserFriendlyException(ErrorCodes.NotFound, $"Không tìm thấy user với email: {email}");
+                throw new UserFriendlyException(ErrorCodes.AuthErrorUserNotFound, ErrorMessages.GetMessage(ErrorCodes.AuthErrorUserNotFound));
             }
             catch (Exception ex)
             {
@@ -381,7 +381,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                 if (!IsValidJoinWebUrl(dto.JoinWebUrl))
                 {
-                    throw new UserFriendlyException(ErrorCodes.BadRequest, "Invalid Join Web URL");
+                    throw new UserFriendlyException(ErrorCodes.CuocHopErrorInvalidJoinWebUrl,ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorInvalidJoinWebUrl));
                 }
 
                 var encodedUrl = HttpUtility.UrlEncode(dto.JoinWebUrl);
@@ -397,7 +397,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                 if (result.Value == null || result.Value.Count == 0)
                 {
-                    throw new UserFriendlyException(ErrorCodes.NotFound, "Meeting not found");
+                    throw new UserFriendlyException(ErrorCodes.CuocHopErrorMeetingNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorMeetingNotFound));
                 }
 
                 foreach (var meeting in result.Value)
@@ -884,13 +884,13 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (existingMeeting == null)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound,$"Cuộc họp không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorNotFound));
             }
 
             var meeting = meetingData.Value?.FirstOrDefault();
             if (meeting == null)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound,"Không tìm thấy thông tin meeting");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorMeetingNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorMeetingNotFound));
             }
 
             existingMeeting.IdCuocHop = meeting.Id;
@@ -980,7 +980,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (cuocHop == null)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound, $"Cuộc họp  không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorNotFound));
             }
 
             cuocHop.BatDauDiemDanh = dto.BatDauDiemDanh;
@@ -1038,7 +1038,7 @@ namespace thongbao.be.application.DiemDanh.Implements
         {
             _logger.LogInformation($"{nameof(ThongTinDiemDanh)} dto={JsonSerializer.Serialize(dto)}");
             var query = from ttdd in _smDbContext.ThongTinDiemDanhs
-                        where ttdd.IdHopTrucTuyen == idCuocHop && ttdd.Deleted == false
+                        where ttdd.IdHopTrucTuyen == idCuocHop && !ttdd.Deleted 
                         orderby ttdd.Id descending
                         select ttdd;
             var data = query.Paging(dto).ToList();
@@ -1047,7 +1047,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             {
                 Items = items,
                 TotalItems = query.Count()
-            };
+            }; 
 
         }
         public async Task<byte[]> ExportDanhSachDiemDanhToExcel(int idCuocHop)
@@ -1060,7 +1060,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (cuocHopInfo == null)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound, $"Cuộc họp không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorNotFound));
             }
 
             var danhSachDiemDanh = await (from ttdd in _smDbContext.ThongTinDiemDanhs
@@ -1216,7 +1216,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             if (cuocHop == null)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound, "Cuộc họp không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorNotFound));
             }
 
             var query = _smDbContext.ThongTinDiemDanhs
@@ -1249,13 +1249,13 @@ namespace thongbao.be.application.DiemDanh.Implements
                 .FirstOrDefault(h => h.Id == idCuocHop && !h.Deleted);
             if (cuocHop == null)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound, "Cuộc họp không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorNotFound));
             }
             var thoiGianBatDau = dto.ThoiGianBatDau ?? vietnamNow;
             var thoiGianKetThuc = dto.ThoiGianKetThuc ?? vietnamNow;
             if (thoiGianKetThuc < thoiGianBatDau)
             {
-                throw new UserFriendlyException(ErrorCodes.BadRequest, "Thời gian kết thúc điểm danh phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorTimeDotDiemDanh, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorTimeDotDiemDanh));
             }
             var dotDiemDanh = new domain.DiemDanh.DotDiemDanh
             {
@@ -1283,19 +1283,19 @@ namespace thongbao.be.application.DiemDanh.Implements
                 .FirstOrDefault(h => h.Id == idCuocHop && !h.Deleted);
             if (cuocHop == null)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound, "Cuộc họp không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorNotFound));
             }
             var dotDiemDanh = _smDbContext.DotDiemDanhs
                 .FirstOrDefault(dd => dd.Id == idDotDiemDanh && !dd.Deleted);
             if (dotDiemDanh == null)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound, "Đợt điểm danh không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorDotDiemDanhNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorDotDiemDanhNotFound));
             }
             var thoiGianBatDau = dto.ThoiGianBatDau ?? vietnamNow;
             var thoiGianKetThuc = dto.ThoiGianKetThuc ?? vietnamNow;
             if (thoiGianKetThuc < thoiGianBatDau)
             {
-                throw new UserFriendlyException(ErrorCodes.BadRequest, "Thời gian kết thúc điểm danh phải lớn hơn hoặc bằng thời gian bắt đầu cuộc họp");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorTime, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorTime));
             }
             dotDiemDanh.TenDotDiemDanh = dto.TenDotDiemDanh;
             dotDiemDanh.TenMonHoc = dto.TenMonHoc;
@@ -1313,13 +1313,13 @@ namespace thongbao.be.application.DiemDanh.Implements
                 .FirstOrDefault(h => h.Id == idCuocHop && !h.Deleted);
             if (cuocHop == null)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound, "Cuộc họp không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorNotFound));
             }
             var dotDiemDanh = _smDbContext.DotDiemDanhs
                 .FirstOrDefault(dd => dd.Id == idDotDiemDanh && !dd.Deleted);
             if (dotDiemDanh == null)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound, "Đợt điểm danh không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorDotDiemDanhNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorDotDiemDanhNotFound));
             }
             dotDiemDanh.Deleted = true;
             dotDiemDanh.DeletedDate = vietnamNow;
@@ -1349,7 +1349,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                 .FirstOrDefault(dd => dd.Id == idDotDiemDanh && !dd.Deleted);
             if (dotDiemDanh == null)
             {
-                throw new UserFriendlyException(ErrorCodes.NotFound, "Đợt điểm danh không tồn tại");
+                throw new UserFriendlyException(ErrorCodes.CuocHopErrorDotDiemDanhNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorDotDiemDanhNotFound));
             }
 
             var baseQrUrl = _configuration["QrCodeDiemDanh:DiemDanhUrl"];
@@ -1373,13 +1373,13 @@ namespace thongbao.be.application.DiemDanh.Implements
                 var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId))
                 {
-                    throw new UserFriendlyException(ErrorCodes.Unauthorized, "Bạn cần đăng nhập để thực hiện điểm danh");
+                    throw new UserFriendlyException(ErrorCodes.Unauthorized, ErrorMessages.GetMessage(ErrorCodes.Unauthorized));
                 }
 
                 var user = _smDbContext.Users.FirstOrDefault(u => u.Id == userId);
                 if (user == null || string.IsNullOrEmpty(user.MsAccount))
                 {
-                    throw new UserFriendlyException(ErrorCodes.NotFound, "Không tìm thấy thông tin email HUCE của người dùng");
+                    throw new UserFriendlyException(ErrorCodes.AuthErrorUserEmailHuceNotFound, ErrorMessages.GetMessage(ErrorCodes.AuthErrorUserEmailHuceNotFound));
                 }
 
                 string emailHuce = user.MsAccount;
@@ -1388,7 +1388,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                     .FirstOrDefault(dd => dd.Id == dto.IdDotDiemDanh && !dd.Deleted);
                 if (existingDotDiemDanh == null)
                 {
-                    throw new UserFriendlyException(ErrorCodes.NotFound, "Đợt điểm danh không tồn tại");
+                    throw new UserFriendlyException(ErrorCodes.CuocHopErrorDotDiemDanhNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorDotDiemDanhNotFound));
                 }
                 var existingGhiNhan = _smDbContext.GhiNhanDiemDanhs
                     .FirstOrDefault(gn => gn.IdDotDiemDanh == dto.IdDotDiemDanh
@@ -1396,7 +1396,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                                          && !gn.Deleted);
                 if (existingGhiNhan != null)
                 {
-                    throw new UserFriendlyException(ErrorCodes.BadRequest, "Bạn đã điểm danh cho đợt này rồi");
+                     throw new UserFriendlyException(ErrorCodes.CuocHopErrorDaDiemDanh, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorDaDiemDanh));
                 }
                 var ghiNhanDiemDanh = new domain.DiemDanh.GhiNhanDiemDanh
                 {
@@ -1459,7 +1459,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                         _logger.LogError(saveEx, "Không thể lưu bản ghi lỗi điểm danh");
                     }
                 }
-                throw new UserFriendlyException(ErrorCodes.InternalServerError, "Có lỗi xảy ra khi thực hiện điểm danh");
+                throw new UserFriendlyException(ErrorCodes.InternalServerError, ErrorMessages.GetMessage(ErrorCodes.InternalServerError));
             }
         }
 
