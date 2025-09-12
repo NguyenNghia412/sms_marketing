@@ -28,7 +28,7 @@ namespace thongbao.be.application.Base
             CreateMap<HopTrucTuyen, ViewCuocHopDto>();
             CreateMap<ThongTinDiemDanh, ViewThongTinDiemDanhDto>();
             CreateMap<DotDiemDanh, ViewDotDiemDanhDto>();
-            CreateMap<DanhBaChienDich, ViewDanhBaDto>();
+            CreateMap<domain.DanhBa.DanhBa, ViewDanhBaDto>();
         }
     }
 }

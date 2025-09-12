@@ -36,32 +36,32 @@ namespace thongbao.be.application.DanhBa.Implements
         {
             _logger.LogInformation($"{nameof(Create)} dto={System.Text.Json.JsonSerializer.Serialize(dto)}");
             var vietnamNow = GetVietnamTime();
-            var danhBa = new domain.DanhBa.DanhBaChienDich
+            var danhBa = new domain.DanhBa.DanhBa
             {
                 TenDanhBa = dto.TenDanhBa,
                 Mota = dto.Mota,
                 GhiChu = dto.GhiChu,
                 CreatedDate = vietnamNow,
             };
-            _smDbContext.DanhBaChienDichs.Add(danhBa);
+            _smDbContext.DanhBas.Add(danhBa);
             _smDbContext.SaveChanges();
         }
 
         public void Update(int idDanhBa, UpdateDanhBaDto dto) { 
             _logger.LogInformation($"{nameof(Update)} idDanhBa={idDanhBa}, dto={System.Text.Json.JsonSerializer.Serialize(dto)}");
             var vietnamNow = GetVietnamTime();
-            var existingDanhBa = _smDbContext.DanhBaChienDichs.FirstOrDefault(x => x.Id == idDanhBa && !x.Deleted)
+            var existingDanhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
             existingDanhBa.TenDanhBa = dto.TenDanhBa;
             existingDanhBa.Mota = dto.Mota;
             existingDanhBa.GhiChu = dto.GhiChu;
-            _smDbContext.DanhBaChienDichs.Update(existingDanhBa);
+            _smDbContext.DanhBas.Update(existingDanhBa);
             _smDbContext.SaveChanges();
         }
         public BaseResponsePagingDto<ViewDanhBaDto>Find (FindPagingDanhBaDto dto)
         {
             _logger.LogInformation($"{nameof(Find)} dto={System.Text.Json.JsonSerializer.Serialize(dto)}");
-            var query = from db in _smDbContext.DanhBaChienDichs
+            var query = from db in _smDbContext.DanhBas
                         where !db.Deleted
                         orderby db.CreatedDate descending
                         select db;

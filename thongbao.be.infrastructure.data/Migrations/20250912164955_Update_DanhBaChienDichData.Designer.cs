@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using thongbao.be.infrastructure.data;
 
@@ -11,9 +12,11 @@ using thongbao.be.infrastructure.data;
 namespace thongbao.be.infrastructure.data.Migrations
 {
     [DbContext(typeof(SmDbContext))]
-    partial class SmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250912164955_Update_DanhBaChienDichData")]
+    partial class Update_DanhBaChienDichData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -442,7 +445,7 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.ToTable("AspNetUsers", "core");
                 });
 
-            modelBuilder.Entity("thongbao.be.domain.DanhBa.DanhBa", b =>
+            modelBuilder.Entity("thongbao.be.domain.DanhBa.DanhBaChienDich", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -481,12 +484,12 @@ namespace thongbao.be.infrastructure.data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Id" }, "IX_DanhBa");
+                    b.HasIndex(new[] { "Id" }, "IX_DanhBaChienDich");
 
-                    b.ToTable("DanhBa", "core");
+                    b.ToTable("DanhBaChienDich", "core");
                 });
 
-            modelBuilder.Entity("thongbao.be.domain.DanhBa.DanhBaChiTiet", b =>
+            modelBuilder.Entity("thongbao.be.domain.DanhBa.DanhBaChienDichChiTiet", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -551,9 +554,102 @@ namespace thongbao.be.infrastructure.data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Id" }, "IX_DanhBaChiTiet");
+                    b.HasIndex(new[] { "Id" }, "IX_DanhBaChienDichChiTiet");
 
-                    b.ToTable("DanhBaChiTiet", "core");
+                    b.ToTable("DanhBaChienDichChiTiet", "core");
+                });
+
+            modelBuilder.Entity("thongbao.be.domain.DanhBa.DanhBaChienDichData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Deleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("IdDanhBaChienDich")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdTruongData")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "Id" }, "IX_DanhBaChienDichData");
+
+                    b.ToTable("DanhBaChienDichData", "core");
+                });
+
+            modelBuilder.Entity("thongbao.be.domain.DanhBa.DanhBaChienDichTruongData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<bool>("Deleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("IdDanhBa")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TenTruong")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TruongImport")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "Id" }, "IX_DanhBaChienDichTruongData");
+
+                    b.ToTable("DanhBaChienDichTruongData", "core");
                 });
 
             modelBuilder.Entity("thongbao.be.domain.DanhBa.DanhBaCungChiTiet", b =>
@@ -644,99 +740,6 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.HasIndex(new[] { "Id" }, "IX_DanhBaCungChiTiet");
 
                     b.ToTable("DanhBaCungChiTiet", "core");
-                });
-
-            modelBuilder.Entity("thongbao.be.domain.DanhBa.DanhBaData", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CreatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<string>("Data")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Deleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<int?>("DeletedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("IdDanhBaChienDich")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdTruongData")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "Id" }, "IX_DanhBaData");
-
-                    b.ToTable("DanhBaData", "core");
-                });
-
-            modelBuilder.Entity("thongbao.be.domain.DanhBa.DanhBaTruongData", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CreatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<bool>("Deleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<int?>("DeletedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("IdDanhBa")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TenTruong")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TruongImport")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "Id" }, "IX_DanhBaTruongData");
-
-                    b.ToTable("DanhBaTruongData", "core");
                 });
 
             modelBuilder.Entity("thongbao.be.domain.DiemDanh.DotDiemDanh", b =>
@@ -1108,36 +1111,6 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.HasIndex(new[] { "Id" }, "IX_ChienDich");
 
                     b.ToTable("ChienDich", "core");
-                });
-
-            modelBuilder.Entity("thongbao.be.domain.GuiTinNhan.ChienDichDanhBa", b =>
-                {
-                    b.Property<int?>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CreatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<bool>("Deleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<int?>("DeletedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("IdChienDich")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdDanhBa")
-                        .HasColumnType("int");
-
-                    b.ToTable("ChienDichDanhBa", "core");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

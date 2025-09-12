@@ -10,7 +10,7 @@ using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.HttpRequest;
 
 
-namespace thongbao.be.DanhBa
+namespace thongbao.be.Controllers.DanhBa
 {
     [Route("api/core/danh-ba")]
     [ApiController]

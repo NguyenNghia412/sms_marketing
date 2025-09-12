@@ -12,19 +12,19 @@ using thongbao.be.shared.Interfaces;
 
 namespace thongbao.be.domain.DanhBa
 {
-    [Table(nameof(DanhBaChienDichData), Schema = DbSchemas.Core)]
+    [Table(nameof(DanhBaData), Schema = DbSchemas.Core)]
     [Index(
      nameof(Id),
      IsUnique = false,
-     Name = $"IX_{nameof(DanhBaChienDichData)}"
+     Name = $"IX_{nameof(DanhBaData)}"
     )]
-    public class DanhBaChienDichData : ISoftDelted
+    public class DanhBaData : ISoftDelted
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Data { get; set; } = string.Empty;
         public int IdTruongData { get; set; }
-        public int IdThongTinDanhBa { get; set; }
+        public int IdDanhBaChienDich { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }

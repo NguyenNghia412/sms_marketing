@@ -80,6 +80,21 @@ namespace thongbao.be.Controllers.ChienDich
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.ChienDichAdd)]
+        [HttpPost("danh-ba")]
+        public ApiResponse AddChienDichDanhBa([FromQuery] int idChienDich, [FromQuery] int idDanhBa)
+        {
+            try
+            {
+                _chienDichService.AddDanhBaChienDich(idChienDich, idDanhBa);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
 
         [AllowAnonymous]
         [HttpPost("test")]

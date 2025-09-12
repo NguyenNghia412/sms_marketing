@@ -1,32 +1,34 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using thongbao.be.domain.DiemDanh;
 using thongbao.be.shared.Constants.Db;
 using thongbao.be.shared.Interfaces;
 
 namespace thongbao.be.domain.DanhBa
 {
-
-    [Table(nameof(DanhBaChienDich), Schema = DbSchemas.Core)]
+    [Table(nameof(DanhBaTruongData), Schema = DbSchemas.Core)]
     [Index(
       nameof(Id),
       IsUnique = false,
-      Name = $"IX_{nameof(DanhBaChienDich)}"
+      Name = $"IX_{nameof(DanhBaTruongData)}"
     )]
-    public class DanhBaChienDich : ISoftDelted
+    public  class DanhBaTruongData : ISoftDelted
     {
-        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string TenDanhBa { get; set; } = string.Empty;
-        public string? Mota { get; set; }
-        public string? GhiChu { get; set; }
+        public int IdDanhBa { get; set; }
+        public string TenTruong { get; set; } = string.Empty;
+        public string Type { get; set; } = "string";
+        public string TruongImport { get; set; } = string.Empty;
+        //các cột dùng để kéo thả làm sau 
+
+
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
@@ -34,3 +36,4 @@ namespace thongbao.be.domain.DanhBa
         public int? DeletedBy { get; set; }
     }
 }
+

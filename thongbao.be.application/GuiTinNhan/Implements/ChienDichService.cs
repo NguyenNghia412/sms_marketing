@@ -97,6 +97,30 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _smDbContext.ChienDiches.Update(chienDich);
             _smDbContext.SaveChanges();
         }
+        public void AddDanhBaChienDich (int idChienDich, int idDanhBa)
+        {
+            _logger.LogInformation($"{nameof(AddDanhBaChienDich)} ");
+            var vietnam = GetVietnamTime();
+            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
+            if (chienDich == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
+            }
+            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && !x.Deleted);
+            if (danhBa == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
+            }
+            var chienDichDanhBa = new domain.GuiTinNhan.ChienDichDanhBa
+            {
+                IdChienDich = idChienDich,
+                IdDanhBa = idDanhBa,
+            };
+            _smDbContext.ChienDichDanhBa.Add(chienDichDanhBa);
+            _smDbContext.SaveChanges();
+            
+        }
+ 
         private static DateTime GetVietnamTime()
         {
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);

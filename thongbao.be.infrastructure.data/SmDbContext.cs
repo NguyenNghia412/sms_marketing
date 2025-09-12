@@ -29,10 +29,11 @@ namespace thongbao.be.infrastructure.data
         public DbSet<GhiNhanDiemDanh> GhiNhanDiemDanhs { get; set; }
         public DbSet<DanhBaCungChiTiet> DanhBaCungChiTiets { get; set; }
 
-        public DbSet<DanhBaChienDich> DanhBaChienDichs { get; set; }
-        public DbSet<DanhBaChienDichTruongData> DanhBaChienDichTruongDatas { get; set; }
-        public DbSet<DanhBaChienDichChiTiet> DanhBaChienDichChiTiets { get; set; }
-        public DbSet<DanhBaChienDichData> DanhBaChienDichDatas { get; set; }
+        public DbSet<DanhBa> DanhBas { get; set; }
+        public DbSet<DanhBaTruongData> DanhBaTruongDatas { get; set; }
+        public DbSet<DanhBaChiTiet> DanhBaChiTiets { get; set; }
+        public DbSet<DanhBaData> DanhBaDatas { get; set; }
+        public DbSet<ChienDichDanhBa> ChienDichDanhBa { get; set; }
 
 
 
@@ -88,23 +89,29 @@ namespace thongbao.be.infrastructure.data
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-            modelBuilder.Entity<DanhBaChienDich>(entity =>
+            modelBuilder.Entity<DanhBa>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-            modelBuilder.Entity<DanhBaChienDichTruongData>(entity =>
+            modelBuilder.Entity<DanhBaTruongData>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-            modelBuilder.Entity<DanhBaChienDichChiTiet>(entity =>
+            modelBuilder.Entity<DanhBaChiTiet>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-            modelBuilder.Entity<DanhBaChienDichData>(entity =>
+            modelBuilder.Entity<DanhBaData>(entity =>
             {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<ChienDichDanhBa>(entity =>
+            {
+                entity.HasNoKey();
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });

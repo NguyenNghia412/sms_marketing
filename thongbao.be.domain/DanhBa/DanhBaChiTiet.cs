@@ -13,13 +13,13 @@ using thongbao.be.shared.Interfaces;
 
 namespace thongbao.be.domain.DanhBa
 {
-    [Table(nameof(DanhBaChienDichChiTiet), Schema = DbSchemas.Core)]
+    [Table(nameof(DanhBaChiTiet), Schema = DbSchemas.Core)]
     [Index(
     nameof(Id),
     IsUnique = false,
-    Name = $"IX_{nameof(DanhBaChienDichChiTiet)}"
+    Name = $"IX_{nameof(DanhBaChiTiet)}"
     )]
-    public class DanhBaChienDichChiTiet: ISoftDelted
+    public class DanhBaChiTiet: ISoftDelted
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
