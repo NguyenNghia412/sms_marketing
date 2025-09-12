@@ -12,20 +12,20 @@ using thongbao.be.shared.Interfaces;
 
 namespace thongbao.be.domain.DanhBa
 {
-    [Table(nameof(TruongData), Schema = DbSchemas.Core)]
+    [Table(nameof(DanhBaChienDichTruongData), Schema = DbSchemas.Core)]
     [Index(
       nameof(Id),
       IsUnique = false,
-      Name = $"IX_{nameof(TruongData)}"
+      Name = $"IX_{nameof(DanhBaChienDichTruongData)}"
     )]
-    public  class TruongData : ISoftDelted
+    public  class DanhBaChienDichTruongData : ISoftDelted
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int IdDanhBa { get; set; }
-        public string TenTruong { get; set; } = String.Empty;
+        public string TenTruong { get; set; } = string.Empty;
         public string Type { get; set; } = "string";
-        public string TruongImport { get; set; } = String.Empty;
+        public string TruongImport { get; set; } = string.Empty;
         //các cột dùng để kéo thả làm sau 
 
 

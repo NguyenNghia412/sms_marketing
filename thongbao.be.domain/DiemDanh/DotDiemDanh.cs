@@ -17,7 +17,7 @@ namespace thongbao.be.domain.DiemDanh
       nameof(Id),
       IsUnique = false,
       Name = $"IX_{nameof(DotDiemDanh)}"
-  )]
+    )]
     public class DotDiemDanh : ISoftDelted
     {
         [Key]

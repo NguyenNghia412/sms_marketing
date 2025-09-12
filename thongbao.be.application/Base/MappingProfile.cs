@@ -11,6 +11,7 @@ using thongbao.be.application.DanhBa.Dtos;
 using thongbao.be.application.DiemDanh.Dtos;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.domain.Auth;
+using thongbao.be.domain.DanhBa;
 using thongbao.be.domain.DiemDanh;
 using thongbao.be.domain.GuiTinNhan;
 
@@ -27,7 +28,7 @@ namespace thongbao.be.application.Base
             CreateMap<HopTrucTuyen, ViewCuocHopDto>();
             CreateMap<ThongTinDiemDanh, ViewThongTinDiemDanhDto>();
             CreateMap<DotDiemDanh, ViewDotDiemDanhDto>();
-            CreateMap<thongbao.be.domain.DanhBa.DanhBa, ViewDanhBaDto>();
+            CreateMap<DanhBaChienDich, ViewDanhBaDto>();
         }
     }
 }

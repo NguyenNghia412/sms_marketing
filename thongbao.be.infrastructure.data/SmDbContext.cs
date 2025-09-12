@@ -25,11 +25,14 @@ namespace thongbao.be.infrastructure.data
         public DbSet<ThongTinDiemDanh> ThongTinDiemDanhs { get; set; }
         public DbSet<TinNhanHopTrucTuyen> TinNhanHopTrucTuyens { get; set; }
         public DbSet<DotDiemDanh> DotDiemDanhs { get; set; }
+
         public DbSet<GhiNhanDiemDanh> GhiNhanDiemDanhs { get; set; }
-        public DbSet<DanhBa> DanhBas { get; set; }
-        public DbSet<TruongData> TruongDatas { get; set; }
-        public DbSet<ThongTinDanhBa> ThongTinDanhBas { get; set; }
-        public DbSet<DanhBaData> DataDanhBas { get; set; }
+        public DbSet<DanhBaCungChiTiet> DanhBaCungChiTiets { get; set; }
+
+        public DbSet<DanhBaChienDich> DanhBaChienDichs { get; set; }
+        public DbSet<DanhBaChienDichTruongData> DanhBaChienDichTruongDatas { get; set; }
+        public DbSet<DanhBaChienDichChiTiet> DanhBaChienDichChiTiets { get; set; }
+        public DbSet<DanhBaChienDichData> DanhBaChienDichDatas { get; set; }
 
 
 
@@ -78,22 +81,29 @@ namespace thongbao.be.infrastructure.data
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-            modelBuilder.Entity<DanhBa>(entity =>
+            modelBuilder.Entity<DanhBaCungChiTiet>(entity =>
+            {
+                entity.Property(e => e.DiaChi).HasMaxLength(1500);
+                entity.Property(e => e.NgaySinh).HasDefaultValueSql("getdate()");
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<DanhBaChienDich>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-            modelBuilder.Entity<TruongData>(entity =>
+            modelBuilder.Entity<DanhBaChienDichTruongData>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-            modelBuilder.Entity<ThongTinDanhBa>(entity =>
+            modelBuilder.Entity<DanhBaChienDichChiTiet>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-            modelBuilder.Entity<DanhBaData>(entity =>
+            modelBuilder.Entity<DanhBaChienDichData>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
