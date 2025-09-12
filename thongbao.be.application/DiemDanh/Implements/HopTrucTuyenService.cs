@@ -33,7 +33,7 @@ using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace thongbao.be.application.DiemDanh.Implements
 {
-    public class HopTrucTuyenService : BaseService,  IHopTrucTuyenService 
+    public class HopTrucTuyenService : BaseService, IHopTrucTuyenService
     {
         private readonly IConfiguration _configuration;
         private readonly GraphServiceClient _graphServiceClient;
@@ -110,7 +110,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             };
         }
 
-        public void Update(int idCuocHop,UpdateCuochopDto dto)
+        public void Update(int idCuocHop, UpdateCuochopDto dto)
         {
             _logger.LogInformation($"{nameof(Update)} dto={JsonSerializer.Serialize(dto)}");
 
@@ -155,7 +155,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             var existingCuocHop = _smDbContext.HopTrucTuyens
                 .FirstOrDefault(h => h.Id == idCuocHop && !h.Deleted);
 
-            if( existingCuocHop == null)
+            if (existingCuocHop == null)
             {
                 throw new UserFriendlyException(ErrorCodes.CuocHopErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorNotFound));
             }
@@ -163,11 +163,11 @@ namespace thongbao.be.application.DiemDanh.Implements
             existingCuocHop.DeletedDate = vietNamNow;
 
 
-            var thongTinDiemDanhList =_smDbContext.ThongTinDiemDanhs
+            var thongTinDiemDanhList = _smDbContext.ThongTinDiemDanhs
                 .Where(h => h.IdHopTrucTuyen == idCuocHop && !h.Deleted)
                 .ToList();
 
-            foreach( var thongtinDiemDanh in thongTinDiemDanhList)
+            foreach (var thongtinDiemDanh in thongTinDiemDanhList)
             {
                 thongtinDiemDanh.Deleted = true;
                 thongtinDiemDanh.DeletedDate = vietNamNow;
@@ -175,9 +175,9 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             var tinNhanHopTrucTuyenList = _smDbContext.TinNhanHopTrucTuyens
                 .Where(h => h.CuocHopId == idCuocHop && !h.Deleted)
-                .ToList() ;
+                .ToList();
 
-            foreach(var tinNhanHopTrucTuyen in tinNhanHopTrucTuyenList)
+            foreach (var tinNhanHopTrucTuyen in tinNhanHopTrucTuyenList)
             {
                 tinNhanHopTrucTuyen.Deleted = true;
                 tinNhanHopTrucTuyen.DeletedDate = vietNamNow;
@@ -278,7 +278,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                 if (users?.Value == null || !users.Value.Any())
                 {
-                    throw new UserFriendlyException(ErrorCodes.AuthErrorUserNotFound,ErrorMessages.GetMessage(ErrorCodes.AuthErrorUserNotFound));
+                    throw new UserFriendlyException(ErrorCodes.AuthErrorUserNotFound, ErrorMessages.GetMessage(ErrorCodes.AuthErrorUserNotFound));
                 }
 
                 var user = users.Value.First();
@@ -381,7 +381,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                 if (!IsValidJoinWebUrl(dto.JoinWebUrl))
                 {
-                    throw new UserFriendlyException(ErrorCodes.CuocHopErrorInvalidJoinWebUrl,ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorInvalidJoinWebUrl));
+                    throw new UserFriendlyException(ErrorCodes.CuocHopErrorInvalidJoinWebUrl, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorInvalidJoinWebUrl));
                 }
 
                 var encodedUrl = HttpUtility.UrlEncode(dto.JoinWebUrl);
@@ -1034,11 +1034,11 @@ namespace thongbao.be.application.DiemDanh.Implements
         }
 
 
-        public BaseResponsePagingDto<ViewThongTinDiemDanhDto> ThongTinDiemDanhPaging (int idCuocHop,FindPagingThongTinDiemDanhDto dto)
+        public BaseResponsePagingDto<ViewThongTinDiemDanhDto> ThongTinDiemDanhPaging(int idCuocHop, FindPagingThongTinDiemDanhDto dto)
         {
             _logger.LogInformation($"{nameof(ThongTinDiemDanh)} dto={JsonSerializer.Serialize(dto)}");
             var query = from ttdd in _smDbContext.ThongTinDiemDanhs
-                        where ttdd.IdHopTrucTuyen == idCuocHop && !ttdd.Deleted 
+                        where ttdd.IdHopTrucTuyen == idCuocHop && !ttdd.Deleted
                         orderby ttdd.Id descending
                         select ttdd;
             var data = query.Paging(dto).ToList();
@@ -1047,7 +1047,7 @@ namespace thongbao.be.application.DiemDanh.Implements
             {
                 Items = items,
                 TotalItems = query.Count()
-            }; 
+            };
 
         }
         public async Task<byte[]> ExportDanhSachDiemDanhToExcel(int idCuocHop)
@@ -1160,12 +1160,12 @@ namespace thongbao.be.application.DiemDanh.Implements
             // Auto-fit columns
             worksheet.Columns().AdjustToContents();
 
-            worksheet.Column(1).Width = 5;  
-            worksheet.Column(2).Width = 12; 
-            worksheet.Column(3).Width = 25;  
-            worksheet.Column(8).Width = 30;  
+            worksheet.Column(1).Width = 5;
+            worksheet.Column(2).Width = 12;
+            worksheet.Column(3).Width = 25;
+            worksheet.Column(8).Width = 30;
             worksheet.Column(10).Width = 18;
-            worksheet.Column(11).Width = 50; 
+            worksheet.Column(11).Width = 50;
 
             // Thống kê
             var tongSo = danhSachDiemDanh.Count;
@@ -1241,7 +1241,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                 TongSoSinhVienVang = tongSoSinhVienVang
             };
         }
-        public void CreateDotDiemDanh(int idCuocHop,CreateDotDiemDanhDto dto)
+        public void CreateDotDiemDanh(int idCuocHop, CreateDotDiemDanhDto dto)
         {
             _logger.LogInformation($"{nameof(CreateDotDiemDanh)} dto={JsonSerializer.Serialize(dto)}");
             var vietnamNow = GetVietnamTime();
@@ -1396,7 +1396,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                                          && !gn.Deleted);
                 if (existingGhiNhan != null)
                 {
-                     throw new UserFriendlyException(ErrorCodes.CuocHopErrorDaDiemDanh, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorDaDiemDanh));
+                    throw new UserFriendlyException(ErrorCodes.CuocHopErrorDaDiemDanh, ErrorMessages.GetMessage(ErrorCodes.CuocHopErrorDaDiemDanh));
                 }
                 var ghiNhanDiemDanh = new domain.DiemDanh.GhiNhanDiemDanh
                 {
@@ -1547,54 +1547,54 @@ namespace thongbao.be.application.DiemDanh.Implements
                             .Replace("&quot;", "\"");
             return decoded.Trim();
         }
-       /* private GraphServiceClient CreateUserGraphClient(string accessToken)
-        {
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+        /* private GraphServiceClient CreateUserGraphClient(string accessToken)
+         {
+             var httpClient = new HttpClient();
+             httpClient.DefaultRequestHeaders.Authorization =
+                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
-            return new GraphServiceClient(httpClient);
-        }
+             return new GraphServiceClient(httpClient);
+         }
 
-        private PKCEDto GeneratePKCE()
-        {
-            var codeVerifier = GenerateCodeVerifier();
-            var codeChallenge = GenerateCodeChallenge(codeVerifier);
-            var state = Guid.NewGuid().ToString();
+         private PKCEDto GeneratePKCE()
+         {
+             var codeVerifier = GenerateCodeVerifier();
+             var codeChallenge = GenerateCodeChallenge(codeVerifier);
+             var state = Guid.NewGuid().ToString();
 
-            return new PKCEDto
-            {
-                CodeVerifier = codeVerifier,
-                CodeChallenge = codeChallenge,
-                State = state
-            };
-        }
+             return new PKCEDto
+             {
+                 CodeVerifier = codeVerifier,
+                 CodeChallenge = codeChallenge,
+                 State = state
+             };
+         }
 
-        private string GenerateCodeVerifier()
-        {
-            var bytes = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(bytes);
-            }
-            return Convert.ToBase64String(bytes)
-                .Replace('+', '-')
-                .Replace('/', '_')
-                .TrimEnd('=');
-        }
+         private string GenerateCodeVerifier()
+         {
+             var bytes = new byte[32];
+             using (var rng = RandomNumberGenerator.Create())
+             {
+                 rng.GetBytes(bytes);
+             }
+             return Convert.ToBase64String(bytes)
+                 .Replace('+', '-')
+                 .Replace('/', '_')
+                 .TrimEnd('=');
+         }
 
-        private string GenerateCodeChallenge(string codeVerifier)
-        {
-            var bytes = Encoding.UTF8.GetBytes(codeVerifier);
-            using (var sha256 = SHA256.Create())
-            {
-                var hash = sha256.ComputeHash(bytes);
-                return Convert.ToBase64String(hash)
-                    .Replace('+', '-')
-                    .Replace('/', '_')
-                    .TrimEnd('=');
-            }
-        }*/
+         private string GenerateCodeChallenge(string codeVerifier)
+         {
+             var bytes = Encoding.UTF8.GetBytes(codeVerifier);
+             using (var sha256 = SHA256.Create())
+             {
+                 var hash = sha256.ComputeHash(bytes);
+                 return Convert.ToBase64String(hash)
+                     .Replace('+', '-')
+                     .Replace('/', '_')
+                     .TrimEnd('=');
+             }
+         }*/
         private static DateTime GetVietnamTime()
         {
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);
