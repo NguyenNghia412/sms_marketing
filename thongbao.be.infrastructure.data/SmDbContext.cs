@@ -111,7 +111,7 @@ namespace thongbao.be.infrastructure.data
             });
             modelBuilder.Entity<ChienDichDanhBa>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => new { e.IdChienDich, e.IdDanhBa });
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
