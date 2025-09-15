@@ -29,11 +29,11 @@ namespace thongbao.be.domain.DanhBa
         public string MaSoNguoiDung  { get; set; } = String.Empty;
         public string SoDienThoai { get; set; } = String.Empty;
         public string EmailHuce { get; set; } = string.Empty;
-        public string Khoa { get; set; } = string.Empty;
-        public string MaSoKhoa { get; set; } = string.Empty;
-        public int LaNguoiDung { get; set; }
-        public string? Lop { get; set; }
-        public string? KhoaSinhVien { get; set; }
+        //public string Khoa { get; set; } = string.Empty;
+        //public string MaSoKhoa { get; set; } = string.Empty;
+        //public int LaNguoiDung { get; set; }
+        //public string? Lop { get; set; }
+        //public string? KhoaSinhVien { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }

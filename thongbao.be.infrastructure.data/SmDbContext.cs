@@ -10,6 +10,7 @@ using thongbao.be.domain.Auth;
 using thongbao.be.domain.DanhBa;
 using thongbao.be.domain.DiemDanh;
 using thongbao.be.domain.GuiTinNhan;
+using thongbao.be.domain.ToChuc;
 using thongbao.be.shared.Constants.Db;
 
 namespace thongbao.be.infrastructure.data
@@ -34,7 +35,8 @@ namespace thongbao.be.infrastructure.data
         public DbSet<DanhBaChiTiet> DanhBaChiTiets { get; set; }
         public DbSet<DanhBaData> DanhBaDatas { get; set; }
         public DbSet<ChienDichDanhBa> ChienDichDanhBa { get; set; }
-
+        public DbSet<ToChuc> ToChucs { get; set; }
+        public DbSet<ToChucDanhBaChiTiet> ToChucDanhBaChiTiet { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -112,6 +114,16 @@ namespace thongbao.be.infrastructure.data
             modelBuilder.Entity<ChienDichDanhBa>(entity =>
             {
                 entity.HasKey(e => new { e.IdChienDich, e.IdDanhBa });
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<ToChuc>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<ToChucDanhBaChiTiet>(entity =>
+            {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
