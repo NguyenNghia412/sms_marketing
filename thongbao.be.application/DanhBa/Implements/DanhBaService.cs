@@ -302,7 +302,8 @@ namespace thongbao.be.application.DanhBa.Implements
                 Scopes,
                 gmail,
                 CancellationToken.None,
-                new FileDataStore("GoogleTokens", true));
+                new NullDataStore()
+            );
 
             return new GetRefreshTokenDto
             {
