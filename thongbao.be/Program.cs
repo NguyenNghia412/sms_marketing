@@ -58,6 +58,7 @@ builder.Services.AddDbContext<SmDbContext>(options =>
     {
         //options.MigrationsAssembly(typeof(Program).Namespace);
         //options.MigrationsHistoryTable(DbSchemas.TableMigrationsHistory, DbSchemas.Core);
+        options.CommandTimeout(600);
     });
     options.UseOpenIddict(); // Register OpenIddict entities
 }, ServiceLifetime.Scoped);

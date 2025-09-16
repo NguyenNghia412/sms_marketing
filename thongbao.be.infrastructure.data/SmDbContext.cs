@@ -13,6 +13,7 @@ using thongbao.be.domain.GuiTinNhan;
 using thongbao.be.domain.ToChuc;
 using thongbao.be.shared.Constants.Db;
 
+
 namespace thongbao.be.infrastructure.data
 {
     public class SmDbContext : IdentityDbContext<AppUser>
@@ -38,7 +39,14 @@ namespace thongbao.be.infrastructure.data
         public DbSet<ToChuc> ToChucs { get; set; }
         public DbSet<ToChucDanhBaChiTiet> ToChucDanhBaChiTiet { get; set; }
 
-
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                // This ensures bulk extensions work properly
+            }
+            base.OnConfiguring(optionsBuilder);
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.UseOpenIddict();

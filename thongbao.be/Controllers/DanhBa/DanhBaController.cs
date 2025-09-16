@@ -115,5 +115,39 @@ namespace thongbao.be.Controllers.DanhBa
             }
         }
 
+        [Permission(PermissionKeys.DanhBaImport)]
+        [HttpPost("verify-import-google-sheet-append")]
+        public async Task<ApiResponse> VerifyImportAppendDanhBaCung([FromBody] ImportAppendDanhBaCungDto dto)
+        {
+            try
+            {
+                var data = await _danhBaService.VerifyImportAppendDanhBaCung(dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+
+        [Permission(PermissionKeys.DanhBaImport)]
+        [HttpPost("import-google-sheet-append")]
+        public async Task<ApiResponse> ImportAppendDanhBaCung([FromBody] ImportAppendDanhBaCungDto dto)
+        {
+            try
+            {
+                var data = await _danhBaService.ImportAppendDanhBaCung(dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+
+
+
     }
 }

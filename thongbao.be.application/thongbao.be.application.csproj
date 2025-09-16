@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="15.0.1" />
     <PackageReference Include="ClosedXML" Version="0.105.0" />
+	<PackageReference Include="EFCore.BulkExtensions" Version="8.1.1" />
     <PackageReference Include="Google.Apis.Drive.v3" Version="1.70.0.3893" />
     <PackageReference Include="Google.Apis.Sheets.v4" Version="1.70.0.3819" />
     <PackageReference Include="Hangfire.Core" Version="1.8.21" />

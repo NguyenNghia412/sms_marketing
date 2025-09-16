@@ -42,6 +42,7 @@ namespace thongbao.be.shared.Constants.Auth
         public const string DanhBaUpdate = Function + "DanhBaUpdate";
         public const string DanhBaDelete = Function + "DanhBaDelete";
         public const string DanhBaView = Function + "DanhBaView";
+        public const string DanhBaImport = Function + "DanhBaImport";
 
 
         public const string CategoryToChuc = "QL Tổ chức";
@@ -80,6 +81,7 @@ namespace thongbao.be.shared.Constants.Auth
             (DanhBaUpdate, "Cập nhật Danh bạ", CategoryDanhBa),
             (DanhBaDelete, "Xoá Danh bạ", CategoryDanhBa),
             (DanhBaView, "Xem Danh bạ", CategoryDanhBa),
+            (DanhBaImport,"Import Danh Bạ",DanhBaImport),
 
             (ToChucAdd, "Thêm Tổ chức ", CategoryToChuc),
             (ToChucUpdate, "Cập nhật Tổ chức", CategoryToChuc),

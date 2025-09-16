@@ -40,7 +40,20 @@ namespace thongbao.be.shared.HttpRequest.Error
 
         public const int ToChucErrorNotFound = 601;
         public const int ToChucErrorLoaiToChucNotFound = 602;
-        
+
+
+        public const int ServiceAccountErrorNotFound = 701;
+        public const int GoogleSheetUrlErrorInvalid = 702;
+
+        public const int ImportHeaderErrorInvalid = 801;
+        public const int ImportPhoneNumberErrorInvalid = 802;
+        public const int ImportEmailHuceErrorInvalid = 803;
+        public const int ImportToChucErrorNotFound = 804;
+        public const int ImportRequiredFieldErrorEmpty = 805;
+        public const int ImportLoaiNguoiDungErrorInvalid = 806;
+
+
+
 
 
     }
