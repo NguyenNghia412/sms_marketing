@@ -36,6 +36,10 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int ChienDichErrorNotFound = 301;
 
         public const int DanhBaErrorNotFound = 501;
+
+
+        public const int ToChucErrorNotFound = 601;
+        public const int ToChucErrorLoaiToChucNotFound = 602;
         
 
 

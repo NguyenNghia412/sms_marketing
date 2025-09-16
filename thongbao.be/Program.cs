@@ -26,6 +26,8 @@ using thongbao.be.application.DiemDanh.Implements;
 using thongbao.be.application.DiemDanh.Interfaces;
 using thongbao.be.application.GuiTinNhan.Implements;
 using thongbao.be.application.GuiTinNhan.Interfaces;
+using thongbao.be.application.ToChuc.Implements;
+using thongbao.be.application.ToChuc.Interfaces;
 using thongbao.be.domain.Auth;
 using thongbao.be.infrastructure.data;
 using thongbao.be.infrastructure.data.Seeder;
@@ -223,6 +225,7 @@ builder.Services.AddScoped<IPermissionsService, PermissionsService>();
 builder.Services.AddScoped<IChienDichService, ChienDichService>();
 builder.Services.AddScoped<IHopTrucTuyenService, HopTrucTuyenService>();
 builder.Services.AddScoped<IDanhBaService, DanhBaService>();
+builder.Services.AddScoped<IToChucService, ToChucService>();
 #endregion
 
 builder.Services.AddHttpClient();

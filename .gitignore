@@ -45,6 +45,9 @@ Migrations/  # ⚠️ Optional – remove this line if you want migrations track
 ## Service Account
 thongbao.be/service-account.json
 
+##Oauth Secret
+thongbao.be/oauth-secret.json
+
 ## Others
 wwwroot/lib/
 node_modules/

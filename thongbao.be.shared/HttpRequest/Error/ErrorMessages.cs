@@ -32,6 +32,8 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.CuocHopErrorDaDiemDanh, "Bạn đã điểm danh cho đợt này rồi"},
             { ErrorCodes.ChienDichErrorNotFound, "Chiến dịch không tồn tại"},
             { ErrorCodes.DanhBaErrorNotFound, "Danh bạ không tồn tại"},
+            { ErrorCodes.ToChucErrorNotFound, "Tổ chức không tồn tại" },
+            { ErrorCodes.ToChucErrorLoaiToChucNotFound,"Loại tổ chức không tồn tại" }
         };
 
         public static string GetMessage(int code)

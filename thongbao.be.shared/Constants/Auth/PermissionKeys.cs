@@ -44,6 +44,15 @@ namespace thongbao.be.shared.Constants.Auth
         public const string DanhBaView = Function + "DanhBaView";
 
 
+        public const string CategoryToChuc = "QL Tổ chức";
+        public const string ToChucAdd = Function + "ToChucAdd";
+        public const string ToChucUpdate = Function + "ToChucUpdate";
+        public const string ToChucDelete = Function + "ToChucDelete";
+        public const string ToChucView = Function + "ToChucView";
+
+
+
+
         public static readonly (string Key, string Name, string Category)[] All =
         {
             (UserAdd, "Thêm user", CategoryUser),
@@ -71,6 +80,11 @@ namespace thongbao.be.shared.Constants.Auth
             (DanhBaUpdate, "Cập nhật Danh bạ", CategoryDanhBa),
             (DanhBaDelete, "Xoá Danh bạ", CategoryDanhBa),
             (DanhBaView, "Xem Danh bạ", CategoryDanhBa),
+
+            (ToChucAdd, "Thêm Tổ chức ", CategoryToChuc),
+            (ToChucUpdate, "Cập nhật Tổ chức", CategoryToChuc),
+            (ToChucDelete, "Xoá Tổ chức", CategoryToChuc),
+            (ToChucView, "Xem Tổ chức", CategoryToChuc),
 
         };
     }

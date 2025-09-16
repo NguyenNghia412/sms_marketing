@@ -67,6 +67,53 @@ namespace thongbao.be.Controllers.DanhBa
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.DanhBaView)]
+        [HttpPost("export-danh-ba-template-excel")]
+        public async Task<IActionResult> DownloadDanhBaChiTietTemplateExcel()
+        {
+            try
+            {
+                var excelTemplate = await   _danhBaService.ExportDanhBaChiTietExcelTemplate();
+                var fileName = $"Mẫu File Excel Import Danh Bạ Người Dùng.xlsx";
+                return File(
+                   excelTemplate,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    fileName
+                 );
+
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new ApiResponse(ex.Message));
+            }
+        }
+        [Permission(PermissionKeys.DanhBaView)]
+        [HttpPost("danh-ba-template-google-sheet")]
+        public async Task<ApiResponse> CreateDanhBaGoogleSheetTemplate()
+        {
+            try
+            {
+                var data = await _danhBaService.CreateDanhBaGoogleSheetTemplate();
+                return new(data);
+            }catch(Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.DanhBaView)]
+        [HttpPost("get-google-refresh-token")]
+        public async Task<ApiResponse> GetGoogleRefreshToken()
+        {
+            try
+            {
+                var data = await _danhBaService.GetGoogleRefreshToken();
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
 
     }
 }
