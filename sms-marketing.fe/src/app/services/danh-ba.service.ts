@@ -1,5 +1,5 @@
 import { ICreateDanhBa, IFindPagingDanhBa, IUpdateDanhBa, IViewRowDanhBa } from '@/models/danh-ba.models';
-import { IBaseResponse, IBaseResponsePaging } from '@/shared/models/request-paging.base.models';
+import { IBaseResponse, IBaseResponseList, IBaseResponsePaging } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
@@ -11,7 +11,7 @@ export class DanhBaService {
     http = inject(HttpClient);
 
     getList() {
-        return this.http.get(`${this.api}/list-danh-ba`);
+        return this.http.get<IBaseResponseList<IViewRowDanhBa[]>>(`${this.api}/list-danh-ba`);
     }
 
     findPaging(query: IFindPagingDanhBa) {

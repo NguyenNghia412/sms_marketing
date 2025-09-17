@@ -1,3 +1,7 @@
+import { IViewRowDanhBa } from '@/models/danh-ba.models';
+import { ICreateChienDich, IViewBrandname } from '@/models/sms.models';
+import { ChienDichService } from '@/services/chien-dich.service';
+import { DanhBaService } from '@/services/danh-ba.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { SharedImports } from '@/shared/import.shared';
 import { Component, inject } from '@angular/core';
@@ -13,10 +17,12 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 export class Create extends BaseComponent {
     private _ref = inject(DynamicDialogRef);
     private _config = inject(DynamicDialogConfig);
+    private _danhBaService = inject(DanhBaService);
+    private _chienDichService = inject(ChienDichService);
 
     override form: FormGroup = new FormGroup({
-        idBrandName: new FormControl('', [Validators.required]),
-        idDanhBa: new FormControl('', [Validators.required]),
+        idBrandName: new FormControl(null, [Validators.required]),
+        idDanhBa: new FormControl(null, [Validators.required]),
         tenChienDich: new FormControl('', [Validators.required]),
         ngayBatDau: new FormControl(new Date()),
         ngayKetThuc: new FormControl(new Date()),
@@ -26,21 +32,60 @@ export class Create extends BaseComponent {
     });
 
     override ValidationMessages: Record<string, Record<string, string>> = {
-      idBrandName: {
-        required: 'Không được bỏ trống',
-      },
-      idDanhBa: {
-        required: 'Không được bỏ trống',
-      },
-      tenChienDich: {
-        required: 'Không được bỏ trống',
-      },
-      mauNoiDung: {
-        required: 'Không được bỏ trống',
-      },
+        idBrandName: {
+            required: 'Không được bỏ trống'
+        },
+        idDanhBa: {
+            required: 'Không được bỏ trống'
+        },
+        tenChienDich: {
+            required: 'Không được bỏ trống'
+        },
+        mauNoiDung: {
+            required: 'Không được bỏ trống'
+        }
+    };
+
+    listDanhBa: IViewRowDanhBa[] = [];
+    listBrandname: IViewBrandname[] = [];
+
+    override ngOnInit(): void {
+        this._danhBaService.getList().subscribe({
+            next: (value) => {
+                this.listDanhBa = value.data;
+            }
+        });
+        this._chienDichService.getListBrandname().subscribe({
+            next: (value) => {
+                this.listBrandname = value.data;
+            }
+        });
     }
 
     onSubmit() {
-      
+        if (this.isFormInvalid()) {
+            return;
+        }
+        this.onSubmitCreate();
+    }
+
+    onSubmitCreate() {
+        const body: ICreateChienDich = {
+            ...this.form.value
+        };
+        this.loading = true;
+        this._chienDichService.create(body).subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, true, 'Đã thêm chiến dịch')) {
+                    this._ref?.close(true);
+                }
+            },
+            error: (err) => {
+                this.messageError(err?.message);
+            },
+            complete: () => {
+                this.loading = false;
+            }
+        });
     }
 }

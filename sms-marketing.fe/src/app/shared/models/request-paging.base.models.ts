@@ -10,6 +10,10 @@ export type IBaseResponse = {
   message: string
 }
 
+export type IBaseResponseList<T> = IBaseResponse & {
+  data: T
+}
+
 export type IBaseResponsePaging<T> = IBaseResponse & {
   data: IBaseResponsePagingData<T>
 }

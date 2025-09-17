@@ -11,4 +11,18 @@ export type IViewChienDich = {
   createdDate: string
 }
 
+export type ICreateChienDich = {
+  tenChienDich: string
+  moTa: string
+  ngayBatDau: string
+  ngayKetThuc: string
+  noiDung: string
+  isFlashSms: boolean
+  createdDate: string
+}
+
 export interface IFindPagingChienDich extends IBaseRequestPaging {}
+
+export interface IViewBrandname {
+
+}

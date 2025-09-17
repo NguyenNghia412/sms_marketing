@@ -29,18 +29,17 @@ export class Sms extends BaseComponent {
     });
 
     columns: IColumn[] = [
-        { header: 'STT', cellViewType: CellViewTypes.INDEX },
-        { header: 'Id', field: 'id' },
+        { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
         { header: 'Tên chiến dịch', field: 'tenChienDich', headerContainerStyle: 'min-width: 12rem' },
-        { header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'min-width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
-        { header: 'Thời gian gửi', field: 'ngayBatDau', headerContainerStyle: 'min-width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
+        { header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
+        { header: 'Thời gian gửi', field: 'ngayBatDau', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
         { header: 'Nội dung', field: 'noiDung', headerContainerStyle: 'min-width: 12rem' }
     ];
 
     data: IViewChienDich[] = [];
     query: IFindPagingChienDich = {
         pageNumber: 1,
-        pageSize: 5
+        pageSize: this.MAX_PAGE_SIZE
     };
 
     override ngOnInit(): void {
@@ -52,12 +51,16 @@ export class Sms extends BaseComponent {
     }
 
     getData() {
+        this.loading = true;
         this._chienDichService.findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value }).subscribe({
             next: (res: any) =>  {
                 if (this.isResponseSucceed(res, false)) {
                     this.data = res.data.items;
                 }
             },
+            complete: () => {
+                this.loading = false;
+            }
         }
         );
     }
