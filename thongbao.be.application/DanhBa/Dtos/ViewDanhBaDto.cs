@@ -12,5 +12,6 @@ namespace thongbao.be.application.DanhBa.Dtos
         public string TenDanhBa { get; set; } = String.Empty;
         public string? Mota { get; set; }
         public string? GhiChu { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 }
