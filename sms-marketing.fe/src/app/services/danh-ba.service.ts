@@ -1,4 +1,4 @@
-import { ICreateDanhBa, IFindPagingDanhBa, IViewRowDanhBa } from '@/models/danh-ba.models';
+import { ICreateDanhBa, IFindPagingDanhBa, IUpdateDanhBa, IViewRowDanhBa } from '@/models/danh-ba.models';
 import { IBaseResponse, IBaseResponsePaging } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -21,7 +21,14 @@ export class DanhBaService {
     }
 
     create(body: ICreateDanhBa) {
-      return this.http.post<IBaseResponse>(this.api, body);
+        return this.http.post<IBaseResponse>(this.api, body);
     }
 
+    update(body: IUpdateDanhBa) {
+        return this.http.put<IBaseResponse>(`${this.api}?idDanhBa=${body.id}`, body);
+    }
+
+    delete(id: number) {
+        return this.http.delete<IBaseResponse>(`${this.api}?id=${id}`);
+    }
 }

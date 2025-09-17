@@ -17,6 +17,7 @@ export abstract class BaseComponent implements OnInit {
     MAX_PAGE_SIZE = 10;
     form!: FormGroup; // declare, but not initialize
     loading: boolean = false;
+    totalRecords: number = 100;
 
     ngOnInit(): void {}
 

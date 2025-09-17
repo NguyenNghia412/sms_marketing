@@ -12,7 +12,7 @@ export const TBL_CUSTOM_COMP_EMIT = new InjectionToken<EventEmitter<any>>('TBL_C
 
 @Component({
     selector: 'app-data-table',
-    imports: [TableModule, PaginatorModule, CurrencyPipe, DatePipe, IconFieldModule, InputIconModule, NgClass, NgComponentOutlet, CommonModule],
+    imports: [TableModule, PaginatorModule, CurrencyPipe, DatePipe, IconFieldModule, InputIconModule, NgClass, NgComponentOutlet, CommonModule, PaginatorModule],
     templateUrl: './data-table.html',
     styleUrl: './data-table.scss'
 })
@@ -23,8 +23,10 @@ export class DataTable implements OnInit {
     data = input.required<any[]>();
     pageSize = input<number>(10);
     pageNumber = input<number>(1);
+    total = input<number>(100);
     loading = input<boolean>(false);
 
+    @Output() onPageChanged = new EventEmitter<any>();
     @Output() customEmit = new EventEmitter<any>();
     @Output() onCustomComp = new EventEmitter<any>();
 
@@ -54,5 +56,9 @@ export class DataTable implements OnInit {
 
     get<T>(obj: any, path: string): T | undefined {
         return path.split('.').reduce((acc, key) => acc && acc[key], obj);
+    }
+
+    onPage($event: any) {
+        this.onPageChanged.emit($event);
     }
 }

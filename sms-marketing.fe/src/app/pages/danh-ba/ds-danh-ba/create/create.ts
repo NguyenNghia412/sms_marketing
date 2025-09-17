@@ -1,4 +1,4 @@
-import { ICreateDanhBa } from '@/models/danh-ba.models';
+import { ICreateDanhBa, IUpdateDanhBa } from '@/models/danh-ba.models';
 import { DanhBaService } from '@/services/danh-ba.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { SharedImports } from '@/shared/import.shared';
@@ -18,6 +18,7 @@ export class Create extends BaseComponent {
     private _danhBaService = inject(DanhBaService);
 
     override form: FormGroup = new FormGroup({
+        id: new FormControl(null),
         tenDanhBa: new FormControl('', [Validators.required]),
         mota: new FormControl(''),
         ghiChu: new FormControl('')
@@ -29,14 +30,33 @@ export class Create extends BaseComponent {
         }
     };
 
+    override ngOnInit(): void {
+        if (this.isUpdate) {
+            this.form.setValue(this._config.data);
+        }
+    }
+
+    get isUpdate() {
+        return this._config.data?.id;
+    }
+
     onSubmit() {
         if (this.isFormInvalid()) {
             return;
         }
 
+       if (this.isUpdate) {
+        this.onSubmitUpdate();
+       } else {
+        this.onSubmitCreate();
+       }
+    }
+
+    onSubmitCreate() {
         const body: ICreateDanhBa = {
             ...this.form.value
         };
+        this.loading = true;
         this._danhBaService.create(body).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, true, 'Đã thêm danh bạ')) {
@@ -45,6 +65,29 @@ export class Create extends BaseComponent {
             },
             error: (err) => {
                 this.messageError(err?.message);
+            },
+            complete: () => {
+                this.loading = false;
+            }
+        });
+    }
+
+    onSubmitUpdate() {
+        const body: IUpdateDanhBa = {
+            ...this.form.value
+        };
+        this.loading = true;
+        this._danhBaService.update(body).subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, true, 'Đã lưu')) {
+                    this._ref?.close(true);
+                }
+            },
+            error: (err) => {
+                this.messageError(err?.message);
+            },
+            complete: () => {
+                this.loading = false;
             }
         });
     }

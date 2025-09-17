@@ -8,6 +8,13 @@ export interface ICreateDanhBa {
   ghiChu: string
 }
 
+export interface IUpdateDanhBa {
+  id: number,
+  tenDanhBa: string,
+  mota: string,
+  ghiChu: string
+}
+
 export interface IViewRowDanhBa {
   id?: number,
   tenDanhBa?: string,

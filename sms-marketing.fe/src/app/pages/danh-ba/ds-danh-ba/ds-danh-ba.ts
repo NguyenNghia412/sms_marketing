@@ -8,7 +8,8 @@ import { IColumn } from '@/shared/models/data-table.models';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Create } from './create/create';
-import { TblAction } from './tbl-action/tbl-action';
+import { TblAction, TblActionTypes } from './tbl-action/tbl-action';
+import { PaginatorState } from 'primeng/paginator';
 
 @Component({
     selector: 'app-ds-danh-ba',
@@ -24,16 +25,16 @@ export class DsDanhBa extends BaseComponent {
     });
 
     columns: IColumn[] = [
-        { header: 'STT', cellViewType: CellViewTypes.INDEX },
-        { header: 'Tên danh bạ', field: 'tenDanhBa', headerContainerStyle: 'min-width: 12rem' },
-        { header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'min-width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
+        { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
+        { header: 'Tên danh bạ', field: 'tenDanhBa', headerContainerStyle: 'min-width: 10rem', },
+        { header: 'Thời gian tạo', field: 'createdDate',headerContainerStyle: 'width: 10rem' , cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
         { header: 'Thao tác', headerContainerStyle: 'width: 12rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
     data: IViewRowDanhBa[] = [];
     query: IFindPagingDanhBa = {
         pageNumber: 1,
-        pageSize: 10
+        pageSize: this.MAX_PAGE_SIZE,
     };
 
     override ngOnInit(): void {
@@ -44,14 +45,21 @@ export class DsDanhBa extends BaseComponent {
         this.getData();
     }
 
+    onPageChanged($event: PaginatorState) {
+      console.log($event);
+        this.query.pageNumber = ($event.page ?? 0) +1;
+        this.getData();
+    }
+
     getData() {
         this.loading = true;
         this._danhBaService
             .findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value })
             .subscribe({
-                next: (res: any) => {
+                next: (res) => {
                     if (this.isResponseSucceed(res, false)) {
                         this.data = res.data.items;
+                        this.totalRecords = res.data.totalItems;
                     }
                 }
             })
@@ -67,5 +75,50 @@ export class DsDanhBa extends BaseComponent {
                 this.getData();
             }
         });
+    }
+
+    onOpenUpdate(data: IViewRowDanhBa) {
+        const ref = this._dialogService.open(Create, { header: 'Cập nhật danh bạ', closable: true, modal: true, styleClass: 'w-96', focusOnShow: false, data: data });
+        ref.onClose.subscribe((result) => {
+            if (result) {
+                this.getData();
+            }
+        });
+    }
+
+    onCustomEmit(data: { type: string; data: IViewRowDanhBa }) {
+        if (data.type === TblActionTypes.detail) {
+            const uri = '/danh-ba/chi-tiet';
+            this.router.navigate([uri], {
+                queryParams: {
+                    id: data.data.id
+                }
+            });
+        } else if (data.type === TblActionTypes.delete) {
+            this.onDelete(data.data);
+        } else if (data.type === TblActionTypes.update) {
+            this.onOpenUpdate(data.data);
+        }
+    }
+
+    onDelete(data: IViewRowDanhBa) {
+        this.confirmDelete(
+            {
+                header: 'Bạn chắc chắn muốn xóa danh bạ?',
+                message: 'Không thể khôi phục sau khi xóa'
+            },
+            () => {
+                this._danhBaService.delete(data.id || 0).subscribe(
+                    (res) => {
+                        if (this.isResponseSucceed(res, true, 'Đã xóa')) {
+                            this.getData();
+                        }
+                    },
+                    (err) => {
+                        this.messageError(err?.message);
+                    }
+                );
+            }
+        );
     }
 }

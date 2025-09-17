@@ -17,6 +17,6 @@
         </div>
     </form>
     <div class="mt-4">
-        <app-data-table [columns]="columns" [data]="data" [loading]="loading" />
+        <app-data-table [columns]="columns" [data]="data" [loading]="loading" (onCustomComp)="onCustomEmit($event)" [pageSize]="query.pageSize" [pageNumber]="query.pageNumber" [total]="totalRecords" (onPageChanged)="onPageChanged($event)" />
     </div>
 </div>
