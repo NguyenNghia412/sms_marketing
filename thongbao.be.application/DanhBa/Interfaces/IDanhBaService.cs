@@ -20,5 +20,6 @@ namespace thongbao.be.application.DanhBa.Interfaces
         public Task<GetRefreshTokenDto> GetGoogleRefreshToken();
         public  Task<VerifyImportDanhBaCungResponseDto> VerifyImportAppendDanhBaCung(ImportAppendDanhBaCungDto dto);
         public Task<ImportDanhBaCungResponseDto> ImportAppendDanhBaCung(ImportAppendDanhBaCungDto dto);
+        public BaseResponsePagingDto<ViewDanhBaChiTietDto> FindDanhBaChiTiet(int idDanhBa, FindPagingDanhBaChiTietDto dto);
     }
 }
