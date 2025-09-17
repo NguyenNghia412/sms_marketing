@@ -35,10 +35,10 @@ namespace thongbao.be.domain.DanhBa
         public string? DiaChi { get; set; } 
         public int LaNguoiDung { get; set; }
         public string MaSoNguoiDung { get; set; } = string.Empty;
-        public string Khoa { get; set; } = string.Empty;
-        public string MaSoKhoa { get; set; } = string.Empty;
-        public string? Lop { get; set; } 
-        public string? KhoaSinhVien { get; set; }
+        //public string Khoa { get; set; } = string.Empty;
+        //public string MaSoKhoa { get; set; } = string.Empty;
+        //public string? Lop { get; set; } 
+        // public string? KhoaSinhVien { get; set; }
         public TrangThaiHoatDongEnum? TrangThaiHoatDong { get; set; } = TrangThaiHoatDongEnum.DangHoatDong;
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }

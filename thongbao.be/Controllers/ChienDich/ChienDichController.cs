@@ -40,11 +40,11 @@ namespace thongbao.be.Controllers.ChienDich
 
         [Permission(PermissionKeys.ChienDichAdd)]
         [HttpPost("")]
-        public ApiResponse Create([FromBody] CreateChienDichDto dto)
+        public ApiResponse Create([FromQuery] int idBrandName, [FromQuery] int idDanhBa, [FromBody] CreateChienDichDto dto)
         {
             try
             {
-                _chienDichService.Create(dto);
+                _chienDichService.Create(idBrandName,idDanhBa,dto);
                 return new();
             }
             catch (Exception ex)
@@ -94,6 +94,21 @@ namespace thongbao.be.Controllers.ChienDich
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.ChienDichView)]
+        [HttpGet("list-brand-name")]
+        public ApiResponse GetListBrandName()
+        {
+            try
+            {
+                var data = _chienDichService.GetListBrandName();
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
 
 
         [AllowAnonymous]

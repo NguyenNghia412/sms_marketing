@@ -935,7 +935,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                             LopQuanLy = GetLopFromDisplayName(attendee.Identity.User.DisplayName),
                             EmailHuce = attendee.Upn,
                             SoDienThoai = attendee.Identity.User.MobilePhone ?? string.Empty,
-                            TrangThaiDiemDanh = ThongTinDiemDanh.ChuaDiemDanh,
+                            TrangThaiDiemDanh = DiemDanhConstants.ChuaDiemDanh,
                             CreatedDate = vietnamNow,
                             Deleted = false
                         };
@@ -1010,7 +1010,7 @@ namespace thongbao.be.application.DiemDanh.Implements
                 var hasValidMessage = validMessages.Any();
                 if (!hasValidMessage)
                 {
-                    diemDanh.TrangThaiDiemDanh = ThongTinDiemDanh.VangMat;
+                    diemDanh.TrangThaiDiemDanh = DiemDanhConstants.VangMat;
                     return;
                 }
                 var validTimeMessages = tinNhanList.Where(tn =>
@@ -1022,11 +1022,11 @@ namespace thongbao.be.application.DiemDanh.Implements
                 var validTimeMessage = validTimeMessages.Any();
                 if (validTimeMessage)
                 {
-                    diemDanh.TrangThaiDiemDanh = ThongTinDiemDanh.DaDiemDanh;
+                    diemDanh.TrangThaiDiemDanh = DiemDanhConstants.DaDiemDanh;
                 }
                 else
                 {
-                    diemDanh.TrangThaiDiemDanh = ThongTinDiemDanh.VangMat;
+                    diemDanh.TrangThaiDiemDanh = DiemDanhConstants.VangMat;
                 }
             });
             await Task.WhenAll(updateTasks);
@@ -1036,7 +1036,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
         public BaseResponsePagingDto<ViewThongTinDiemDanhDto> ThongTinDiemDanhPaging(int idCuocHop, FindPagingThongTinDiemDanhDto dto)
         {
-            _logger.LogInformation($"{nameof(ThongTinDiemDanh)} dto={JsonSerializer.Serialize(dto)}");
+            _logger.LogInformation($"{nameof(DiemDanhConstants)} dto={JsonSerializer.Serialize(dto)}");
             var query = from ttdd in _smDbContext.ThongTinDiemDanhs
                         where ttdd.IdHopTrucTuyen == idCuocHop && !ttdd.Deleted
                         orderby ttdd.Id descending
@@ -1140,13 +1140,13 @@ namespace thongbao.be.application.DiemDanh.Implements
                     {
                         switch (item.TrangThaiDiemDanh)
                         {
-                            case ThongTinDiemDanh.DaDiemDanh:
+                            case DiemDanhConstants.DaDiemDanh:
                                 cell.Style.Fill.BackgroundColor = XLColor.LightGreen;
                                 break;
-                            case ThongTinDiemDanh.VangMat:
+                            case DiemDanhConstants.VangMat:
                                 cell.Style.Fill.BackgroundColor = XLColor.LightPink;
                                 break;
-                            case ThongTinDiemDanh.ChuaDiemDanh:
+                            case DiemDanhConstants.ChuaDiemDanh:
                                 cell.Style.Fill.BackgroundColor = XLColor.LightYellow;
                                 break;
                         }
@@ -1169,9 +1169,9 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             // Thống kê
             var tongSo = danhSachDiemDanh.Count;
-            var daDiemDanh = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.DaDiemDanh);
-            var vangMat = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.VangMat);
-            var chuaDiemDanh = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.ChuaDiemDanh);
+            var daDiemDanh = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == DiemDanhConstants.DaDiemDanh);
+            var vangMat = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == DiemDanhConstants.VangMat);
+            var chuaDiemDanh = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == DiemDanhConstants.ChuaDiemDanh);
 
             int statsRow = rowIndex + 2;
             worksheet.Cell(statsRow, 1).Value = "THỐNG KÊ:";
@@ -1232,8 +1232,8 @@ namespace thongbao.be.application.DiemDanh.Implements
 
             var danhSachDiemDanh = query.ToList();
 
-            var tongSoSinhVienThamGia = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.DaDiemDanh);
-            var tongSoSinhVienVang = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == ThongTinDiemDanh.VangMat);
+            var tongSoSinhVienThamGia = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == DiemDanhConstants.DaDiemDanh);
+            var tongSoSinhVienVang = danhSachDiemDanh.Count(x => x.TrangThaiDiemDanh == DiemDanhConstants.VangMat);
 
             return new ViewThongKeDiemDanhResponseDto
             {
@@ -1474,7 +1474,7 @@ namespace thongbao.be.application.DiemDanh.Implements
 
                 if (thongTinDiemDanh != null)
                 {
-                    thongTinDiemDanh.TrangThaiDiemDanh = shared.Constants.DiemDanh.ThongTinDiemDanh.DaDiemDanh;
+                    thongTinDiemDanh.TrangThaiDiemDanh = shared.Constants.DiemDanh.DiemDanhConstants.DaDiemDanh;
                     _smDbContext.SaveChanges();
 
                     _logger.LogInformation($"Đã cập nhật trạng thái điểm danh cho email: {emailHuce}, IdHopTrucTuyen: {idCuocHop}");
@@ -1493,9 +1493,9 @@ namespace thongbao.be.application.DiemDanh.Implements
         {
             return trangThai switch
             {
-                ThongTinDiemDanh.DaDiemDanh => "Đã điểm danh",
-                ThongTinDiemDanh.VangMat => "Vắng mặt",
-                ThongTinDiemDanh.ChuaDiemDanh => "Chưa điểm danh",
+                DiemDanhConstants.DaDiemDanh => "Đã điểm danh",
+                DiemDanhConstants.VangMat => "Vắng mặt",
+                DiemDanhConstants.ChuaDiemDanh => "Chưa điểm danh",
                 _ => "Không xác định"
             };
         }

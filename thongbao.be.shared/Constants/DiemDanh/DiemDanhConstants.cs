@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace thongbao.be.shared.Constants.DiemDanh
 {
-    public static class ThongTinDiemDanh
+    public static class DiemDanhConstants
     {
         public const int DaDiemDanh = 2;
         public const int VangMat = 1;

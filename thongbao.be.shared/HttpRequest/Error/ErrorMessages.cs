@@ -32,6 +32,15 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.CuocHopErrorDaDiemDanh, "Bạn đã điểm danh cho đợt này rồi"},
             { ErrorCodes.ChienDichErrorNotFound, "Chiến dịch không tồn tại"},
             { ErrorCodes.DanhBaErrorNotFound, "Danh bạ không tồn tại"},
+            { ErrorCodes.ToChucErrorNotFound, "Tổ chức không tồn tại" },
+            { ErrorCodes.ToChucErrorLoaiToChucNotFound,"Loại tổ chức không tồn tại" },
+            { ErrorCodes.ServiceAccountErrorNotFound,"Không tìm thấy đường dẫn file service-account" },
+            { ErrorCodes.ImportHeaderErrorInvalid, "Header không đúng định dạng tại dòng {0}" },
+            { ErrorCodes.ImportPhoneNumberErrorInvalid, "Số điện thoại không đúng định dạng tại dòng {0}" },
+            { ErrorCodes.ImportEmailHuceErrorInvalid, "Email Huce không đúng định dạng tại dòng {0}" },
+            { ErrorCodes.ImportToChucErrorNotFound, "Tổ chức không tồn tại tại dòng {0}" },
+            { ErrorCodes.ImportRequiredFieldErrorEmpty, "Trường bắt buộc không được để trống tại dòng {0}" },
+            { ErrorCodes.ImportLoaiNguoiDungErrorInvalid, "Loại người dùng không hợp lệ tại dòng {0}" },
         };
 
         public static string GetMessage(int code)

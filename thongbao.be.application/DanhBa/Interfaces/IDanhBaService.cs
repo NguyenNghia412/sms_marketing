@@ -13,5 +13,10 @@ namespace thongbao.be.application.DanhBa.Interfaces
         public void Create(CreateDanhBaDto dto);
         public void Update(int idDanhBa, UpdateDanhBaDto dto);
         public BaseResponsePagingDto<ViewDanhBaDto> Find(FindPagingDanhBaDto dto);
+        public  Task<byte[]> ExportDanhBaChiTietExcelTemplate();
+        public  Task<string> CreateDanhBaGoogleSheetTemplate();
+        public Task<GetRefreshTokenDto> GetGoogleRefreshToken();
+        public  Task<VerifyImportDanhBaCungResponseDto> VerifyImportAppendDanhBaCung(ImportAppendDanhBaCungDto dto);
+        public Task<ImportDanhBaCungResponseDto> ImportAppendDanhBaCung(ImportAppendDanhBaCungDto dto);
     }
 }

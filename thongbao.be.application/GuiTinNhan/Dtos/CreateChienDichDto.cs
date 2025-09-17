@@ -14,10 +14,11 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
 
         [Required(AllowEmptyStrings = false, ErrorMessage = "Không được bỏ trống")]
         required public string TenChienDich { get => _tenChienDich; set => _tenChienDich = value?.Trim()!; }
-     
+        
         public DateTime? NgayBatDau { get; set; }
         public DateTime? NgayKetThuc { get; set; }
         public string MoTa { get => _moTa; set => _moTa = value?.Trim()!; } 
+        public string MauNoiDung { get; set; } = string.Empty;
         public bool IsFlashSms { get; set; }
     }
 }

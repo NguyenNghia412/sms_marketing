@@ -10,6 +10,7 @@ using thongbao.be.application.Auth.Dtos.User;
 using thongbao.be.application.DanhBa.Dtos;
 using thongbao.be.application.DiemDanh.Dtos;
 using thongbao.be.application.GuiTinNhan.Dtos;
+using thongbao.be.application.ToChuc.Dtos;
 using thongbao.be.domain.Auth;
 using thongbao.be.domain.DanhBa;
 using thongbao.be.domain.DiemDanh;
@@ -29,6 +30,8 @@ namespace thongbao.be.application.Base
             CreateMap<ThongTinDiemDanh, ViewThongTinDiemDanhDto>();
             CreateMap<DotDiemDanh, ViewDotDiemDanhDto>();
             CreateMap<domain.DanhBa.DanhBa, ViewDanhBaDto>();
+            CreateMap<domain.ToChuc.ToChuc, ViewToChucDto>();
+            CreateMap<domain.GuiTinNhan.BrandName, GetListBrandNameResponseDto>();
         }
     }
 }

@@ -42,6 +42,11 @@ artifacts/
 
 ## EF Core
 Migrations/  # ⚠️ Optional – remove this line if you want migrations tracked
+## Service Account
+thongbao.be/service-account.json
+
+##Oauth Secret
+thongbao.be/oauth-secret.json
 
 ## Others
 wwwroot/lib/
@@ -51,3 +56,4 @@ Thumbs.db
 
 ## Visual Studio Generated
 .vs/
+

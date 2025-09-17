@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -31,12 +32,14 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         {
         }
 
-        public void Create(CreateChienDichDto dto)
+        public void Create(int idBrandName, int idDanhBa, CreateChienDichDto dto)
         {
-            _logger.LogInformation($"{nameof(Create)} dto={JsonSerializer.Serialize(dto)}");
+            _logger.LogInformation($"{nameof(Create)} idBrandName={idBrandName}, idDanhBa={idDanhBa}, dto={JsonSerializer.Serialize(dto)}");
             var vietnamNow = GetVietnamTime();
-            var tinNhan = new domain.GuiTinNhan.ChienDich
+
+            var chienDich = new domain.GuiTinNhan.ChienDich
             {
+                IdBrandName = idBrandName,
                 TenChienDich = dto.TenChienDich,
                 NgayBatDau = dto.NgayBatDau ?? vietnamNow,
                 NgayKetThuc = dto.NgayKetThuc,
@@ -45,7 +48,27 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 CreatedDate = vietnamNow,
             };
 
-            _smDbContext.ChienDiches.Add(tinNhan);
+            _smDbContext.ChienDiches.Add(chienDich);
+            _smDbContext.SaveChanges();
+
+            var idChienDich = chienDich.Id;
+
+            var chienDichDanhBa = new domain.GuiTinNhan.ChienDichDanhBa
+            {
+                IdChienDich = idChienDich,
+                IdDanhBa = idDanhBa,
+                CreatedDate = vietnamNow,
+            };
+            _smDbContext.ChienDichDanhBa.Add(chienDichDanhBa);
+
+
+            var mauNoiDung = new domain.GuiTinNhan.MauNoiDung
+            {
+                NoiDung = dto.MauNoiDung,
+                CreatedDate = vietnamNow,
+            };
+            _smDbContext.MauNoiDungs.Add(mauNoiDung);
+
             _smDbContext.SaveChanges();
         }
 
@@ -120,7 +143,21 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _smDbContext.SaveChanges();
             
         }
- 
+
+        public List<GetListBrandNameResponseDto> GetListBrandName()
+        {
+            _logger.LogInformation($"{nameof(GetListBrandName)}");
+
+            var query = from bn in _smDbContext.BrandName
+                        where !bn.Deleted
+                        orderby bn.CreatedDate descending
+                        select bn;
+
+            var data = query.ToList();
+            var result = _mapper.Map<List<GetListBrandNameResponseDto>>(data);
+
+            return result;
+        }
         private static DateTime GetVietnamTime()
         {
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);
