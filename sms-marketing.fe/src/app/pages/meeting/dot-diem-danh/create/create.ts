@@ -40,7 +40,6 @@ export class Create extends BaseComponent {
     };
 
     get idCuocHop() {
-      console.log(this._config.data);
       return this._config.data?.idCuocHop
     }
 

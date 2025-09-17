@@ -63,7 +63,7 @@ export class AppMenu {
                 items: [
                     {
                         label: 'Danh bạ',
-                        routerLink: ['/contacts']
+                        routerLink: ['/danh-ba/ds']
                     }
                 ]
             },

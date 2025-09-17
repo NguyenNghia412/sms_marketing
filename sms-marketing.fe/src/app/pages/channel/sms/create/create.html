@@ -1,0 +1,24 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+        <label for="tenChienDich" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên chiến dịch (*)</label>
+        <input pInputText formControlName="tenChienDich" id="tenChienDich" type="text" class="w-full mb-2" />
+        @if (form.get('tenChienDich')?.hasError('required') && form.get('tenChienDich')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('tenChienDich') }} </p-message>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="maMonHoc" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Mã môn học</label>
+        
+    </div>
+    <div class="mb-3">
+        <label for="tenMonHoc" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên môn học</label>
+        <input pInputText formControlName="tenMonHoc" id="tenMonHoc" type="text" class="w-full mb-2" />
+    </div>
+    <div class="mb-3">
+        <label for="moTa" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Mô tả</label>
+        <textarea pTextarea formControlName="moTa" id="moTa" type="text" class="w-full mb-2"></textarea>
+    </div>
+    <div class="mt-5 flex flex-row justify-end">
+        <p-button label="Lưu" icon="pi pi-save" type="submit" />
+    </div>
+</form>

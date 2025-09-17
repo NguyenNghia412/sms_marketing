@@ -21,6 +21,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
 import { MessageModule } from 'primeng/message';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 export const SharedImports = [
     // Angular
@@ -45,5 +46,6 @@ export const SharedImports = [
     DatePickerModule,
     SelectModule,
     MessageModule, 
-    DynamicDialogModule
+    DynamicDialogModule,
+    MultiSelectModule,
 ];
