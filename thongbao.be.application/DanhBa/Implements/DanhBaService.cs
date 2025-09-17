@@ -81,6 +81,22 @@ namespace thongbao.be.application.DanhBa.Implements
             _smDbContext.DanhBas.Update(existingDanhBa);
             _smDbContext.SaveChanges();
         }
+        public BaseResponsePagingDto<ViewDanhBaChiTietDto> FindDanhBaChiTiet(int idDanhBa,FindPagingDanhBaChiTietDto dto)
+        {
+            _logger.LogInformation($"{nameof(FindDanhBaChiTiet)} dto={JsonSerializer.Serialize(dto)}");
+            var query = from dbct in _smDbContext.DanhBaChiTiets
+                        where dbct.IdDanhBa == idDanhBa && !dbct.Deleted
+                        orderby dbct.CreatedDate descending
+                        select dbct;
+            var data = query.Paging(dto).ToList();
+            var items = _mapper.Map<List<ViewDanhBaChiTietDto>>(data);
+            var response = new BaseResponsePagingDto<ViewDanhBaChiTietDto>
+            {
+                Items = items,
+                TotalItems = query.Count()
+            };
+            return response;
+        }
         public BaseResponsePagingDto<ViewDanhBaDto>Find (FindPagingDanhBaDto dto)
         {
             _logger.LogInformation($"{nameof(Find)} dto={System.Text.Json.JsonSerializer.Serialize(dto)}");

@@ -82,6 +82,20 @@ namespace thongbao.be.Controllers.DanhBa
             }
         }
         [Permission(PermissionKeys.DanhBaView)]
+        [HttpGet("paging-danh-ba-chi-tiet")]
+        public ApiResponse FindDanhBaChiTiet([FromQuery] int idDanhBa,[FromQuery] FindPagingDanhBaChiTietDto dto)
+        {
+            try
+            {
+                var result = _danhBaService.FindDanhBaChiTiet(idDanhBa,dto);
+                return new(result);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.DanhBaView)]
         [HttpGet("list-danh-ba")]
         public ApiResponse GetListDanhBa()
         {

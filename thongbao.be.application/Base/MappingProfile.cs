@@ -33,6 +33,7 @@ namespace thongbao.be.application.Base
             CreateMap<domain.ToChuc.ToChuc, ViewToChucDto>();
             CreateMap<domain.GuiTinNhan.BrandName, GetListBrandNameResponseDto>();
             CreateMap<domain.DanhBa.DanhBa, GetListDanhBaResponseDto>();
+            CreateMap<domain.DanhBa.DanhBaChiTiet, ViewDanhBaChiTietDto>();
         }
     }
 }
