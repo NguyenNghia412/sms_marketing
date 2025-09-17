@@ -39,6 +39,20 @@ namespace thongbao.be.Controllers.DanhBa
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.DanhBaAdd)]
+        [HttpPost("nguoi-nhan-moi")]
+        public ApiResponse CreateNguoiNhan( CreateNguoiNhanDto dto)
+        {
+            try
+            {
+                _danhBaService.CreateNguoiNhan(dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
         [Permission(PermissionKeys.DanhBaUpdate)]
         [HttpPut("")]
         public ApiResponse Update([FromQuery] int idDanhBa, [FromBody] UpdateDanhBaDto dto)
@@ -60,6 +74,20 @@ namespace thongbao.be.Controllers.DanhBa
             try
             {
                 var result = _danhBaService.Find(dto);
+                return new(result);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.DanhBaView)]
+        [HttpGet("list-danh-ba")]
+        public ApiResponse GetListDanhBa()
+        {
+            try
+            {
+                var result = _danhBaService.GetListDanhBa();
                 return new(result);
             }
             catch (Exception ex)

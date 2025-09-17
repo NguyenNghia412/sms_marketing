@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
+using EFCore.BulkExtensions;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
@@ -17,12 +18,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using EFCore.BulkExtensions;
 using thongbao.be.application.Base;
 using thongbao.be.application.DanhBa.Dtos;
 using thongbao.be.application.DanhBa.Interfaces;
 using thongbao.be.application.DiemDanh.Dtos;
+using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.infrastructure.data;
 using thongbao.be.shared.Constants.DanhBa;
 using thongbao.be.shared.HttpRequest.BaseRequest;
@@ -94,6 +96,76 @@ namespace thongbao.be.application.DanhBa.Implements
                 TotalItems = query.Count()
             };
             return response;
+        }
+
+        public void CreateNguoiNhan(CreateNguoiNhanDto dto)
+        {
+            _logger.LogInformation($"{nameof(CreateNguoiNhan)} dto={JsonSerializer.Serialize(dto)}");
+            if (string.IsNullOrWhiteSpace(dto.HoVaTen))
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired,ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
+            }
+            if (string.IsNullOrWhiteSpace(dto.MaSoNguoiDung))
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
+            }
+            var existingMaSo = _smDbContext.DanhBaChiTiets
+                .Any(x => x.MaSoNguoiDung == dto.MaSoNguoiDung && !x.Deleted);
+            if (existingMaSo)
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorMaSoNguoiDungFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorMaSoNguoiDungFound));
+            }
+            if (string.IsNullOrWhiteSpace(dto.SoDienThoai))
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
+            }
+
+            if (dto.SoDienThoai.Length != 10 || !dto.SoDienThoai.All(char.IsDigit))
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorSoDienThoaiInvalid,ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorSoDienThoaiInvalid));
+            }
+            if (string.IsNullOrWhiteSpace(dto.EmailHuce))
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
+            }
+
+            if (!dto.EmailHuce.EndsWith("st@huce.edu.vn", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorEmailInvalid, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorEmailInvalid));
+            }
+            var existingEmail = _smDbContext.DanhBaChiTiets
+                .Any(x => x.EmailHuce.ToLower() == dto.EmailHuce.ToLower() && !x.Deleted);
+            if (existingEmail)
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorEmailFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorEmailFound));
+            }
+
+            var vietnamNow = GetVietnamTime();
+            var nguoiNhan = new domain.DanhBa.DanhBaChiTiet
+            {
+                IdDanhBa = dto.IdDanhBa,
+                HoVaTen = dto.HoVaTen,
+                MaSoNguoiDung = dto.MaSoNguoiDung,
+                SoDienThoai = dto.SoDienThoai,
+                EmailHuce = dto.EmailHuce,
+                CreatedDate = vietnamNow,
+            };
+            _smDbContext.DanhBaChiTiets.Add(nguoiNhan);
+            _smDbContext.SaveChanges();
+        }
+        public List<GetListDanhBaResponseDto> GetListDanhBa()
+        {
+            _logger.LogInformation($"{nameof(GetListDanhBa)}");
+
+            var query = from db in _smDbContext.DanhBas
+                        where !db.Deleted
+                        orderby db.CreatedDate descending
+                        select db;
+
+            var data = query.ToList();
+            var result = _mapper.Map<List<GetListDanhBaResponseDto>>(data);
+
+            return result;
         }
         public async Task<byte[]> ExportDanhBaChiTietExcelTemplate()
         {

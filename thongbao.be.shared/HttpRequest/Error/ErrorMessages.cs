@@ -41,6 +41,11 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.ImportToChucErrorNotFound, "Tổ chức không tồn tại tại dòng {0}" },
             { ErrorCodes.ImportRequiredFieldErrorEmpty, "Trường bắt buộc không được để trống tại dòng {0}" },
             { ErrorCodes.ImportLoaiNguoiDungErrorInvalid, "Loại người dùng không hợp lệ tại dòng {0}" },
+            { ErrorCodes.DanhBaErrorRequired ,"Các trường thông tin không được để trống" },
+            { ErrorCodes.DanhBaErrorMaSoNguoiDungFound,"Mã số người dùng đã tồn tại" },
+            { ErrorCodes.DanhBaErrorSoDienThoaiInvalid,"Định dạng số điện thoại không đúng " },
+            { ErrorCodes.DanhBaErrorEmailInvalid,"Định dạng email không đúng " },
+            { ErrorCodes.DanhBaErrorEmailFound,"Email đã tồn tại" }
         };
 
         public static string GetMessage(int code)
