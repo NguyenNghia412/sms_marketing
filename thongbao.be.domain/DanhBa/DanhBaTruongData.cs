@@ -25,7 +25,7 @@ namespace thongbao.be.domain.DanhBa
         public int IdDanhBa { get; set; }
         public string TenTruong { get; set; } = string.Empty;
         public string Type { get; set; } = "string";
-        public string TruongImport { get; set; } = string.Empty;
+        //public string TruongImport { get; set; } = string.Empty;
         //các cột dùng để kéo thả làm sau 
 
 
