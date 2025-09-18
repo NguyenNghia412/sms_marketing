@@ -46,7 +46,6 @@ export class DsDanhBa extends BaseComponent {
     }
 
     onPageChanged($event: PaginatorState) {
-      console.log($event);
         this.query.pageNumber = ($event.page ?? 0) +1;
         this.getData();
     }

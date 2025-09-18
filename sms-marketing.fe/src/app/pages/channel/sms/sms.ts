@@ -9,6 +9,8 @@ import { IColumn } from '@/shared/models/data-table.models';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Create } from './create/create';
+import { PaginatorState } from 'primeng/paginator';
+import { TblAction, TblActionTypes } from './tbl-action/tbl-action';
 
 @Component({
     selector: 'app-sms',
@@ -31,9 +33,10 @@ export class Sms extends BaseComponent {
     columns: IColumn[] = [
         { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
         { header: 'Tên chiến dịch', field: 'tenChienDich', headerContainerStyle: 'min-width: 12rem' },
+        { header: 'Nội dung', field: 'noiDung', headerContainerStyle: 'min-width: 12rem' },
         { header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
         { header: 'Thời gian gửi', field: 'ngayBatDau', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
-        { header: 'Nội dung', field: 'noiDung', headerContainerStyle: 'min-width: 12rem' }
+        { header: 'Thao tác', headerContainerStyle: 'width: 12rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
     data: IViewChienDich[] = [];
@@ -53,16 +56,16 @@ export class Sms extends BaseComponent {
     getData() {
         this.loading = true;
         this._chienDichService.findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value }).subscribe({
-            next: (res: any) =>  {
+            next: (res) => {
                 if (this.isResponseSucceed(res, false)) {
                     this.data = res.data.items;
+                    this.totalRecords = res.data.totalItems;
                 }
             },
             complete: () => {
                 this.loading = false;
             }
-        }
-        );
+        });
     }
 
     onOpenCreate() {
@@ -72,5 +75,55 @@ export class Sms extends BaseComponent {
                 this.getData();
             }
         });
+    }
+
+    onOpenUpdate(data: IViewChienDich) {
+        const ref = this._dialogService.open(Create, { header: 'Tạo chiến dịch', closable: true, modal: true, styleClass: 'w-96', focusOnShow: false, data });
+        ref.onClose.subscribe((result) => {
+            if (result) {
+                this.getData();
+            }
+        });
+    }
+
+    onDelete(data: IViewChienDich) {
+            this.confirmDelete(
+                {
+                    header: 'Bạn chắc chắn muốn xóa chiến dịch sms?',
+                    message: 'Không thể khôi phục sau khi xóa'
+                },
+                () => {
+                    this._chienDichService.delete(data.id || 0).subscribe(
+                        (res) => {
+                            if (this.isResponseSucceed(res, true, 'Đã xóa')) {
+                                this.getData();
+                            }
+                        },
+                        (err) => {
+                            this.messageError(err?.message);
+                        }
+                    );
+                }
+            );
+        }
+
+    onPageChanged($event: PaginatorState) {
+        this.query.pageNumber = ($event.page ?? 0) + 1;
+        this.getData();
+    }
+
+    onCustomEmit(data: { type: string; data: IViewChienDich }) {
+        if (data.type === TblActionTypes.detail) {
+            // const uri = '/danh-ba/chi-tiet';
+            // this.router.navigate([uri], {
+            //     queryParams: {
+            //         id: data.data.id
+            //     }
+            // });
+        } else if (data.type === TblActionTypes.delete) {
+            this.onDelete(data.data);
+        } else if (data.type === TblActionTypes.update) {
+            this.onOpenUpdate(data.data);
+        }
     }
 }
