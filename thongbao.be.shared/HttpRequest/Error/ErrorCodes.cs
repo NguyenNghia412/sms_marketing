@@ -56,7 +56,11 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int ImportRequiredFieldErrorEmpty = 805;
         public const int ImportLoaiNguoiDungErrorInvalid = 806;
 
-
+        public const int ImportExcelFileErrorEmpty = 807;
+        public const int ImportExcelSheetNameErrorEmpty = 808;
+        public const int ImportExcelSheetErrorNotFound = 809;
+        public const int ImportExcelFileErrorInvalid = 810;
+        public const int ImportDanhBaChienDichErrorMaSoNguoiDungDuplicate = 811;
 
 
 

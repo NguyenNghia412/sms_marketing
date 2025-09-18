@@ -45,7 +45,12 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.DanhBaErrorMaSoNguoiDungFound,"Mã số người dùng đã tồn tại" },
             { ErrorCodes.DanhBaErrorSoDienThoaiInvalid,"Định dạng số điện thoại không đúng " },
             { ErrorCodes.DanhBaErrorEmailInvalid,"Định dạng email không đúng " },
-            { ErrorCodes.DanhBaErrorEmailFound,"Email đã tồn tại" }
+            { ErrorCodes.DanhBaErrorEmailFound,"Email đã tồn tại" },
+            { ErrorCodes.ImportExcelFileErrorEmpty, "File Excel không được để trống" },
+            { ErrorCodes.ImportExcelSheetNameErrorEmpty, "Tên sheet không được để trống" },
+            { ErrorCodes.ImportExcelSheetErrorNotFound, "Không tìm thấy sheet '{0}' trong file Excel" },
+            { ErrorCodes.ImportExcelFileErrorInvalid, "File Excel không hợp lệ" },
+            { ErrorCodes.ImportDanhBaChienDichErrorMaSoNguoiDungDuplicate, "Mã số người dùng '{0}' bị trùng lặp tại dòng {1}" }
         };
 
         public static string GetMessage(int code)
