@@ -36,11 +36,11 @@ namespace thongbao.be.application.DanhBa.Implements
     public class DanhBaService : BaseService, IDanhBaService
     {
         private readonly IConfiguration _configuration;
-        private readonly string[] Scopes = {
+        /*private readonly string[] Scopes = {
                "https://www.googleapis.com/auth/drive",
                "https://www.googleapis.com/auth/drive.file",
                "https://www.googleapis.com/auth/spreadsheets"
-        };
+        };*/
         private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
         public DanhBaService(
             SmDbContext smDbContext,
@@ -82,6 +82,58 @@ namespace thongbao.be.application.DanhBa.Implements
             _smDbContext.DanhBas.Update(existingDanhBa);
             _smDbContext.SaveChanges();
         }
+        public void Delete(int idDanhBa)
+        {
+            _logger.LogInformation($"{nameof(Delete)} - Deleting DanhBa with ID: {idDanhBa}");
+            var vietNamNow = GetVietnamTime();
+
+            var existingDanhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
+
+            var danhBaChiTietIds = _smDbContext.DanhBaChiTiets
+                .Where(dbct => dbct.IdDanhBa == idDanhBa && !dbct.Deleted)
+                .Select(dbct => dbct.Id)
+                .ToList();
+
+            if (danhBaChiTietIds.Any())
+            {
+                var danhBaDataList = _smDbContext.DanhBaDatas
+                    .Where(dbd => danhBaChiTietIds.Contains(dbd.IdDanhBaChienDich) && !dbd.Deleted)
+                    .ToList();
+
+                foreach (var danhBaData in danhBaDataList)
+                {
+                    danhBaData.Deleted = true;
+                    danhBaData.DeletedDate = vietNamNow;
+                }
+
+            }
+
+            var danhBaTruongDataList = _smDbContext.DanhBaTruongDatas
+                .Where(dbtd => dbtd.IdDanhBa == idDanhBa && !dbtd.Deleted)
+                .ToList();
+
+            foreach (var danhBaTruongData in danhBaTruongDataList)
+            {
+                danhBaTruongData.Deleted = true;
+                danhBaTruongData.DeletedDate = vietNamNow;
+            }
+
+            var danhBaChiTietList = _smDbContext.DanhBaChiTiets
+                .Where(dbct => dbct.IdDanhBa == idDanhBa && !dbct.Deleted)
+                .ToList();
+
+            foreach (var danhBaChiTiet in danhBaChiTietList)
+            {
+                danhBaChiTiet.Deleted = true;
+                danhBaChiTiet.DeletedDate = vietNamNow;
+            }
+
+            existingDanhBa.Deleted = true;
+            existingDanhBa.DeletedDate = vietNamNow;
+
+            _smDbContext.SaveChanges();
+        }
         public BaseResponsePagingDto<ViewDanhBaChiTietDto> FindDanhBaChiTiet(int idDanhBa, FindPagingDanhBaChiTietDto dto)
         {
             _logger.LogInformation($"{nameof(FindDanhBaChiTiet)} dto={JsonSerializer.Serialize(dto)}");
@@ -97,6 +149,18 @@ namespace thongbao.be.application.DanhBa.Implements
                 TotalItems = query.Count()
             };
             return response;
+        }
+        public void DeleteDanhBaChiTiet( int idDanhBa,int idDanhBaChiTiet)
+        {
+            _logger.LogInformation($"{nameof(DeleteDanhBaChiTiet)}");
+            var vietnamNow = GetVietnamTime();
+            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && !x.Deleted)
+                 ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
+            var danhBaChiTiet = _smDbContext.DanhBaChiTiets.FirstOrDefault(x => x.Id == idDanhBaChiTiet && x.IdDanhBa == idDanhBa && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorDanhBaChiTietNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorDanhBaChiTietNotFound));
+            danhBaChiTiet.Deleted = true;
+            danhBaChiTiet.DeletedDate = vietnamNow;
+            _smDbContext.SaveChanges();
         }
         public BaseResponsePagingDto<ViewDanhBaDto> Find(FindPagingDanhBaDto dto)
         {

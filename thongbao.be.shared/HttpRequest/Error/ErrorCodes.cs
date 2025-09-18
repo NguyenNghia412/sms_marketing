@@ -34,6 +34,7 @@ namespace thongbao.be.shared.HttpRequest.Error
 
 
         public const int ChienDichErrorNotFound = 301;
+        public const int ChienDichErrorMauNoiDungNotFound = 302;
 
         public const int DanhBaErrorNotFound = 501;
         public const int DanhBaErrorRequired = 502;
@@ -41,6 +42,7 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int DanhBaErrorSoDienThoaiInvalid = 505;
         public const int DanhBaErrorEmailInvalid = 506;
         public const int DanhBaErrorEmailFound = 507;
+        public const int DanhBaErrorDanhBaChiTietNotFound = 508;
 
         public const int ToChucErrorNotFound = 601;
         public const int ToChucErrorLoaiToChucNotFound = 602;
@@ -61,6 +63,7 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int ImportExcelSheetErrorNotFound = 809;
         public const int ImportExcelFileErrorInvalid = 810;
         public const int ImportDanhBaChienDichErrorMaSoNguoiDungDuplicate = 811;
+
 
 
 

@@ -236,8 +236,35 @@ namespace thongbao.be.Controllers.DanhBa
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.DanhBaDelete)]
+        [HttpDelete("")]
+        public ApiResponse Delete([FromQuery] int idDanhBa)
+        {
+            try
+            {
+                _danhBaService.Delete(idDanhBa);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
 
-
+        [Permission(PermissionKeys.DanhBaDelete)]
+        [HttpDelete("danh-ba-chi-tiet")]
+        public ApiResponse DeleteDanhBaChiTiet([FromQuery]int idDanhBa, [FromQuery] int idDanhBaChiTiet)
+        {
+            try
+            {
+                _danhBaService.DeleteDanhBaChiTiet(idDanhBa,idDanhBaChiTiet);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
 
 
     }

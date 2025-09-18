@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using thongbao.be.application.Base;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.application.GuiTinNhan.Interfaces;
+using thongbao.be.domain.GuiTinNhan;
 using thongbao.be.infrastructure.data;
 using thongbao.be.shared.HttpRequest.BaseRequest;
 using thongbao.be.shared.HttpRequest.Error;
@@ -102,6 +103,18 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             IsFlashSms = cd.IsFlashSms,
                             CreatedBy = cd.CreatedBy,
                             CreatedDate = cd.CreatedDate,
+                            DanhBas = (from cddb in _smDbContext.ChienDichDanhBa
+                                       join db in _smDbContext.DanhBas on cddb.IdDanhBa equals db.Id
+                                       where cddb.IdChienDich == cd.Id
+                                             && !cddb.Deleted
+                                             && !db.Deleted
+                                       orderby cddb.CreatedDate
+                                       select new ChienDichDanhBaDto
+                                       {
+                                           IdDanhBa = db.Id,
+                                           TenDanhBa = db.TenDanhBa,
+                                           CreatedDate = db.CreatedDate
+                                       }).ToList(),
                             MauNoiDungs = (from cdmnd in _smDbContext.ChienDichMauNoiDungs
                                            join mnd in _smDbContext.MauNoiDungs on cdmnd.IdMauNoiDung equals mnd.Id
                                            where cdmnd.IdChienDich == cd.Id
@@ -115,6 +128,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                                CreatedDate = cdmnd.CreatedDate
                                            }).ToList()
                         };
+
 
             var data = query.Paging(dto).ToList();
 
@@ -144,16 +158,96 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         public void Delete(int idChienDich)
         {
             _logger.LogInformation($"{nameof(Delete)} idChienDich={idChienDich}");
-            var vietnamNow  = GetVietnamTime();
+            var vietnamNow = GetVietnamTime();
             var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
             if (chienDich == null)
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
             }
+
+            var chienDichLogTrangThaiGuiList = _smDbContext.ChienDichLogTrangThaiGuis
+                .Where(x => x.IdChienDich == idChienDich && !x.Deleted)
+                .ToList();
+
+            foreach (var logTrangThaiGui in chienDichLogTrangThaiGuiList)
+            {
+                logTrangThaiGui.Deleted = true;
+                logTrangThaiGui.DeletedDate = vietnamNow;
+            }
+
+            var chienDichDanhBaList = _smDbContext.ChienDichDanhBa
+                .Where(x => x.IdChienDich == idChienDich && !x.Deleted)
+                .ToList();
+
+            foreach (var chienDichDanhBa in chienDichDanhBaList)
+            {
+                chienDichDanhBa.Deleted = true;
+                chienDichDanhBa.DeletedDate = vietnamNow;
+            }
+
+            var chienDichMauNoiDungList = _smDbContext.ChienDichMauNoiDungs
+                .Where(x => x.IdChienDich == idChienDich && !x.Deleted)
+                .ToList();
+
+            foreach (var chienDichMauNoiDung in chienDichMauNoiDungList)
+            {
+                chienDichMauNoiDung.Deleted = true;
+                chienDichMauNoiDung.DeletedDate = vietnamNow;
+            }
+
             chienDich.Deleted = true;
             chienDich.DeletedDate = vietnamNow;
-            _smDbContext.ChienDiches.Update(chienDich);
+
             _smDbContext.SaveChanges();
+        }
+        public void UpdateMauNoiDung (int idMauNoiDung, UpdateMauNoiDungDto dto)
+        {
+            _logger.LogInformation($"{nameof(UpdateMauNoiDung)},dto={JsonSerializer.Serialize(dto)} ");
+            var vietnam = GetVietnamTime();
+            var mauNoiDung = _smDbContext.MauNoiDungs.FirstOrDefault(x => x.Id == idMauNoiDung && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.ChienDichErrorMauNoiDungNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorMauNoiDungNotFound));
+            mauNoiDung.NoiDung = dto.NoiDung;
+            _smDbContext.MauNoiDungs.Update(mauNoiDung);
+            _smDbContext.SaveChanges();
+
+
+        }
+        public BaseResponsePagingDto<ViewMauNoiDungDto> FindPagingMauNoiDung( FindPagingMauNoiDungDto dto)
+        {
+            _logger.LogInformation($"{nameof(FindPagingMauNoiDung)},dto={JsonSerializer.Serialize(dto)} ");
+            var query = from mnd in _smDbContext.MauNoiDungs
+                        where !mnd.Deleted
+                        orderby mnd.CreatedDate descending
+                        select mnd;
+            var data = query.Paging(dto).ToList();
+            var items =  _mapper.Map<List<ViewMauNoiDungDto>>(data);
+            var response = new BaseResponsePagingDto<ViewMauNoiDungDto>
+            {
+                Items = items,
+                TotalItems = query.Count()
+            };
+            return response;
+        }
+
+        public void DeleteMauNoiDung(int idMauNoiDung)
+        {
+            _logger.LogInformation($"{nameof(DeleteMauNoiDung)} ");
+            var vietnamNow = GetVietnamTime();
+            var mauNoiDung = _smDbContext.MauNoiDungs.FirstOrDefault(x => x.Id == idMauNoiDung && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.ChienDichErrorMauNoiDungNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorMauNoiDungNotFound));
+            var chienDichMauNoiDungList = _smDbContext.ChienDichMauNoiDungs
+             .Where(x => x.IdMauNoiDung == idMauNoiDung && !x.Deleted)
+             .ToList();
+
+            foreach (var chienDichMauNoiDung in chienDichMauNoiDungList)
+            {
+                chienDichMauNoiDung.Deleted = true;
+                chienDichMauNoiDung.DeletedDate = vietnamNow;
+            }
+            mauNoiDung.Deleted = true;
+            mauNoiDung.DeletedDate = vietnamNow;
+            _smDbContext.SaveChanges();
+
         }
         public void AddDanhBaChienDich (int idChienDich, int idDanhBa)
         {

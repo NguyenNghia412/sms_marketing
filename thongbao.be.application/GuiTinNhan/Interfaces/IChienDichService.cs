@@ -26,6 +26,9 @@ namespace thongbao.be.application.GuiTinNhan.Interfaces
         public void Delete(int idChienDich);
         public void AddDanhBaChienDich(int idChienDich, int idDanhBa);
         public List<GetListBrandNameResponseDto> GetListBrandName();
+        public void UpdateMauNoiDung(int idMauNoiDung, UpdateMauNoiDungDto dto);
+        public void DeleteMauNoiDung(int idMauNoiDung);
+        public BaseResponsePagingDto<ViewMauNoiDungDto> FindPagingMauNoiDung(FindPagingMauNoiDungDto dto);
         public void TestSendEmail();
     }
 }

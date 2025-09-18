@@ -50,7 +50,9 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.ImportExcelSheetNameErrorEmpty, "Tên sheet không được để trống" },
             { ErrorCodes.ImportExcelSheetErrorNotFound, "Không tìm thấy sheet '{0}' trong file Excel" },
             { ErrorCodes.ImportExcelFileErrorInvalid, "File Excel không hợp lệ" },
-            { ErrorCodes.ImportDanhBaChienDichErrorMaSoNguoiDungDuplicate, "Mã số người dùng '{0}' bị trùng lặp tại dòng {1}" }
+            { ErrorCodes.ImportDanhBaChienDichErrorMaSoNguoiDungDuplicate, "Mã số người dùng '{0}' bị trùng lặp tại dòng {1}" },
+            { ErrorCodes.ChienDichErrorMauNoiDungNotFound, "Mẫu nội dung không tồn tại" },
+            { ErrorCodes.DanhBaErrorDanhBaChiTietNotFound,"Danh bạ chi tiết người dùng không tồn tại" }
         };
 
         public static string GetMessage(int code)
