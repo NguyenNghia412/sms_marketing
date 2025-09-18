@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace thongbao.be.application.GuiTinNhan.Dtos
 {
+    
     public class CreateChienDichDto
     {
         private string _tenChienDich = String.Empty;

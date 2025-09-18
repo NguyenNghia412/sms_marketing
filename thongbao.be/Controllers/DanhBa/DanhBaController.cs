@@ -15,7 +15,7 @@ namespace thongbao.be.Controllers.DanhBa
     [Route("api/core/danh-ba")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class DanhBaController: BaseController
+    public class DanhBaController : BaseController
     {
         private readonly IDanhBaService _danhBaService;
         private readonly ILogger<DanhBaController> _logger;
@@ -27,21 +27,21 @@ namespace thongbao.be.Controllers.DanhBa
 
         [Permission(PermissionKeys.DanhBaAdd)]
         [HttpPost("")]
-        public ApiResponse Create ([FromBody] CreateDanhBaDto dto)
+        public ApiResponse Create([FromBody] CreateDanhBaDto dto)
         {
-            try 
-            { 
+            try
+            {
                 _danhBaService.Create(dto);
                 return new();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return OkException(ex);
             }
         }
         [Permission(PermissionKeys.DanhBaAdd)]
         [HttpPost("nguoi-nhan-moi")]
-        public ApiResponse CreateNguoiNhan( CreateNguoiNhanDto dto)
+        public ApiResponse CreateNguoiNhan(CreateNguoiNhanDto dto)
         {
             try
             {
@@ -83,11 +83,11 @@ namespace thongbao.be.Controllers.DanhBa
         }
         [Permission(PermissionKeys.DanhBaView)]
         [HttpGet("paging-danh-ba-chi-tiet")]
-        public ApiResponse FindDanhBaChiTiet([FromQuery] int idDanhBa,[FromQuery] FindPagingDanhBaChiTietDto dto)
+        public ApiResponse FindDanhBaChiTiet([FromQuery] int idDanhBa, [FromQuery] FindPagingDanhBaChiTietDto dto)
         {
             try
             {
-                var result = _danhBaService.FindDanhBaChiTiet(idDanhBa,dto);
+                var result = _danhBaService.FindDanhBaChiTiet(idDanhBa, dto);
                 return new(result);
             }
             catch (Exception ex)
@@ -110,12 +110,12 @@ namespace thongbao.be.Controllers.DanhBa
             }
         }
         [Permission(PermissionKeys.DanhBaView)]
-        [HttpPost("export-danh-ba-template-excel")]
-        public async Task<IActionResult> DownloadDanhBaChiTietTemplateExcel()
+        [HttpPost("export-danh-ba-cung-template-excel")]
+        public async Task<IActionResult> DownloadDanhBaCungTemplateExcel()
         {
             try
             {
-                var excelTemplate = await   _danhBaService.ExportDanhBaChiTietExcelTemplate();
+                var excelTemplate = await _danhBaService.ExportDanhBaCungExcelTemplate();
                 var fileName = $"Mẫu File Excel Import Danh Bạ Người Dùng.xlsx";
                 return File(
                    excelTemplate,
@@ -124,12 +124,32 @@ namespace thongbao.be.Controllers.DanhBa
                  );
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(new ApiResponse(ex.Message));
             }
         }
         [Permission(PermissionKeys.DanhBaView)]
+        [HttpPost("export-danh-ba-chi-tiet--template-excel")]
+        public async Task<IActionResult> DownloadDanhBaChiTietTemplateExcel()
+        {
+            try
+            {
+                var excelTemplate = await _danhBaService.ExportDanhBaChiTietExcelTemplate();
+                var fileName = $"Mẫu File Excel Import Danh Bạ Người Dùng Theo Chiến Dịch.xlsx";
+                return File(
+                   excelTemplate,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    fileName
+                 );
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse(ex.Message));
+            }
+        }
+        /*[Permission(PermissionKeys.DanhBaView)]
         [HttpPost("danh-ba-template-google-sheet")]
         public async Task<ApiResponse> CreateDanhBaGoogleSheetTemplate()
         {
@@ -155,7 +175,7 @@ namespace thongbao.be.Controllers.DanhBa
             {
                 return OkException(ex);
             }
-        }
+        }*/
 
         [Permission(PermissionKeys.DanhBaImport)]
         [HttpPost("verify-import-google-sheet-append")]
@@ -172,6 +192,20 @@ namespace thongbao.be.Controllers.DanhBa
             }
         }
 
+        [Permission(PermissionKeys.DanhBaImport)]
+        [HttpPost("verify-import-danh-ba-chien-dich")]
+        public async Task<ApiResponse> VerifyImportDanhBaChienDich([FromForm] ImportAppendDanhBaChienDichDto dto)
+        {
+            try
+            {
+                var data = await _danhBaService.VerifyImportDanhBaChienDich(dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
 
         [Permission(PermissionKeys.DanhBaImport)]
         [HttpPost("import-google-sheet-append")]
@@ -180,6 +214,21 @@ namespace thongbao.be.Controllers.DanhBa
             try
             {
                 var data = await _danhBaService.ImportAppendDanhBaCung(dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        [Permission(PermissionKeys.DanhBaImport)]
+        [HttpPost("import-danh-ba-chien-dich-append")]
+        public async Task<ApiResponse> ImportAppendDanhBaChienDich([FromForm] ImportAppendDanhBaChienDichDto dto)
+        {
+            try
+            {
+                var data = await _danhBaService.ImportAppendDanhBaChienDich(dto);
                 return new(data);
             }
             catch (Exception ex)

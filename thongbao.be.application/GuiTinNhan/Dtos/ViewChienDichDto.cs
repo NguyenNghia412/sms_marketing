@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace thongbao.be.application.GuiTinNhan.Dtos
 {
+    
     public class ViewChienDichDto
     {
         public int Id { get; set; }
@@ -14,7 +15,10 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public string MoTa { get; set; } = String.Empty;
         public DateTime? NgayBatDau { get; set; }
         public DateTime? NgayKetThuc { get; set; }
-        public string NoiDung { get; set; } = String.Empty;
+        public string MauNoiDung { get; set; } = string.Empty;
+        public int IdBrandName { get; set; }
+        public string TenBrandName { get; set; } = String.Empty;
+       
         public bool IsFlashSms { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }

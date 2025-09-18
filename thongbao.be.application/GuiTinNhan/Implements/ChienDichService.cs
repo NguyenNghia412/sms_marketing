@@ -77,15 +77,30 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _logger.LogInformation($"{nameof(Find)} dto={JsonSerializer.Serialize(dto)}");
 
             var query = from cd in _smDbContext.ChienDiches
+                        join bn in _smDbContext.BrandName on cd.IdBrandName equals bn.Id into brandJoin
+                        from brand in brandJoin.DefaultIfEmpty()
                         where !cd.Deleted
                         orderby cd.CreatedDate descending
-                        select cd;
+                        select new ViewChienDichDto
+                        {
+                            Id = cd.Id,
+                            TenChienDich = cd.TenChienDich,
+                            MoTa = cd.MoTa,
+                            NgayBatDau = cd.NgayBatDau,
+                            NgayKetThuc = cd.NgayKetThuc,
+                            //MauNoiDung = cd.MauNoiDung,
+                            IdBrandName = cd.IdBrandName,
+                            TenBrandName = brand != null ? brand.TenBrandName : string.Empty,
+                            IsFlashSms = cd.IsFlashSms,
+                            CreatedBy = cd.CreatedBy,
+                            CreatedDate = cd.CreatedDate
+                        };
+
             var data = query.Paging(dto).ToList();
-            var items = _mapper.Map<List<ViewChienDichDto>>(data);
 
             return new BaseResponsePagingDto<ViewChienDichDto>
             {
-                Items = items,
+                Items = data,
                 TotalItems = query.Count()
             };
         }
