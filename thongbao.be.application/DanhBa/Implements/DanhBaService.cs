@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
-using EFCore.BulkExtensions;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
@@ -18,18 +17,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
+using EFCore.BulkExtensions;
 using thongbao.be.application.Base;
 using thongbao.be.application.DanhBa.Dtos;
 using thongbao.be.application.DanhBa.Interfaces;
 using thongbao.be.application.DiemDanh.Dtos;
-using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.infrastructure.data;
 using thongbao.be.shared.Constants.DanhBa;
 using thongbao.be.shared.HttpRequest.BaseRequest;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
+using System.Text.Json;
 
 namespace thongbao.be.application.DanhBa.Implements
 {
@@ -81,22 +80,6 @@ namespace thongbao.be.application.DanhBa.Implements
             _smDbContext.DanhBas.Update(existingDanhBa);
             _smDbContext.SaveChanges();
         }
-        public BaseResponsePagingDto<ViewDanhBaChiTietDto> FindDanhBaChiTiet(int idDanhBa,FindPagingDanhBaChiTietDto dto)
-        {
-            _logger.LogInformation($"{nameof(FindDanhBaChiTiet)} dto={JsonSerializer.Serialize(dto)}");
-            var query = from dbct in _smDbContext.DanhBaChiTiets
-                        where dbct.IdDanhBa == idDanhBa && !dbct.Deleted
-                        orderby dbct.CreatedDate descending
-                        select dbct;
-            var data = query.Paging(dto).ToList();
-            var items = _mapper.Map<List<ViewDanhBaChiTietDto>>(data);
-            var response = new BaseResponsePagingDto<ViewDanhBaChiTietDto>
-            {
-                Items = items,
-                TotalItems = query.Count()
-            };
-            return response;
-        }
         public BaseResponsePagingDto<ViewDanhBaDto>Find (FindPagingDanhBaDto dto)
         {
             _logger.LogInformation($"{nameof(Find)} dto={System.Text.Json.JsonSerializer.Serialize(dto)}");
@@ -113,76 +96,6 @@ namespace thongbao.be.application.DanhBa.Implements
             };
             return response;
         }
-
-        public void CreateNguoiNhan(CreateNguoiNhanDto dto)
-        {
-            _logger.LogInformation($"{nameof(CreateNguoiNhan)} dto={JsonSerializer.Serialize(dto)}");
-            if (string.IsNullOrWhiteSpace(dto.HoVaTen))
-            {
-                throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired,ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
-            }
-            if (string.IsNullOrWhiteSpace(dto.MaSoNguoiDung))
-            {
-                throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
-            }
-            var existingMaSo = _smDbContext.DanhBaChiTiets
-                .Any(x => x.MaSoNguoiDung == dto.MaSoNguoiDung && !x.Deleted);
-            if (existingMaSo)
-            {
-                throw new UserFriendlyException(ErrorCodes.DanhBaErrorMaSoNguoiDungFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorMaSoNguoiDungFound));
-            }
-            if (string.IsNullOrWhiteSpace(dto.SoDienThoai))
-            {
-                throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
-            }
-
-            if (dto.SoDienThoai.Length != 10 || !dto.SoDienThoai.All(char.IsDigit))
-            {
-                throw new UserFriendlyException(ErrorCodes.DanhBaErrorSoDienThoaiInvalid,ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorSoDienThoaiInvalid));
-            }
-            if (string.IsNullOrWhiteSpace(dto.EmailHuce))
-            {
-                throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
-            }
-
-            if (!dto.EmailHuce.EndsWith("st@huce.edu.vn", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new UserFriendlyException(ErrorCodes.DanhBaErrorEmailInvalid, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorEmailInvalid));
-            }
-            var existingEmail = _smDbContext.DanhBaChiTiets
-                .Any(x => x.EmailHuce.ToLower() == dto.EmailHuce.ToLower() && !x.Deleted);
-            if (existingEmail)
-            {
-                throw new UserFriendlyException(ErrorCodes.DanhBaErrorEmailFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorEmailFound));
-            }
-
-            var vietnamNow = GetVietnamTime();
-            var nguoiNhan = new domain.DanhBa.DanhBaChiTiet
-            {
-                IdDanhBa = dto.IdDanhBa,
-                HoVaTen = dto.HoVaTen,
-                MaSoNguoiDung = dto.MaSoNguoiDung,
-                SoDienThoai = dto.SoDienThoai,
-                EmailHuce = dto.EmailHuce,
-                CreatedDate = vietnamNow,
-            };
-            _smDbContext.DanhBaChiTiets.Add(nguoiNhan);
-            _smDbContext.SaveChanges();
-        }
-        public List<GetListDanhBaResponseDto> GetListDanhBa()
-        {
-            _logger.LogInformation($"{nameof(GetListDanhBa)}");
-
-            var query = from db in _smDbContext.DanhBas
-                        where !db.Deleted
-                        orderby db.CreatedDate descending
-                        select db;
-
-            var data = query.ToList();
-            var result = _mapper.Map<List<GetListDanhBaResponseDto>>(data);
-
-            return result;
-        }
         public async Task<byte[]> ExportDanhBaChiTietExcelTemplate()
         {
             _logger.LogInformation($"{nameof(ExportDanhBaChiTietExcelTemplate)}");
@@ -192,7 +105,7 @@ namespace thongbao.be.application.DanhBa.Implements
 
             
             worksheet.Cell(1, 1).Value = "IMPORT DANH BẠ NGƯỜI DÙNG";
-            worksheet.Range(1, 1, 1, 14).Merge();
+            worksheet.Range(1, 1, 1, 12).Merge();
             worksheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             worksheet.Cell(1, 1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
             worksheet.Cell(1, 1).Style.Font.Bold = true;
@@ -231,7 +144,7 @@ namespace thongbao.be.application.DanhBa.Implements
             worksheet.Column(11).Width = 20; // Mã số người dùng
             worksheet.Column(12).Width = 20; // Trạng thái hoạt động
             worksheet.Column(13).Width = 25; // Tổ chức
-            worksheet.Column(14).Width = 20; // Mã số tổ chức
+            worksheet.Column(14).Width = 20; // Mã số tổ chư
 
             using var stream = new MemoryStream();
             workbook.SaveAs(stream);
@@ -340,7 +253,7 @@ namespace thongbao.be.application.DanhBa.Implements
                 }
             });
 
-            var headers = new[] { "STT", "Họ tên(*)", "Họ đệm(*)", "Tên(*)", "Số điện thoại(*)", "Email Huce(*)",
+            var headers = new[] { "STT(*)", "Họ tên(*)", "Họ đệm(*)", "Tên(*)", "Số điện thoại(*)", "Email Huce(*)",
                         "Ngày sinh", "Giới tính", "Địa chỉ", "Là người dùng(*)", "Mã số người dùng(*)", "Trạng thái hoạt động","Tổ chức(*)","Mã số tổ chức(*)" };
 
             var headerValues = headers.Select(h => new CellData
@@ -468,7 +381,7 @@ namespace thongbao.be.application.DanhBa.Implements
 
             var expectedHeaders = new[]
             {
-                 "STT", "Họ tên(*)", "Họ đệm(*)", "Tên(*)", "Số điện thoại(*)", "Email Huce(*)",
+                 "STT(*)", "Họ tên(*)", "Họ đệm(*)", "Tên(*)", "Số điện thoại(*)", "Email Huce(*)",
                  "Ngày sinh", "Giới tính", "Địa chỉ", "Là người dùng(*)", "Mã số người dùng(*)",
                  "Trạng thái hoạt động", "Tổ chức(*)", "Mã số tổ chức(*)"
             };
@@ -855,6 +768,91 @@ namespace thongbao.be.application.DanhBa.Implements
                 _logger.LogError(ex, "Error importing DanhBa data");
                 throw;
             }
+        }
+        public void CreateNguoiNhan(CreateNguoiNhanDto dto)
+        {
+            _logger.LogInformation($"{nameof(CreateNguoiNhan)} dto={JsonSerializer.Serialize(dto)}");
+            if (string.IsNullOrWhiteSpace(dto.HoVaTen))
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
+            }
+            if (string.IsNullOrWhiteSpace(dto.MaSoNguoiDung))
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
+            }
+            var existingMaSo = _smDbContext.DanhBaChiTiets
+                .Any(x => x.MaSoNguoiDung == dto.MaSoNguoiDung && !x.Deleted);
+            if (existingMaSo)
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorMaSoNguoiDungFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorMaSoNguoiDungFound));
+            }
+            if (string.IsNullOrWhiteSpace(dto.SoDienThoai))
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
+            }
+
+            if (dto.SoDienThoai.Length != 10 || !dto.SoDienThoai.All(char.IsDigit))
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorSoDienThoaiInvalid, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorSoDienThoaiInvalid));
+            }
+            if (string.IsNullOrWhiteSpace(dto.EmailHuce))
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
+            }
+
+            if (!dto.EmailHuce.EndsWith("st@huce.edu.vn", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorEmailInvalid, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorEmailInvalid));
+            }
+            var existingEmail = _smDbContext.DanhBaChiTiets
+                .Any(x => x.EmailHuce.ToLower() == dto.EmailHuce.ToLower() && !x.Deleted);
+            if (existingEmail)
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorEmailFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorEmailFound));
+            }
+
+            var vietnamNow = GetVietnamTime();
+            var nguoiNhan = new domain.DanhBa.DanhBaChiTiet
+            {
+                IdDanhBa = dto.IdDanhBa,
+                HoVaTen = dto.HoVaTen,
+                MaSoNguoiDung = dto.MaSoNguoiDung,
+                SoDienThoai = dto.SoDienThoai,
+                EmailHuce = dto.EmailHuce,
+                CreatedDate = vietnamNow,
+            };
+            _smDbContext.DanhBaChiTiets.Add(nguoiNhan);
+            _smDbContext.SaveChanges();
+        }
+        public BaseResponsePagingDto<ViewDanhBaChiTietDto> FindDanhBaChiTiet(int idDanhBa, FindPagingDanhBaChiTietDto dto)
+        {
+            _logger.LogInformation($"{nameof(FindDanhBaChiTiet)} dto={JsonSerializer.Serialize(dto)}");
+            var query = from dbct in _smDbContext.DanhBaChiTiets
+                        where dbct.IdDanhBa == idDanhBa && !dbct.Deleted
+                        orderby dbct.CreatedDate descending
+                        select dbct;
+            var data = query.Paging(dto).ToList();
+            var items = _mapper.Map<List<ViewDanhBaChiTietDto>>(data);
+            var response = new BaseResponsePagingDto<ViewDanhBaChiTietDto>
+            {
+                Items = items,
+                TotalItems = query.Count()
+            };
+            return response;
+        }
+        public List<GetListDanhBaResponseDto> GetListDanhBa()
+        {
+            _logger.LogInformation($"{nameof(GetListDanhBa)}");
+
+            var query = from db in _smDbContext.DanhBas
+                        where !db.Deleted
+                        orderby db.CreatedDate descending
+                        select db;
+
+            var data = query.ToList();
+            var result = _mapper.Map<List<GetListDanhBaResponseDto>>(data);
+
+            return result;
         }
         private async Task<List<List<string>>> _getSheetData(string sheetUrl, string sheetName)
         {
