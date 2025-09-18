@@ -1,5 +1,5 @@
 import { IViewRowDanhBa } from '@/models/danh-ba.models';
-import { ICreateChienDich, IViewBrandname } from '@/models/sms.models';
+import { ICreateChienDich, IUpdateChienDich, IViewBrandname } from '@/models/sms.models';
 import { ChienDichService } from '@/services/chien-dich.service';
 import { DanhBaService } from '@/services/danh-ba.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
@@ -21,6 +21,7 @@ export class Create extends BaseComponent {
     private _chienDichService = inject(ChienDichService);
 
     override form: FormGroup = new FormGroup({
+        id: new FormControl(null),
         idBrandName: new FormControl(null, [Validators.required]),
         idDanhBa: new FormControl(null, [Validators.required]),
         tenChienDich: new FormControl('', [Validators.required]),
@@ -60,13 +61,25 @@ export class Create extends BaseComponent {
                 this.listBrandname = value.data;
             }
         });
+
+        if (this.isUpdate) {
+            this.form.setValue(this._config.data);
+        }
+    }
+
+    get isUpdate() {
+        return this._config.data?.id;
     }
 
     onSubmit() {
         if (this.isFormInvalid()) {
             return;
         }
-        this.onSubmitCreate();
+        if (this.isUpdate) {
+            this.onSubmitUpdate()
+        } else {
+            this.onSubmitCreate();
+        }
     }
 
     onSubmitCreate() {
@@ -77,6 +90,26 @@ export class Create extends BaseComponent {
         this._chienDichService.create(body).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, true, 'Đã thêm chiến dịch')) {
+                    this._ref?.close(true);
+                }
+            },
+            error: (err) => {
+                this.messageError(err?.message);
+            },
+            complete: () => {
+                this.loading = false;
+            }
+        });
+    }
+
+    onSubmitUpdate() {
+        const body: IUpdateChienDich = {
+            ...this.form.value
+        };
+        this.loading = true;
+        this._chienDichService.update(body).subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, true, 'Đã cập nhật')) {
                     this._ref?.close(true);
                 }
             },
