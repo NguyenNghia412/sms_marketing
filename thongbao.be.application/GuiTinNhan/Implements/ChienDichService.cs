@@ -67,11 +67,20 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 NoiDung = dto.MauNoiDung,
                 CreatedDate = vietnamNow,
             };
+
             _smDbContext.MauNoiDungs.Add(mauNoiDung);
+            _smDbContext.SaveChanges();
+            var idMauNoiDung = mauNoiDung.Id;
+            var chienDichMauNoiDung = new domain.GuiTinNhan.ChienDichMauNoiDung
+            {
+                IdChienDich = idChienDich,
+                IdMauNoiDung = idMauNoiDung,
+                CreatedDate = vietnamNow,
+            };
+            _smDbContext.ChienDichMauNoiDungs.Add(chienDichMauNoiDung);
 
             _smDbContext.SaveChanges();
         }
-
         public BaseResponsePagingDto<ViewChienDichDto> Find(FindPagingChienDichDto dto)
         {
             _logger.LogInformation($"{nameof(Find)} dto={JsonSerializer.Serialize(dto)}");
@@ -88,12 +97,23 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             MoTa = cd.MoTa,
                             NgayBatDau = cd.NgayBatDau,
                             NgayKetThuc = cd.NgayKetThuc,
-                            //MauNoiDung = cd.MauNoiDung,
                             IdBrandName = cd.IdBrandName,
                             TenBrandName = brand != null ? brand.TenBrandName : string.Empty,
                             IsFlashSms = cd.IsFlashSms,
                             CreatedBy = cd.CreatedBy,
-                            CreatedDate = cd.CreatedDate
+                            CreatedDate = cd.CreatedDate,
+                            MauNoiDungs = (from cdmnd in _smDbContext.ChienDichMauNoiDungs
+                                           join mnd in _smDbContext.MauNoiDungs on cdmnd.IdMauNoiDung equals mnd.Id
+                                           where cdmnd.IdChienDich == cd.Id
+                                                 && !cdmnd.Deleted
+                                                 && !mnd.Deleted
+                                           orderby cdmnd.CreatedDate
+                                           select new ChienDichMauNoiDungDto
+                                           {
+                                               IdMauNoiDung = mnd.Id,
+                                               NoiDung = mnd.NoiDung,
+                                               CreatedDate = cdmnd.CreatedDate
+                                           }).ToList()
                         };
 
             var data = query.Paging(dto).ToList();

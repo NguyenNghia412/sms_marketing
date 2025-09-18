@@ -9,17 +9,15 @@ using thongbao.be.shared.Interfaces;
 
 namespace thongbao.be.domain.GuiTinNhan
 {
-    [Table(nameof(MauNoiDung), Schema = DbSchemas.Core)]
-    public class MauNoiDung :ISoftDelted
+    [Table(nameof(ChienDichMauNoiDung), Schema = DbSchemas.Core)]
+    public class ChienDichMauNoiDung:ISoftDelted
     {
-        public int Id { get; set; }
-        //public int IdChienDich {  get; set; }
-        public string NoiDung { get; set; } = string.Empty;
+        public int IdChienDich { get; set; }
+        public int IdMauNoiDung { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
         public bool Deleted { get; set; }
         public int? DeletedBy { get; set; }
-
     }
 }

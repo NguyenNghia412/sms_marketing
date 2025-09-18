@@ -41,6 +41,7 @@ namespace thongbao.be.infrastructure.data
         public DbSet<BrandName> BrandName { get; set; }
         public DbSet<MauNoiDung> MauNoiDungs { get; set; }
         public DbSet<ChienDichLogTrangThaiGui> ChienDichLogTrangThaiGuis { get; set; }
+        public DbSet<ChienDichMauNoiDung> ChienDichMauNoiDungs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -152,6 +153,13 @@ namespace thongbao.be.infrastructure.data
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<ChienDichMauNoiDung>(entity =>
+            {
+                entity.HasKey(e => new { e.IdMauNoiDung, e.IdChienDich });
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+
             });
 
             modelBuilder.HasDefaultSchema(DbSchemas.Core);
