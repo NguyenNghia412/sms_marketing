@@ -130,7 +130,7 @@ namespace thongbao.be.Controllers.DanhBa
             }
         }
         [Permission(PermissionKeys.DanhBaView)]
-        [HttpPost("export-danh-ba-chi-tiet--template-excel")]
+        [HttpPost("export-danh-ba-chi-tiet-template-excel")]
         public async Task<IActionResult> DownloadDanhBaChiTietTemplateExcel()
         {
             try
