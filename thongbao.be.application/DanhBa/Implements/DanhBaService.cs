@@ -210,8 +210,9 @@ namespace thongbao.be.application.DanhBa.Implements
                 throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
             }
 
-            if (!dto.EmailHuce.EndsWith("st@huce.edu.vn", StringComparison.OrdinalIgnoreCase))
-            {
+            if (!System.Text.RegularExpressions.Regex.IsMatch(dto.EmailHuce, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            
+                {
                 throw new UserFriendlyException(ErrorCodes.DanhBaErrorEmailInvalid, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorEmailInvalid));
             }
             var existingEmail = _smDbContext.DanhBaChiTiets
@@ -660,7 +661,7 @@ namespace thongbao.be.application.DanhBa.Implements
                 if (row.Count > 5 && !string.IsNullOrWhiteSpace(row[5]))
                 {
                     var email = row[5].Trim();
-                    if (!email.EndsWith("@st.huce.edu.vn", StringComparison.OrdinalIgnoreCase))
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                     {
                         throw new UserFriendlyException(ErrorCodes.ImportEmailHuceErrorInvalid,
                             string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportEmailHuceErrorInvalid), actualRowNumber));
@@ -1076,7 +1077,7 @@ namespace thongbao.be.application.DanhBa.Implements
                 }
 
                 var email = row[3].Trim();
-                if (!email.EndsWith("@st.huce.edu.vn", StringComparison.OrdinalIgnoreCase))
+                if (!System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                 {
                     throw new UserFriendlyException(ErrorCodes.ImportEmailHuceErrorInvalid,
                         string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportEmailHuceErrorInvalid), actualRowNumber));
