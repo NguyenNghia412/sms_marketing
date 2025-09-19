@@ -58,7 +58,12 @@ export class Sms extends BaseComponent {
         this._chienDichService.findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value }).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, false)) {
-                    this.data = res.data.items;
+                    this.data = res.data.items.map(item => {
+                        if (item.mauNoiDungs && item.mauNoiDungs.length > 0) {
+                            item.noiDung = item.mauNoiDungs[0].noiDung;
+                        }
+                        return item;
+                    });
                     this.totalRecords = res.data.totalItems;
                 }
             },

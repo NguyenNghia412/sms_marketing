@@ -1,4 +1,6 @@
 import { IBaseRequestPaging } from "@/shared/models/request-paging.base.models"
+import { IViewMauNoiDung } from "./template.models"
+import { IViewDanhBa } from "./danh-ba.models"
 
 export type IViewChienDich = {
   id?: number
@@ -7,6 +9,11 @@ export type IViewChienDich = {
   ngayBatDau?: string
   ngayKetThuc?: string
   noiDung?: string
+  mauNoiDung?: string
+  idBrandName?: number
+  idDanhBa?: number
+  mauNoiDungs?: IViewMauNoiDung[]
+  danhBas?: IViewDanhBa[]
   isFlashSms?: boolean
   createdDate?: string
 }
@@ -18,6 +25,8 @@ export type ICreateChienDich = {
   ngayKetThuc: string
   noiDung: string
   isFlashSms: boolean
+  idBrandName: number
+  idDanhBa: number
   createdDate: string
 }
 

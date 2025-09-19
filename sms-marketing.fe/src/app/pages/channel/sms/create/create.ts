@@ -1,5 +1,5 @@
 import { IViewRowDanhBa } from '@/models/danh-ba.models';
-import { ICreateChienDich, IUpdateChienDich, IViewBrandname } from '@/models/sms.models';
+import { ICreateChienDich, IUpdateChienDich, IViewBrandname, IViewChienDich } from '@/models/sms.models';
 import { ChienDichService } from '@/services/chien-dich.service';
 import { DanhBaService } from '@/services/danh-ba.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
@@ -63,7 +63,28 @@ export class Create extends BaseComponent {
         });
 
         if (this.isUpdate) {
-            this.form.setValue(this._config.data);
+            const oldChienDich: IViewChienDich = { ...this._config.data };
+
+            let mauNoiDung = '';
+            let idDanhBa = 0;
+
+            if (oldChienDich.mauNoiDungs && oldChienDich.mauNoiDungs.length > 0) {
+                mauNoiDung = oldChienDich.mauNoiDungs[0].noiDung;
+            }
+            if (oldChienDich.danhBas && oldChienDich.danhBas.length > 0) {
+                idDanhBa = oldChienDich.danhBas[0].idDanhBa;
+            }
+            this.form.setValue({
+                id: oldChienDich.id,
+                idBrandName: oldChienDich.idBrandName,
+                tenChienDich: oldChienDich.tenChienDich,
+                ngayBatDau: oldChienDich.ngayBatDau,
+                ngayKetThuc: oldChienDich.ngayKetThuc,
+                moTa: oldChienDich.moTa,
+                isFlashSms: oldChienDich.isFlashSms,
+                mauNoiDung,
+                idDanhBa
+            });
         }
     }
 
@@ -76,7 +97,7 @@ export class Create extends BaseComponent {
             return;
         }
         if (this.isUpdate) {
-            this.onSubmitUpdate()
+            this.onSubmitUpdate();
         } else {
             this.onSubmitCreate();
         }

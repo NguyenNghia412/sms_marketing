@@ -1,4 +1,5 @@
 <div class="flex flex-row justify-between space-x-2">
+  <button pButton pRipple type="button" [icon]="'pi pi-send'" (click)="onClick(actionType.send)" title="Gửi"></button>
   <button pButton pRipple type="button" [icon]="'pi pi-eye'" (click)="onClick(actionType.detail)" title="Chi tiết"></button>
   <button pButton pRipple type="button" [icon]="'pi pi-pencil'" (click)="onClick(actionType.update)" title="Cập nhật"></button>
   <button pButton pRipple type="button" [icon]="'pi pi-trash'" (click)="onClick(actionType.delete)" title="Xóa"></button>

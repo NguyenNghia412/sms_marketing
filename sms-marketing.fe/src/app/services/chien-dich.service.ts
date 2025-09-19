@@ -21,11 +21,11 @@ export class ChienDichService {
     }
 
     create(body: ICreateChienDich) {
-        return this.http.post<IBaseResponse>(this.api, body);
+        return this.http.post<IBaseResponse>(`${this.api}?idBrandName=${body.idBrandName}&idDanhBa=${body.idDanhBa}`, body);
     }
 
     update(body: IUpdateChienDich) {
-        return this.http.post<IBaseResponse>(`${this.api}?idChienDich=${body.id}`, body);
+        return this.http.put<IBaseResponse>(`${this.api}?idChienDich=${body.id}`, body);
     }
 
     delete(id: number) {

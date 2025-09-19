@@ -22,6 +22,11 @@ export interface IViewRowDanhBa {
   ghiChu?: string
 }
 
+export interface IViewDanhBa {
+  idDanhBa: number,
+  tenDanhBa: string,
+}
+
 export interface IVerifyImportDanhBa {
   File: File,
   IndexRowStartImport: number,
