@@ -7,7 +7,7 @@ import { inject, Injectable } from '@angular/core';
     providedIn: 'root'
 })
 export class TemplateService {
-    api = '/api/core/chien-dich/mau-noi-dung';
+    api = '/api/core/mau-noi-dung';
     http = inject(HttpClient);
 
     findPaging(query: IFindPagingMauNoiDung) {
