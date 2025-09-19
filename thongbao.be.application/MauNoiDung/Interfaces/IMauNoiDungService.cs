@@ -15,5 +15,6 @@ namespace thongbao.be.application.MauNoiDung.Interfaces
         public BaseResponsePagingDto<ViewMauNoiDungDto> Find(FindPagingMauNoiDungDto dto);
         public void Delete(int id);
         public void CreateChienDichByMauNoiDung(int id, CreateChienDichByMauNoiDungDto dto);
+        public List<GetListMauNoiDungResponseDto> GetListMauNoiDung();
     }
 }

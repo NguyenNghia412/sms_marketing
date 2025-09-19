@@ -97,5 +97,19 @@ namespace thongbao.be.Controllers.MauNoiDung
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.MauNoiDungView)]
+        [HttpGet("list-mau-noi-dung")]
+        public ApiResponse GetListMauNoiDung()
+        {
+            try
+            {
+                var data = _mauNoiDungService.GetListMauNoiDung();
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

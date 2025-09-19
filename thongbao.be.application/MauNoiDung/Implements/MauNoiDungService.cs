@@ -74,6 +74,18 @@ namespace thongbao.be.application.MauNoiDung.Implements
             };
 
         }
+        public List<GetListMauNoiDungResponseDto> GetListMauNoiDung()
+        {
+            _logger.LogInformation($"{nameof(GetListMauNoiDung)}");
+            var query = from mnd in _smDbContext.MauNoiDungs
+                        where !mnd.Deleted
+                        orderby mnd.CreatedDate descending
+                        select mnd;
+            var data = query.ToList();
+            var result = _mapper.Map<List<GetListMauNoiDungResponseDto>>(data);
+            return result;
+
+        }
         public void Delete (int id)
         {
             _logger.LogInformation($"{nameof(Delete)}");
