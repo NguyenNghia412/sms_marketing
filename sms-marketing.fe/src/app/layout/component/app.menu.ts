@@ -49,6 +49,14 @@ export class AppMenu {
                     }
                 ]
             },
+            {
+                items: [
+                    {
+                        label: 'Templates',
+                        routerLink: ['/template/mau-nd']
+                    }
+                ]
+            },
             // {
             //     items: [
             //         {
@@ -56,14 +64,6 @@ export class AppMenu {
             //             items: [
             //                 { label: 'Họp trực tuyến', heroIcon: 'heroRadio', routerLink: ['/meeting/hop-truc-tuyen'] },
             //             ]
-            //         }
-            //     ]
-            // },
-            // {
-            //     items: [
-            //         {
-            //             label: 'Templates',
-            //             routerLink: ['/templates']
             //         }
             //     ]
             // },
