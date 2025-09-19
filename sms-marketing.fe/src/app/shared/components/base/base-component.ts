@@ -9,7 +9,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 export abstract class BaseComponent implements OnInit {
     protected router = inject(Router);
     protected _activatedRoute = inject(ActivatedRoute);
-    protected messageService = inject(MessageService);
+    protected _messageService = inject(MessageService);
     protected _dialogService = inject(DialogService);
     protected _confirmationService = inject(ConfirmationService);
 
@@ -63,20 +63,29 @@ export abstract class BaseComponent implements OnInit {
     }
 
     messageSuccess(msg: string) {
-        this.messageService.add({
+        this._messageService.add({
             closable: true,
             severity: 'success',
             detail: msg,
-            life: 5000
+            life: 4000
+        });
+    }
+
+    messageWarning(msg: string) {
+        this._messageService.add({
+            closable: true,
+            severity: 'warn',
+            detail: msg,
+            life: 4000
         });
     }
 
     messageError(msg: string) {
-        this.messageService.add({
+        this._messageService.add({
             closable: true,
             severity: 'error',
             detail: msg || 'Có sự cố xảy ra. Vui lòng thử lại sau.',
-            life: 5000
+            life: 4000
         });
     }
 
@@ -95,6 +104,30 @@ export abstract class BaseComponent implements OnInit {
             acceptButtonProps: {
                 label: 'Xóa',
                 severity: 'danger'
+            },
+            accept: () => {
+                if (acceptCallback) {
+                    acceptCallback()
+                }
+            }
+        });
+    }
+
+    confirmAction(opt: {header: string, message: string} ,acceptCallback = () => {}) {
+        this._confirmationService.confirm({
+            message: opt.message,
+            header: opt.header,
+            closable: true,
+            closeOnEscape: true,
+            // icon: 'pi pi-exclamation-triangle',
+            rejectButtonProps: {
+                label: 'Thoát',
+                severity: 'seconday',
+                outlined: true
+            },
+            acceptButtonProps: {
+                label: 'Tiếp tục',
+                severity: 'primary'
             },
             accept: () => {
                 if (acceptCallback) {

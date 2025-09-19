@@ -21,14 +21,14 @@ export class AppMenu {
 
     ngOnInit() {
         this.model = [
-            {
-                items:[
-                    {
-                        label: 'Dashboard',
-                        routerLink: ['/']
-                    }
-                ]
-            },
+            // {
+            //     items:[
+            //         {
+            //             label: 'Dashboard',
+            //             routerLink: ['/']
+            //         }
+            //     ]
+            // },
             {
                 items: [
                     {
@@ -44,45 +44,45 @@ export class AppMenu {
             {
                 items: [
                     {
-                        label: 'MS Teams',
-                        items: [
-                            { label: 'Họp trực tuyến', heroIcon: 'heroRadio', routerLink: ['/meeting/hop-truc-tuyen'] },
-                        ]
-                    }
-                ]
-            },
-            {
-                items: [
-                    {
-                        label: 'Templates',
-                        routerLink: ['/templates']
-                    }
-                ]
-            },
-            {
-                items: [
-                    {
                         label: 'Danh bạ',
                         routerLink: ['/danh-ba/ds']
                     }
                 ]
             },
-            {
-                items: [
-                    {
-                        label: 'Tài khoản',
-                        routerLink: ['/contacts']
-                    }
-                ]
-            },
-            {
-                items: [
-                    {
-                        label: 'Audit log',
-                        routerLink: ['/contacts']
-                    }
-                ]
-            },
+            // {
+            //     items: [
+            //         {
+            //             label: 'MS Teams',
+            //             items: [
+            //                 { label: 'Họp trực tuyến', heroIcon: 'heroRadio', routerLink: ['/meeting/hop-truc-tuyen'] },
+            //             ]
+            //         }
+            //     ]
+            // },
+            // {
+            //     items: [
+            //         {
+            //             label: 'Templates',
+            //             routerLink: ['/templates']
+            //         }
+            //     ]
+            // },
+            // {
+            //     items: [
+            //         {
+            //             label: 'Tài khoản',
+            //             routerLink: ['/contacts']
+            //         }
+            //     ]
+            // },
+            // {
+            //     items: [
+            //         {
+            //             label: 'Audit log',
+            //             routerLink: ['/contacts']
+            //         }
+            //     ]
+            // },
             // {
             //     label: 'UI Components',
             //     items: [

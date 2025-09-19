@@ -8,21 +8,21 @@
     </div>
     <div class="mb-3">
         <label for="idBrandName" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Brandname (*)</label>
-        <p-select id="idBrandName" formControlName="idBrandName" [options]="listBrandname" optionLabel="tenBrandName" optionValue="id" [filter]="true" placeholder="Chọn brandname" class="w-full" appendTo="body" />
+        <p-select id="idBrandName" formControlName="idBrandName" [options]="listBrandname" optionLabel="tenBrandName" optionValue="id" [filter]="true" placeholder="Chọn brandname" class="w-full mb-2" appendTo="body" />
         @if (form.get('idBrandName')?.hasError('required') && form.get('idBrandName')?.touched) {
         <p-message severity="error" variant="simple" size="small">{{ getError('idBrandName') }} </p-message>
         }
     </div>
     <div class="mb-3">
         <label for="idDanhBa" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Người nhận (*)</label>
-        <p-select id="idDanhBa" formControlName="idDanhBa" [options]="listDanhBa" optionLabel="tenDanhBa" optionValue="id" [filter]="true" placeholder="Chọn người nhận" class="w-full" appendTo="body" />
+        <p-select id="idDanhBa" formControlName="idDanhBa" [options]="listDanhBa" optionLabel="tenDanhBa" optionValue="id" [filter]="true" placeholder="Chọn người nhận" class="w-full mb-2" appendTo="body" />
         @if (form.get('idDanhBa')?.hasError('required') && form.get('idDanhBa')?.touched) {
         <p-message severity="error" variant="simple" size="small">{{ getError('idDanhBa') }} </p-message>
         }
     </div>
     <div class="mb-3">
-        <label for="mauNoiDung" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Mẫu nội dung (*)</label>
-        <textarea pTextarea formControlName="mauNoiDung" id="mauNoiDung" type="text" class="w-full mb-2"></textarea>
+        <label for="mauNoiDung" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Nội dung tin nhắn (*)</label>
+        <textarea pTextarea formControlName="mauNoiDung" id="mauNoiDung" type="text" class="w-full mb-2" rows="4"></textarea>
         @if (form.get('mauNoiDung')?.hasError('required') && form.get('mauNoiDung')?.touched) {
         <p-message severity="error" variant="simple" size="small">{{ getError('mauNoiDung') }} </p-message>
         }

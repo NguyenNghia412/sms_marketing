@@ -10,7 +10,7 @@ export type IBaseResponse = {
   message: string
 }
 
-export type IBaseResponseList<T> = IBaseResponse & {
+export type IBaseResponseWithData<T> = IBaseResponse & {
   data: T
 }
 

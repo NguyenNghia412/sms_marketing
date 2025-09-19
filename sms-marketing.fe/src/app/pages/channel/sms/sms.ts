@@ -58,7 +58,12 @@ export class Sms extends BaseComponent {
         this._chienDichService.findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value }).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, false)) {
-                    this.data = res.data.items;
+                    this.data = res.data.items.map(item => {
+                        if (item.mauNoiDungs && item.mauNoiDungs.length > 0) {
+                            item.noiDung = item.mauNoiDungs[0].noiDung;
+                        }
+                        return item;
+                    });
                     this.totalRecords = res.data.totalItems;
                 }
             },
@@ -69,7 +74,7 @@ export class Sms extends BaseComponent {
     }
 
     onOpenCreate() {
-        const ref = this._dialogService.open(Create, { header: 'Tạo chiến dịch', closable: true, modal: true, styleClass: 'w-96', focusOnShow: false });
+        const ref = this._dialogService.open(Create, { header: 'Tạo chiến dịch', closable: true, modal: true, styleClass: 'w-[600px]', focusOnShow: false });
         ref.onClose.subscribe((result) => {
             if (result) {
                 this.getData();
@@ -78,7 +83,7 @@ export class Sms extends BaseComponent {
     }
 
     onOpenUpdate(data: IViewChienDich) {
-        const ref = this._dialogService.open(Create, { header: 'Tạo chiến dịch', closable: true, modal: true, styleClass: 'w-96', focusOnShow: false, data });
+        const ref = this._dialogService.open(Create, { header: 'Tạo chiến dịch', closable: true, modal: true, styleClass: 'w-[600px]', focusOnShow: false, data });
         ref.onClose.subscribe((result) => {
             if (result) {
                 this.getData();
