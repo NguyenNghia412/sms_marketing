@@ -20,8 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MigratedSmsDbDev", "..\MigratedSmsDbDev\MigratedSmsDbDev.csproj", "{F719F81B-1D1D-496B-A2DC-808DD2CB1117}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,10 +50,6 @@ Global
 		{FB4CDAA7-29C7-4C1C-BA99-29FA97BA192F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB4CDAA7-29C7-4C1C-BA99-29FA97BA192F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB4CDAA7-29C7-4C1C-BA99-29FA97BA192F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F719F81B-1D1D-496B-A2DC-808DD2CB1117}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F719F81B-1D1D-496B-A2DC-808DD2CB1117}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F719F81B-1D1D-496B-A2DC-808DD2CB1117}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F719F81B-1D1D-496B-A2DC-808DD2CB1117}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
