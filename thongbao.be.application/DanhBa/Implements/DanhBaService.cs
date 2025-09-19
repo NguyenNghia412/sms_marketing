@@ -30,6 +30,7 @@ using thongbao.be.shared.Constants.DanhBa;
 using thongbao.be.shared.HttpRequest.BaseRequest;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
+using static QRCoder.PayloadGenerator;
 
 namespace thongbao.be.application.DanhBa.Implements
 {
@@ -1289,7 +1290,7 @@ namespace thongbao.be.application.DanhBa.Implements
                             string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportPhoneNumberErrorInvalid), actualRowNumber));
                     }
 
-                    if (!emailHuce.EndsWith("@st.huce.edu.vn", StringComparison.OrdinalIgnoreCase))
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(emailHuce, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                     {
                         throw new UserFriendlyException(ErrorCodes.ImportEmailHuceErrorInvalid,
                             string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportEmailHuceErrorInvalid), actualRowNumber));
