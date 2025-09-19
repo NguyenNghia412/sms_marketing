@@ -69,7 +69,7 @@ export class Sms extends BaseComponent {
     }
 
     onOpenCreate() {
-        const ref = this._dialogService.open(Create, { header: 'Tạo chiến dịch', closable: true, modal: true, styleClass: 'w-96', focusOnShow: false });
+        const ref = this._dialogService.open(Create, { header: 'Tạo chiến dịch', closable: true, modal: true, styleClass: 'w-[600px]', focusOnShow: false });
         ref.onClose.subscribe((result) => {
             if (result) {
                 this.getData();
@@ -78,7 +78,7 @@ export class Sms extends BaseComponent {
     }
 
     onOpenUpdate(data: IViewChienDich) {
-        const ref = this._dialogService.open(Create, { header: 'Tạo chiến dịch', closable: true, modal: true, styleClass: 'w-96', focusOnShow: false, data });
+        const ref = this._dialogService.open(Create, { header: 'Tạo chiến dịch', closable: true, modal: true, styleClass: 'w-[600px]', focusOnShow: false, data });
         ref.onClose.subscribe((result) => {
             if (result) {
                 this.getData();

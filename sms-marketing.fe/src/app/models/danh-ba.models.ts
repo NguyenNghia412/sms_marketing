@@ -21,3 +21,30 @@ export interface IViewRowDanhBa {
   mota?: string,
   ghiChu?: string
 }
+
+export interface IVerifyImportDanhBa {
+  File: File,
+  IndexRowStartImport: number,
+  IndexRowHeader: number,
+  SheetName: string,
+  IdDanhBa: number
+}
+
+export interface IUploadFileImportDanhBa extends IVerifyImportDanhBa {}
+
+export interface IViewVerifyImportDanhBa {
+  totalRowsImported: number,
+  totalDataImported: number,
+}
+
+export interface IFindPagingNguoiNhan extends IBaseRequestPaging {
+  idDanhBa: number,
+}
+
+export interface IViewRowNguoiNhan {
+  id?: number,
+  emailHuce?: string,
+  hoVaTen?: string,
+  maSoNguoiDung?: string,
+  soDienThoai?: string,
+}

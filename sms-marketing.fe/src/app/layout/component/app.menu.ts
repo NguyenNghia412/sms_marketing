@@ -44,6 +44,14 @@ export class AppMenu {
             {
                 items: [
                     {
+                        label: 'Danh bạ',
+                        routerLink: ['/danh-ba/ds']
+                    }
+                ]
+            },
+            {
+                items: [
+                    {
                         label: 'MS Teams',
                         items: [
                             { label: 'Họp trực tuyến', heroIcon: 'heroRadio', routerLink: ['/meeting/hop-truc-tuyen'] },
@@ -56,14 +64,6 @@ export class AppMenu {
                     {
                         label: 'Templates',
                         routerLink: ['/templates']
-                    }
-                ]
-            },
-            {
-                items: [
-                    {
-                        label: 'Danh bạ',
-                        routerLink: ['/danh-ba/ds']
                     }
                 ]
             },
