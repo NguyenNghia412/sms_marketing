@@ -150,7 +150,7 @@ namespace thongbao.be.application.DanhBa.Implements
             };
             return response;
         }
-        public void DeleteDanhBaChiTiet( int idDanhBa,int idDanhBaChiTiet)
+        public void DeleteDanhBaChiTiet(int idDanhBa, int idDanhBaChiTiet)
         {
             _logger.LogInformation($"{nameof(DeleteDanhBaChiTiet)}");
             var vietnamNow = GetVietnamTime();
@@ -211,8 +211,8 @@ namespace thongbao.be.application.DanhBa.Implements
             }
 
             if (!System.Text.RegularExpressions.Regex.IsMatch(dto.EmailHuce, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-            
-                {
+
+            {
                 throw new UserFriendlyException(ErrorCodes.DanhBaErrorEmailInvalid, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorEmailInvalid));
             }
             var existingEmail = _smDbContext.DanhBaChiTiets

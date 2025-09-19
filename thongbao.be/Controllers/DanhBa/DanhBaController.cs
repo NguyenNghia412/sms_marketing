@@ -116,7 +116,7 @@ namespace thongbao.be.Controllers.DanhBa
             try
             {
                 var excelTemplate = await _danhBaService.ExportDanhBaCungExcelTemplate();
-                var fileName = $"Mẫu File Excel Import Danh Bạ Người Dùng.xlsx";
+                var fileName = $"Mau File Excel Import Danh Ba Nguoi Dung.xlsx";
                 return File(
                    excelTemplate,
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -136,7 +136,7 @@ namespace thongbao.be.Controllers.DanhBa
             try
             {
                 var excelTemplate = await _danhBaService.ExportDanhBaChiTietExcelTemplate();
-                var fileName = $"Mẫu File Excel Import Danh Bạ Người Dùng Theo Chiến Dịch.xlsx";
+                var fileName = $"Mau File Excel Import Danh Ba Nguoi Dung Theo Chien Dich.xlsx";
                 return File(
                    excelTemplate,
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
