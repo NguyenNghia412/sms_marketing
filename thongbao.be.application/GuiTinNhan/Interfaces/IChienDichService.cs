@@ -14,7 +14,7 @@ namespace thongbao.be.application.GuiTinNhan.Interfaces
         /// Tạo chiến dịch
         /// </summary>
         /// <param name="dto"></param>
-        public void Create(int idBrandName, int idDanhBa, CreateChienDichDto dto);
+        public void Create(int idBrandName, int idDanhBa, int? idMauNoiDung, CreateChienDichDto dto);
 
         /// <summary>
         /// Tìm kiếm chiến dịch có phân trang
@@ -26,9 +26,6 @@ namespace thongbao.be.application.GuiTinNhan.Interfaces
         public void Delete(int idChienDich);
         public void AddDanhBaChienDich(int idChienDich, int idDanhBa);
         public List<GetListBrandNameResponseDto> GetListBrandName();
-        public void UpdateMauNoiDung(int idMauNoiDung, UpdateMauNoiDungDto dto);
-        public void DeleteMauNoiDung(int idMauNoiDung);
-        public BaseResponsePagingDto<ViewMauNoiDungDto> FindPagingMauNoiDung(FindPagingMauNoiDungDto dto);
         public void TestSendEmail();
     }
 }

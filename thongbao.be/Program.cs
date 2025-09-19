@@ -26,6 +26,8 @@ using thongbao.be.application.DiemDanh.Implements;
 using thongbao.be.application.DiemDanh.Interfaces;
 using thongbao.be.application.GuiTinNhan.Implements;
 using thongbao.be.application.GuiTinNhan.Interfaces;
+using thongbao.be.application.MauNoiDung.Implements;
+using thongbao.be.application.MauNoiDung.Interfaces;
 using thongbao.be.application.ToChuc.Implements;
 using thongbao.be.application.ToChuc.Interfaces;
 using thongbao.be.domain.Auth;
@@ -227,6 +229,7 @@ builder.Services.AddScoped<IChienDichService, ChienDichService>();
 builder.Services.AddScoped<IHopTrucTuyenService, HopTrucTuyenService>();
 builder.Services.AddScoped<IDanhBaService, DanhBaService>();
 builder.Services.AddScoped<IToChucService, ToChucService>();
+builder.Services.AddScoped<IMauNoiDungService, MauNoiDungService>();
 #endregion
 
 builder.Services.AddHttpClient();

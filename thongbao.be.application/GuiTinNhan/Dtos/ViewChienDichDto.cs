@@ -7,12 +7,7 @@ using System.Threading.Tasks;
 
 namespace thongbao.be.application.GuiTinNhan.Dtos
 {
-    public class ChienDichMauNoiDungDto
-    {
-        public int IdMauNoiDung { get; set; }
-        public string NoiDung { get; set; } = String.Empty;
-        public DateTime? CreatedDate { get; set; }
-    }
+
     public class ChienDichDanhBaDto
     {
         public int IdDanhBa { get; set; }
@@ -24,8 +19,12 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public int Id { get; set; }
         public string TenChienDich { get; set; } = String.Empty;
         public string MoTa { get; set; } = String.Empty;
+        public string? NoiDung {  get; set; } = String.Empty;
         public DateTime? NgayBatDau { get; set; }
         public DateTime? NgayKetThuc { get; set; }
+        public int? IdMauNoiDung { get; set; }
+        public string? TenMauNoiDung { get; set; }
+        public string? NoiDungMauNoiDung { get; set; }
         public int IdBrandName { get; set; }
         public string TenBrandName { get; set; } = String.Empty;
         public bool IsFlashSms { get; set; }
@@ -33,6 +32,6 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public DateTime? CreatedDate { get; set; }
         public List<ChienDichDanhBaDto> DanhBas { get; set; } = new List<ChienDichDanhBaDto> { };
 
-        public List<ChienDichMauNoiDungDto> MauNoiDungs { get; set; } = new List<ChienDichMauNoiDungDto>();
+        
     }
 }

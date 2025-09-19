@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using thongbao.be.infrastructure.data;
 
@@ -11,9 +12,11 @@ using thongbao.be.infrastructure.data;
 namespace thongbao.be.infrastructure.data.Migrations
 {
     [DbContext(typeof(SmDbContext))]
-    partial class SmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250919084600_Update_MauNoiDung")]
+    partial class Update_MauNoiDung
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1090,7 +1093,7 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.Property<int>("IdBrandName")
                         .HasColumnType("int");
 
-                    b.Property<int?>("IdMauNoiDung")
+                    b.Property<int>("IdMauNoiDung")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsFlashSms")
@@ -1108,10 +1111,6 @@ namespace thongbao.be.infrastructure.data.Migrations
 
                     b.Property<DateTime?>("NgayKetThuc")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("NoiDung")
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("TenChienDich")
                         .IsRequired()
@@ -1231,10 +1230,6 @@ namespace thongbao.be.infrastructure.data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("NoiDung")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TenMauNoiDung")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

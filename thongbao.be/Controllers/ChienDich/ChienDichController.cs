@@ -40,11 +40,11 @@ namespace thongbao.be.Controllers.ChienDich
 
         [Permission(PermissionKeys.ChienDichAdd)]
         [HttpPost("")]
-        public ApiResponse Create([FromQuery] int idBrandName, [FromQuery] int idDanhBa, [FromBody] CreateChienDichDto dto)
+        public ApiResponse Create([FromQuery] int idBrandName, [FromQuery] int idDanhBa, [FromQuery] int? idMauNoiDung, [FromBody] CreateChienDichDto dto)
         {
             try
             {
-                _chienDichService.Create(idBrandName,idDanhBa,dto);
+                _chienDichService.Create(idBrandName,idDanhBa, idMauNoiDung, dto);
                 return new();
             }
             catch (Exception ex)
@@ -109,49 +109,7 @@ namespace thongbao.be.Controllers.ChienDich
             }
         }
 
-        [Permission(PermissionKeys.ChienDichDelete)]
-        [HttpDelete("mau-noi-dung")]
-        public ApiResponse DeleteMauNoiDung([FromQuery] int idMauNoiDung)
-        {
-            try
-            {
-                _chienDichService.DeleteMauNoiDung(idMauNoiDung);
-                return new();
-            }
-            catch (Exception ex)
-            {
-                return OkException(ex);
-            }
-        }
 
-
-        [Permission(PermissionKeys.ChienDichUpdate)]
-        [HttpPut("mau-noi-dung")]
-        public ApiResponse UpdateMauNoiDung([FromQuery] int idMauNoiDung, [FromBody]UpdateMauNoiDungDto dto)
-        {
-            try
-            {
-                _chienDichService.UpdateMauNoiDung(idMauNoiDung,dto);
-                return new();
-            }
-            catch (Exception ex)
-            {
-                return OkException(ex);
-            }
-        }
-        [Permission(PermissionKeys.ChienDichView)]
-        [HttpGet("mau-noi-dung")]
-        public ApiResponse FindPagingMauNoiDung([FromQuery] FindPagingMauNoiDungDto dto)
-        {
-            try
-            {
-                var data = _chienDichService.FindPagingMauNoiDung(dto);
-                return new ApiResponse(data);
-            }catch(Exception ex)
-            {
-                return OkException(ex);
-            }
-        }
 
         [AllowAnonymous]
         [HttpPost("test")]

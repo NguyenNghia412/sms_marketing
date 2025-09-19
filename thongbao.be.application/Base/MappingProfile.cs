@@ -15,6 +15,7 @@ using thongbao.be.domain.Auth;
 using thongbao.be.domain.DanhBa;
 using thongbao.be.domain.DiemDanh;
 using thongbao.be.domain.GuiTinNhan;
+using thongbao.be.domain.MauNoiDung;
 
 namespace thongbao.be.application.Base
 {
@@ -34,7 +35,7 @@ namespace thongbao.be.application.Base
             CreateMap<domain.GuiTinNhan.BrandName, GetListBrandNameResponseDto>();
             CreateMap<domain.DanhBa.DanhBa, GetListDanhBaResponseDto>();
             CreateMap<domain.DanhBa.DanhBaChiTiet, ViewDanhBaChiTietDto>();
-            CreateMap<MauNoiDung, ViewMauNoiDungDto>();
+            CreateMap<domain.MauNoiDung.MauNoiDung, ViewMauNoiDungDto>();
         }
     }
 }

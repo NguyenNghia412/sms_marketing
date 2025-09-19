@@ -53,6 +53,15 @@ namespace thongbao.be.shared.Constants.Auth
 
 
 
+        public const string CategoryMauNoiDung = "QL Mẫu Nội Dung";
+        public const string MauNoiDungAdd = Function + "MauNoiDungAdd";
+        public const string MauNoiDungUpdate = Function + "MauNoiDungUpdate";
+        public const string MauNoiDungDelete = Function + "MauNoiDungDelete";
+        public const string MauNoiDungView = Function + "MauNoiDungView";
+
+
+
+
 
         public static readonly (string Key, string Name, string Category)[] All =
         {
@@ -87,6 +96,11 @@ namespace thongbao.be.shared.Constants.Auth
             (ToChucUpdate, "Cập nhật Tổ chức", CategoryToChuc),
             (ToChucDelete, "Xoá Tổ chức", CategoryToChuc),
             (ToChucView, "Xem Tổ chức", CategoryToChuc),
+
+            (MauNoiDungAdd, "Thêm Mẫu Nội Dung ", CategoryMauNoiDung),
+            (MauNoiDungUpdate, "Cập nhật Mẫu Nội Dung", CategoryMauNoiDung),
+            (MauNoiDungDelete, "Xoá Mẫu Nội Dung", CategoryMauNoiDung),
+            (MauNoiDungView, "Xem Mẫu Nội Dung", CategoryMauNoiDung),
 
         };
     }

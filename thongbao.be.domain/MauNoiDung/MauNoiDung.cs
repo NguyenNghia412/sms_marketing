@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 using thongbao.be.shared.Constants.Db;
 using thongbao.be.shared.Interfaces;
 
-namespace thongbao.be.domain.GuiTinNhan
+namespace thongbao.be.domain.MauNoiDung
 {
     [Table(nameof(MauNoiDung), Schema = DbSchemas.Core)]
     public class MauNoiDung :ISoftDelted
     {
         public int Id { get; set; }
-        //public int IdChienDich {  get; set; }
+        public string TenMauNoiDung { get; set; } = String.Empty;
         public string NoiDung { get; set; } = string.Empty;
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }

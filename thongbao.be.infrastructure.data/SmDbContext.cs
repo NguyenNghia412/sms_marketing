@@ -10,6 +10,7 @@ using thongbao.be.domain.Auth;
 using thongbao.be.domain.DanhBa;
 using thongbao.be.domain.DiemDanh;
 using thongbao.be.domain.GuiTinNhan;
+using thongbao.be.domain.MauNoiDung;
 using thongbao.be.domain.ToChuc;
 using thongbao.be.shared.Constants.Db;
 
@@ -41,7 +42,7 @@ namespace thongbao.be.infrastructure.data
         public DbSet<BrandName> BrandName { get; set; }
         public DbSet<MauNoiDung> MauNoiDungs { get; set; }
         public DbSet<ChienDichLogTrangThaiGui> ChienDichLogTrangThaiGuis { get; set; }
-        public DbSet<ChienDichMauNoiDung> ChienDichMauNoiDungs { get; set; }
+  
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -154,13 +155,7 @@ namespace thongbao.be.infrastructure.data
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-            modelBuilder.Entity<ChienDichMauNoiDung>(entity =>
-            {
-                entity.HasKey(e => new { e.IdMauNoiDung, e.IdChienDich });
-                entity.Property(e => e.Deleted).HasDefaultValue(0);
-                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
-
-            });
+           
 
             modelBuilder.HasDefaultSchema(DbSchemas.Core);
 

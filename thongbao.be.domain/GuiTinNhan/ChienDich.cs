@@ -18,6 +18,7 @@ namespace thongbao.be.domain.GuiTinNhan
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int IdBrandName { get; set; }
+        public int? IdMauNoiDung { get; set; }
 
         [Required]
         [MaxLength(500)]
@@ -29,8 +30,8 @@ namespace thongbao.be.domain.GuiTinNhan
         public DateTime? NgayBatDau { get; set; }
         public DateTime? NgayKetThuc { get; set; }
 
-        //[MaxLength(4000)]
-        //public string NoiDung { get; set; } = String.Empty;
+        [MaxLength(4000)]
+        public string? NoiDung { get; set; } = String.Empty;
 
         public bool IsFlashSms { get; set; }
         public int? CreatedBy { get; set; }
