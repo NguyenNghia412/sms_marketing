@@ -28,7 +28,7 @@ export class Create extends BaseComponent {
         ngayBatDau: new FormControl(new Date()),
         ngayKetThuc: new FormControl(new Date()),
         moTa: new FormControl(''),
-        mauNoiDung: new FormControl('', [Validators.required]),
+        noiDung: new FormControl('', [Validators.required]),
         isFlashSms: new FormControl(true)
     });
 
@@ -42,7 +42,7 @@ export class Create extends BaseComponent {
         tenChienDich: {
             required: 'Không được bỏ trống'
         },
-        mauNoiDung: {
+        noiDung: {
             required: 'Không được bỏ trống'
         }
     };
@@ -65,12 +65,8 @@ export class Create extends BaseComponent {
         if (this.isUpdate) {
             const oldChienDich: IViewChienDich = { ...this._config.data };
 
-            let mauNoiDung = '';
             let idDanhBa = 0;
 
-            if (oldChienDich.mauNoiDungs && oldChienDich.mauNoiDungs.length > 0) {
-                mauNoiDung = oldChienDich.mauNoiDungs[0].noiDung;
-            }
             if (oldChienDich.danhBas && oldChienDich.danhBas.length > 0) {
                 idDanhBa = oldChienDich.danhBas[0].idDanhBa;
             }
@@ -82,7 +78,7 @@ export class Create extends BaseComponent {
                 ngayKetThuc: oldChienDich.ngayKetThuc,
                 moTa: oldChienDich.moTa,
                 isFlashSms: oldChienDich.isFlashSms,
-                mauNoiDung,
+                noiDung: oldChienDich.noiDung,
                 idDanhBa
             });
         }
