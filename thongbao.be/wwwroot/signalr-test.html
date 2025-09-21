@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignalR Test Dashboard - SMS Marketing Platform</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+            --dark-color: #212529;
+            --light-bg: #f8f9fa;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .dashboard-container {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            max-width: 1200px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #4c63d2);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 2.5rem;
+        }
+        
+        .header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .status-card {
+            border: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .status-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-connected {
+            background-color: var(--success-color);
+        }
+        
+        .status-disconnected {
+            background-color: var(--danger-color);
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .btn-custom {
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-connect {
+            background: linear-gradient(135deg, var(--success-color), #20c997);
+            color: white;
+        }
+        
+        .btn-disconnect {
+            background: linear-gradient(135deg, var(--danger-color), #e74c3c);
+            color: white;
+        }
+        
+        .btn-send {
+            background: linear-gradient(135deg, var(--primary-color), #4c63d2);
+            color: white;
+        }
+        
+        .btn-group-action {
+            background: linear-gradient(135deg, var(--warning-color), #f39c12);
+            color: #212529;
+        }
+        
+        .btn-api {
+            background: linear-gradient(135deg, #6f42c1, #8e44ad);
+            color: white;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .messages-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            height: 400px;
+            overflow-y: auto;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .messages-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .messages-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .messages-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+        
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        .message {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .message-system {
+            background: rgba(13, 110, 253, 0.1);
+            border-left-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .message-error {
+            background: rgba(220, 53, 69, 0.1);
+            border-left-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+        
+        .message-notification {
+            background: rgba(25, 135, 84, 0.1);
+            border-left-color: var(--success-color);
+            color: var(--success-color);
+        }
+        
+        .message-api {
+            background: rgba(111, 66, 193, 0.1);
+            border-left-color: #6f42c1;
+            color: #6f42c1;
+        }
+        
+        .message-default {
+            background: rgba(108, 117, 125, 0.1);
+            border-left-color: #6c757d;
+            color: #6c757d;
+        }
+        
+        .section-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .section-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .section-title {
+            color: var(--dark-color);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stats-row {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-4">
+        <div class="dashboard-container">
+            <!-- Header -->
+            <div class="header">
+                <h1><i class="bi bi-broadcast"></i> SignalR Test Dashboard</h1>
+                <p>SMS Marketing Platform - Real-time Communication Testing</p>
+            </div>
+            
+            <div class="p-4">
+                <!-- Statistics Row -->
+                <div class="stats-row">
+                    <div class="row">
+                        <div class="col-md-3 stat-item">
+                            <div class="stat-number" id="messagesCount">0</div>
+                            <div class="stat-label">Messages Sent</div>
+                        </div>
+                        <div class="col-md-3 stat-item">
+                            <div class="stat-number" id="connectionsCount">0</div>
+                            <div class="stat-label">Connected Clients</div>
+                        </div>
+                        <div class="col-md-3 stat-item">
+                            <div class="stat-number" id="uptime">00:00:00</div>
+                            <div class="stat-label">Uptime</div>
+                        </div>
+                        <div class="col-md-3 stat-item">
+                            <div class="stat-number" id="latency">0ms</div>
+                            <div class="stat-label">Latency</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Connection Status -->
+                    <div class="col-md-6">
+                        <div class="section-card">
+                            <h5 class="section-title">
+                                <i class="bi bi-wifi"></i>Connection Status
+                            </h5>
+                            <div class="mb-3">
+                                <div id="status" class="p-3 rounded">
+                                    <span class="status-indicator status-disconnected"></span>
+                                    <strong>Disconnected</strong>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button id="connectBtn" class="btn btn-custom btn-connect flex-fill">
+                                    <i class="bi bi-play-circle"></i> Connect
+                                </button>
+                                <button id="disconnectBtn" class="btn btn-custom btn-disconnect flex-fill" disabled>
+                                    <i class="bi bi-stop-circle"></i> Disconnect
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Send Messages -->
+                    <div class="col-md-6">
+                        <div class="section-card">
+                            <h5 class="section-title">
+                                <i class="bi bi-chat-dots"></i>Send Messages
+                            </h5>
+                            <div class="mb-3">
+                                <input type="text" class="form-control mb-2" id="userInput" 
+                                       placeholder="Your name" value="TestUser">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="messageInput" 
+                                           placeholder="Enter your message...">
+                                    <button class="btn btn-custom btn-send" id="sendBtn">
+                                        <i class="bi bi-send"></i> Send
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="groupInput" 
+                                       placeholder="Group name" value="TestGroup">
+                                <button class="btn btn-custom btn-group-action" id="joinGroupBtn">
+                                    <i class="bi bi-plus-circle"></i> Join
+                                </button>
+                                <button class="btn btn-custom btn-group-action" id="leaveGroupBtn">
+                                    <i class="bi bi-dash-circle"></i> Leave
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Messages Display -->
+                    <div class="col-md-8">
+                        <div class="section-card">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="section-title mb-0">
+                                    <i class="bi bi-chat-square-text"></i>Messages
+                                </h5>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="clearMessages()">
+                                    <i class="bi bi-trash"></i> Clear
+                                </button>
+                            </div>
+                            <div id="messages" class="messages-container"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- API Testing -->
+                    <div class="col-md-4">
+                        <div class="section-card">
+                            <h5 class="section-title">
+                                <i class="bi bi-code-square"></i>API Testing
+                            </h5>
+                            <div class="mb-3">
+                                <input type="text" class="form-control mb-2" id="apiTitle" 
+                                       placeholder="Notification title" value="API Test">
+                                <input type="text" class="form-control mb-2" id="apiMessage" 
+                                       placeholder="Notification message" value="Hello from API!">
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-custom btn-api" onclick="testSendToAll()">
+                                    <i class="bi bi-broadcast"></i> Send to All
+                                </button>
+                                <button class="btn btn-custom btn-api" onclick="testSendToGroup()">
+                                    <i class="bi bi-people"></i> Send to Group
+                                </button>
+                                <button class="btn btn-custom btn-api" onclick="testSendToUser()">
+                                    <i class="bi bi-person"></i> Send to User
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="footer">
+                <p>SignalR Real-time Communication Test Dashboard | Built for SMS Marketing Platform</p>
+                <p>Hub Endpoint: <code>/demohub</code> | API Endpoint: <code>/api/demo/signalr</code></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SignalR -->
+    <script src="https://unpkg.com/@microsoft/signalr@latest/dist/browser/signalr.js"></script>
+    
+    <script>
+        // Global variables
+        let messageCount = 0;
+        let isConnected = false;
+        let startTime = null;
+        let uptimeInterval = null;
+        
+        // SignalR Connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/demohub")
+            .withAutomaticReconnect()
+            .build();
+
+        // DOM Elements
+        const statusDiv = document.getElementById("status");
+        const connectBtn = document.getElementById("connectBtn");
+        const disconnectBtn = document.getElementById("disconnectBtn");
+        const messagesDiv = document.getElementById("messages");
+        const sendBtn = document.getElementById("sendBtn");
+        const messageInput = document.getElementById("messageInput");
+
+        // Connection events
+        connection.onclose(function (error) {
+            updateStatus("Disconnected", false);
+            isConnected = false;
+            updateConnectionCount();
+            stopUptime();
+            if (error) {
+                addMessage("Connection closed due to error: " + error, 'error');
+            }
+        });
+
+        connection.onreconnecting(function (error) {
+            updateStatus("Reconnecting...", false);
+            addMessage("Connection lost. Attempting to reconnect...", 'system');
+        });
+
+        connection.onreconnected(function (connectionId) {
+            updateStatus("Reconnected", true);
+            isConnected = true;
+            updateConnectionCount();
+            addMessage("Reconnected successfully!", 'system');
+        });
+
+        // Message listeners
+        connection.on("ReceiveMessage", function (user, message) {
+            addMessage(`${user}: ${message}`, 'message');
+            updateMessageCount();
+        });
+
+        connection.on("ReceiveNotification", function (title, message, type) {
+            addMessage(`[${type.toUpperCase()}] ${title}: ${message}`, 'notification');
+            updateMessageCount();
+        });
+
+        connection.on("UpdateConnectionCount", function (count) {
+            document.getElementById("connectionsCount").textContent = count;
+        });
+
+        // Connection buttons
+        connectBtn.addEventListener("click", function () {
+            const startTimestamp = Date.now();
+            connection.start().then(function () {
+                const endTimestamp = Date.now();
+                const latency = endTimestamp - startTimestamp;
+                updateLatency(latency);
+                updateStatus("Connected", true);
+                isConnected = true;
+                updateConnectionCount();
+                startUptime();
+                addMessage("Connected to SignalR Hub successfully!", 'system');
+            }).catch(function (err) {
+                updateStatus("Connection failed", false);
+                addMessage("Connection failed: " + err, 'error');
+            });
+        });
+
+        disconnectBtn.addEventListener("click", function () {
+            connection.stop().then(function () {
+                updateStatus("Disconnected", false);
+                isConnected = false;
+                updateConnectionCount();
+                stopUptime();
+                addMessage("Disconnected from SignalR Hub", 'system');
+            });
+        });
+
+        // Send message
+        sendBtn.addEventListener("click", sendMessage);
+        messageInput.addEventListener("keypress", function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const user = document.getElementById("userInput").value;
+            const message = document.getElementById("messageInput").value;
+            
+            if (!message.trim()) {
+                addMessage("Please enter a message", 'error');
+                return;
+            }
+            
+            if (connection.state === signalR.HubConnectionState.Connected) {
+                connection.invoke("SendMessage", user, message).catch(function (err) {
+                    addMessage("Error sending message: " + err, 'error');
+                });
+                document.getElementById("messageInput").value = "";
+            } else {
+                addMessage("Not connected to hub. Please connect first.", 'error');
+            }
+        }
+
+        // Group management
+        document.getElementById("joinGroupBtn").addEventListener("click", function () {
+            const groupName = document.getElementById("groupInput").value;
+            
+            if (!groupName.trim()) {
+                addMessage("Please enter a group name", 'error');
+                return;
+            }
+            
+            if (connection.state === signalR.HubConnectionState.Connected) {
+                connection.invoke("JoinGroup", groupName).then(function () {
+                    addMessage(`Successfully joined group: ${groupName}`, 'system');
+                }).catch(function (err) {
+                    addMessage("Error joining group: " + err, 'error');
+                });
+            } else {
+                addMessage("Not connected to hub", 'error');
+            }
+        });
+
+        document.getElementById("leaveGroupBtn").addEventListener("click", function () {
+            const groupName = document.getElementById("groupInput").value;
+            
+            if (!groupName.trim()) {
+                addMessage("Please enter a group name", 'error');
+                return;
+            }
+            
+            if (connection.state === signalR.HubConnectionState.Connected) {
+                connection.invoke("LeaveGroup", groupName).then(function () {
+                    addMessage(`Successfully left group: ${groupName}`, 'system');
+                }).catch(function (err) {
+                    addMessage("Error leaving group: " + err, 'error');
+                });
+            } else {
+                addMessage("Not connected to hub", 'error');
+            }
+        });
+
+        // API Testing Functions
+        async function testSendToAll() {
+            const title = document.getElementById("apiTitle").value;
+            const message = document.getElementById("apiMessage").value;
+            
+            if (!title.trim() || !message.trim()) {
+                addMessage("Please enter both title and message", 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/demo/signalr/send-to-all?title=${encodeURIComponent(title)}&message=${encodeURIComponent(message)}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                addMessage("✓ API Send to All: " + JSON.stringify(result.data), 'api');
+            } catch (err) {
+                addMessage("✗ API Error: " + err, 'error');
+            }
+        }
+
+        async function testSendToGroup() {
+            const groupName = document.getElementById("groupInput").value;
+            const title = document.getElementById("apiTitle").value;
+            const message = document.getElementById("apiMessage").value;
+            
+            if (!groupName.trim() || !title.trim() || !message.trim()) {
+                addMessage("Please enter group name, title and message", 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/demo/signalr/send-to-group?groupName=${encodeURIComponent(groupName)}&title=${encodeURIComponent(title)}&message=${encodeURIComponent(message)}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                addMessage("✓ API Send to Group: " + JSON.stringify(result.data), 'api');
+            } catch (err) {
+                addMessage("✗ API Error: " + err, 'error');
+            }
+        }
+
+        async function testSendToUser() {
+            const userId = "eHwKRE1zrQDKcibhzmDlhw";
+            const title = document.getElementById("apiTitle").value;
+            const message = document.getElementById("apiMessage").value;
+            
+            if (!title.trim() || !message.trim()) {
+                addMessage("Please enter both title and message", 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/demo/signalr/send-to-user?userId=${userId}&title=${encodeURIComponent(title)}&message=${encodeURIComponent(message)}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                addMessage("✓ API Send to User: " + JSON.stringify(result.data), 'api');
+            } catch (err) {
+                addMessage("✗ API Error: " + err, 'error');
+            }
+        }
+
+        // Helper Functions
+        function updateStatus(message, connected) {
+            const indicator = connected ? 'status-connected' : 'status-disconnected';
+            const icon = connected ? 'bi-wifi' : 'bi-wifi-off';
+            
+            statusDiv.innerHTML = `
+                <span class="status-indicator ${indicator}"></span>
+                <strong><i class="bi ${icon}"></i> ${message}</strong>
+            `;
+            statusDiv.className = connected ? 'p-3 rounded bg-success text-white' : 'p-3 rounded bg-danger text-white';
+            
+            connectBtn.disabled = connected;
+            disconnectBtn.disabled = !connected;
+            sendBtn.disabled = !connected;
+        }
+
+        function addMessage(message, type = 'message') {
+            const time = new Date().toLocaleTimeString();
+            const messageElement = document.createElement('div');
+            messageElement.className = `message message-${type}`;
+            
+            const icon = getMessageIcon(type);
+            messageElement.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="bi ${icon} me-2"></i>
+                    <small class="me-2">${time}</small>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function getMessageIcon(type) {
+            const icons = {
+                'system': 'bi-info-circle',
+                'error': 'bi-exclamation-triangle',
+                'notification': 'bi-bell',
+                'api': 'bi-code-square',
+                'message': 'bi-chat'
+            };
+            return icons[type] || 'bi-chat';
+        }
+
+        function clearMessages() {
+            messagesDiv.innerHTML = '';
+            addMessage("Messages cleared", 'system');
+        }
+
+        function updateMessageCount() {
+            messageCount++;
+            document.getElementById("messagesCount").textContent = messageCount;
+        }
+
+        function updateConnectionCount() {
+            document.getElementById("connectionsCount").textContent = isConnected ? 1 : 0;
+        }
+
+        function updateLatency(latency) {
+            document.getElementById("latency").textContent = latency + 'ms';
+        }
+
+        function startUptime() {
+            startTime = Date.now();
+            uptimeInterval = setInterval(updateUptime, 1000);
+        }
+
+        function stopUptime() {
+            if (uptimeInterval) {
+                clearInterval(uptimeInterval);
+                uptimeInterval = null;
+            }
+            document.getElementById("uptime").textContent = "00:00:00";
+        }
+
+        function updateUptime() {
+            if (startTime) {
+                const elapsed = Date.now() - startTime;
+                const hours = Math.floor(elapsed / 3600000).toString().padStart(2, '0');
+                const minutes = Math.floor((elapsed % 3600000) / 60000).toString().padStart(2, '0');
+                const seconds = Math.floor((elapsed % 60000) / 1000).toString().padStart(2, '0');
+                document.getElementById("uptime").textContent = `${hours}:${minutes}:${seconds}`;
+            }
+        }
+
+        // Initialize
+        updateStatus("Disconnected", false);
+        updateConnectionCount();
+        addMessage("SignalR Test Dashboard loaded. Click Connect to establish connection.", 'system');
+    </script>
+</body>
+</html>

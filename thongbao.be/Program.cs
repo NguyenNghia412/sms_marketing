@@ -34,6 +34,9 @@ using thongbao.be.domain.Auth;
 using thongbao.be.infrastructure.data;
 using thongbao.be.infrastructure.data.Seeder;
 using thongbao.be.infrastructure.external.BackgroundJob;
+using thongbao.be.infrastructure.external.SignalR.Hub.Implements;
+using thongbao.be.infrastructure.external.SignalR.Service.Implements;
+using thongbao.be.infrastructure.external.SignalR.Service.Interfaces;
 using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.Settings;
 using thongbao.be.Workers;
@@ -219,6 +222,13 @@ builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
 #region hangfire
 builder.Services.ConfigureHangfire(hangfireConnectionString);
 #endregion
+#region signalr
+// SignalR Configuration
+builder.Services.AddSignalR();
+
+// Register SignalR Services
+builder.Services.AddScoped<IDemoSignalRService, DemoSignalRService>();
+#endregion
 
 // Add services to the container.
 #region service
@@ -309,12 +319,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(ProgramExtensions.CorsPolicy);
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.MapHub<DemoHub>("/demohub");
 app.UseHangfireDashboard();
 app.MapHealthChecks("/health");
 app.Run();
