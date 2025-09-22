@@ -1388,7 +1388,7 @@ namespace thongbao.be.application.DanhBa.Implements
                         }
                     }
 
-                    // Create and insert DanhBaData với tối ưu
+               
                     var finalDanhBaDatas = new List<domain.DanhBa.DanhBaData>(pendingDanhBaDataMappings.Count);
 
                     foreach (var mapping in pendingDanhBaDataMappings)
@@ -1400,7 +1400,8 @@ namespace thongbao.be.application.DanhBa.Implements
                             {
                                 Data = mapping.CellValue,
                                 IdTruongData = truongDataId,
-                                IdDanhBaChienDich = danhBaChiTietId,
+                                IdDanhBaChiTiet = danhBaChiTietId,        
+                                IdDanhBaChienDich = dto.IdDanhBa,         
                                 CreatedDate = vietnamNow,
                                 Deleted = false
                             });

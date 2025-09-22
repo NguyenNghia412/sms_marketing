@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using thongbao.be.infrastructure.data;
 
@@ -11,9 +12,11 @@ using thongbao.be.infrastructure.data;
 namespace thongbao.be.infrastructure.data.Migrations
 {
     [DbContext(typeof(SmDbContext))]
-    partial class SmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250922030707_Update_DanhBaData")]
+    partial class Update_DanhBaData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -646,9 +649,6 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdDanhBaChiTiet")
-                        .HasColumnType("int");
-
                     b.Property<int>("IdDanhBaChienDich")
                         .HasColumnType("int");
 
@@ -690,6 +690,9 @@ namespace thongbao.be.infrastructure.data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("IdDanhBa")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdDanhBaChiTiet")
                         .HasColumnType("int");
 
                     b.Property<string>("TenTruong")

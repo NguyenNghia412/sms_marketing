@@ -59,6 +59,8 @@ namespace thongbao.be.shared.Constants.Auth
         public const string MauNoiDungDelete = Function + "MauNoiDungDelete";
         public const string MauNoiDungView = Function + "MauNoiDungView";
 
+        public const string GuiTinNhanAdd = Function + "GuiTinNhanAdd";
+
 
 
 

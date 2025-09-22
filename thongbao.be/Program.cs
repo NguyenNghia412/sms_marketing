@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Azure.Identity;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -37,6 +38,9 @@ using thongbao.be.infrastructure.external.BackgroundJob;
 using thongbao.be.infrastructure.external.SignalR.Hub.Implements;
 using thongbao.be.infrastructure.external.SignalR.Service.Implements;
 using thongbao.be.infrastructure.external.SignalR.Service.Interfaces;
+using thongbao.be.lib.Stringee.Implements;
+using thongbao.be.lib.Stringee.Implements.thongbao.be.lib.Stringee.Implements;
+using thongbao.be.lib.Stringee.Interfaces;
 using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.Settings;
 using thongbao.be.Workers;
@@ -231,10 +235,7 @@ builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
 builder.Services.ConfigureHangfire(hangfireConnectionString);
 #endregion
 #region signalr
-// SignalR Configuration
 builder.Services.AddSignalR();
-
-// Register SignalR Services
 builder.Services.AddScoped<IDemoSignalRService, DemoSignalRService>();
 #endregion
 
@@ -248,6 +249,9 @@ builder.Services.AddScoped<IHopTrucTuyenService, HopTrucTuyenService>();
 builder.Services.AddScoped<IDanhBaService, DanhBaService>();
 builder.Services.AddScoped<IToChucService, ToChucService>();
 builder.Services.AddScoped<IMauNoiDungService, MauNoiDungService>();
+builder.Services.AddScoped<IGuiTinNhanJobService, GuiTinNhanJobService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISendSmsService, SendSmsService>();
 #endregion
 
 builder.Services.AddHttpClient();
@@ -333,7 +337,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<DemoHub>("/demohub").RequireCors("SignalRPolicy");
+app.MapHub<DemoHub>("/hub/sms").RequireCors("SignalRPolicy");
 app.UseHangfireDashboard();
 app.MapHealthChecks("/health");
 app.Run();

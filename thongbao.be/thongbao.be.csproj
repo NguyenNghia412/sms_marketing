@@ -30,6 +30,7 @@
     <ProjectReference Include="..\thongbao.be.application\thongbao.be.application.csproj" />
     <ProjectReference Include="..\thongbao.be.infrastructure.data\thongbao.be.infrastructure.data.csproj" />
     <ProjectReference Include="..\thongbao.be.infrastructure.external\thongbao.be.infrastructure.external.csproj" />
+	<ProjectReference Include="..\thongbao.be.lib\thongbao.be.lib.csproj" />
   </ItemGroup>
 
 </Project>
