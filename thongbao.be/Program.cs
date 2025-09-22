@@ -91,6 +91,14 @@ builder.Services.AddCors(options =>
                 .WithExposedHeaders("Content-Disposition");
         }
     );
+    options.AddPolicy("SignalRPolicy", builder =>
+    {
+        builder
+            .SetIsOriginAllowed(_ => true)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
 });
 #endregion
 
@@ -325,7 +333,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<DemoHub>("/demohub");
+app.MapHub<DemoHub>("/demohub").RequireCors("SignalRPolicy");
 app.UseHangfireDashboard();
 app.MapHealthChecks("/health");
 app.Run();
