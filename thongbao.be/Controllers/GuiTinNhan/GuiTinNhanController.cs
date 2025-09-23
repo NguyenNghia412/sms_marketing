@@ -32,23 +32,23 @@ namespace thongbao.be.Controllers.GuiTinNhan
 
 
         [Permission(PermissionKeys.GuiTinNhanAdd)]
-        [HttpPost("start-job")]
-        public async Task<ApiResponse> StartGuiTinNhanJob([FromBody] StartGuiTinNhanJobDto dto)
+        [HttpPost("save-config-chien-dich")]
+        public async Task<ApiResponse> SaveThongTinChienDich([FromBody] GuiTinNhanDto dto)
         {
             try
             {
-                var smsMessages = await _guiTinNhanJobService.StartGuiTinNhanJob(
+                await _guiTinNhanJobService.SaveThongTinChienDich(
                     dto.IdChienDich,
                     dto.IdDanhBa,
+                    dto.IdBrandName,
+                    dto.IsFlashSms,
                     dto.TextNoiDung
+                 
                 );
 
-                var result = new
-                {
-                    sms = smsMessages
-                };
+              
 
-                return new ApiResponse(result);
+                return new ();
             }
             catch (Exception ex)
             {
@@ -57,11 +57,16 @@ namespace thongbao.be.Controllers.GuiTinNhan
         }
         [Permission(PermissionKeys.GuiTinNhanAdd)]
         [HttpPost("send-sms")]
-        public async Task<ApiResponse> SendSms([FromBody] StartGuiTinNhanJobDto dto)
+        public async Task<ApiResponse> SendSms([FromBody] GuiTinNhanDto dto)
         {
             try
             {
-                var smsMessages = await _guiTinNhanJobService.StartGuiTinNhanJob(dto.IdChienDich, dto.IdDanhBa, dto.TextNoiDung);
+                var smsMessages = await _guiTinNhanJobService.StartGuiTinNhanJob(
+                    dto.IdChienDich,
+                    dto.IdDanhBa,
+                    dto.IsFlashSms,
+                    dto.IdBrandName,
+                    dto.TextNoiDung);
 
                 var result = await _sendSmsService.SendSmsAsync(smsMessages);
 

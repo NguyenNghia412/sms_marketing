@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 using Hangfire;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NLog.Targets.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using thongbao.be.application.Base;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.application.GuiTinNhan.Interfaces;
 using thongbao.be.infrastructure.data;
@@ -15,38 +18,61 @@ using thongbao.be.shared.HttpRequest.Exception;
 
 namespace thongbao.be.application.GuiTinNhan.Implements
 {
-    public class GuiTinNhanJobService : IGuiTinNhanJobService
+    public class GuiTinNhanJobService :BaseService, IGuiTinNhanJobService
     {
-        private readonly SmDbContext _dbContext;
-        private readonly ILogger<GuiTinNhanJobService> _logger;
+
         private readonly IBackgroundJobClient _backgroundJobClient;
-        private readonly IMapper _mapper;
-        private const int BATCH_SIZE = 500;
+        private const int BATCH_SIZE = 1000;
+        private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
         public GuiTinNhanJobService(
             SmDbContext smDbContext,
             ILogger<GuiTinNhanJobService> logger,
-            IBackgroundJobClient backgroundJobClient,
-            IMapper mapper)
+            IHttpContextAccessor httpContextAccessor,
+            IMapper mapper,
+            IBackgroundJobClient backgroundJobClient) : base(smDbContext, logger, httpContextAccessor, mapper)
         {
-            _dbContext = smDbContext;
-            _logger = logger;
             _backgroundJobClient = backgroundJobClient;
-            _mapper = mapper;
         }
 
-        public async Task<List<object>> StartGuiTinNhanJob(int idChienDich, int idDanhBa, string textNoiDung)
+        public async Task<List<object>> StartGuiTinNhanJob(int idChienDich, int idDanhBa,bool IsFlashSms,int idBrandName, string textNoiDung)
         {
-            await ValidateInput(idChienDich, idDanhBa, textNoiDung);
-            var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, textNoiDung);
+            await ValidateInput(idChienDich, idDanhBa, idBrandName, textNoiDung);
+            await SaveThongTinChienDich( idChienDich,  idDanhBa,  idBrandName,  IsFlashSms,  textNoiDung);
+            var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, idBrandName, textNoiDung);
             return result;
         }
-
-        private async Task<List<object>> ProcessGuiTinNhanJob(int idChienDich, int idDanhBa, string textNoiDung)
+        public async Task SaveThongTinChienDich ( int idChienDich, int idDanhBa, int idBrandName,bool IsFlashSms, string textNoiDung)
         {
-            var brandName = await GetBrandNameByChienDich(idChienDich);
+            _logger.LogInformation($"{nameof(SaveThongTinChienDich)}");
+            var vietnamNow = GetVietnamTime();
+            await ValidateInput(idChienDich, idDanhBa, idBrandName, textNoiDung);
 
-            var totalRecords = await _dbContext.DanhBaSms
+            var chienDichExisting = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound);
+            chienDichExisting.IdBrandName = idBrandName;
+            chienDichExisting.IsFlashSms = IsFlashSms;
+            chienDichExisting.NoiDung = textNoiDung;
+
+            _smDbContext.ChienDiches.Update(chienDichExisting);
+            _smDbContext.SaveChanges();
+     
+
+            var chienDichDanhBa = new domain.GuiTinNhan.ChienDichDanhBa
+            {
+                IdChienDich = idChienDich,
+                IdDanhBa = idDanhBa,
+            };
+            _smDbContext.ChienDichDanhBa.Add(chienDichDanhBa);
+            _smDbContext.SaveChanges();
+            
+        }
+
+        private async Task<List<object>> ProcessGuiTinNhanJob(int idChienDich, int idDanhBa,int idBrandName, string textNoiDung)
+        {
+            var brandName = await GetBrandNameByChienDich(idBrandName);
+
+            var totalRecords = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
                 .CountAsync();
 
@@ -64,7 +90,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
         private async Task<List<object>> ProcessBatch(int idChienDich, int idDanhBa, string textNoiDung, int batchIndex, string brandName)
         {
-            var danhBaChiTiets = await _dbContext.DanhBaSms
+            var danhBaChiTiets = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
                 .OrderBy(x => x.Id)
                 .Skip(batchIndex * BATCH_SIZE)
@@ -119,14 +145,14 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             return cleanedNumber;
         }
 
-        private async Task ValidateInput(int idChienDich, int idDanhBa, string textNoiDung)
+        private async Task ValidateInput(int idChienDich, int idDanhBa,int idBrandName, string textNoiDung)
         {
             if (string.IsNullOrWhiteSpace(textNoiDung))
             {
                 throw new UserFriendlyException(ErrorCodes.BadRequest);
             }
 
-            var chienDichExists = await _dbContext.ChienDiches
+            var chienDichExists = await _smDbContext.ChienDiches
                 .AnyAsync(x => x.Id == idChienDich && !x.Deleted);
 
             if (!chienDichExists)
@@ -134,26 +160,31 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound);
             }
 
-            var danhBaExists = await _dbContext.DanhBas
+            var danhBaExists = await _smDbContext.DanhBas
                 .AnyAsync(x => x.Id == idDanhBa && !x.Deleted);
 
             if (!danhBaExists)
             {
                 throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound);
             }
+            var brandNameExists = await _smDbContext.BrandName
+                .AnyAsync( x => x.Id == idBrandName && !x.Deleted);
+            if (!brandNameExists){
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorBrandNameNotFound);
+            }
+          
         }
 
-        private async Task<string> GetBrandNameByChienDich(int idChienDich)
+        private async Task<string> GetBrandNameByChienDich(int idBrandName)
         {
-            var brandName = await (from cd in _dbContext.ChienDiches
-                                   join bn in _dbContext.BrandName on cd.IdBrandName equals bn.Id
-                                   where cd.Id == idChienDich && !cd.Deleted && !bn.Deleted
+            var brandName = await (from bn in _smDbContext.BrandName
+                                   where bn.Id == idBrandName  && !bn.Deleted
                                    select bn.TenBrandName)
                                  .FirstOrDefaultAsync();
 
             if (string.IsNullOrEmpty(brandName))
             {
-                throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound);
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorBrandNameNotFound);
             }
 
             return brandName;
@@ -161,7 +192,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
         private async Task<Dictionary<int, string>> GetTruongDataMapping(int idDanhBa)
         {
-            var truongDataList = await _dbContext.DanhBaTruongDatas
+            var truongDataList = await _smDbContext.DanhBaTruongDatas
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
                 .Select(x => new { x.Id, x.TenTruong })
                 .ToListAsync();
@@ -171,11 +202,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
         private async Task<List<DanhBaDataInfoDto>> GetDanhBaDataForBatch(List<int> danhBaChiTietIds, int idChienDich)
         {
-            var allDataCount = await _dbContext.DanhBaDatas
+            var allDataCount = await _smDbContext.DanhBaDatas
                 .Where(x => danhBaChiTietIds.Contains(x.IdDanhBaChiTiet) && !x.Deleted)
                 .CountAsync();
 
-            var result = await (from dbd in _dbContext.DanhBaDatas
+            var result = await (from dbd in _smDbContext.DanhBaDatas
                                 where danhBaChiTietIds.Contains(dbd.IdDanhBaChiTiet)
                                       && dbd.IdDanhBaChienDich == idChienDich
                                       && !dbd.Deleted
@@ -189,7 +220,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             if (result.Count == 0 && allDataCount > 0)
             {
-                result = await (from dbd in _dbContext.DanhBaDatas
+                result = await (from dbd in _smDbContext.DanhBaDatas
                                 where danhBaChiTietIds.Contains(dbd.IdDanhBaChiTiet)
                                       && !dbd.Deleted
                                 select new DanhBaDataInfoDto
@@ -239,6 +270,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             }
 
             return processedText;
+        }
+        private static DateTime GetVietnamTime()
+        {
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);
         }
     }
 }

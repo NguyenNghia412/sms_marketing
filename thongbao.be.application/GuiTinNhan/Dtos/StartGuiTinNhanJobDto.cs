@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace thongbao.be.application.GuiTinNhan.Dtos
 {
-    public class StartGuiTinNhanJobDto
+    public class GuiTinNhanDto
     {
         public int IdChienDich { get; set; }
         public int IdDanhBa { get; set; }
+        public int IdBrandName { get; set; }
+        public bool IsFlashSms { get; set; }
         public string TextNoiDung { get; set; } = string.Empty;
     }
 }

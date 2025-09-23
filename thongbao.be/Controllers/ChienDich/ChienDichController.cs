@@ -40,11 +40,11 @@ namespace thongbao.be.Controllers.ChienDich
 
         [Permission(PermissionKeys.ChienDichAdd)]
         [HttpPost("")]
-        public ApiResponse Create([FromQuery] int idBrandName, [FromQuery] int idDanhBa, [FromQuery] int? idMauNoiDung, [FromBody] CreateChienDichDto dto)
+        public ApiResponse Create( [FromBody] CreateChienDichDto dto)
         {
             try
             {
-                _chienDichService.Create(idBrandName,idDanhBa, idMauNoiDung, dto);
+                _chienDichService.Create( dto);
                 return new();
             }
             catch (Exception ex)

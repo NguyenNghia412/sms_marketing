@@ -11,8 +11,8 @@ namespace thongbao.be.lib.Stringee.Implements
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _configuration;
-        private readonly string _apiSidKey;
-        private readonly string _apiSecretKey;
+        private readonly string? _apiSidKey;
+        private readonly string? _apiSecretKey;
 
         public AuthService(IConfiguration configuration)
         {

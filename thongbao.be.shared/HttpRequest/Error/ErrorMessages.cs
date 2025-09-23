@@ -52,7 +52,8 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.ImportExcelFileErrorInvalid, "File Excel không hợp lệ" },
             { ErrorCodes.ImportDanhBaChienDichErrorMaSoNguoiDungDuplicate, "Mã số người dùng '{0}' bị trùng lặp tại dòng {1}" },
             { ErrorCodes.MauNoiDungErrorNotFound , "Mẫu nội dung không tồn tại" },
-            { ErrorCodes.DanhBaErrorDanhBaChiTietNotFound,"Danh bạ chi tiết người dùng không tồn tại" }
+            { ErrorCodes.DanhBaErrorDanhBaChiTietNotFound,"Danh bạ chi tiết người dùng không tồn tại" },
+            { ErrorCodes.ChienDichErrorBrandNameNotFound,"BrandName không tồn tại" }
         };
 
         public static string GetMessage(int code)

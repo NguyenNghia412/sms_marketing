@@ -14,7 +14,7 @@ namespace thongbao.be.application.GuiTinNhan.Interfaces
         /// Tạo chiến dịch
         /// </summary>
         /// <param name="dto"></param>
-        public void Create(int idBrandName, int idDanhBa, int? idMauNoiDung, CreateChienDichDto dto);
+        public void Create( CreateChienDichDto dto);
 
         /// <summary>
         /// Tìm kiếm chiến dịch có phân trang

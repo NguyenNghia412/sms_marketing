@@ -10,7 +10,7 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
     {
         public string TenChienDich { get; set; } = String.Empty;
         public string MoTa { get; set; } = String.Empty;
-        public string? NoiDung {  get; set; } 
+        //public string? NoiDung {  get; set; } 
 
         public DateTime NgayBatDau { get; set; }
         public DateTime NgayKetThuc { get; set; }

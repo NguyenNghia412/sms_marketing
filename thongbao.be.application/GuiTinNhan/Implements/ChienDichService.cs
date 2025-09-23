@@ -33,41 +33,21 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         {
         }
 
-        public void Create(int idBrandName, int idDanhBa, int? idMauNoiDung, CreateChienDichDto dto)
+        public void Create( CreateChienDichDto dto)
         {
-            _logger.LogInformation($"{nameof(Create)} idBrandName={idBrandName}, idDanhBa={idDanhBa}, idMauNoiDung={idMauNoiDung}, dto={JsonSerializer.Serialize(dto)}");
+            _logger.LogInformation($"{nameof(Create)}, dto={JsonSerializer.Serialize(dto)}");
             var vietnamNow = GetVietnamTime();
-            if (idMauNoiDung.HasValue)
-            {
-                var mauNoiDung = _smDbContext.MauNoiDungs.FirstOrDefault(x => x.Id == idMauNoiDung && !x.Deleted)
-                    ?? throw new UserFriendlyException(ErrorCodes.MauNoiDungErrorNotFound);
-            }
+          
 
             var chienDich = new domain.GuiTinNhan.ChienDich
             {
-                IdMauNoiDung = idMauNoiDung,
-                IdBrandName = idBrandName,
                 TenChienDich = dto.TenChienDich,
                 NgayBatDau = dto.NgayBatDau ?? vietnamNow,
                 NgayKetThuc = dto.NgayKetThuc,
-                MoTa = dto.MoTa,
-                NoiDung = dto.NoiDung,
-                IsFlashSms = dto.IsFlashSms,
                 CreatedDate = vietnamNow,
             };
 
             _smDbContext.ChienDiches.Add(chienDich);
-            _smDbContext.SaveChanges();
-
-            var idChienDich = chienDich.Id;
-            var chienDichDanhBa = new domain.GuiTinNhan.ChienDichDanhBa
-            {
-                IdChienDich = idChienDich,
-                IdDanhBa = idDanhBa,
-                CreatedDate = vietnamNow,
-            };
-
-            _smDbContext.ChienDichDanhBa.Add(chienDichDanhBa);
             _smDbContext.SaveChanges();
         }
         public BaseResponsePagingDto<ViewChienDichDto> Find(FindPagingChienDichDto dto)
@@ -128,7 +108,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
    
             chienDich.NgayKetThuc = dto.NgayKetThuc;
             chienDich.MoTa = dto.MoTa;
-            chienDich.NoiDung = dto.NoiDung;
+            //chienDich.NoiDung = dto.NoiDung;
             chienDich.IsFlashSms = dto.IsFlashSms;
             _smDbContext.ChienDiches.Update(chienDich);
             _smDbContext.SaveChanges();
