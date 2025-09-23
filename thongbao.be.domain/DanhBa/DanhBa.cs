@@ -27,6 +27,7 @@ namespace thongbao.be.domain.DanhBa
         public string TenDanhBa { get; set; } = string.Empty;
         public string? Mota { get; set; }
         public string? GhiChu { get; set; }
+        public int Type { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }

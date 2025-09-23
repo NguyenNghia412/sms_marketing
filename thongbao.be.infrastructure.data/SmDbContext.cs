@@ -34,7 +34,7 @@ namespace thongbao.be.infrastructure.data
 
         public DbSet<DanhBa> DanhBas { get; set; }
         public DbSet<DanhBaTruongData> DanhBaTruongDatas { get; set; }
-        public DbSet<DanhBaChiTiet> DanhBaChiTiets { get; set; }
+        public DbSet<DanhBaSms> DanhBaSms { get; set; }
         public DbSet<DanhBaData> DanhBaDatas { get; set; }
         public DbSet<ChienDichDanhBa> ChienDichDanhBa { get; set; }
         public DbSet<ToChuc> ToChucs { get; set; }
@@ -114,7 +114,7 @@ namespace thongbao.be.infrastructure.data
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-            modelBuilder.Entity<DanhBaChiTiet>(entity =>
+            modelBuilder.Entity<DanhBaSms>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");

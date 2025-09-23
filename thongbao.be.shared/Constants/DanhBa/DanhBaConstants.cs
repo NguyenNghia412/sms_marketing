@@ -30,4 +30,9 @@ namespace thongbao.be.shared.Constants.DanhBa
         NgungHoatDong = 0,
 
     }
+    public static class TypeDanhBa
+    {
+        public const int Sms = 1;
+        public const int Email = 2;
+    }
 }

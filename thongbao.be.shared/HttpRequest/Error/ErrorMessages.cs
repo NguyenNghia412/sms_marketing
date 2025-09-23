@@ -37,7 +37,7 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.ServiceAccountErrorNotFound,"Không tìm thấy đường dẫn file service-account" },
             { ErrorCodes.ImportHeaderErrorInvalid, "Header không đúng định dạng tại dòng {0}" },
             { ErrorCodes.ImportPhoneNumberErrorInvalid, "Số điện thoại không đúng định dạng tại dòng {0}" },
-            { ErrorCodes.ImportEmailHuceErrorInvalid, "Email Huce không đúng định dạng tại dòng {0}" },
+            { ErrorCodes.ImportEmailErrorInvalid, "Email  không đúng định dạng tại dòng {0}" },
             { ErrorCodes.ImportToChucErrorNotFound, "Tổ chức không tồn tại tại dòng {0}" },
             { ErrorCodes.ImportRequiredFieldErrorEmpty, "Trường bắt buộc không được để trống tại dòng {0}" },
             { ErrorCodes.ImportLoaiNguoiDungErrorInvalid, "Loại người dùng không hợp lệ tại dòng {0}" },

@@ -29,7 +29,7 @@ namespace thongbao.be.domain.DanhBa
         public string HoDem { get; set; } = string.Empty;
         public string Ten { get; set; } = string.Empty;
         public string SoDienThoai { get; set; } = string.Empty;
-        public string EmailHuce { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
         public DateTime? NgaySinh { get; set; }
         public GioiTinhEnum? GioiTinh { get; set; } = GioiTinhEnum.ChuaXacDinh;
         public string? DiaChi { get; set; } 

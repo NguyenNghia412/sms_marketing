@@ -12,6 +12,6 @@ namespace thongbao.be.application.DanhBa.Dtos
         public string HoVaTen { get; set; } = String.Empty;
         public string MaSoNguoiDung { get; set; } = String.Empty;
         public string SoDienThoai { get; set; } = String.Empty;
-        public string EmailHuce { get; set; } = String.Empty;
+        //public string EmailHuce { get; set; } = String.Empty;
     }
 }

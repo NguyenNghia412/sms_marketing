@@ -13,7 +13,7 @@ namespace thongbao.be.application.DanhBa.Dtos
         public string HoVaTen { get; set; } = String.Empty;
         public string MaSoNguoiDung { get; set; } = String.Empty;
         public string SoDienThoai { get; set; } = String.Empty;
-        public string EmailHuce { get; set; } = string.Empty;
+        //public string EmailHuce { get; set; } = string.Empty;
         //public string Khoa { get; set; } = string.Empty;
         //public string MaSoKhoa { get; set; } = string.Empty;
         //public int LaNguoiDung { get; set; }

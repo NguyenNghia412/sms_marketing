@@ -53,7 +53,7 @@ namespace thongbao.be.shared.HttpRequest.Error
 
         public const int ImportHeaderErrorInvalid = 801;
         public const int ImportPhoneNumberErrorInvalid = 802;
-        public const int ImportEmailHuceErrorInvalid = 803;
+        public const int ImportEmailErrorInvalid = 803;
         public const int ImportToChucErrorNotFound = 804;
         public const int ImportRequiredFieldErrorEmpty = 805;
         public const int ImportLoaiNguoiDungErrorInvalid = 806;

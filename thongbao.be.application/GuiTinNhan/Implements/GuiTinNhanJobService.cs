@@ -46,7 +46,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         {
             var brandName = await GetBrandNameByChienDich(idChienDich);
 
-            var totalRecords = await _dbContext.DanhBaChiTiets
+            var totalRecords = await _dbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
                 .CountAsync();
 
@@ -64,7 +64,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
         private async Task<List<object>> ProcessBatch(int idChienDich, int idDanhBa, string textNoiDung, int batchIndex, string brandName)
         {
-            var danhBaChiTiets = await _dbContext.DanhBaChiTiets
+            var danhBaChiTiets = await _dbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
                 .OrderBy(x => x.Id)
                 .Skip(batchIndex * BATCH_SIZE)

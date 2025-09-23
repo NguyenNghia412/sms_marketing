@@ -13,13 +13,13 @@ using thongbao.be.shared.Interfaces;
 
 namespace thongbao.be.domain.DanhBa
 {
-    [Table(nameof(DanhBaChiTiet), Schema = DbSchemas.Core)]
+    [Table(nameof(DanhBaSms), Schema = DbSchemas.Core)]
     [Index(
     nameof(Id),
     IsUnique = false,
-    Name = $"IX_{nameof(DanhBaChiTiet)}"
+    Name = $"IX_{nameof(DanhBaSms)}"
     )]
-    public class DanhBaChiTiet: ISoftDelted
+    public class DanhBaSms: ISoftDelted
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -28,7 +28,7 @@ namespace thongbao.be.domain.DanhBa
         public string HoVaTen { get; set; } = String.Empty;
         public string MaSoNguoiDung  { get; set; } = String.Empty;
         public string SoDienThoai { get; set; } = String.Empty;
-        public string EmailHuce { get; set; } = string.Empty;
+        //public string EmailHuce { get; set; } = string.Empty;
         //public string Khoa { get; set; } = string.Empty;
         //public string MaSoKhoa { get; set; } = string.Empty;
         //public int LaNguoiDung { get; set; }
