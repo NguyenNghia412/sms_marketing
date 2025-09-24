@@ -3,6 +3,7 @@ using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using NLog.Targets.Wrappers;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 using thongbao.be.application.Base;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.application.GuiTinNhan.Interfaces;
+using thongbao.be.domain.GuiTinNhan;
 using thongbao.be.infrastructure.data;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
@@ -97,7 +99,187 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 PersonalizedText = personalizedText
             };
         }
+        public async Task<object> GetChiPhiDuTruChienDich(int idChienDich, int idDanhBa, int idBrandName, bool isFlashSms, bool isAccented, string textNoiDung)
+        {
+            await ValidateInput(idChienDich, idDanhBa, idBrandName, textNoiDung);
 
+            var truongDataMapping = await GetTruongDataMapping(idDanhBa);
+            var allRecords = await _smDbContext.DanhBaSms
+                .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
+                .Select(x => new { x.Id, x.MaSoNguoiDung, x.SoDienThoai })
+                .ToListAsync();
+
+            var recordIds = allRecords.Select(x => x.Id).ToList();
+            var allUserData = await GetDanhBaDataForBatch(recordIds, idChienDich);
+
+            var networkCosts = new Dictionary<string, decimal>
+            {
+                ["Viettel"] = 420,
+                ["Mobifone"] = 420,
+                ["Vinaphone"] = 420,
+                ["Vietnamobile"] = 700,
+                ["Gmobile"] = 300
+            };
+
+            decimal totalCost = 0;
+
+            foreach (var record in allRecords)
+            {
+                var userData = allUserData.Where(x => x.IdDanhBaChiTiet == record.Id).ToList();
+                var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, record.MaSoNguoiDung, isAccented);
+
+                var formattedNumber = FormatPhoneNumber(record.SoDienThoai);
+                var prefix = formattedNumber.Length >= 4 ? formattedNumber.Substring(2, 2) : "";
+
+                var viettelPrefixes = new[] { "96", "97", "98", "86", "32", "33", "34", "35", "36", "37", "38", "39" };
+                var mobifone = new[] { "90", "93", "89", "70", "76", "77", "78", "79" };
+                var vinaphone = new[] { "91", "94", "88", "81", "82", "83", "84", "85", "80" };
+                var vietnamobile = new[] { "92", "56", "58", "52" };
+                var gmobile = new[] { "99", "59" };
+
+                string network = "Unknown";
+                if (viettelPrefixes.Contains(prefix)) network = "Viettel";
+                else if (mobifone.Contains(prefix)) network = "Mobifone";
+                else if (vinaphone.Contains(prefix)) network = "Vinaphone";
+                else if (vietnamobile.Contains(prefix)) network = "Vietnamobile";
+                else if (gmobile.Contains(prefix)) network = "Gmobile";
+
+                var length = personalizedText.Length;
+                int smsCount;
+
+                if (isAccented)
+                {
+                    if (length <= 70) smsCount = 1;
+                    else if (length <= 134) smsCount = 2;
+                    else if (length <= 201) smsCount = 3;
+                    else if (length <= 268) smsCount = 4;
+                    else if (length <= 335) smsCount = 5;
+                    else smsCount = (int)Math.Ceiling((double)length / 67);
+                }
+                else
+                {
+                    if (length <= 160) smsCount = 1;
+                    else if (length <= 306) smsCount = 2;
+                    else if (length <= 459) smsCount = 3;
+                    else smsCount = (int)Math.Ceiling((double)length / 153);
+                }
+
+                if (networkCosts.ContainsKey(network))
+                {
+                    totalCost += networkCosts[network] * smsCount;
+                }
+            }
+
+            return new { TotalCost = totalCost };
+        }
+        public async Task SendSmsLog(object smsResponse, int idChienDich, int idDanhBa, int idBrandName, bool isAccented, string textNoiDung)
+        {
+            _logger.LogInformation($"{nameof(SendSmsLog)} - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
+
+            var responseJson = JObject.Parse(smsResponse.ToString());
+            var smsSent = responseJson["data"]["smsSent"].Value<int>();
+            var resultArray = responseJson["data"]["result"].ToArray();
+
+            var vietnamNow = GetVietnamTime();
+
+            var chienDichLog = new ChienDichLogTrangThaiGui
+            {
+                IdChienDich = idChienDich,
+                IdDanhBa = idDanhBa,
+                IdBrandName = idBrandName,
+                SmsSendSuccess = smsSent,
+                CreatedDate = vietnamNow
+            };
+
+            _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
+            await _smDbContext.SaveChangesAsync();
+
+            var danhBaSmsList = await _smDbContext.DanhBaSms
+                .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
+                .OrderBy(x => x.Id)
+                .Select(x => new { x.Id, x.SoDienThoai })
+                .ToListAsync();
+
+            var truongDataMapping = await GetTruongDataMapping(idDanhBa);
+            var recordIds = danhBaSmsList.Select(x => x.Id).ToList();
+            var allUserData = await GetDanhBaDataForBatch(recordIds, idChienDich);
+
+            var networkCosts = new Dictionary<string, int>
+            {
+                ["Viettel"] = 420,
+                ["Mobifone"] = 420,
+                ["Vinaphone"] = 420,
+                ["Vietnamobile"] = 700,
+                ["Gmobile"] = 300
+            };
+
+            var viettelPrefixes = new[] { "96", "97", "98", "86", "32", "33", "34", "35", "36", "37", "38", "39" };
+            var mobifone = new[] { "90", "93", "89", "70", "76", "77", "78", "79" };
+            var vinaphone = new[] { "91", "94", "88", "81", "82", "83", "84", "85", "80" };
+            var vietnamobile = new[] { "92", "56", "58", "52" };
+            var gmobile = new[] { "99", "59" };
+
+            for (int i = 0; i < resultArray.Length && i < danhBaSmsList.Count; i++)
+            {
+                var resultItem = resultArray[i];
+                var danhBaSms = danhBaSmsList[i];
+
+                var userData = allUserData.Where(x => x.IdDanhBaChiTiet == danhBaSms.Id).ToList();
+                var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, "", isAccented);
+
+                var formattedNumber = FormatPhoneNumber(danhBaSms.SoDienThoai);
+                var prefix = formattedNumber.Length >= 4 ? formattedNumber.Substring(2, 2) : "";
+
+                string network = "Unknown";
+                if (viettelPrefixes.Contains(prefix)) network = "Viettel";
+                else if (mobifone.Contains(prefix)) network = "Mobifone";
+                else if (vinaphone.Contains(prefix)) network = "Vinaphone";
+                else if (vietnamobile.Contains(prefix)) network = "Vietnamobile";
+                else if (gmobile.Contains(prefix)) network = "Gmobile";
+
+                var length = personalizedText.Length;
+                int smsCount;
+
+                if (isAccented)
+                {
+                    if (length <= 70) smsCount = 1;
+                    else if (length <= 134) smsCount = 2;
+                    else if (length <= 201) smsCount = 3;
+                    else if (length <= 268) smsCount = 4;
+                    else if (length <= 335) smsCount = 5;
+                    else smsCount = (int)Math.Ceiling((double)length / 67);
+                }
+                else
+                {
+                    if (length <= 160) smsCount = 1;
+                    else if (length <= 306) smsCount = 2;
+                    else if (length <= 459) smsCount = 3;
+                    else smsCount = (int)Math.Ceiling((double)length / 153);
+                }
+
+                int calculatedPrice = 0;
+                if (networkCosts.ContainsKey(network))
+                {
+                    calculatedPrice = networkCosts[network] * smsCount;
+                }
+
+                var logChiTiet = new GuiTinNhanLogChiTiet
+                {
+                    IdChienDich = idChienDich,
+                    IdDanhBa = idDanhBa,
+                    IdBrandName = idBrandName,
+                    IdDanhBaSms = danhBaSms.Id,
+                    Price = calculatedPrice,
+                    Code = resultItem["r"].Value<int>(),
+                    Message = resultItem["msg"].Value<string>(),
+                    CreatedDate = vietnamNow
+                };
+
+                _smDbContext.GuiTinNhanLogChiTiets.Add(logChiTiet);
+            }
+
+            await _smDbContext.SaveChangesAsync();
+        }
         private async Task<List<object>> ProcessGuiTinNhanJob(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented, string textNoiDung)
         {
             var brandName = await GetBrandNameByChienDich(idBrandName);

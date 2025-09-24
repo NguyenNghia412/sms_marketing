@@ -11,25 +11,27 @@ using thongbao.be.shared.Interfaces;
 
 namespace thongbao.be.domain.GuiTinNhan
 {
-    [Table(nameof(ChienDichLogTrangThaiGui), Schema = DbSchemas.Core)]
+
+    [Table(nameof(GuiTinNhanLogChiTiet), Schema = DbSchemas.Core)]
     [Index(
       nameof(Id),
       IsUnique = false,
-      Name = $"IX_{nameof(ChienDichLogTrangThaiGui)}"
+      Name = $"IX_{nameof(GuiTinNhanLogChiTiet)}"
     )]
-    public  class ChienDichLogTrangThaiGui: ISoftDelted
+    public class GuiTinNhanLogChiTiet : ISoftDelted
     {
         public int Id { get; set; }
-        public int IdChienDich {  get; set; }
-        public int IdDanhBa {  get; set; }
+        public int IdChienDich { get; set; }
+        public int IdDanhBa { get; set; }
         public int IdBrandName { get; set; }
-        public int SmsSendSuccess { get; set; }
-        public DateTime ThoiGianGui { get; set; }
+        public int IdDanhBaSms { get; set; }
+        public int Price { get; set; }
+        public int Code { get; set; }
+        public string Message { get; set; } = String.Empty;
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
         public bool Deleted { get; set; }
         public int? DeletedBy { get; set; }
-
     }
 }

@@ -71,7 +71,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.TextNoiDung);
 
                 var result = await _sendSmsService.SendSmsAsync(smsMessages);
-
+                await _guiTinNhanJobService.SendSmsLog(result, dto.IdChienDich, dto.IdDanhBa, dto.IdBrandName, dto.IsAccented, dto.TextNoiDung);
                 return new(result);
             }
             catch (Exception ex)
@@ -96,6 +96,28 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.CurrentDanhBaSmsId
                     );
                 return new(preview);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        [Permission(PermissionKeys.GuiTinNhanAdd)]
+        [HttpPost("du-tru-chi-phi")]
+        public async Task<ApiResponse> GetChiPhiDuTruChienDich([FromBody] GuiTinNhanDto dto)
+        {
+            try
+            {
+                var cost = await _guiTinNhanJobService.GetChiPhiDuTruChienDich(
+                    dto.IdChienDich,
+                    dto.IdDanhBa,
+                    dto.IdBrandName,
+                    dto.IsFlashSms,
+                    dto.IsAccented,
+                    dto.TextNoiDung
+                    );
+                return new(cost);
             }
             catch (Exception ex)
             {
