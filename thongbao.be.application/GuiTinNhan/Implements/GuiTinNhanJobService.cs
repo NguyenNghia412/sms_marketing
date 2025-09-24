@@ -177,8 +177,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _logger.LogInformation($"{nameof(SendSmsLog)} - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
 
             var responseJson = JObject.Parse(smsResponse.ToString());
-            var smsSent = responseJson["data"]["smsSent"].Value<int>();
-            var resultArray = responseJson["data"]["result"].ToArray();
+            var smsSent = responseJson["smsSent"].Value<int>();
+            var resultArray = responseJson["result"].ToArray();
 
             var vietnamNow = GetVietnamTime();
 
