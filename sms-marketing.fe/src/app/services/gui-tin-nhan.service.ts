@@ -1,0 +1,21 @@
+import { ISaveConfigChienDich, ISendSms } from '@/models/gui-tin-nhan.models';
+import { IBaseResponse } from '@/shared/models/request-paging.base.models';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class GuiTinNhanService {
+    api = '/api/core/gui-tin-nhan';
+    http = inject(HttpClient);
+
+    saveConfigChienDich(body: ISaveConfigChienDich) {
+        return this.http.post<IBaseResponse>(`${this.api}/save-config-chien-dich`, body);
+    }
+
+    sendSms(body: ISendSms) {
+        return this.http.post<IBaseResponse>(`${this.api}/send-sms`, body);
+    }
+
+}

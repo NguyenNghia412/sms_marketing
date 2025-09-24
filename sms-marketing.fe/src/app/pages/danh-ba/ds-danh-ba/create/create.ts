@@ -1,6 +1,7 @@
 import { ICreateDanhBa, IUpdateDanhBa } from '@/models/danh-ba.models';
 import { DanhBaService } from '@/services/danh-ba.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
+import { DanhBaTypes } from '@/shared/constants/channel.constants';
 import { SharedImports } from '@/shared/import.shared';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -54,7 +55,8 @@ export class Create extends BaseComponent {
 
     onSubmitCreate() {
         const body: ICreateDanhBa = {
-            ...this.form.value
+            ...this.form.value,
+            type: DanhBaTypes.SMS
         };
         this.loading = true;
         this._danhBaService.create(body).subscribe({
@@ -74,7 +76,8 @@ export class Create extends BaseComponent {
 
     onSubmitUpdate() {
         const body: IUpdateDanhBa = {
-            ...this.form.value
+            ...this.form.value,
+            type: DanhBaTypes.SMS
         };
         this.loading = true;
         this._danhBaService.update(body).subscribe({
