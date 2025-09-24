@@ -1,14 +1,12 @@
-import { IViewChienDich } from '@/models/sms.models';
+import { IViewRowChienDich } from '@/models/sms.models';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { TBL_CUSTOM_COMP_EMIT } from '@/shared/components/data-table/data-table';
 import { SharedImports } from '@/shared/import.shared';
 import { Component, inject, Input } from '@angular/core';
 
 export const TblActionTypes = {
-    send: 'send',
     detail: 'detail',
     delete: 'delete',
-    update: 'update',
 }
 
 @Component({
@@ -19,7 +17,7 @@ export const TblActionTypes = {
 export class TblAction extends BaseComponent {
     tblEmit = inject(TBL_CUSTOM_COMP_EMIT); // comes from parent
 
-    @Input() row: IViewChienDich = {} ;
+    @Input() row: IViewRowChienDich = {} ;
     @Input() rowIndex: number = 0;
     @Input() data: any;
 

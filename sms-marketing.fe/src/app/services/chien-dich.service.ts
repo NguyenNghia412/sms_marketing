@@ -1,4 +1,4 @@
-import { ICreateChienDich, IFindPagingChienDich, IUpdateChienDich, IViewBrandname, IViewChienDich } from '@/models/sms.models';
+import { ICreateChienDich, IFindPagingChienDich, IUpdateChienDich, IViewBrandname, IViewChienDich, IViewRowChienDich } from '@/models/sms.models';
 import { IBaseResponse, IBaseResponseWithData, IBaseResponsePaging } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -11,9 +11,13 @@ export class ChienDichService {
     http = inject(HttpClient);
 
     findPaging(query: IFindPagingChienDich) {
-        return this.http.get<IBaseResponsePaging<IViewChienDich>>(this.api, {
+        return this.http.get<IBaseResponsePaging<IViewRowChienDich>>(this.api, {
             params: { ...query }
         });
+    }
+
+    getById(id: number) {
+        return this.http.get<IBaseResponseWithData<IViewChienDich>>(`${this.api}/${id}`);
     }
 
     getListBrandname() {
@@ -21,7 +25,7 @@ export class ChienDichService {
     }
 
     create(body: ICreateChienDich) {
-        return this.http.post<IBaseResponse>(`${this.api}?idBrandName=${body.idBrandName}&idDanhBa=${body.idDanhBa}`, body);
+        return this.http.post<IBaseResponse>(`${this.api}`, body);
     }
 
     update(body: IUpdateChienDich) {

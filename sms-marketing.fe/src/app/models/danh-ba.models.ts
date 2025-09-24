@@ -6,25 +6,29 @@ export interface ICreateDanhBa {
   tenDanhBa: string,
   mota: string,
   ghiChu: string
+  type: number,
 }
 
 export interface IUpdateDanhBa {
   id: number,
   tenDanhBa: string,
   mota: string,
-  ghiChu: string
+  ghiChu: string,
+  type: number,
 }
 
 export interface IViewRowDanhBa {
   id?: number,
   tenDanhBa?: string,
   mota?: string,
-  ghiChu?: string
+  ghiChu?: string,
+  type?: number,
 }
 
 export interface IViewDanhBa {
   idDanhBa: number,
   tenDanhBa: string,
+  type: number,
 }
 
 export interface IVerifyImportDanhBa {

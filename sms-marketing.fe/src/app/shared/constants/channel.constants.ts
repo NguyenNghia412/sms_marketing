@@ -6,3 +6,13 @@ export class CampaginStatuses {
         { name: 'Đã gửi', code: this.DA_GUI },
     ];
 }
+
+export class DanhBaTypes {
+    static SMS = 1;
+    static EMAIL = 2;
+
+    static List = [
+        { name: 'SMS', code: this.SMS },
+        { name: 'Email', code: this.EMAIL },
+    ];
+}

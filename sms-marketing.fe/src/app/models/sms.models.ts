@@ -2,7 +2,7 @@ import { IBaseRequestPaging } from "@/shared/models/request-paging.base.models"
 import { IViewMauNoiDung } from "./template.models"
 import { IViewDanhBa } from "./danh-ba.models"
 
-export type IViewChienDich = {
+export type IViewRowChienDich = {
   id?: number
   tenChienDich?: string
   moTa?: string
@@ -13,6 +13,20 @@ export type IViewChienDich = {
   idBrandName?: number
   idDanhBa?: number
   mauNoiDungs?: IViewMauNoiDung[]
+  danhBas?: IViewDanhBa[]
+  isFlashSms?: boolean
+  createdDate?: string
+}
+
+export type IViewChienDich = {
+  id?: number
+  tenChienDich?: string
+  moTa?: string
+  ngayBatDau?: string
+  ngayKetThuc?: string
+  noiDung?: string
+  idBrandName?: number
+  idDanhBa?: number
   danhBas?: IViewDanhBa[]
   isFlashSms?: boolean
   createdDate?: string
