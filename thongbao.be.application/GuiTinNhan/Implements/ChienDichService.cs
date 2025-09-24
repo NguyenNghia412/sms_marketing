@@ -151,7 +151,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             _smDbContext.SaveChanges();
         }
-        public ViewChienDichByIdDto GetChienDichById(int idChienDich)
+        public ViewChienDichByIdDto GetChienDichById(int idChienDich, int idDanhBa)
         {
             _logger.LogInformation($"{nameof(GetChienDichById)}");
 
@@ -160,12 +160,16 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
             }
+            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound);
 
             var brandName = _smDbContext.BrandName.FirstOrDefault(x => x.Id == chienDich.IdBrandName && !x.Deleted);
+            
 
             return new ViewChienDichByIdDto
             {
                 TenChienDich = chienDich.TenChienDich,
+                TenDanhBa = danhBa.TenDanhBa,
                 IdBrandName = chienDich.IdBrandName,
                 TenBrandName = brandName?.TenBrandName ?? string.Empty,
                 IsFlashSms = chienDich.IsFlashSms,
