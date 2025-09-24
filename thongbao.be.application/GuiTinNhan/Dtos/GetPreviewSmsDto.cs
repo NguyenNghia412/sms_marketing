@@ -13,7 +13,7 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public int IdBrandName { get; set; }
         public bool IsFlashSms { get; set; }
         public bool IsAccented { get; set; }
-        public string TextNoiDung { get; set; } = string.Empty;
+        public string NoiDung { get; set; } = string.Empty;
         public int CurrentDanhBaSmsId { get; set; }
     }
 }

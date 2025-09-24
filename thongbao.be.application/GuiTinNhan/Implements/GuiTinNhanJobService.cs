@@ -39,24 +39,24 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _backgroundJobClient = backgroundJobClient;
         }
 
-        public async Task<List<object>> StartGuiTinNhanJob(int idChienDich, int idDanhBa,bool IsFlashSms,int idBrandName,bool IsAccented, string textNoiDung)
+        public async Task<List<object>> StartGuiTinNhanJob(int idChienDich, int idDanhBa,bool IsFlashSms,int idBrandName,bool IsAccented, string noiDung)
         {
-            await ValidateInput(idChienDich, idDanhBa, idBrandName, textNoiDung);
-            await SaveThongTinChienDich( idChienDich,  idDanhBa,  idBrandName,  IsFlashSms,  IsAccented,  textNoiDung);
-            var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, idBrandName, IsFlashSms, IsAccented, textNoiDung);
+            await ValidateInput(idChienDich, idDanhBa, idBrandName, noiDung);
+            await SaveThongTinChienDich( idChienDich,  idDanhBa,  idBrandName,  IsFlashSms,  IsAccented,  noiDung);
+            var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, idBrandName, IsFlashSms, IsAccented, noiDung);
             return result;
         }
-        public async Task SaveThongTinChienDich(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented,string textNoiDung)
+        public async Task SaveThongTinChienDich(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented,string noiDung)
         {
             _logger.LogInformation($"{nameof(SaveThongTinChienDich)}");
             var vietnamNow = GetVietnamTime();
-            await ValidateInput(idChienDich, idDanhBa, idBrandName, textNoiDung);
+            await ValidateInput(idChienDich, idDanhBa, idBrandName, noiDung);
 
             var chienDichExisting = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound);
             chienDichExisting.IdBrandName = idBrandName;
             chienDichExisting.IsFlashSms = IsFlashSms;
-            chienDichExisting.NoiDung = textNoiDung;
+            chienDichExisting.NoiDung = noiDung;
             chienDichExisting.IsAccented = IsAccented;
 
             _smDbContext.ChienDiches.Update(chienDichExisting);
@@ -75,9 +75,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _smDbContext.SaveChanges();
             
         }
-        public async Task<object> GetPreviewMessage(int idChienDich, int idDanhBa, bool IsFlashSms, int idBrandName, bool IsAccented, string textNoiDung, int currentDanhBaSmsId)
+        public async Task<object> GetPreviewMessage(int idChienDich, int idDanhBa, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung, int currentDanhBaSmsId)
         {
-            await ValidateInput(idChienDich, idDanhBa, idBrandName, textNoiDung);
+            await ValidateInput(idChienDich, idDanhBa, idBrandName, noiDung);
 
             var brandName = await GetBrandNameByChienDich(idBrandName);
             var truongDataMapping = await GetTruongDataMapping(idDanhBa);
@@ -90,7 +90,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             if (currentRecord == null)
                 return null;
             var userData = await GetDanhBaDataForBatch(new List<int> { currentRecord.Id }, idChienDich);
-            var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, currentRecord.MaSoNguoiDung, IsAccented);
+            var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, currentRecord.MaSoNguoiDung, IsAccented);
             var formattedPhoneNumber = FormatPhoneNumber(currentRecord.SoDienThoai);
             return new
             {
@@ -99,9 +99,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 PersonalizedText = personalizedText
             };
         }
-        public async Task<object> GetChiPhiDuTruChienDich(int idChienDich, int idDanhBa, int idBrandName, bool isFlashSms, bool isAccented, string textNoiDung)
+        public async Task<object> GetChiPhiDuTruChienDich(int idChienDich, int idDanhBa, int idBrandName, bool isFlashSms, bool isAccented, string noiDung)
         {
-            await ValidateInput(idChienDich, idDanhBa, idBrandName, textNoiDung);
+            await ValidateInput(idChienDich, idDanhBa, idBrandName, noiDung);
 
             var truongDataMapping = await GetTruongDataMapping(idDanhBa);
             var allRecords = await _smDbContext.DanhBaSms
@@ -126,7 +126,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             foreach (var record in allRecords)
             {
                 var userData = allUserData.Where(x => x.IdDanhBaChiTiet == record.Id).ToList();
-                var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, record.MaSoNguoiDung, isAccented);
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, record.MaSoNguoiDung, isAccented);
 
                 var formattedNumber = FormatPhoneNumber(record.SoDienThoai);
                 var prefix = formattedNumber.Length >= 4 ? formattedNumber.Substring(2, 2) : "";
@@ -172,7 +172,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             return new { TotalCost = totalCost };
         }
-        public async Task SendSmsLog(object smsResponse, int idChienDich, int idDanhBa, int idBrandName, bool isAccented, string textNoiDung)
+        public async Task SendSmsLog(object smsResponse, int idChienDich, int idDanhBa, int idBrandName, bool isAccented, string noiDung)
         {
             _logger.LogInformation($"{nameof(SendSmsLog)} - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
 
@@ -225,7 +225,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 var danhBaSms = danhBaSmsList[i];
 
                 var userData = allUserData.Where(x => x.IdDanhBaChiTiet == danhBaSms.Id).ToList();
-                var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, "", isAccented);
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, "", isAccented);
 
                 var formattedNumber = FormatPhoneNumber(danhBaSms.SoDienThoai);
                 var prefix = formattedNumber.Length >= 4 ? formattedNumber.Substring(2, 2) : "";
@@ -280,7 +280,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             await _smDbContext.SaveChangesAsync();
         }
-        private async Task<List<object>> ProcessGuiTinNhanJob(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented, string textNoiDung)
+        private async Task<List<object>> ProcessGuiTinNhanJob(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung)
         {
             var brandName = await GetBrandNameByChienDich(idBrandName);
 
@@ -292,7 +292,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             if (IsFlashSms)
             {
-                var allMessages = await ProcessAllData(idChienDich, idDanhBa, textNoiDung, brandName, IsAccented);
+                var allMessages = await ProcessAllData(idChienDich, idDanhBa, noiDung, brandName, IsAccented);
                 allSmsMessages.AddRange(allMessages);
             }
             else
@@ -301,7 +301,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                 for (int batchIndex = 0; batchIndex < totalBatches; batchIndex++)
                 {
-                    var batchMessages = await ProcessBatch(idChienDich, idDanhBa, textNoiDung, batchIndex, brandName, IsAccented);
+                    var batchMessages = await ProcessBatch(idChienDich, idDanhBa, noiDung, batchIndex, brandName, IsAccented);
                     allSmsMessages.AddRange(batchMessages);
                 }
             }
@@ -309,7 +309,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             return allSmsMessages;
         }
 
-        private async Task<List<object>> ProcessAllData(int idChienDich, int idDanhBa, string textNoiDung, string brandName, bool IsAccented)
+        private async Task<List<object>> ProcessAllData(int idChienDich, int idDanhBa, string noiDung, string brandName, bool IsAccented)
         {
             var danhBaChiTiets = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
@@ -332,7 +332,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     .Where(x => x.IdDanhBaChiTiet == danhBaChiTiet.Id)
                     .ToList();
 
-                var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, danhBaChiTiet.MaSoNguoiDung, IsAccented);
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, danhBaChiTiet.MaSoNguoiDung, IsAccented);
 
                 var formattedPhoneNumber = FormatPhoneNumber(danhBaChiTiet.SoDienThoai);
 
@@ -349,7 +349,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             return smsMessages;
         }
 
-        private async Task<List<object>> ProcessBatch(int idChienDich, int idDanhBa, string textNoiDung, int batchIndex, string brandName, bool IsAccented)
+        private async Task<List<object>> ProcessBatch(int idChienDich, int idDanhBa, string noiDung, int batchIndex, string brandName, bool IsAccented)
         {
             var danhBaChiTiets = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
@@ -374,7 +374,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     .Where(x => x.IdDanhBaChiTiet == danhBaChiTiet.Id)
                     .ToList();
 
-                var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, danhBaChiTiet.MaSoNguoiDung, IsAccented);
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, danhBaChiTiet.MaSoNguoiDung, IsAccented);
 
                 var formattedPhoneNumber = FormatPhoneNumber(danhBaChiTiet.SoDienThoai);
 
@@ -406,9 +406,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             return cleanedNumber;
         }
 
-        private async Task ValidateInput(int idChienDich, int idDanhBa,int idBrandName, string textNoiDung)
+        private async Task ValidateInput(int idChienDich, int idDanhBa,int idBrandName, string noiDung)
         {
-            if (string.IsNullOrWhiteSpace(textNoiDung))
+            if (string.IsNullOrWhiteSpace(noiDung))
             {
                 throw new UserFriendlyException(ErrorCodes.BadRequest);
             }

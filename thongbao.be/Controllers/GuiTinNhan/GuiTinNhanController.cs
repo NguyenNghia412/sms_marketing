@@ -43,7 +43,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IdBrandName,
                     dto.IsFlashSms,
                     dto.IsAccented,
-                    dto.TextNoiDung
+                    dto.NoiDung
                  
                 );
 
@@ -68,10 +68,10 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IsFlashSms,
                     dto.IdBrandName,
                     dto.IsAccented,
-                    dto.TextNoiDung);
+                    dto.NoiDung);
 
                 var result = await _sendSmsService.SendSmsAsync(smsMessages);
-                await _guiTinNhanJobService.SendSmsLog(result, dto.IdChienDich, dto.IdDanhBa, dto.IdBrandName, dto.IsAccented, dto.TextNoiDung);
+                await _guiTinNhanJobService.SendSmsLog(result, dto.IdChienDich, dto.IdDanhBa, dto.IdBrandName, dto.IsAccented, dto.NoiDung);
                 return new(result);
             }
             catch (Exception ex)
@@ -92,7 +92,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IsFlashSms,
                     dto.IdBrandName,
                     dto.IsAccented,
-                    dto.TextNoiDung,
+                    dto.NoiDung,
                     dto.CurrentDanhBaSmsId
                     );
                 return new(preview);
@@ -115,7 +115,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IdBrandName,
                     dto.IsFlashSms,
                     dto.IsAccented,
-                    dto.TextNoiDung
+                    dto.NoiDung
                     );
                 return new(cost);
             }
