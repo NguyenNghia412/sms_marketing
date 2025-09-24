@@ -151,7 +151,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             _smDbContext.SaveChanges();
         }
-        public ViewChienDichByIdDto GetChienDichById(int idChienDich, int idDanhBa)
+        public ViewChienDichByIdDto GetChienDichById(int idChienDich)
         {
             _logger.LogInformation($"{nameof(GetChienDichById)}");
 
@@ -160,23 +160,31 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
             }
-            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && !x.Deleted)
-                ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound);
 
             var brandName = _smDbContext.BrandName.FirstOrDefault(x => x.Id == chienDich.IdBrandName && !x.Deleted);
-            
 
+            var danhBas = (from cddb in _smDbContext.ChienDichDanhBa
+                           join db in _smDbContext.DanhBas on cddb.IdDanhBa equals db.Id
+                           where cddb.IdChienDich == idChienDich
+                                 && !cddb.Deleted
+                                 && !db.Deleted
+                           orderby cddb.CreatedDate
+                           select new ViewDanhBaChienDichDto
+                           {
+                               Id = db.Id,
+                               TenDanhBa = db.TenDanhBa
+                           }).ToList();
             return new ViewChienDichByIdDto
             {
                 TenChienDich = chienDich.TenChienDich,
-                TenDanhBa = danhBa.TenDanhBa,
                 IdBrandName = chienDich.IdBrandName,
                 TenBrandName = brandName?.TenBrandName ?? string.Empty,
                 IsFlashSms = chienDich.IsFlashSms,
                 IsAccented = chienDich.IsAccented,
                 NoiDung = chienDich.NoiDung ?? string.Empty,
                 NgayBatDau = chienDich.NgayBatDau ?? DateTime.MinValue,
-                NgayKetThuc = chienDich.NgayKetThuc ?? DateTime.MinValue
+                NgayKetThuc = chienDich.NgayKetThuc ?? DateTime.MinValue,
+                DanhBas = danhBas
             };
         }
 

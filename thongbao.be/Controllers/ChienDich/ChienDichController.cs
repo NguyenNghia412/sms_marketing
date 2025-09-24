@@ -110,11 +110,11 @@ namespace thongbao.be.Controllers.ChienDich
         }
 
         [Permission(PermissionKeys.ChienDichView)]
-        [HttpGet("{idChienDich}/danh-ba/{idDanhBa}")]
-        public ApiResponse GetChienDichById([FromRoute]int idChienDich, [FromRoute] int idDanhBa)
+        [HttpGet("{idChienDich}")]
+        public ApiResponse GetChienDichById([FromRoute]int idChienDich)
         {
             try { 
-                var data = _chienDichService.GetChienDichById(idChienDich,idDanhBa);
+                var data = _chienDichService.GetChienDichById(idChienDich);
                 return new(data);   
             
             }
