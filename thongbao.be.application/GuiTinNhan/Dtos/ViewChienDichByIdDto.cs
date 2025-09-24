@@ -10,6 +10,7 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
     public class ViewChienDichByIdDto
     {
         public string TenChienDich { get; set; } = String.Empty;
+        public string TenDanhBa { get; set; } = String.Empty;
         public int IdBrandName  { get; set; }
         public string TenBrandName { get; set; } = String.Empty ;
         public bool IsFlashSms { get; set; }
