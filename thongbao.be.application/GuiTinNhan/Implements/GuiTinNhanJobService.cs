@@ -6,7 +6,9 @@ using Microsoft.Extensions.Logging;
 using NLog.Targets.Wrappers;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using thongbao.be.application.Base;
@@ -35,14 +37,14 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _backgroundJobClient = backgroundJobClient;
         }
 
-        public async Task<List<object>> StartGuiTinNhanJob(int idChienDich, int idDanhBa,bool IsFlashSms,int idBrandName, string textNoiDung)
+        public async Task<List<object>> StartGuiTinNhanJob(int idChienDich, int idDanhBa,bool IsFlashSms,int idBrandName,bool IsAccented, string textNoiDung)
         {
             await ValidateInput(idChienDich, idDanhBa, idBrandName, textNoiDung);
-            await SaveThongTinChienDich( idChienDich,  idDanhBa,  idBrandName,  IsFlashSms,  textNoiDung);
-            var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, idBrandName, textNoiDung);
+            await SaveThongTinChienDich( idChienDich,  idDanhBa,  idBrandName,  IsFlashSms,  IsAccented,  textNoiDung);
+            var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, idBrandName, IsFlashSms, IsAccented, textNoiDung);
             return result;
         }
-        public async Task SaveThongTinChienDich ( int idChienDich, int idDanhBa, int idBrandName,bool IsFlashSms, string textNoiDung)
+        public async Task SaveThongTinChienDich(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented,string textNoiDung)
         {
             _logger.LogInformation($"{nameof(SaveThongTinChienDich)}");
             var vietnamNow = GetVietnamTime();
@@ -53,22 +55,50 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             chienDichExisting.IdBrandName = idBrandName;
             chienDichExisting.IsFlashSms = IsFlashSms;
             chienDichExisting.NoiDung = textNoiDung;
+            chienDichExisting.IsAccented = IsAccented;
 
             _smDbContext.ChienDiches.Update(chienDichExisting);
             _smDbContext.SaveChanges();
-     
-
-            var chienDichDanhBa = new domain.GuiTinNhan.ChienDichDanhBa
+            var chienDichDanhBa = await _smDbContext.ChienDichDanhBa.FirstOrDefaultAsync(x => x.IdChienDich == idChienDich && x.IdDanhBa == idDanhBa && !x.Deleted);
+            if (chienDichDanhBa == null)
             {
-                IdChienDich = idChienDich,
-                IdDanhBa = idDanhBa,
-            };
-            _smDbContext.ChienDichDanhBa.Add(chienDichDanhBa);
+                chienDichDanhBa = new domain.GuiTinNhan.ChienDichDanhBa
+                {
+                    IdChienDich = idChienDich,
+                    IdDanhBa = idDanhBa,
+                };
+                _smDbContext.ChienDichDanhBa.Add(chienDichDanhBa);
+            }
+          
             _smDbContext.SaveChanges();
             
         }
+        public async Task<object> GetPreviewMessage(int idChienDich, int idDanhBa, bool IsFlashSms, int idBrandName, bool IsAccented, string textNoiDung, int currentDanhBaSmsId)
+        {
+            await ValidateInput(idChienDich, idDanhBa, idBrandName, textNoiDung);
 
-        private async Task<List<object>> ProcessGuiTinNhanJob(int idChienDich, int idDanhBa,int idBrandName, string textNoiDung)
+            var brandName = await GetBrandNameByChienDich(idBrandName);
+            var truongDataMapping = await GetTruongDataMapping(idDanhBa);
+
+            var currentRecord = await _smDbContext.DanhBaSms
+                .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted && x.Id == currentDanhBaSmsId)
+                .Select(x => new { x.Id, x.MaSoNguoiDung, x.SoDienThoai })
+                .FirstOrDefaultAsync();
+
+            if (currentRecord == null)
+                return null;
+            var userData = await GetDanhBaDataForBatch(new List<int> { currentRecord.Id }, idChienDich);
+            var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, currentRecord.MaSoNguoiDung, IsAccented);
+            var formattedPhoneNumber = FormatPhoneNumber(currentRecord.SoDienThoai);
+            return new
+            {
+                IdDanhBaSms = currentRecord.Id,
+                SoDienThoai = formattedPhoneNumber,
+                PersonalizedText = personalizedText
+            };
+        }
+
+        private async Task<List<object>> ProcessGuiTinNhanJob(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented, string textNoiDung)
         {
             var brandName = await GetBrandNameByChienDich(idBrandName);
 
@@ -77,18 +107,67 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 .CountAsync();
 
             var allSmsMessages = new List<object>();
-            var totalBatches = (int)Math.Ceiling((double)totalRecords / BATCH_SIZE);
 
-            for (int batchIndex = 0; batchIndex < totalBatches; batchIndex++)
+            if (IsFlashSms)
             {
-                var batchMessages = await ProcessBatch(idChienDich, idDanhBa, textNoiDung, batchIndex, brandName);
-                allSmsMessages.AddRange(batchMessages);
+                var allMessages = await ProcessAllData(idChienDich, idDanhBa, textNoiDung, brandName, IsAccented);
+                allSmsMessages.AddRange(allMessages);
+            }
+            else
+            {
+                var totalBatches = (int)Math.Ceiling((double)totalRecords / BATCH_SIZE);
+
+                for (int batchIndex = 0; batchIndex < totalBatches; batchIndex++)
+                {
+                    var batchMessages = await ProcessBatch(idChienDich, idDanhBa, textNoiDung, batchIndex, brandName, IsAccented);
+                    allSmsMessages.AddRange(batchMessages);
+                }
             }
 
             return allSmsMessages;
         }
 
-        private async Task<List<object>> ProcessBatch(int idChienDich, int idDanhBa, string textNoiDung, int batchIndex, string brandName)
+        private async Task<List<object>> ProcessAllData(int idChienDich, int idDanhBa, string textNoiDung, string brandName, bool IsAccented)
+        {
+            var danhBaChiTiets = await _smDbContext.DanhBaSms
+                .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
+                .OrderBy(x => x.Id)
+                .Select(x => new { x.Id, x.MaSoNguoiDung, x.SoDienThoai })
+                .ToListAsync();
+
+            if (!danhBaChiTiets.Any())
+                return new List<object>();
+
+            var truongDataMapping = await GetTruongDataMapping(idDanhBa);
+            var danhBaChiTietIds = danhBaChiTiets.Select(x => x.Id).ToList();
+            var danhBaData = await GetDanhBaDataForBatch(danhBaChiTietIds, idChienDich);
+
+            var smsMessages = new List<object>();
+
+            foreach (var danhBaChiTiet in danhBaChiTiets)
+            {
+                var userData = danhBaData
+                    .Where(x => x.IdDanhBaChiTiet == danhBaChiTiet.Id)
+                    .ToList();
+
+                var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, danhBaChiTiet.MaSoNguoiDung, IsAccented);
+
+                var formattedPhoneNumber = FormatPhoneNumber(danhBaChiTiet.SoDienThoai);
+
+                var smsObject = new
+                {
+                    from = brandName,
+                    to = formattedPhoneNumber,
+                    text = personalizedText
+                };
+
+                smsMessages.Add(smsObject);
+            }
+
+            return smsMessages;
+        }
+
+        private async Task<List<object>> ProcessBatch(int idChienDich, int idDanhBa, string textNoiDung, int batchIndex, string brandName, bool IsAccented)
         {
             var danhBaChiTiets = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
@@ -113,7 +192,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     .Where(x => x.IdDanhBaChiTiet == danhBaChiTiet.Id)
                     .ToList();
 
-                var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, danhBaChiTiet.MaSoNguoiDung);
+                var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, danhBaChiTiet.MaSoNguoiDung, IsAccented);
 
                 var formattedPhoneNumber = FormatPhoneNumber(danhBaChiTiet.SoDienThoai);
 
@@ -205,7 +284,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var allDataCount = await _smDbContext.DanhBaDatas
                 .Where(x => danhBaChiTietIds.Contains(x.IdDanhBaChiTiet) && !x.Deleted)
                 .CountAsync();
-
             var result = await (from dbd in _smDbContext.DanhBaDatas
                                 where danhBaChiTietIds.Contains(dbd.IdDanhBaChiTiet)
                                       && dbd.IdDanhBaChienDich == idChienDich
@@ -217,6 +295,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                     Data = dbd.Data
                                 })
                               .ToListAsync();
+
 
             if (result.Count == 0 && allDataCount > 0)
             {
@@ -230,13 +309,14 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                     Data = dbd.Data
                                 })
                               .ToListAsync();
-            }
 
+            }
             return result;
         }
 
-        private string ProcessTextContent(string textTemplate, List<DanhBaDataInfoDto> userData, Dictionary<int, string> truongDataMapping, string maSoNguoiDung)
+        private string ProcessTextContent(string textTemplate, List<DanhBaDataInfoDto> userData, Dictionary<int, string> truongDataMapping, string maSoNguoiDung, bool IsAccented)
         {
+
             var processedText = textTemplate;
             var dataDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -244,10 +324,15 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 if (truongDataMapping.TryGetValue(data.IdTruongData, out string tenTruong))
                 {
-                    dataDict[tenTruong] = data.Data ?? string.Empty;
+                    var dataValue = data.Data ?? string.Empty;
+                    var finalDataValue = IsAccented ? dataValue : RemoveAccents(dataValue);
+
+                    dataDict[tenTruong] = finalDataValue;
+                }
+                else
+                { 
                 }
             }
-
             var placeholderPattern = @"\[([^\]]+)\]";
             var matches = Regex.Matches(processedText, placeholderPattern);
 
@@ -268,9 +353,47 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     processedText = processedText.Replace(placeholder, string.Empty);
                 }
             }
-
-            return processedText;
+            var finalResult = IsAccented ? processedText : RemoveAccents(processedText);
+            return finalResult;
         }
+
+        private string RemoveAccents(string text)
+        {
+
+            if (string.IsNullOrEmpty(text))
+            {
+                return text;
+            }
+
+            if (Regex.IsMatch(text, @"^\d+$"))
+            {
+                return text;
+            }
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            var result = stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+
+            if (!Regex.IsMatch(result, @"^\d+$"))
+            {
+                result = result.Replace("đ", "d").Replace("Đ", "D");
+            }
+            else
+            {
+            }
+            return result;
+        }
+
         private static DateTime GetVietnamTime()
         {
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);

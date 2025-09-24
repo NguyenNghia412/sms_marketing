@@ -32,6 +32,7 @@ namespace thongbao.be.domain.GuiTinNhan
 
         [MaxLength(4000)]
         public string? NoiDung { get; set; } = String.Empty;
+        public bool IsAccented { get; set; } 
 
         public bool IsFlashSms { get; set; }
         public int? CreatedBy { get; set; }

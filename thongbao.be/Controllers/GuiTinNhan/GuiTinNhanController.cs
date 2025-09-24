@@ -42,6 +42,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IdDanhBa,
                     dto.IdBrandName,
                     dto.IsFlashSms,
+                    dto.IsAccented,
                     dto.TextNoiDung
                  
                 );
@@ -66,11 +67,35 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IdDanhBa,
                     dto.IsFlashSms,
                     dto.IdBrandName,
+                    dto.IsAccented,
                     dto.TextNoiDung);
 
                 var result = await _sendSmsService.SendSmsAsync(smsMessages);
 
                 return new(result);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        [Permission(PermissionKeys.GuiTinNhanAdd)]
+        [HttpPost("preview-send-sms")]
+        public async Task<ApiResponse>PreviewSendSms([FromBody] GetPreviewSmsDto dto)
+        {
+            try
+            {
+                var preview = await _guiTinNhanJobService.GetPreviewMessage(
+                     dto.IdChienDich,
+                    dto.IdDanhBa,
+                    dto.IsFlashSms,
+                    dto.IdBrandName,
+                    dto.IsAccented,
+                    dto.TextNoiDung,
+                    dto.CurrentDanhBaSmsId
+                    );
+                return new(preview);
             }
             catch (Exception ex)
             {
