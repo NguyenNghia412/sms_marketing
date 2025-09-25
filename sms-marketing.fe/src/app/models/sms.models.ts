@@ -30,6 +30,7 @@ export type IViewChienDich = {
   idDanhBa?: number
   danhBas?: IViewDanhBa[]
   isFlashSms?: boolean
+  isAccented?: boolean
   createdDate?: string
 }
 
