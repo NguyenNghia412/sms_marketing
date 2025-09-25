@@ -22,7 +22,7 @@ using thongbao.be.shared.HttpRequest.Exception;
 
 namespace thongbao.be.application.GuiTinNhan.Implements
 {
-    public class GuiTinNhanJobService :BaseService, IGuiTinNhanJobService
+    public class GuiTinNhanJobService : BaseService, IGuiTinNhanJobService
     {
 
         private readonly IBackgroundJobClient _backgroundJobClient;
@@ -39,14 +39,14 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _backgroundJobClient = backgroundJobClient;
         }
 
-        public async Task<List<object>> StartGuiTinNhanJob(int idChienDich, int idDanhBa,bool IsFlashSms,int idBrandName,bool IsAccented, string noiDung)
+        public async Task<List<object>> StartGuiTinNhanJob(int idChienDich, int idDanhBa, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung)
         {
             await ValidateInput(idChienDich, idDanhBa, idBrandName, noiDung);
-            await SaveThongTinChienDich( idChienDich,  idDanhBa,  idBrandName,  IsFlashSms,  IsAccented,  noiDung);
+            await SaveThongTinChienDich(idChienDich, idDanhBa, idBrandName, IsFlashSms, IsAccented, noiDung);
             var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, idBrandName, IsFlashSms, IsAccented, noiDung);
             return result;
         }
-        public async Task SaveThongTinChienDich(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented,string noiDung)
+        public async Task SaveThongTinChienDich(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung)
         {
             _logger.LogInformation($"{nameof(SaveThongTinChienDich)}");
             var vietnamNow = GetVietnamTime();
@@ -72,9 +72,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 };
                 _smDbContext.ChienDichDanhBa.Add(chienDichDanhBa);
             }
-          
+
             _smDbContext.SaveChanges();
-            
+
         }
         public async Task<object> GetPreviewMessage(int idChienDich, int idDanhBa, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung, int currentDanhBaSmsId)
         {
@@ -105,7 +105,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 else if (length <= 201) smsCount = 3;
                 else if (length <= 268) smsCount = 4;
                 else if (length <= 335) smsCount = 5;
-                else smsCount = (int)Math.Ceiling((double)length / 67); 
+                else smsCount = (int)Math.Ceiling((double)length / 67);
             }
             else
             {
@@ -327,7 +327,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 TongChiPhi = tongChiPhi,
                 CreatedDate = vietnamNow
             };
-            
+
             _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
             if (smsSuccess > 0)
             {
@@ -519,7 +519,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             return cleanedNumber;
         }
 
-        private async Task ValidateInput(int idChienDich, int idDanhBa,int idBrandName, string noiDung)
+        private async Task ValidateInput(int idChienDich, int idDanhBa, int idBrandName, string noiDung)
         {
             if (string.IsNullOrWhiteSpace(noiDung))
             {
@@ -542,17 +542,18 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound);
             }
             var brandNameExists = await _smDbContext.BrandName
-                .AnyAsync( x => x.Id == idBrandName && !x.Deleted);
-            if (!brandNameExists){
+                .AnyAsync(x => x.Id == idBrandName && !x.Deleted);
+            if (!brandNameExists)
+            {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorBrandNameNotFound);
             }
-          
+
         }
 
         private async Task<string> GetBrandNameByChienDich(int idBrandName)
         {
             var brandName = await (from bn in _smDbContext.BrandName
-                                   where bn.Id == idBrandName  && !bn.Deleted
+                                   where bn.Id == idBrandName && !bn.Deleted
                                    select bn.TenBrandName)
                                  .FirstOrDefaultAsync();
 
@@ -625,7 +626,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     dataDict[tenTruong] = finalDataValue;
                 }
                 else
-                { 
+                {
                 }
             }
             var placeholderPattern = @"\[([^\]]+)\]";

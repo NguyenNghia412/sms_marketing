@@ -28,6 +28,7 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public int IdBrandName { get; set; }
         public string TenBrandName { get; set; } = String.Empty;
         public bool IsFlashSms { get; set; }
+        public bool TrangThai { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public List<ChienDichDanhBaDto> DanhBas { get; set; } = new List<ChienDichDanhBaDto> { };

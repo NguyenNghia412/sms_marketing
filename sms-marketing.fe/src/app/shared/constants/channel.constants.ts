@@ -5,7 +5,9 @@ export class CampaginStatuses {
         { name: 'Chưa gửi', code: this.CHUA_GUI },
         { name: 'Đã gửi', code: this.DA_GUI },
     ];
+    
 }
+
 
 export class DanhBaTypes {
     static SMS = 1;

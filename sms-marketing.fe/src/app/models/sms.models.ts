@@ -15,6 +15,7 @@ export type IViewRowChienDich = {
   mauNoiDungs?: IViewMauNoiDung[]
   danhBas?: IViewDanhBa[]
   isFlashSms?: boolean
+  trangThai?: boolean
   createdDate?: string
 }
 

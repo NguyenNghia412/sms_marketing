@@ -249,11 +249,20 @@ namespace thongbao.be.application.DanhBa.Implements
             var query = from db in _smDbContext.DanhBas
                         where !db.Deleted
                         orderby db.CreatedDate descending
-                        select db;
+                        select new GetListDanhBaResponseDto
+                        {
+                            Id = db.Id,
+                            TenDanhBa = db.TenDanhBa,
+                            TruongData = (from truong in _smDbContext.DanhBaTruongDatas
+                                              where truong.IdDanhBa == db.Id && !truong.Deleted
+                                              select new GetTruongDanhBaDto
+                                              {
+                                                  Id = truong.Id,
+                                                  TenTruong = truong.TenTruong
+                                              }).ToList()
+                        };
 
-            var data = query.ToList();
-            var result = _mapper.Map<List<GetListDanhBaResponseDto>>(data);
-
+            var result = query.ToList();
             return result;
         }
         public async Task<byte[]> ExportDanhBaCungExcelTemplate()

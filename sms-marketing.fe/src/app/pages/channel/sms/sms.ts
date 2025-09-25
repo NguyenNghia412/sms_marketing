@@ -34,6 +34,7 @@ export class Sms extends BaseComponent {
         { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
         { header: 'Tên chiến dịch', field: 'tenChienDich', headerContainerStyle: 'min-width: 12rem' },
         { header: 'Nội dung', field: 'noiDung', headerContainerStyle: 'min-width: 12rem' },
+        { header: 'Trạng Thái', field: 'trangThaiText', headerContainerStyle: 'width: 6rem' },
         { header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
         { header: 'Thời gian gửi', field: 'ngayBatDau', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
         { header: 'Thao tác', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
@@ -58,8 +59,12 @@ export class Sms extends BaseComponent {
         this._chienDichService.findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value }).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, false)) {
-                    this.data = res.data.items;
-                    this.totalRecords = res.data.totalItems;
+                    this.data = res.data.items.map(item => ({
+                    ...item,
+                    trangThaiText: item.trangThai ? 'Đã gửi' : 'Nháp'
+                }));
+                this.totalRecords = res.data.totalItems;
+
                 }
             },
             complete: () => {

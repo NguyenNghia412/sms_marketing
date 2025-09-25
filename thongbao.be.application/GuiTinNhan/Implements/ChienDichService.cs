@@ -75,6 +75,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             IdBrandName = cd.IdBrandName,
                             TenBrandName = brand != null ? brand.TenBrandName : string.Empty,
                             IsFlashSms = cd.IsFlashSms,
+                            TrangThai = cd.TrangThai,
                             CreatedBy = cd.CreatedBy,
                             CreatedDate = cd.CreatedDate,
                             DanhBas = (from cddb in _smDbContext.ChienDichDanhBa
