@@ -3,12 +3,42 @@ import { IViewDanhBa } from "./danh-ba.models";
 export interface IFindPagingDanhBa extends IBaseRequestPaging {}
 
 export interface IViewChienDichReport{
-    id?: number
+    idChienDich?: number
     tenChienDich?: string
     idDanhBa? : number
-    danhBas?:IViewDanhBa[]
+    tenDanhBa? :string
+    danhBa?: {
+        idDanhBa?: number;
+        tenDanhBa?: string;
+    };
     smsSentSuccess?: number
     smsSentFailed?: number
     trangThai?: string
-    createdDate?: string
+    tongChiPhi?: number
+    ngayGui?: string
 }
+
+export interface IBrandName {
+    id?: number;
+    tenBrandName?: string;
+}
+
+export interface ILogReport {
+    price?: number;
+    code?: number;
+    message?: string;
+    trangThai?: string;
+}
+
+export interface IViewChiTietChienDichReport {
+    id?: number;
+    hoVaTen?: string;
+    maSoNguoiDung?: string;
+    soDienThoai?: string;
+    brandName?: IBrandName;
+    log?: ILogReport;
+}
+
+export interface IFindPagingChienDichReport extends IBaseRequestPaging {}
+
+export interface IFindPagingChiTietChienDichReport extends IBaseRequestPaging{}

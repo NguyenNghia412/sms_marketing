@@ -57,6 +57,16 @@ export class AppMenu {
                     }
                 ]
             },
+             {
+                items: [
+                    {
+                        label: 'Thống kê',
+                                           items: [
+                            { label: 'SMS', heroIcon: 'heroChatBubbleBottomCenterText', routerLink: ['/report/chien-dich-report'] },
+                                           ]
+                    }
+                ]
+            },
             // {
             //     items: [
             //         {

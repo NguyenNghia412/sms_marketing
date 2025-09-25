@@ -11,15 +11,20 @@
     <ng-template #body let-row let-rowIndex="rowIndex">
         <tr>
             @for (col of (columns()); track $index) {
-            <td [style]="col.cellStyle" [ngClass]="col.cellClass">
+            <td [style]="col.cellStyle" [ngClass]="col.cellClass" (click)="onCellClick(col, row)">
                 @if (col.cellViewType === cellViewTypes.CUSTOM_COMP) {
                 <ng-container *ngComponentOutlet="col.customComponent; injector: customInjector ; inputs: {row, rowIndex, data: get(row, col.field || '') }"></ng-container>
                 } @else if (col.cellViewType === cellViewTypes.INDEX) {
                 <span>{{ rowIndex + 1 }}</span>
                 } @else if (col.cellRender) {
                 <div [innerHTML]="sanitizer.bypassSecurityTrustHtml(row[col.field || ''])"></div>
-                } @else if (col.cellViewType === cellViewTypes.DATE) { {{ get(row, col.field || '') | date: (col.dateFormat || 'dd/MM/yyyy') }} } @else if (col.cellViewType === cellViewTypes.CURRENCY) { {{ get(row, col.field || '') | currency: 'USD'
-                : 'symbol' }} } @else if ('field' in col) { {{ get(row, col.field || '') }} }
+                } @else if (col.cellViewType === cellViewTypes.DATE) {
+                {{ get(row, col.field || '') | date: (col.dateFormat || 'dd/MM/yyyy') }}
+                } @else if (col.cellViewType === cellViewTypes.CURRENCY) {
+                {{ get(row, col.field || '') | currency: 'USD' : 'symbol' }}
+                } @else if ('field' in col) {
+                {{ get(row, col.field || '') }}
+                }
             </td>
             }
         </tr>

@@ -61,4 +61,13 @@ export class DataTable implements OnInit {
     onPage($event: any) {
         this.onPageChanged.emit($event);
     }
+    onCellClick(col: IColumn, row: any) {
+    if (col.field === 'tenChienDich') {
+        this.onCustomComp.emit({
+            type: 'cellClick',
+            field: col.field,
+            rowData: row
+        });
+    }
+}
 }
