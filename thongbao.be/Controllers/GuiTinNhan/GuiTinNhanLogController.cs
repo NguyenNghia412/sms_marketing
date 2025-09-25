@@ -44,8 +44,8 @@ namespace thongbao.be.Controllers.GuiTinNhan
             }
         }
         [Permission(PermissionKeys.GuiTinNhanAdd)]
-        [HttpGet("")]
-        public ApiResponse FindGuiTinNhanLog([FromQuery] int idChienDich, [FromQuery] int idDanhBa,[FromQuery] FindPagingGuiTinNhanLogDto dto)
+        [HttpGet("chien-dich/{idChienDich}/danh-ba/{idDanhBa}")]
+        public ApiResponse FindGuiTinNhanLog([FromRoute] int idChienDich, [FromRoute] int idDanhBa,[FromQuery] FindPagingGuiTinNhanLogDto dto)
         {
             try
             {

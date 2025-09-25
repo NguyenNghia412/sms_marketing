@@ -46,6 +46,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             SmsSentSuccess = clog.SmsSendSuccess,
                             SmsSentFailed = clog.SmsSendFailed,
                             TrangThai = clog.TrangThai,
+                            TongChiPhi = clog.TongChiPhi,
                             NgayGui = clog.CreatedDate,
                             danhBa = new ViewDanhBaLogDto
                             {
