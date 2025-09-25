@@ -93,7 +93,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IdBrandName,
                     dto.IsAccented,
                     dto.NoiDung,
-                    dto.CurrentDanhBaSmsId
+                    dto.CurrentIndex
                     );
                 return new(preview);
             }

@@ -76,28 +76,25 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _smDbContext.SaveChanges();
 
         }
-        public async Task<object> GetPreviewMessage(int idChienDich, int idDanhBa, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung, int currentDanhBaSmsId)
+        public async Task<object> GetPreviewMessage(int idChienDich, int idDanhBa, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung, int currentIndex)
         {
             await ValidateInput(idChienDich, idDanhBa, idBrandName, noiDung);
-
             var brandName = await GetBrandNameByChienDich(idBrandName);
             var truongDataMapping = await GetTruongDataMapping(idDanhBa);
-
-            var currentRecord = await _smDbContext.DanhBaSms
-                .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted && x.Id == currentDanhBaSmsId)
+            var allRecords = await _smDbContext.DanhBaSms
+                .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
                 .Select(x => new { x.Id, x.MaSoNguoiDung, x.SoDienThoai })
-                .FirstOrDefaultAsync();
-
-            if (currentRecord == null)
+                .ToListAsync();
+            if (currentIndex < 1 || currentIndex > allRecords.Count)
                 return null;
+            var currentRecord = allRecords[currentIndex - 1];
 
             var userData = await GetDanhBaDataForBatch(new List<int> { currentRecord.Id }, idChienDich);
             var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, currentRecord.MaSoNguoiDung, IsAccented);
             var formattedPhoneNumber = FormatPhoneNumber(currentRecord.SoDienThoai);
-
             var length = personalizedText.Length;
-            int smsCount;
 
+            int smsCount;
             if (IsAccented)
             {
                 if (length <= 70) smsCount = 1;
