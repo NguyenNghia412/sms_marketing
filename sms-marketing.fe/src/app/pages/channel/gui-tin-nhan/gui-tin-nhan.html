@@ -34,14 +34,22 @@
                     <p-message severity="error" variant="simple" size="small">{{ getError('noiDung') }} </p-message>
                     }
                 </div>
+                <div class="flex items-center mb-3">
+                    <p-checkbox inputId="isFlashSms" name="isFlashSms" formControlName="isFlashSms" [binary]="true" />
+                    <label for="isFlashSms" class="ml-2 cursor-pointer">Tin nhắn SMS nhanh</label>
+                </div>
+                <div class="flex items-center mb-3">
+                    <p-checkbox inputId="isAccented" name="isAccented" formControlName="isAccented" [binary]="true" />
+                    <label for="isAccented" class="ml-2 cursor-pointer">Gửi có dấu</label>
+                </div>
                 <div class="mt-5 flex flex-row justify-end space-x-3">
-                  <p-button label="Lưu" icon="pi pi-save" type="button" severity="contrast" (onClick)="onClickSave()" [loading]="loading" />
-                  <p-button label="Gửi" icon="pi pi-send" type="submit" [loading]="loading" />
+                    <p-button label="Lưu" icon="pi pi-save" type="button" severity="secondary" (onClick)="onClickSave()" [loading]="loading" />
+                    <p-button label="Gửi" icon="pi pi-send" type="submit" [loading]="loading" />
                 </div>
             </form>
         </div>
         <div class="col-span-2">
-          <app-mobile-preview [message]="form.value['noiDung']" />
+            <app-mobile-preview [message]="form.value['noiDung']" />
         </div>
     </div>
 </div>
