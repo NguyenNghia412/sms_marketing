@@ -28,8 +28,15 @@
                     }
                 </div>
                 <div class="mb-3">
+                    @if (selectedDanhBa?.truongData) {
+                        @for (item of selectedDanhBa?.truongData; track $index) {
+                            <p-chip [label]="item.tenTruong" class="cursor-pointer m-1" (click)="insertAtCursor(messageInput, item.tenTruong || '')" />
+                        }
+                    }
+                </div>
+                <div class="mb-3">
                     <label for="noiDung" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Nội dung tin nhắn (*)</label>
-                    <textarea pTextarea formControlName="noiDung" id="noiDung" type="text" class="w-full mb-2" rows="4"></textarea>
+                    <textarea pTextarea #messageInput formControlName="noiDung" id="noiDung" type="text" class="w-full mb-2" rows="4"></textarea>
                     @if (form.get('noiDung')?.hasError('required') && form.get('noiDung')?.touched) {
                     <p-message severity="error" variant="simple" size="small">{{ getError('noiDung') }} </p-message>
                     }
