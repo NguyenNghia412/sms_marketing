@@ -1,5 +1,5 @@
 import { IViewRowDanhBa } from '@/models/danh-ba.models';
-import { ISaveConfigChienDich, ISendSms } from '@/models/gui-tin-nhan.models';
+import { IPreviewSendSms, ISaveConfigChienDich, ISendSms } from '@/models/gui-tin-nhan.models';
 import { IViewBrandname } from '@/models/sms.models';
 import { ChienDichService } from '@/services/chien-dich.service';
 import { DanhBaService } from '@/services/danh-ba.service';
@@ -75,16 +75,44 @@ export class GuiTinNhan extends BaseComponent {
                     if (this.isResponseSucceed(res)) {
                         this.form.setValue({
                             idBrandName: res.data.idBrandName,
-                            idDanhBa: null,
+                            // idDanhBa: null,
+                            idDanhBa: res.data.danhBas && res.data.danhBas.length > 0 ? res.data.danhBas[0].id : 0,
                             tenChienDich: res.data.tenChienDich,
                             ngayBatDau: res.data.ngayBatDau,
                             ngayKetThuc: res.data.ngayKetThuc,
                             noiDung: res.data.noiDung,
-                            isFlashSms: res.data.isFlashSms
+                            isFlashSms: res.data.isFlashSms,
+                            isAccented: res.data.isAccented
                         });
                     }
                 }
             });
+        });
+    }
+
+    onPreviewSendSms() {
+        const body: IPreviewSendSms = {
+            idChienDich: this.idChienDich,
+            idBrandName: this.form.value.idBrandName ?? 0,
+            idDanhBa: this.form.value.idDanhBa,
+            currentDanhBaSmsId: this.form.value.idDanhBa ?? 0,
+            isAccented: this.form.value.isAccented,
+            isFlashSms: this.form.value.isFlashSms,
+            noiDung: this.form.value.noiDung
+        };
+
+        this.loading = true;
+        this._guiTinNhanService.previewSendSms(body).subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, true, 'Đã đặt lệnh gửi')) {
+                }
+            },
+            error: (err) => {
+                this.messageError(err?.message);
+            },
+            complete: () => {
+                this.loading = false;
+            }
         });
     }
 

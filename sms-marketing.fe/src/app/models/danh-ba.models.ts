@@ -26,6 +26,7 @@ export interface IViewRowDanhBa {
 }
 
 export interface IViewDanhBa {
+  id: number,
   idDanhBa: number,
   tenDanhBa: string,
   type: number,

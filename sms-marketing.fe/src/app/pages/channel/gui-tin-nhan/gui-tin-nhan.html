@@ -5,7 +5,7 @@
     <app-breadcrumb [home]="home" [items]="items" />
     <div class="grid grid-cols-6 gap-5 mt-5">
         <div class="col-span-4">
-            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mt-8">
                 <div class="mb-3">
                     <label for="tenChienDich" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên chiến dịch (*)</label>
                     <input pInputText formControlName="tenChienDich" id="tenChienDich" type="text" class="w-full mb-2" />

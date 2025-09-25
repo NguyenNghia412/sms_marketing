@@ -16,3 +16,13 @@ export interface ISendSms {
   isAccented: boolean;
   noiDung: string;
 }
+
+export interface IPreviewSendSms {
+  idChienDich: number;
+  idDanhBa: number;
+  idBrandName: number;
+  isFlashSms: boolean;
+  isAccented: boolean;
+  noiDung: string;
+  currentDanhBaSmsId: number;
+}
