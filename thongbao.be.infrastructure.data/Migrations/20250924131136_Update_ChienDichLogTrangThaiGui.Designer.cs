@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using thongbao.be.infrastructure.data;
 
@@ -11,9 +12,11 @@ using thongbao.be.infrastructure.data;
 namespace thongbao.be.infrastructure.data.Migrations
 {
     [DbContext(typeof(SmDbContext))]
-    partial class SmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250924131136_Update_ChienDichLogTrangThaiGui")]
+    partial class Update_ChienDichLogTrangThaiGui
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1123,9 +1126,6 @@ namespace thongbao.be.infrastructure.data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<bool>("TrangThai")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "Id" }, "IX_ChienDich");
@@ -1201,18 +1201,8 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.Property<int>("IdDanhBa")
                         .HasColumnType("int");
 
-                    b.Property<int>("SmsSendFailed")
-                        .HasColumnType("int");
-
                     b.Property<int>("SmsSendSuccess")
                         .HasColumnType("int");
-
-                    b.Property<int>("TongChiPhi")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TrangThai")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -1269,10 +1259,6 @@ namespace thongbao.be.infrastructure.data.Migrations
 
                     b.Property<int>("Price")
                         .HasColumnType("int");
-
-                    b.Property<string>("TrangThai")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

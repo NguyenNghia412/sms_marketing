@@ -252,6 +252,7 @@ builder.Services.AddScoped<IMauNoiDungService, MauNoiDungService>();
 builder.Services.AddScoped<IGuiTinNhanJobService, GuiTinNhanJobService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISendSmsService, SendSmsService>();
+builder.Services.AddScoped<IGuiTinNhanLogService, GuiTinNhanLogService>();
 #endregion
 
 builder.Services.AddHttpClient();

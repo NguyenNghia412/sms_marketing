@@ -53,7 +53,15 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.ImportDanhBaChienDichErrorMaSoNguoiDungDuplicate, "Mã số người dùng '{0}' bị trùng lặp tại dòng {1}" },
             { ErrorCodes.MauNoiDungErrorNotFound , "Mẫu nội dung không tồn tại" },
             { ErrorCodes.DanhBaErrorDanhBaChiTietNotFound,"Danh bạ chi tiết người dùng không tồn tại" },
-            { ErrorCodes.ChienDichErrorBrandNameNotFound,"BrandName không tồn tại" }
+            { ErrorCodes.ChienDichErrorBrandNameNotFound,"BrandName không tồn tại" },
+            { ErrorCodes.DanhBaErrorTruongDataNotFound, "Không tìm thấy trường dữ liệu trong danh bạ" },
+            { ErrorCodes.DanhBaErrorRequiredFieldNotFound, "Không tìm thấy các trường bắt buộc: Họ và tên, Số điện thoại, Mã số người dùng" },
+            { ErrorCodes.DanhBaErrorDataColumnMismatch, "Số lượng cột dữ liệu không khớp với số trường tại dòng {0}" },
+            { ErrorCodes.DanhBaErrorHoVaTenRequired, "Họ và tên không được để trống tại dòng {0}" },
+            { ErrorCodes.DanhBaErrorSoDienThoaiRequired, "Số điện thoại không được để trống tại dòng {0}" },
+            { ErrorCodes.DanhBaErrorMaSoNguoiDungRequired, "Mã số người dùng không được để trống tại dòng {0}" },
+            { ErrorCodes.DanhBaErrorSoDienThoaiInvalidAtRow, "Số điện thoại không đúng định dạng tại dòng {0}" },
+            { ErrorCodes.DanhBaErrorMaSoNguoiDungFoundAtRow, "Mã số người dùng '{0}' đã tồn tại tại dòng {1}" }
         };
 
         public static string GetMessage(int code)

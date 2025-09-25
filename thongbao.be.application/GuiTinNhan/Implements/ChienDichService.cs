@@ -45,6 +45,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 NgayBatDau = dto.NgayBatDau ?? vietnamNow,
                 NgayKetThuc = dto.NgayKetThuc,
                 CreatedDate = vietnamNow,
+                TrangThai = false,
             };
 
             _smDbContext.ChienDiches.Add(chienDich);
@@ -102,7 +103,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
             if (chienDich == null)
             {
-                throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound,ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
             }
             chienDich.TenChienDich = dto.TenChienDich;
    
@@ -151,8 +152,43 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             _smDbContext.SaveChanges();
         }
+        public ViewChienDichByIdDto GetChienDichById(int idChienDich)
+        {
+            _logger.LogInformation($"{nameof(GetChienDichById)}");
 
-     
+            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
+            if (chienDich == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
+            }
+
+            var brandName = _smDbContext.BrandName.FirstOrDefault(x => x.Id == chienDich.IdBrandName && !x.Deleted);
+
+            var danhBas = (from cddb in _smDbContext.ChienDichDanhBa
+                           join db in _smDbContext.DanhBas on cddb.IdDanhBa equals db.Id
+                           where cddb.IdChienDich == idChienDich
+                                 && !cddb.Deleted
+                                 && !db.Deleted
+                           orderby cddb.CreatedDate
+                           select new ViewDanhBaChienDichDto
+                           {
+                               Id = db.Id,
+                               TenDanhBa = db.TenDanhBa
+                           }).ToList();
+            return new ViewChienDichByIdDto
+            {
+                TenChienDich = chienDich.TenChienDich,
+                IdBrandName = chienDich.IdBrandName,
+                TenBrandName = brandName?.TenBrandName ?? string.Empty,
+                IsFlashSms = chienDich.IsFlashSms,
+                IsAccented = chienDich.IsAccented,
+                NoiDung = chienDich.NoiDung ?? string.Empty,
+                NgayBatDau = chienDich.NgayBatDau ?? DateTime.MinValue,
+                NgayKetThuc = chienDich.NgayKetThuc ?? DateTime.MinValue,
+                DanhBas = danhBas
+            };
+        }
+
         public void AddDanhBaChienDich (int idChienDich, int idDanhBa)
         {
             _logger.LogInformation($"{nameof(AddDanhBaChienDich)} ");

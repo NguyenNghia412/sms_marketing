@@ -28,6 +28,7 @@ namespace thongbao.be.domain.GuiTinNhan
         public int Price { get; set; }
         public int Code { get; set; }
         public string Message { get; set; } = String.Empty;
+        public string TrangThai { get; set; } = String.Empty;
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }

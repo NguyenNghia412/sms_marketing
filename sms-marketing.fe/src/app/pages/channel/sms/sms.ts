@@ -1,4 +1,4 @@
-import { IFindPagingChienDich, IViewChienDich } from '@/models/sms.models';
+import { IFindPagingChienDich, IViewRowChienDich } from '@/models/sms.models';
 import { ChienDichService } from '@/services/chien-dich.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { DataTable } from '@/shared/components/data-table/data-table';
@@ -36,10 +36,10 @@ export class Sms extends BaseComponent {
         { header: 'Nội dung', field: 'noiDung', headerContainerStyle: 'min-width: 12rem' },
         { header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
         { header: 'Thời gian gửi', field: 'ngayBatDau', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
-        { header: 'Thao tác', headerContainerStyle: 'width: 12rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
+        { header: 'Thao tác', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
-    data: IViewChienDich[] = [];
+    data: IViewRowChienDich[] = [];
     query: IFindPagingChienDich = {
         pageNumber: 1,
         pageSize: this.MAX_PAGE_SIZE
@@ -77,7 +77,7 @@ export class Sms extends BaseComponent {
         });
     }
 
-    onOpenUpdate(data: IViewChienDich) {
+    onOpenUpdate(data: IViewRowChienDich) {
         const ref = this._dialogService.open(Create, { header: 'Tạo chiến dịch', closable: true, modal: true, styleClass: 'w-[600px]', focusOnShow: false, data });
         ref.onClose.subscribe((result) => {
             if (result) {
@@ -86,7 +86,7 @@ export class Sms extends BaseComponent {
         });
     }
 
-    onDelete(data: IViewChienDich) {
+    onDelete(data: IViewRowChienDich) {
             this.confirmDelete(
                 {
                     header: 'Bạn chắc chắn muốn xóa chiến dịch sms?',
@@ -112,18 +112,16 @@ export class Sms extends BaseComponent {
         this.getData();
     }
 
-    onCustomEmit(data: { type: string; data: IViewChienDich }) {
+    onCustomEmit(data: { type: string; data: IViewRowChienDich }) {
         if (data.type === TblActionTypes.detail) {
-            // const uri = '/danh-ba/chi-tiet';
-            // this.router.navigate([uri], {
-            //     queryParams: {
-            //         id: data.data.id
-            //     }
-            // });
+            const uri = 'channel/gui-sms';
+            this.router.navigate([uri], {
+                queryParams: {
+                    idChienDich: data.data.id
+                }
+            });
         } else if (data.type === TblActionTypes.delete) {
             this.onDelete(data.data);
-        } else if (data.type === TblActionTypes.update) {
-            this.onOpenUpdate(data.data);
         }
     }
 }

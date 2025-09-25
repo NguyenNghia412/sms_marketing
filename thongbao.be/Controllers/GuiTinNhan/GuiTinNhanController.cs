@@ -43,7 +43,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IdBrandName,
                     dto.IsFlashSms,
                     dto.IsAccented,
-                    dto.TextNoiDung
+                    dto.NoiDung
                  
                 );
 
@@ -68,10 +68,10 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IsFlashSms,
                     dto.IdBrandName,
                     dto.IsAccented,
-                    dto.TextNoiDung);
+                    dto.NoiDung);
 
                 var result = await _sendSmsService.SendSmsAsync(smsMessages);
-                await _guiTinNhanJobService.SendSmsLog(result, dto.IdChienDich, dto.IdDanhBa, dto.IdBrandName, dto.IsAccented, dto.TextNoiDung);
+                await _guiTinNhanJobService.SendSmsLog(result, dto.IdChienDich, dto.IdDanhBa, dto.IdBrandName, dto.IsAccented, dto.NoiDung);
                 return new(result);
             }
             catch (Exception ex)
@@ -92,7 +92,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IsFlashSms,
                     dto.IdBrandName,
                     dto.IsAccented,
-                    dto.TextNoiDung,
+                    dto.NoiDung,
                     dto.CurrentDanhBaSmsId
                     );
                 return new(preview);
@@ -102,7 +102,27 @@ namespace thongbao.be.Controllers.GuiTinNhan
                 return OkException(ex);
             }
         }
-
+        [Permission(PermissionKeys.GuiTinNhanAdd)]
+        [HttpPost("verify-send-sms")]
+        public async Task<ApiResponse> VerifySendSms([FromBody] GuiTinNhanDto dto)
+        {
+            try
+            {
+                var data = await _guiTinNhanJobService.GetSoLuongNguoiNhanVaTinNhan(
+                    dto.IdChienDich,
+                    dto.IdDanhBa,
+                    dto.IdBrandName,
+                    dto.IsFlashSms,
+                    dto.IsAccented,
+                    dto.NoiDung
+                    );
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
         [Permission(PermissionKeys.GuiTinNhanAdd)]
         [HttpPost("du-tru-chi-phi")]
         public async Task<ApiResponse> GetChiPhiDuTruChienDich([FromBody] GuiTinNhanDto dto)
@@ -115,7 +135,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IdBrandName,
                     dto.IsFlashSms,
                     dto.IsAccented,
-                    dto.TextNoiDung
+                    dto.NoiDung
                     );
                 return new(cost);
             }

@@ -38,6 +38,7 @@ namespace thongbao.be.application.Base
             CreateMap<domain.DanhBa.DanhBaSms, ViewDanhBaChiTietDto>();
             CreateMap<domain.MauNoiDung.MauNoiDung, ViewMauNoiDungDto>();
             CreateMap<domain.MauNoiDung.MauNoiDung, GetListMauNoiDungResponseDto>();
+            CreateMap<ChienDichLogTrangThaiGui, ViewChienDichLogDto>();
         }
     }
 }

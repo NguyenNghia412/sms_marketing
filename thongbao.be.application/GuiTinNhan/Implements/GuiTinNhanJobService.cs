@@ -39,25 +39,26 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _backgroundJobClient = backgroundJobClient;
         }
 
-        public async Task<List<object>> StartGuiTinNhanJob(int idChienDich, int idDanhBa,bool IsFlashSms,int idBrandName,bool IsAccented, string textNoiDung)
+        public async Task<List<object>> StartGuiTinNhanJob(int idChienDich, int idDanhBa,bool IsFlashSms,int idBrandName,bool IsAccented, string noiDung)
         {
-            await ValidateInput(idChienDich, idDanhBa, idBrandName, textNoiDung);
-            await SaveThongTinChienDich( idChienDich,  idDanhBa,  idBrandName,  IsFlashSms,  IsAccented,  textNoiDung);
-            var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, idBrandName, IsFlashSms, IsAccented, textNoiDung);
+            await ValidateInput(idChienDich, idDanhBa, idBrandName, noiDung);
+            await SaveThongTinChienDich( idChienDich,  idDanhBa,  idBrandName,  IsFlashSms,  IsAccented,  noiDung);
+            var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, idBrandName, IsFlashSms, IsAccented, noiDung);
             return result;
         }
-        public async Task SaveThongTinChienDich(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented,string textNoiDung)
+        public async Task SaveThongTinChienDich(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented,string noiDung)
         {
             _logger.LogInformation($"{nameof(SaveThongTinChienDich)}");
             var vietnamNow = GetVietnamTime();
-            await ValidateInput(idChienDich, idDanhBa, idBrandName, textNoiDung);
+            await ValidateInput(idChienDich, idDanhBa, idBrandName, noiDung);
 
             var chienDichExisting = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound);
             chienDichExisting.IdBrandName = idBrandName;
             chienDichExisting.IsFlashSms = IsFlashSms;
-            chienDichExisting.NoiDung = textNoiDung;
+            chienDichExisting.NoiDung = noiDung;
             chienDichExisting.IsAccented = IsAccented;
+            chienDichExisting.TrangThai = false;
 
             _smDbContext.ChienDiches.Update(chienDichExisting);
             _smDbContext.SaveChanges();
@@ -75,9 +76,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _smDbContext.SaveChanges();
             
         }
-        public async Task<object> GetPreviewMessage(int idChienDich, int idDanhBa, bool IsFlashSms, int idBrandName, bool IsAccented, string textNoiDung, int currentDanhBaSmsId)
+        public async Task<object> GetPreviewMessage(int idChienDich, int idDanhBa, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung, int currentDanhBaSmsId)
         {
-            await ValidateInput(idChienDich, idDanhBa, idBrandName, textNoiDung);
+            await ValidateInput(idChienDich, idDanhBa, idBrandName, noiDung);
 
             var brandName = await GetBrandNameByChienDich(idBrandName);
             var truongDataMapping = await GetTruongDataMapping(idDanhBa);
@@ -89,19 +90,42 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             if (currentRecord == null)
                 return null;
+
             var userData = await GetDanhBaDataForBatch(new List<int> { currentRecord.Id }, idChienDich);
-            var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, currentRecord.MaSoNguoiDung, IsAccented);
+            var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, currentRecord.MaSoNguoiDung, IsAccented);
             var formattedPhoneNumber = FormatPhoneNumber(currentRecord.SoDienThoai);
+
+            var length = personalizedText.Length;
+            int smsCount;
+
+            if (IsAccented)
+            {
+                if (length <= 70) smsCount = 1;
+                else if (length <= 134) smsCount = 2;
+                else if (length <= 201) smsCount = 3;
+                else if (length <= 268) smsCount = 4;
+                else if (length <= 335) smsCount = 5;
+                else smsCount = (int)Math.Ceiling((double)length / 67); 
+            }
+            else
+            {
+                if (length <= 160) smsCount = 1;
+                else if (length <= 306) smsCount = 2;
+                else if (length <= 459) smsCount = 3;
+                else smsCount = (int)Math.Ceiling((double)length / 153);
+            }
+
             return new
             {
                 IdDanhBaSms = currentRecord.Id,
                 SoDienThoai = formattedPhoneNumber,
-                PersonalizedText = personalizedText
+                PersonalizedText = personalizedText,
+                SmsCount = smsCount
             };
         }
-        public async Task<object> GetChiPhiDuTruChienDich(int idChienDich, int idDanhBa, int idBrandName, bool isFlashSms, bool isAccented, string textNoiDung)
+        public async Task<object> GetChiPhiDuTruChienDich(int idChienDich, int idDanhBa, int idBrandName, bool isFlashSms, bool isAccented, string noiDung)
         {
-            await ValidateInput(idChienDich, idDanhBa, idBrandName, textNoiDung);
+            await ValidateInput(idChienDich, idDanhBa, idBrandName, noiDung);
 
             var truongDataMapping = await GetTruongDataMapping(idDanhBa);
             var allRecords = await _smDbContext.DanhBaSms
@@ -126,7 +150,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             foreach (var record in allRecords)
             {
                 var userData = allUserData.Where(x => x.IdDanhBaChiTiet == record.Id).ToList();
-                var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, record.MaSoNguoiDung, isAccented);
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, record.MaSoNguoiDung, isAccented);
 
                 var formattedNumber = FormatPhoneNumber(record.SoDienThoai);
                 var prefix = formattedNumber.Length >= 4 ? formattedNumber.Substring(2, 2) : "";
@@ -172,27 +196,33 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             return new { TotalCost = totalCost };
         }
-        public async Task SendSmsLog(object smsResponse, int idChienDich, int idDanhBa, int idBrandName, bool isAccented, string textNoiDung)
+        public async Task SendSmsLog(object smsResponse, int idChienDich, int idDanhBa, int idBrandName, bool isAccented, string noiDung)
         {
             _logger.LogInformation($"{nameof(SendSmsLog)} - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
 
             var responseJson = JObject.Parse(smsResponse.ToString());
-            var smsSent = responseJson["data"]["smsSent"].Value<int>();
-            var resultArray = responseJson["data"]["result"].ToArray();
+            var smsSent = responseJson["smsSent"].Value<int>();
+            var resultArray = responseJson["result"].ToArray();
 
             var vietnamNow = GetVietnamTime();
+            int smsSuccess = 0;
+            int smsFailed = 0;
 
-            var chienDichLog = new ChienDichLogTrangThaiGui
+            foreach (var item in resultArray)
             {
-                IdChienDich = idChienDich,
-                IdDanhBa = idDanhBa,
-                IdBrandName = idBrandName,
-                SmsSendSuccess = smsSent,
-                CreatedDate = vietnamNow
-            };
+                var code = item["r"].Value<int>();
+                var message = item["msg"].Value<string>();
 
-            _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
-            await _smDbContext.SaveChangesAsync();
+                if (code == 0 && string.Equals(message, "Success", StringComparison.OrdinalIgnoreCase))
+                {
+                    smsSuccess++;
+                }
+                else
+                {
+                    smsFailed++;
+                }
+            }
+            string trangThaiChienDich = resultArray.Any() ? "Success" : "Failed";
 
             var danhBaSmsList = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
@@ -218,6 +248,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var vinaphone = new[] { "91", "94", "88", "81", "82", "83", "84", "85", "80" };
             var vietnamobile = new[] { "92", "56", "58", "52" };
             var gmobile = new[] { "99", "59" };
+            int tongChiPhi = 0;
 
             for (int i = 0; i < resultArray.Length && i < danhBaSmsList.Count; i++)
             {
@@ -225,7 +256,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 var danhBaSms = danhBaSmsList[i];
 
                 var userData = allUserData.Where(x => x.IdDanhBaChiTiet == danhBaSms.Id).ToList();
-                var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, "", isAccented);
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, "", isAccented);
 
                 var formattedNumber = FormatPhoneNumber(danhBaSms.SoDienThoai);
                 var prefix = formattedNumber.Length >= 4 ? formattedNumber.Substring(2, 2) : "";
@@ -262,6 +293,13 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 {
                     calculatedPrice = networkCosts[network] * smsCount;
                 }
+                var code = resultItem["r"].Value<int>();
+                var message = resultItem["msg"].Value<string>();
+                string trangThaiChiTiet = (code == 0 && string.Equals(message, "Success", StringComparison.OrdinalIgnoreCase)) ? "Success" : "Failed";
+                if (trangThaiChiTiet == "Success")
+                {
+                    tongChiPhi += calculatedPrice;
+                }
 
                 var logChiTiet = new GuiTinNhanLogChiTiet
                 {
@@ -270,17 +308,92 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     IdBrandName = idBrandName,
                     IdDanhBaSms = danhBaSms.Id,
                     Price = calculatedPrice,
-                    Code = resultItem["r"].Value<int>(),
-                    Message = resultItem["msg"].Value<string>(),
+                    Code = code,
+                    Message = message,
+                    TrangThai = trangThaiChiTiet,
                     CreatedDate = vietnamNow
                 };
 
                 _smDbContext.GuiTinNhanLogChiTiets.Add(logChiTiet);
             }
+            var chienDichLog = new ChienDichLogTrangThaiGui
+            {
+                IdChienDich = idChienDich,
+                IdDanhBa = idDanhBa,
+                IdBrandName = idBrandName,
+                SmsSendSuccess = smsSuccess,
+                SmsSendFailed = smsFailed,
+                TrangThai = trangThaiChienDich,
+                TongChiPhi = tongChiPhi,
+                CreatedDate = vietnamNow
+            };
+            
+            _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
+            if (smsSuccess > 0)
+            {
+                var chienDich = await _smDbContext.ChienDiches
+                    .FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
+
+                if (chienDich != null)
+                {
+                    chienDich.TrangThai = true;
+                    _smDbContext.ChienDiches.Update(chienDich);
+                }
+            }
 
             await _smDbContext.SaveChangesAsync();
         }
-        private async Task<List<object>> ProcessGuiTinNhanJob(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented, string textNoiDung)
+        public async Task<object> GetSoLuongNguoiNhanVaTinNhan(int idChienDich, int idDanhBa, int idBrandName, bool isFlashSms, bool isAccented, string noiDung)
+        {
+            await ValidateInput(idChienDich, idDanhBa, idBrandName, noiDung);
+
+            var truongDataMapping = await GetTruongDataMapping(idDanhBa);
+            var allRecords = await _smDbContext.DanhBaSms
+                .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
+                .Select(x => new { x.Id, x.MaSoNguoiDung, x.SoDienThoai })
+                .ToListAsync();
+
+            var recordIds = allRecords.Select(x => x.Id).ToList();
+            var allUserData = await GetDanhBaDataForBatch(recordIds, idChienDich);
+
+            int soLuongNguoiNhan = allRecords.Count;
+            int tongSoLuongTinNhan = 0;
+
+            foreach (var record in allRecords)
+            {
+                var userData = allUserData.Where(x => x.IdDanhBaChiTiet == record.Id).ToList();
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, record.MaSoNguoiDung, isAccented);
+
+                var length = personalizedText.Length;
+                int smsCount;
+
+                if (isAccented)
+                {
+                    if (length <= 70) smsCount = 1;
+                    else if (length <= 134) smsCount = 2;
+                    else if (length <= 201) smsCount = 3;
+                    else if (length <= 268) smsCount = 4;
+                    else if (length <= 335) smsCount = 5;
+                    else smsCount = (int)Math.Ceiling((double)length / 67);
+                }
+                else
+                {
+                    if (length <= 160) smsCount = 1;
+                    else if (length <= 306) smsCount = 2;
+                    else if (length <= 459) smsCount = 3;
+                    else smsCount = (int)Math.Ceiling((double)length / 153);
+                }
+
+                tongSoLuongTinNhan += smsCount;
+            }
+
+            return new
+            {
+                SoLuongNguoiNhan = soLuongNguoiNhan,
+                TongSoLuongTinNhan = tongSoLuongTinNhan
+            };
+        }
+        private async Task<List<object>> ProcessGuiTinNhanJob(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung)
         {
             var brandName = await GetBrandNameByChienDich(idBrandName);
 
@@ -292,7 +405,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             if (IsFlashSms)
             {
-                var allMessages = await ProcessAllData(idChienDich, idDanhBa, textNoiDung, brandName, IsAccented);
+                var allMessages = await ProcessAllData(idChienDich, idDanhBa, noiDung, brandName, IsAccented);
                 allSmsMessages.AddRange(allMessages);
             }
             else
@@ -301,7 +414,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                 for (int batchIndex = 0; batchIndex < totalBatches; batchIndex++)
                 {
-                    var batchMessages = await ProcessBatch(idChienDich, idDanhBa, textNoiDung, batchIndex, brandName, IsAccented);
+                    var batchMessages = await ProcessBatch(idChienDich, idDanhBa, noiDung, batchIndex, brandName, IsAccented);
                     allSmsMessages.AddRange(batchMessages);
                 }
             }
@@ -309,7 +422,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             return allSmsMessages;
         }
 
-        private async Task<List<object>> ProcessAllData(int idChienDich, int idDanhBa, string textNoiDung, string brandName, bool IsAccented)
+        private async Task<List<object>> ProcessAllData(int idChienDich, int idDanhBa, string noiDung, string brandName, bool IsAccented)
         {
             var danhBaChiTiets = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
@@ -332,7 +445,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     .Where(x => x.IdDanhBaChiTiet == danhBaChiTiet.Id)
                     .ToList();
 
-                var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, danhBaChiTiet.MaSoNguoiDung, IsAccented);
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, danhBaChiTiet.MaSoNguoiDung, IsAccented);
 
                 var formattedPhoneNumber = FormatPhoneNumber(danhBaChiTiet.SoDienThoai);
 
@@ -349,7 +462,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             return smsMessages;
         }
 
-        private async Task<List<object>> ProcessBatch(int idChienDich, int idDanhBa, string textNoiDung, int batchIndex, string brandName, bool IsAccented)
+        private async Task<List<object>> ProcessBatch(int idChienDich, int idDanhBa, string noiDung, int batchIndex, string brandName, bool IsAccented)
         {
             var danhBaChiTiets = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
@@ -374,7 +487,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     .Where(x => x.IdDanhBaChiTiet == danhBaChiTiet.Id)
                     .ToList();
 
-                var personalizedText = ProcessTextContent(textNoiDung, userData, truongDataMapping, danhBaChiTiet.MaSoNguoiDung, IsAccented);
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, danhBaChiTiet.MaSoNguoiDung, IsAccented);
 
                 var formattedPhoneNumber = FormatPhoneNumber(danhBaChiTiet.SoDienThoai);
 
@@ -406,9 +519,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             return cleanedNumber;
         }
 
-        private async Task ValidateInput(int idChienDich, int idDanhBa,int idBrandName, string textNoiDung)
+        private async Task ValidateInput(int idChienDich, int idDanhBa,int idBrandName, string noiDung)
         {
-            if (string.IsNullOrWhiteSpace(textNoiDung))
+            if (string.IsNullOrWhiteSpace(noiDung))
             {
                 throw new UserFriendlyException(ErrorCodes.BadRequest);
             }

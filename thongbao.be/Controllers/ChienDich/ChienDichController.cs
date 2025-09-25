@@ -109,7 +109,20 @@ namespace thongbao.be.Controllers.ChienDich
             }
         }
 
-
+        [Permission(PermissionKeys.ChienDichView)]
+        [HttpGet("{idChienDich}")]
+        public ApiResponse GetChienDichById([FromRoute]int idChienDich)
+        {
+            try { 
+                var data = _chienDichService.GetChienDichById(idChienDich);
+                return new(data);   
+            
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
 
         [AllowAnonymous]
         [HttpPost("test")]

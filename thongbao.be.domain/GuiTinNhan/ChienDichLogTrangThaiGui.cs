@@ -24,7 +24,9 @@ namespace thongbao.be.domain.GuiTinNhan
         public int IdDanhBa {  get; set; }
         public int IdBrandName { get; set; }
         public int SmsSendSuccess { get; set; }
-        public DateTime ThoiGianGui { get; set; }
+        public int SmsSendFailed { get; set; }
+        public string TrangThai {  get; set; } = String.Empty;
+        public int TongChiPhi { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }

@@ -265,6 +265,20 @@ namespace thongbao.be.Controllers.DanhBa
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.DanhBaAdd)]
+        [HttpPost("{idDanhBa}/quick-danh-ba-sms")]
+        public async Task<ApiResponse> CreateDanhBaSmsQuick([FromRoute] int idDanhBa,[FromBody] CreateDanhBaDataNhanhDto dto)
+        {
+            try
+            {
+                await  _danhBaService.CreateDanhBaSmsQuick(idDanhBa,dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
 
 
     }

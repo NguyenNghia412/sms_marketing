@@ -44,6 +44,14 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int DanhBaErrorEmailInvalid = 506;
         public const int DanhBaErrorEmailFound = 507;
         public const int DanhBaErrorDanhBaChiTietNotFound = 508;
+        public const int DanhBaErrorTruongDataNotFound = 509;
+        public const int DanhBaErrorRequiredFieldNotFound = 510;
+        public const int DanhBaErrorDataColumnMismatch = 511;
+        public const int DanhBaErrorHoVaTenRequired = 512;
+        public const int DanhBaErrorSoDienThoaiRequired = 513;
+        public const int DanhBaErrorMaSoNguoiDungRequired = 514;
+        public const int DanhBaErrorSoDienThoaiInvalidAtRow = 515;
+        public const int DanhBaErrorMaSoNguoiDungFoundAtRow = 516;
 
         public const int ToChucErrorNotFound = 601;
         public const int ToChucErrorLoaiToChucNotFound = 602;

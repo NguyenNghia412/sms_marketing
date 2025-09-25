@@ -1444,6 +1444,196 @@ namespace thongbao.be.application.DanhBa.Implements
                 throw;
             }
         }
+        public async Task CreateDanhBaSmsQuick(int idDanhBa, CreateDanhBaDataNhanhDto dto)
+        {
+            _logger.LogInformation($"{nameof(CreateDanhBaSmsQuick)} idDanhBa={idDanhBa}, dataCount={dto?.Data?.Count ?? 0}");
+
+            var vietnamNow = GetVietnamTime();
+
+            var danhBaExists = await _smDbContext.DanhBas
+                .AnyAsync(x => x.Id == idDanhBa && !x.Deleted);
+
+            if (!danhBaExists)
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound,
+                    ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
+            }
+            var danhBaTruongDatas = await _smDbContext.DanhBaTruongDatas
+                .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
+                .OrderBy(x => x.Id)
+                .AsNoTracking()
+                .ToListAsync();
+
+            if (!danhBaTruongDatas.Any())
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorTruongDataNotFound,
+                    ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorTruongDataNotFound));
+            }
+
+            int hoVaTenIndex = -1;
+            int soDienThoaiIndex = -1;
+            int maSoNguoiDungIndex = -1;
+
+            for (int i = 0; i < danhBaTruongDatas.Count; i++)
+            {
+                var tenTruong = danhBaTruongDatas[i].TenTruong.Trim().ToLower();
+
+                if (tenTruong.Contains("họ") && tenTruong.Contains("tên"))
+                {
+                    hoVaTenIndex = i;
+                }
+                else if (tenTruong.Contains("số") && tenTruong.Contains("điện thoại"))
+                {
+                    soDienThoaiIndex = i;
+                }
+                else if (tenTruong.Contains("mã số") && tenTruong.Contains("người dùng"))
+                {
+                    maSoNguoiDungIndex = i;
+                }
+            }
+
+            if (hoVaTenIndex == -1 || soDienThoaiIndex == -1 || maSoNguoiDungIndex == -1)
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequiredFieldNotFound,
+                    ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequiredFieldNotFound));
+            }
+
+            var existingMaSoNguoiDungs = await _smDbContext.DanhBaSms
+                .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
+                .Select(x => x.MaSoNguoiDung)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var existingMaSoSet = new HashSet<string>(existingMaSoNguoiDungs, StringComparer.OrdinalIgnoreCase);
+
+            var newDanhBaSms = new List<domain.DanhBa.DanhBaSms>();
+            var newDanhBaData = new List<domain.DanhBa.DanhBaData>();
+            for (int rowIndex = 0; rowIndex < dto.Data.Count; rowIndex++)
+            {
+                var dataRow = dto.Data[rowIndex];;
+                var row = dataRow.Split(';');
+                if (row.Length != danhBaTruongDatas.Count)
+                {
+                    throw new UserFriendlyException(ErrorCodes.DanhBaErrorDataColumnMismatch,
+                        string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorDataColumnMismatch), rowIndex + 1));
+                }
+
+                var hoVaTen = row[hoVaTenIndex]?.Trim();
+                var soDienThoai = row[soDienThoaiIndex]?.Trim();
+                var maSoNguoiDung = row[maSoNguoiDungIndex]?.Trim();
+
+                if (string.IsNullOrWhiteSpace(hoVaTen))
+                {
+                    throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired,
+                        string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorHoVaTenRequired), rowIndex + 1));
+                }
+
+                if (string.IsNullOrWhiteSpace(soDienThoai))
+                {
+                    throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired,
+                        string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorSoDienThoaiRequired), rowIndex + 1));
+                }
+
+                if (string.IsNullOrWhiteSpace(maSoNguoiDung))
+                {
+                    throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired,
+                        string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorMaSoNguoiDungRequired), rowIndex + 1));
+                }
+                if (soDienThoai.Length != 10 || !soDienThoai.All(char.IsDigit))
+                {
+                    throw new UserFriendlyException(ErrorCodes.DanhBaErrorSoDienThoaiInvalid,
+                        string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorSoDienThoaiInvalidAtRow), rowIndex + 1));
+                }
+                if (existingMaSoSet.Contains(maSoNguoiDung))
+                {
+                    throw new UserFriendlyException(ErrorCodes.DanhBaErrorMaSoNguoiDungFound,
+                        string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorMaSoNguoiDungFoundAtRow), maSoNguoiDung, rowIndex + 1));
+                }
+
+                existingMaSoSet.Add(maSoNguoiDung);
+
+                var danhBaSms = new domain.DanhBa.DanhBaSms
+                {
+                    IdDanhBa = idDanhBa,
+                    HoVaTen = hoVaTen,
+                    SoDienThoai = soDienThoai,
+                    MaSoNguoiDung = maSoNguoiDung,
+                    CreatedDate = vietnamNow,
+                    Deleted = false
+                };
+
+                newDanhBaSms.Add(danhBaSms);
+            }
+
+            using var transaction = await _smDbContext.Database.BeginTransactionAsync();
+            try
+            {
+                if (newDanhBaSms.Any())
+                {
+                    await _smDbContext.BulkInsertAsync(newDanhBaSms, options =>
+                    {
+                        options.BatchSize = 1000;
+                        options.BulkCopyTimeout = 300;
+                    });
+                }
+
+                var insertedMaSoList = newDanhBaSms.Select(x => x.MaSoNguoiDung).ToList();
+                var insertedDanhBaSms = await _smDbContext.DanhBaSms
+                    .Where(x => x.IdDanhBa == idDanhBa && insertedMaSoList.Contains(x.MaSoNguoiDung) && !x.Deleted)
+                    .Select(x => new { x.Id, x.MaSoNguoiDung })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                var maSoToIdDict = insertedDanhBaSms.ToDictionary(x => x.MaSoNguoiDung, x => x.Id);
+
+                for (int rowIndex = 0; rowIndex < dto.Data.Count; rowIndex++)
+                {
+                    var dataRow = dto.Data[rowIndex];
+                    var row = dataRow.Split(';');
+                    var maSoNguoiDung = row[maSoNguoiDungIndex]?.Trim();
+
+                    if (maSoToIdDict.TryGetValue(maSoNguoiDung, out int danhBaChiTietId))
+                    {
+                        for (int colIndex = 0; colIndex < row.Length; colIndex++)
+                        {
+                            var cellData = row[colIndex]?.Trim() ?? "";
+                            var truongData = danhBaTruongDatas[colIndex];
+
+                            var danhBaDataItem = new domain.DanhBa.DanhBaData
+                            {
+                                Data = cellData,
+                                IdTruongData = truongData.Id,
+                                IdDanhBaChiTiet = danhBaChiTietId,
+                                IdDanhBaChienDich = idDanhBa,
+                                CreatedDate = vietnamNow,
+                                Deleted = false
+                            };
+
+                            newDanhBaData.Add(danhBaDataItem);
+                        }
+                    }
+                }
+
+                if (newDanhBaData.Any())
+                {
+                    await _smDbContext.BulkInsertAsync(newDanhBaData, options =>
+                    {
+                        options.BatchSize = 1000;
+                        options.BulkCopyTimeout = 300;
+                    });
+                }
+
+                await transaction.CommitAsync();
+
+                _logger.LogInformation($"CreateDanhBaSmsQuick completed successfully. Inserted {newDanhBaSms.Count} DanhBaSms records and {newDanhBaData.Count} DanhBaData records");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error during CreateDanhBaSmsQuick transaction");
+                throw;
+            }
+        }
         private async Task<List<List<string>>> _getSheetData(string sheetUrl, string sheetName)
         {
             var serviceAccountPath = _configuration["Google:ServiceAccountPath"];
