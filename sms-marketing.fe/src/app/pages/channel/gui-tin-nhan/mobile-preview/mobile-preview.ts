@@ -23,7 +23,7 @@ export class MobilePreview extends BaseComponent {
     private _guiTinNhanService = inject(GuiTinNhanService);
 
     private debounceTimer: any;
-    currentIndex: number = 3;
+    currentIndex: number = 1;
     previewSms: IViewPreviewSendSms = {};
 
     constructor() {
@@ -46,7 +46,7 @@ export class MobilePreview extends BaseComponent {
             idChienDich: this.idChienDich(),
             idBrandName: this.idBrandName() ?? 0,
             idDanhBa: this.idDanhBa() ?? 0,
-            currentDanhBaSmsId: this.currentIndex,
+            currentIndex: this.currentIndex,
             isAccented: this.isAccented(),
             isFlashSms: this.isFlashSms(),
             noiDung: this.noiDung() || ''
@@ -69,8 +69,10 @@ export class MobilePreview extends BaseComponent {
     }
 
     onChangeIndex(step: number) {
+      if (this.currentIndex + step > 0) {
         this.currentIndex += step;
         this.onPreviewSendSms();
+      }
     }
 
     ngOnDestroy() {
