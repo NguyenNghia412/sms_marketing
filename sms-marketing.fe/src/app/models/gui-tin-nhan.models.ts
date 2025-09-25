@@ -24,7 +24,7 @@ export interface IPreviewSendSms {
   isFlashSms: boolean;
   isAccented: boolean;
   noiDung: string;
-  currentDanhBaSmsId: number;
+  currentIndex: number;
 }
 
 export interface IViewPreviewSendSms {

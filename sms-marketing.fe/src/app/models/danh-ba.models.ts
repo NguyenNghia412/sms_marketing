@@ -23,6 +23,12 @@ export interface IViewRowDanhBa {
   mota?: string,
   ghiChu?: string,
   type?: number,
+  truongData?: IViewCustonField[]
+}
+
+export interface IViewCustonField {
+  id?: number
+  tenTruong?: string,
 }
 
 export interface IViewDanhBa {

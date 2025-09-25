@@ -11,10 +11,11 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { MobilePreview } from './mobile-preview/mobile-preview';
+import { ChipModule } from 'primeng/chip';
 
 @Component({
     selector: 'app-gui-tin-nhan',
-    imports: [SharedImports, Breadcrumb, MobilePreview],
+    imports: [SharedImports, Breadcrumb, MobilePreview, ChipModule],
     templateUrl: './gui-tin-nhan.html',
     styleUrl: './gui-tin-nhan.scss'
 })
@@ -87,6 +88,35 @@ export class GuiTinNhan extends BaseComponent {
                     }
                 }
             });
+        });
+    }
+
+    get selectedDanhBa() {
+        const rslt = this.listDanhBa.find((x) => x.id === this.form.value['idDanhBa']);
+
+        return rslt;
+    }
+
+    insertAtCursor(textarea: HTMLTextAreaElement, text: string) {
+        const control = this.form.get('noiDung');
+        if (!control) return;
+
+        text = `[${text}]`
+
+        const currentValue = control.value || '';
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+
+        const before = currentValue.substring(0, start);
+        const after = currentValue.substring(end);
+
+        const newValue = before + text + after;
+        control.setValue(newValue);
+
+        // update cursor position after patch
+        setTimeout(() => {
+            textarea.focus();
+            textarea.selectionStart = textarea.selectionEnd = start + text.length;
         });
     }
 
