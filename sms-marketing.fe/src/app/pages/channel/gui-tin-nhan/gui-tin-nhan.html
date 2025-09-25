@@ -49,7 +49,14 @@
             </form>
         </div>
         <div class="col-span-2">
-            <app-mobile-preview [message]="form.value['noiDung']" />
+            <app-mobile-preview 
+                [idChienDich]="idChienDich" 
+                [idBrandName]="form.value['idBrandName']" 
+                [idDanhBa]="form.value['idDanhBa']" 
+                [isFlashSms]="form.value['isFlashSms']" 
+                [isAccented]="form.value['isAccented']" 
+                [noiDung]="form.value['noiDung']" 
+            />
         </div>
     </div>
 </div>

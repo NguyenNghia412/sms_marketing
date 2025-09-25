@@ -26,3 +26,10 @@ export interface IPreviewSendSms {
   noiDung: string;
   currentDanhBaSmsId: number;
 }
+
+export interface IViewPreviewSendSms {
+  idDanhBaSms?: number;
+  soDienThoai?: string;
+  personalizedText?: string;
+  smsCount?: number;
+}

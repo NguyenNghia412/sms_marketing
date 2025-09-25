@@ -2,11 +2,11 @@
     <div class="w-10/12">
         <p-inputgroup>
             <p-inputgroup-addon>
-                <p-button icon="pi pi-arrow-left" severity="secondary" />
+                <p-button icon="pi pi-arrow-left" severity="secondary" (onClick)="onChangeIndex(-1)" />
             </p-inputgroup-addon>
-            <input pInputText placeholder="Vote" readonly class="pointer-events-none" />
+            <input pInputText [placeholder]="previewSms.soDienThoai ?? ''" readonly class="pointer-events-none" />
             <p-inputgroup-addon>
-                <p-button icon="pi pi-arrow-right" severity="secondary" />
+                <p-button icon="pi pi-arrow-right" severity="secondary" (onClick)="onChangeIndex(1)" />
             </p-inputgroup-addon>
         </p-inputgroup>
     </div>
@@ -21,8 +21,8 @@
 
         <!-- Screen Content -->
         <div class="relative w-full h-full rounded-[37px] overflow-hidden">
-            @if (message()) {
-            <div class="bg-gray-200 text-black mt-12 ml-3 px-4 py-2 rounded-2xl max-w-[80%] rounded-bl-none">{{ message() }}</div>
+            @if (noiDung()) {
+            <div class="bg-gray-200 text-black mt-12 ml-3 px-4 py-2 rounded-2xl max-w-[80%] rounded-bl-none">{{ noiDung() }}</div>
             }
         </div>
 

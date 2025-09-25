@@ -90,32 +90,6 @@ export class GuiTinNhan extends BaseComponent {
         });
     }
 
-    onPreviewSendSms() {
-        const body: IPreviewSendSms = {
-            idChienDich: this.idChienDich,
-            idBrandName: this.form.value.idBrandName ?? 0,
-            idDanhBa: this.form.value.idDanhBa,
-            currentDanhBaSmsId: this.form.value.idDanhBa ?? 0,
-            isAccented: this.form.value.isAccented,
-            isFlashSms: this.form.value.isFlashSms,
-            noiDung: this.form.value.noiDung
-        };
-
-        this.loading = true;
-        this._guiTinNhanService.previewSendSms(body).subscribe({
-            next: (res) => {
-                if (this.isResponseSucceed(res, true, 'Đã đặt lệnh gửi')) {
-                }
-            },
-            error: (err) => {
-                this.messageError(err?.message);
-            },
-            complete: () => {
-                this.loading = false;
-            }
-        });
-    }
-
     onSubmit() {
         if (this.isFormInvalid()) {
             return;
