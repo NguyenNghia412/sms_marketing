@@ -5,6 +5,7 @@ import { SharedImports } from '@/shared/import.shared';
 import { Component, inject, Input } from '@angular/core';
 
 export const TblActionTypes = {
+    duplicate: 'duplicate',
     detail: 'detail',
     delete: 'delete',
 }

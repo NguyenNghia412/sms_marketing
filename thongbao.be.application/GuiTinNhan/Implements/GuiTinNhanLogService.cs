@@ -100,7 +100,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                 Price = log.Price,
                                 Code = log.Code,
                                 Message = log.Message,
-                                TrangThai = log.TrangThai,
+                                NgayGui = log.CreatedDate,
                             }
                         };
 

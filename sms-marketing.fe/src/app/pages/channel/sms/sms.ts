@@ -111,6 +111,18 @@ export class Sms extends BaseComponent {
                 }
             );
         }
+        onDuplicate(data: IViewRowChienDich) {
+        this._chienDichService.duplicate(data.id || 0).subscribe(
+            (res) => {
+                if (this.isResponseSucceed(res, true, 'Đã nhân bản chiến dịch')) {
+                    this.getData();
+                }
+            },
+            (err) => {
+                this.messageError(err?.message);
+            }
+        );
+    }
 
     onPageChanged($event: PaginatorState) {
         this.query.pageNumber = ($event.page ?? 0) + 1;
@@ -127,6 +139,8 @@ export class Sms extends BaseComponent {
             });
         } else if (data.type === TblActionTypes.delete) {
             this.onDelete(data.data);
+        } else if (data.type === TblActionTypes.duplicate){
+            this.onDuplicate(data.data);
         }
     }
 }

@@ -1,0 +1,58 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="mb-3">
+    <a (click)="downloadImportTemplate()" class="text-blue-500 underline cursor-pointer">Tải file mẫu</a>
+  </div>
+    <div class="mb-3">
+        <label for="File" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">File upload (*)</label>
+        <p-fileupload id="File" mode="basic" (onSelect)="onSelect($event)" chooseLabel="Choose" chooseIcon="pi pi-upload" name="demo[]" url="https://www.primefaces.org/cdn/api/upload.php" maxFileSize="1000000" />
+        @if (form.get('File')?.hasError('required') && form.get('File')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('File') }} </p-message>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="TenDanhBa" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên danh bạ(*)</label>
+        <input pInputText formControlName="TenDanhBa" id="TenDanhBa" type="text" class="w-full mb-2" />
+        @if (form.get('TenDanhBa')?.hasError('required') && form.get('TenDanhBa')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('TenDanhBa') }} </p-message>
+        }
+    </div>
+     <div class="mb-3">
+        <label for="Type" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Loại danh bạ(*)</label>
+        <p-select 
+            formControlName="Type" 
+            id="Type" 
+            [options]="loaiDanhBaOptions" 
+            optionLabel="label" 
+            optionValue="value" 
+            placeholder="Chọn loại danh bạ"
+            class="w-full mb-2">
+        </p-select>
+        @if (form.get('Type')?.hasError('required') && form.get('Type')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('Type') }} </p-message>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="SheetName" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên sheet (*)</label>
+        <input pInputText formControlName="SheetName" id="SheetName" type="text" class="w-full mb-2" />
+        @if (form.get('SheetName')?.hasError('required') && form.get('SheetName')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('SheetName') }} </p-message>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="IndexRowStartImport" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Dòng bắt đầu có dữ liệu (*)</label>
+        <input pInputText formControlName="IndexRowStartImport" id="IndexRowStartImport" type="text" class="w-full mb-2" />
+        @if (form.get('IndexRowStartImport')?.hasError('required') && form.get('IndexRowStartImport')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('IndexRowStartImport') }} </p-message>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="IndexRowHeader" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Dòng tiêu đề (*)</label>
+        <input pInputText formControlName="IndexRowHeader" id="IndexRowHeader" type="text" class="w-full mb-2" />
+        @if (form.get('IndexRowHeader')?.hasError('required') && form.get('IndexRowHeader')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('IndexRowHeader') }} </p-message>
+        }
+    </div>
+    <div class="mt-5 flex flex-row justify-end">
+        <p-button label="Import" icon="pi pi-file-import" type="submit" [loading]="loading" />
+    </div>
+</form>

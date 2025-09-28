@@ -27,7 +27,7 @@ export interface ILogReport {
     price?: number;
     code?: number;
     message?: string;
-    trangThai?: string;
+    ngayGui?: string;
 }
 
 export interface IViewChiTietChienDichReport {

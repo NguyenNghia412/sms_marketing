@@ -228,6 +228,36 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             return result;
         }
+        public void DuplicateChienDich(int idChienDich)
+        {
+            _logger.LogInformation($"{nameof(DuplicateChienDich)}, idChienDich={idChienDich}");
+            var vietnamNow = GetVietnamTime();
+
+            var chienDichGoc = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
+            if (chienDichGoc == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
+            }
+
+            var chienDichMoi = new domain.GuiTinNhan.ChienDich
+            {
+                TenChienDich = chienDichGoc.TenChienDich,
+                MoTa = chienDichGoc.MoTa,
+                NgayBatDau = chienDichGoc.NgayBatDau,
+                NgayKetThuc = chienDichGoc.NgayKetThuc,
+                IsFlashSms = chienDichGoc.IsFlashSms,
+                IdBrandName = chienDichGoc.IdBrandName,
+                IdMauNoiDung = chienDichGoc.IdMauNoiDung,
+                NoiDung = chienDichGoc.NoiDung,
+                IsAccented = chienDichGoc.IsAccented,
+                TrangThai = false,
+                CreatedDate = vietnamNow,
+                Deleted = false
+            };
+
+            _smDbContext.ChienDiches.Add(chienDichMoi);
+            _smDbContext.SaveChanges();
+        }
         private static DateTime GetVietnamTime()
         {
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);

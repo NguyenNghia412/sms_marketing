@@ -22,7 +22,30 @@
                 </div>
                 <div class="mb-3">
                     <label for="idDanhBa" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Người nhận (*)</label>
-                    <p-select id="idDanhBa" formControlName="idDanhBa" [options]="listDanhBa" optionLabel="tenDanhBa" optionValue="id" [filter]="true" placeholder="Chọn người nhận" class="w-full mb-2" appendTo="body" />
+                    <p-select id="idDanhBa" formControlName="idDanhBa" [options]="listDanhBa" optionLabel="tenDanhBa" optionValue="id" [filter]="true" placeholder="Chọn người nhận" class="w-full mb-2" appendTo="body">
+                        <ng-template pTemplate="footer">
+                            <div class="p-3 border-t border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800">
+                                <div class="flex flex-col gap-3">
+                                    <p-button 
+                                        label="Thêm danh bạ mới" 
+                                        icon="pi pi-plus-circle" 
+                                        severity="secondary" 
+                                        [outlined]="true"
+                                        class="w-full justify-center hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors duration-200"
+                                        size="small"
+                                        (onClick)="onOpenCreateDanhBa()" />
+                                    <p-button 
+                                        label="Thêm danh bạ nhanh" 
+                                        icon="pi pi-plus-circle" 
+                                        severity="secondary" 
+                                        [outlined]="true"
+                                        class="w-full justify-center hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors duration-200"
+                                        size="small"
+                                        (onClick)="onOpenCreateDanhBaNhanh()" />
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-select>
                     @if (form.get('idDanhBa')?.hasError('required') && form.get('idDanhBa')?.touched) {
                     <p-message severity="error" variant="simple" size="small">{{ getError('idDanhBa') }} </p-message>
                     }
@@ -41,10 +64,7 @@
                     <p-message severity="error" variant="simple" size="small">{{ getError('noiDung') }} </p-message>
                     }
                 </div>
-                <div class="flex items-center mb-3">
-                    <p-checkbox inputId="isFlashSms" name="isFlashSms" formControlName="isFlashSms" [binary]="true" />
-                    <label for="isFlashSms" class="ml-2 cursor-pointer">Tin nhắn SMS nhanh</label>
-                </div>
+                
                 <div class="flex items-center mb-3">
                     <p-checkbox inputId="isAccented" name="isAccented" formControlName="isAccented" [binary]="true" />
                     <label for="isAccented" class="ml-2 cursor-pointer">Gửi có dấu</label>
@@ -60,7 +80,6 @@
                 [idChienDich]="idChienDich" 
                 [idBrandName]="form.value['idBrandName']" 
                 [idDanhBa]="form.value['idDanhBa']" 
-                [isFlashSms]="form.value['isFlashSms']" 
                 [isAccented]="form.value['isAccented']" 
                 [noiDung]="form.value['noiDung']" 
             />

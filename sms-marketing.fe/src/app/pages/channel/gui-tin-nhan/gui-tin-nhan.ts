@@ -12,18 +12,22 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { MobilePreview } from './mobile-preview/mobile-preview';
 import { ChipModule } from 'primeng/chip';
+import { DialogService } from 'primeng/dynamicdialog';
+import { Import } from './import/import';
 
 @Component({
     selector: 'app-gui-tin-nhan',
     imports: [SharedImports, Breadcrumb, MobilePreview, ChipModule],
     templateUrl: './gui-tin-nhan.html',
-    styleUrl: './gui-tin-nhan.scss'
+    styleUrl: './gui-tin-nhan.scss',
+    
 })
 export class GuiTinNhan extends BaseComponent {
     private _danhBaService = inject(DanhBaService);
     private _chienDichService = inject(ChienDichService);
     private _guiTinNhanService = inject(GuiTinNhanService);
 
+    
     items: MenuItem[] = [{ label: 'Danh sách chiến dịch', routerLink: '/channel/sms' }, { label: 'Gửi tin nhắn sms' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
     idChienDich: number = 0;
@@ -95,6 +99,14 @@ export class GuiTinNhan extends BaseComponent {
         const rslt = this.listDanhBa.find((x) => x.id === this.form.value['idDanhBa']);
 
         return rslt;
+    }
+    onOpenCreateDanhBa() {
+        const ref = this._dialogService.open(Import, { header: 'Tạo danh bạ và import danh sách người nhận', closable: true, modal: true, styleClass: 'w-[600px]', focusOnShow: false });
+        ref.onClose.subscribe((result) => {
+            if (result) {
+                   location.reload();
+            }
+        });
     }
 
     insertAtCursor(textarea: HTMLTextAreaElement, text: string) {

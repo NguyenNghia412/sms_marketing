@@ -39,8 +39,8 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
         { header: 'Số điện thoại', field: 'soDienThoai', headerContainerStyle: 'min-width: 8rem' },
         { header: 'Brand Name', field: 'tenBrandName', headerContainerStyle: 'min-width: 6rem' },
         { header: 'Chi Phí', field: 'gia', headerContainerStyle: 'min-width: 6rem' },
-        { header: 'Trạng thái', field: 'trangThaiText', headerContainerStyle: 'min-width: 6rem' },
         { header: 'Message', field: 'messageText', headerContainerStyle: 'min-width: 8rem' },
+        { header: 'Thời gian gửi', field: 'ngayGui', headerContainerStyle: 'width: 20rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
     ];
 
     data: IViewChiTietChienDichReport[] = [];
@@ -95,8 +95,8 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
                         ...item,
                         tenBrandName: item.brandName?.tenBrandName || '',
                         gia: item.log?.price || 0,
-                        trangThaiText: item.log?.trangThai || '',
-                        messageText: item.log?.message || ''
+                        messageText: item.log?.message || '',
+                        ngayGui : item.log?.ngayGui || ''
                     }));
                     this.totalRecords = res.data.totalItems;
                 }

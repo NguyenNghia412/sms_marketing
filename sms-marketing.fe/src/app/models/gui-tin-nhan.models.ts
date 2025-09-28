@@ -21,7 +21,7 @@ export interface IPreviewSendSms {
   idChienDich: number;
   idDanhBa: number;
   idBrandName: number;
-  isFlashSms: boolean;
+  isFlashSms?: boolean;
   isAccented: boolean;
   noiDung: string;
   currentIndex: number;

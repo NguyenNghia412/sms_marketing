@@ -35,4 +35,7 @@ export class ChienDichService {
     delete(id: number) {
         return this.http.delete<IBaseResponse>(`${this.api}?idChienDich=${id}`);
     }
+    duplicate(id:number){
+        return this.http.post<IBaseResponse>(`${this.api}/${id}/duplicate`,null);
+    }
 }

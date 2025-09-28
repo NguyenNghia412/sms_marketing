@@ -17,7 +17,7 @@ export class MobilePreview extends BaseComponent {
     idBrandName = input.required<number | null | undefined>();
     idDanhBa = input.required<number | null | undefined>();
     noiDung = input.required<string | null | undefined>();
-    isFlashSms = input.required<boolean>();
+    //isFlashSms = input.required<boolean>();
     isAccented = input.required<boolean>();
 
     private _guiTinNhanService = inject(GuiTinNhanService);
@@ -48,7 +48,7 @@ export class MobilePreview extends BaseComponent {
             idDanhBa: this.idDanhBa() ?? 0,
             currentIndex: this.currentIndex,
             isAccented: this.isAccented(),
-            isFlashSms: this.isFlashSms(),
+            //isFlashSms: this.isFlashSms(),
             noiDung: this.noiDung() || ''
         };
 

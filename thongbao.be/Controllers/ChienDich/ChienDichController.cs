@@ -124,6 +124,21 @@ namespace thongbao.be.Controllers.ChienDich
             }
         }
 
+        [Permission(PermissionKeys.ChienDichAdd)]
+        [HttpPost("{idChienDich}/duplicate")]
+        public ApiResponse Duplicate([FromRoute] int idChienDich)
+        {
+            try
+            {
+                _chienDichService.DuplicateChienDich(idChienDich);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
         [AllowAnonymous]
         [HttpPost("test")]
         public ApiResponse TestSendEmail()

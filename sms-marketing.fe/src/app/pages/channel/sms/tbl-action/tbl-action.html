@@ -1,4 +1,5 @@
 <div class="flex flex-row space-x-2">
+  <button pButton pRipple type="button" [icon]="'pi pi-clone'" (click)="onClick(actionType.duplicate)" title = "Nhân bản"></button>
   <button pButton pRipple type="button" [icon]="'pi pi-pencil'" (click)="onClick(actionType.detail)" title="Chi tiết"></button>
   <button pButton pRipple type="button" [icon]="'pi pi-trash'" (click)="onClick(actionType.delete)" title="Xóa"></button>
 </div>

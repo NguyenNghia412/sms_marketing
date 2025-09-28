@@ -27,6 +27,7 @@ namespace thongbao.be.application.GuiTinNhan.Interfaces
         public void AddDanhBaChienDich(int idChienDich, int idDanhBa);
         public List<GetListBrandNameResponseDto> GetListBrandName();
         public ViewChienDichByIdDto GetChienDichById(int idChienDich);
+        public void DuplicateChienDich(int idChienDich);
         public void TestSendEmail();
     }
 }

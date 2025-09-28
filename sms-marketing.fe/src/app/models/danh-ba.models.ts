@@ -45,7 +45,16 @@ export interface IVerifyImportDanhBa {
   SheetName: string,
   IdDanhBa: number
 }
-
+export interface IVerifyImportCreateDanhBa {
+  TenDanhBa: string,
+  Type:number,
+  File: File,
+  IndexRowStartImport: number,
+  IndexRowHeader: number,
+  SheetName: string,
+  IdDanhBa: number
+}
+export interface IImportCreateDanhBa extends IVerifyImportCreateDanhBa {}
 export interface IUploadFileImportDanhBa extends IVerifyImportDanhBa {}
 
 export interface IViewVerifyImportDanhBa {

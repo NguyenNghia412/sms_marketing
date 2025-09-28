@@ -265,6 +265,34 @@ namespace thongbao.be.Controllers.DanhBa
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.DanhBaImport)]
+        [HttpPost("verify-import-create-danh-ba-chien-dich")]
+        public async Task<ApiResponse> VerifyImportCreateDanhBaChienDich([FromForm] ImportDanhBaSmsDto dto)
+        {
+            try
+            {
+                var data = await _danhBaService.VerifyImportCreateDanhBaSms(dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.DanhBaImport)]
+        [HttpPost("import-create-danh-ba-chien-dich")]
+        public async Task<ApiResponse> ImportCreateDanhBaChienDich([FromForm] ImportDanhBaSmsDto dto)
+        {
+            try
+            {
+                var data = await _danhBaService.ImportCreateDanhBaChienDich(dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
         [Permission(PermissionKeys.DanhBaAdd)]
         [HttpPost("{idDanhBa}/quick-danh-ba-sms")]
         public async Task<ApiResponse> CreateDanhBaSmsQuick([FromRoute] int idDanhBa,[FromBody] CreateDanhBaDataNhanhDto dto)
