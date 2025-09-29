@@ -42,7 +42,7 @@ export class GuiTinNhan extends BaseComponent {
         ngayBatDau: new FormControl(new Date()),
         ngayKetThuc: new FormControl(new Date()),
         noiDung: new FormControl('', [Validators.required]),
-        isFlashSms: new FormControl(true),
+        //isFlashSms: new FormControl(true),
         isAccented: new FormControl(true)
     });
 
