@@ -36,6 +36,7 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int ChienDichErrorNotFound = 301;
         public const int MauNoiDungErrorNotFound = 302;
         public const int ChienDichErrorBrandNameNotFound = 303;
+        public const int ChienDichErrorTrangThaiTrue = 304;
 
         public const int DanhBaErrorNotFound = 501;
         public const int DanhBaErrorRequired = 502;

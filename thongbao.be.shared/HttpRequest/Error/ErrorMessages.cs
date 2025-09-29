@@ -61,7 +61,8 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.DanhBaErrorSoDienThoaiRequired, "Số điện thoại không được để trống tại dòng {0}" },
             { ErrorCodes.DanhBaErrorMaSoNguoiDungRequired, "Mã số người dùng không được để trống tại dòng {0}" },
             { ErrorCodes.DanhBaErrorSoDienThoaiInvalidAtRow, "Số điện thoại không đúng định dạng tại dòng {0}" },
-            { ErrorCodes.DanhBaErrorMaSoNguoiDungFoundAtRow, "Mã số người dùng '{0}' đã tồn tại tại dòng {1}" }
+            { ErrorCodes.DanhBaErrorMaSoNguoiDungFoundAtRow, "Mã số người dùng '{0}' đã tồn tại tại dòng {1}" },
+            { ErrorCodes.ChienDichErrorTrangThaiTrue,"Chiến dịch này đã được gửi. Yêu cầu nhân bản chiến dịch để có thể thực hiện tiếp lệnh gửi" }
         };
 
         public static string GetMessage(int code)

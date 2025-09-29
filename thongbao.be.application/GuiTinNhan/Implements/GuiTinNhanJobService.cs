@@ -42,6 +42,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         public async Task<List<object>> StartGuiTinNhanJob(int idChienDich, int idDanhBa, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung)
         {
             await ValidateInput(idChienDich, idDanhBa, idBrandName, noiDung);
+            await ValidateChienDichChuaGui(idChienDich);
             await SaveThongTinChienDich(idChienDich, idDanhBa, idBrandName, IsFlashSms, IsAccented, noiDung);
             var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, idBrandName, IsFlashSms, IsAccented, noiDung);
             return result;
@@ -51,6 +52,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _logger.LogInformation($"{nameof(SaveThongTinChienDich)}");
             var vietnamNow = GetVietnamTime();
             await ValidateInput(idChienDich, idDanhBa, idBrandName, noiDung);
+            await ValidateChienDichChuaGui(idChienDich);
 
             var chienDichExisting = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound);
@@ -390,6 +392,21 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 SoLuongNguoiNhan = soLuongNguoiNhan,
                 TongSoLuongTinNhan = tongSoLuongTinNhan
             };
+        }
+        private async Task ValidateChienDichChuaGui(int idChienDich)
+        {
+            var chienDich = await _smDbContext.ChienDiches
+                .FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
+
+            if (chienDich == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound);
+            }
+
+            if (chienDich.TrangThai == true)
+            {
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorTrangThaiTrue);
+            }
         }
         private async Task<List<object>> ProcessGuiTinNhanJob(int idChienDich, int idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung)
         {
