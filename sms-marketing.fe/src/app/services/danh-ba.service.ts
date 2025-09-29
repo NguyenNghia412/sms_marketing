@@ -1,4 +1,4 @@
-import { ICreateDanhBa, ICreateDanhBaChienDichQuick, IFindPagingDanhBa, IFindPagingNguoiNhan, IImportCreateDanhBa, IUpdateDanhBa, IUploadFileImportDanhBa, IVerifyImportCreateDanhBa, IVerifyImportDanhBa, IViewRowDanhBa, IViewRowNguoiNhan, IViewVerifyImportDanhBa } from '@/models/danh-ba.models';
+import { ICreateDanhBa, ICreateDanhBaChienDichQuick, ICreateDanhBaSmsQuick, IFindPagingDanhBa, IFindPagingNguoiNhan, IImportCreateDanhBa, IUpdateDanhBa, IUploadFileImportDanhBa, IVerifyImportCreateDanhBa, IVerifyImportDanhBa, IViewRowDanhBa, IViewRowNguoiNhan, IViewVerifyImportDanhBa } from '@/models/danh-ba.models';
 import { IBaseResponse, IBaseResponseWithData, IBaseResponsePaging } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -130,5 +130,13 @@ export class DanhBaService {
     createDanhBaChienDichQuick(body:ICreateDanhBaChienDichQuick){
         const uri = `${this.api}/quick-danh-ba`;
         return this.http.post<IBaseResponse>(uri,body);
+    }
+    createDanhBaSmsQuick( id:number,body:ICreateDanhBaSmsQuick){
+        const uri = `${this.api}/${id}/quick-danh-ba-sms`;
+        return this.http.post<IBaseResponse>(uri,body);
+    }
+    deleteNguoiNhan(id: number,idNguoiNhan:number){
+        const uri = `${this.api}/${id}/nguoi-nhan/${idNguoiNhan}`;
+        return this.http.delete<IBaseResponse>(uri);
     }
 }

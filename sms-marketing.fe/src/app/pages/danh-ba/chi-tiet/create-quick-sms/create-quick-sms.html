@@ -1,0 +1,33 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+        <label for="Data" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Dữ liệu(*)</label>
+        <small class="block text-surface-600 dark:text-surface-400 mb-2">
+            Nhập từng dòng dữ liệu, các giá trị ngăn cách bởi dấu chấm phẩy (;)  tương ứng với các trường dữ liệu của danh bạ. Mỗi dòng là một bản ghi
+        </small>
+        <textarea 
+            pInputTextarea 
+            formControlName="Data" 
+            id="Data" 
+            rows="10" 
+            class="w-full mb-2"
+            placeholder="VD:&#10;1;Nguyễn Việt Cường;0326235002;0211466;K66;1000000&#10;2;Nguyễn Trọng Nghĩa;0389105608;0211465;K70;1000000">
+        </textarea>
+        @if (form.get('Data')?.hasError('required') && form.get('Data')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('Data') }} </p-message>
+        }
+    </div>
+
+    <div class="flex gap-2 mt-4" style="justify-content: flex-end;">
+        <p-button 
+            label="Hủy" 
+            severity="secondary" 
+            [outlined]="true"
+            (onClick)="onCancel()" />
+        <p-button 
+            label="Lưu" 
+            icon="pi pi-save"
+            type="submit" 
+            [disabled]="form.invalid || loading"
+            [loading]="loading" />
+    </div>
+</form>

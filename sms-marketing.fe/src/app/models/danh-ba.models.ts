@@ -68,7 +68,7 @@ export interface IFindPagingNguoiNhan extends IBaseRequestPaging {
 
 export interface IViewRowNguoiNhan {
   id?: number,
-  emailHuce?: string,
+  //emailHuce?: string,
   hoVaTen?: string,
   maSoNguoiDung?: string,
   soDienThoai?: string,
@@ -77,5 +77,8 @@ export interface ICreateDanhBaChienDichQuick{
   tenDanhBa? : string, 
   type? : number,
   truong: string[],
+  data:string[],
+}
+export interface ICreateDanhBaSmsQuick{
   data:string[],
 }

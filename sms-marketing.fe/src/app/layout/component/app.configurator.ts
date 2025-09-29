@@ -55,7 +55,7 @@ declare type SurfacesType = {
                                 }"
                             class="cursor-pointer w-5 h-5 rounded-full flex shrink-0 items-center justify-center outline-offset-1 shadow"
                             [style]="{
-                                    'background-color': primaryColor?.name === 'noir' ? 'var(--text-color)' : primaryColor?.palette?.['500']
+                                    'background-color': primaryColor?.name === 'custom-blue' ? 'var(--text-color)' : primaryColor?.palette?.['500']
                                 }"
                         >
                         </button>
@@ -257,6 +257,23 @@ export class AppConfigurator {
                 900: '#183240',
                 950: '#0c1920'
             }
+        },
+        {
+            name: 'sms',
+            palette: {
+                0: '#ffffff',
+                50: '#fafafa',
+                100: '#f5f5f5',
+                200: '#eeeeee',
+                300: '#e0e0e0',
+                400: '#999999',
+                500: '#666666',
+                600: '#4a4a4a',
+                700: '#333333',
+                800: '#1a1a1a',
+                900: '#0d0d0d',
+                950: '#000000'
+            }
         }
     ];
 
@@ -273,7 +290,24 @@ export class AppConfigurator {
     primaryColors = computed<SurfacesType[]>(() => {
         const presetPalette = presets[this.layoutService.layoutConfig().preset as KeyOfType<typeof presets>].primitive;
         const colors = ['emerald', 'green', 'lime', 'orange', 'amber', 'yellow', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose'];
-        const palettes: SurfacesType[] = [{ name: 'noir', palette: {} }];
+        const palettes: SurfacesType[] = [{ name: 'noir', palette: {} },
+        { 
+            name: 'custom-blue', 
+            palette: {
+                50: '#e6f2ff',
+                100: '#b3d9ff',
+                200: '#80c1ff',
+                300: '#4da8ff',
+                400: '#1a8fff',
+                500: '#007bff',
+                600: '#0062cc',
+                700: '#004a99',
+                800: '#003166',
+                900: '#001933',
+                950: '#000c19'
+        }
+    }
+        ];
 
         colors.forEach((color) => {
             palettes.push({

@@ -252,8 +252,8 @@ namespace thongbao.be.Controllers.DanhBa
         }
 
         [Permission(PermissionKeys.DanhBaDelete)]
-        [HttpDelete("danh-ba-chi-tiet")]
-        public ApiResponse DeleteDanhBaChiTiet([FromQuery]int idDanhBa, [FromQuery] int idDanhBaChiTiet)
+        [HttpDelete("{idDanhBa}/nguoi-nhan/{idDanhBaChiTiet}")]
+        public ApiResponse DeleteDanhBaChiTiet([FromRoute]int idDanhBa,[FromRoute] int idDanhBaChiTiet)
         {
             try
             {

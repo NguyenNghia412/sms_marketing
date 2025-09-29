@@ -146,7 +146,7 @@ namespace thongbao.be.application.DanhBa.Implements
             _logger.LogInformation($"{nameof(FindDanhBaChiTiet)} dto={JsonSerializer.Serialize(dto)}");
             var query = from dbct in _smDbContext.DanhBaSms
                         where dbct.IdDanhBa == idDanhBa && !dbct.Deleted
-                        orderby dbct.CreatedDate descending
+                        orderby dbct.Id ascending
                         select dbct;
             var data = query.Paging(dto).ToList();
             var items = _mapper.Map<List<ViewDanhBaChiTietDto>>(data);

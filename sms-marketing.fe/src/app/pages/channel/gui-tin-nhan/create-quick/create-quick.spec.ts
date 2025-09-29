@@ -1,8 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CreateQuick } from './create-quick';
 
-
-
 describe('CreateQuick', () => {
   let component: CreateQuick;
   let fixture: ComponentFixture<CreateQuick>;
