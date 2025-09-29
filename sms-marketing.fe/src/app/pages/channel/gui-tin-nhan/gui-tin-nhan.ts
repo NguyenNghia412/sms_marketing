@@ -7,7 +7,7 @@ import { GuiTinNhanService } from '@/services/gui-tin-nhan.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { Breadcrumb } from '@/shared/components/breadcrumb/breadcrumb';
 import { SharedImports } from '@/shared/import.shared';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { MobilePreview } from './mobile-preview/mobile-preview';
@@ -15,10 +15,11 @@ import { ChipModule } from 'primeng/chip';
 import { DialogService } from 'primeng/dynamicdialog';
 import { Import } from './import/import';
 import { CreateQuick } from './create-quick/create-quick';
+import { Menu } from 'primeng/menu';
 
 @Component({
     selector: 'app-gui-tin-nhan',
-    imports: [SharedImports, Breadcrumb, MobilePreview, ChipModule],
+    imports: [SharedImports, Breadcrumb, MobilePreview, ChipModule, Menu],
     templateUrl: './gui-tin-nhan.html',
     styleUrl: './gui-tin-nhan.scss',
     
@@ -28,12 +29,26 @@ export class GuiTinNhan extends BaseComponent {
     private _chienDichService = inject(ChienDichService);
     private _guiTinNhanService = inject(GuiTinNhanService);
 
+    @ViewChild('menu') menu!: Menu;
     
     items: MenuItem[] = [{ label: 'Danh sách chiến dịch', routerLink: '/channel/sms' }, { label: 'Gửi tin nhắn sms' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
     idChienDich: number = 0;
     listDanhBa: IViewRowDanhBa[] = [];
     listBrandname: IViewBrandname[] = [];
+
+    menuItems: MenuItem[] = [
+        {
+            label: 'Thêm danh bạ mới',
+            icon: 'pi pi-plus-circle',
+            command: () => this.onOpenCreateDanhBa()
+        },
+        {
+            label: 'Thêm danh bạ nhanh',
+            icon: 'pi pi-plus-circle',
+            command: () => this.onOpenCreateDanhBaNhanh()
+        }
+    ];
 
     override form: FormGroup = new FormGroup({
         idBrandName: new FormControl(null, [Validators.required]),
