@@ -1,0 +1,75 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+        <label for="TenDanhBa" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên danh bạ(*)</label>
+        <input pInputText formControlName="TenDanhBa" id="TenDanhBa" type="text" class="w-full mb-2" />
+        @if (form.get('TenDanhBa')?.hasError('required') && form.get('TenDanhBa')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('TenDanhBa') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="Type" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Loại danh bạ(*)</label>
+        <p-select 
+            formControlName="Type" 
+            id="Type" 
+            [options]="loaiDanhBaOptions" 
+            optionLabel="label" 
+            optionValue="value" 
+            placeholder="Chọn loại danh bạ"
+            class="w-full mb-2">
+        </p-select>
+        @if (form.get('Type')?.hasError('required') && form.get('Type')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('Type') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="TruongData" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Trường dữ liệu(*)</label>
+        <small class="block text-surface-600 dark:text-surface-400 mb-2">
+            Nhập các tên trường ngăn cách bởi dấu chấm phẩy (;). Bắt buộc phải có: Họ và tên, Số điện thoại, Mã số người dùng
+        </small>
+        <textarea 
+            pInputTextarea 
+            formControlName="TruongData" 
+            id="TruongData" 
+            rows="3" 
+            class="w-full mb-2"
+            placeholder="VD: STT;Họ và tên(*);Số điện thoại(*);Mã số người dùng(*);Khóa;Học phí">
+        </textarea>
+        @if (form.get('TruongData')?.hasError('required') && form.get('TruongData')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('TruongData') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="Data" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Dữ liệu(*)</label>
+        <small class="block text-surface-600 dark:text-surface-400 mb-2">
+            Nhập từng dòng dữ liệu, các giá trị ngăn cách bởi dấu chấm phẩy (;). Mỗi dòng là một bản ghi
+        </small>
+        <textarea 
+            pInputTextarea 
+            formControlName="Data" 
+            id="Data" 
+            rows="10" 
+            class="w-full mb-2"
+            placeholder="VD:&#10;1;Nguyễn Việt Cường;0326235002;0211466;K66;1000000&#10;2;Nguyễn Trọng Nghĩa;0389105608;0211465;K70;1000000">
+        </textarea>
+        @if (form.get('Data')?.hasError('required') && form.get('Data')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('Data') }} </p-message>
+        }
+    </div>
+
+    <div class="flex gap-2 mt-4" style="justify-content: flex-end;">
+        <p-button 
+            label="Hủy" 
+            severity="secondary" 
+            [outlined]="true"
+            (onClick)="onCancel()" />
+        <p-button 
+            label="Lưu" 
+            icon="pi pi-save"
+            type="submit" 
+            [disabled]="form.invalid || loading"
+            [loading]="loading" />
+    </div>
+</form>

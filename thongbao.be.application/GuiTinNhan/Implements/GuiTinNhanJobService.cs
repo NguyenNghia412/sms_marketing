@@ -116,6 +116,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 IdDanhBaSms = currentRecord.Id,
                 SoDienThoai = formattedPhoneNumber,
+                BrandName = brandName ?? string.Empty,
                 PersonalizedText = personalizedText,
                 SmsCount = smsCount
             };

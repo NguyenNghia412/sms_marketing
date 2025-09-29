@@ -73,3 +73,9 @@ export interface IViewRowNguoiNhan {
   maSoNguoiDung?: string,
   soDienThoai?: string,
 }
+export interface ICreateDanhBaChienDichQuick{
+  tenDanhBa? : string, 
+  type? : number,
+  truong: string[],
+  data:string[],
+}

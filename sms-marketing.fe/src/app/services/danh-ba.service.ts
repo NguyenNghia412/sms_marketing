@@ -1,4 +1,4 @@
-import { ICreateDanhBa, IFindPagingDanhBa, IFindPagingNguoiNhan, IImportCreateDanhBa, IUpdateDanhBa, IUploadFileImportDanhBa, IVerifyImportCreateDanhBa, IVerifyImportDanhBa, IViewRowDanhBa, IViewRowNguoiNhan, IViewVerifyImportDanhBa } from '@/models/danh-ba.models';
+import { ICreateDanhBa, ICreateDanhBaChienDichQuick, IFindPagingDanhBa, IFindPagingNguoiNhan, IImportCreateDanhBa, IUpdateDanhBa, IUploadFileImportDanhBa, IVerifyImportCreateDanhBa, IVerifyImportDanhBa, IViewRowDanhBa, IViewRowNguoiNhan, IViewVerifyImportDanhBa } from '@/models/danh-ba.models';
 import { IBaseResponse, IBaseResponseWithData, IBaseResponsePaging } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -125,5 +125,10 @@ export class DanhBaService {
         return this.http.get<IBaseResponsePaging<IViewRowNguoiNhan>>(uri, {
             params: { ...query }
         });
+    }
+
+    createDanhBaChienDichQuick(body:ICreateDanhBaChienDichQuick){
+        const uri = `${this.api}/quick-danh-ba`;
+        return this.http.post<IBaseResponse>(uri,body);
     }
 }

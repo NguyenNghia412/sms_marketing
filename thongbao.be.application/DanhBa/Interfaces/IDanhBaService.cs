@@ -29,5 +29,6 @@ namespace thongbao.be.application.DanhBa.Interfaces
         public void DeleteDanhBaChiTiet(int idDanhBa,int idDanhBaChiTiet);
         public  Task<VerifyImportDanhBaChienDichResponseDto> VerifyImportCreateDanhBaSms(ImportDanhBaSmsDto dto);
         public  Task<ImportDanhBaChienDichResponseDto> ImportCreateDanhBaChienDich(ImportDanhBaSmsDto dto);
+        public Task CreateDanhBaChienDichNhanh(CreateDanhBaChienDichNhanhDto dto);
     }
 }

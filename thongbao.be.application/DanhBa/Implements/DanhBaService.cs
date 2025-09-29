@@ -2145,6 +2145,285 @@ namespace thongbao.be.application.DanhBa.Implements
                 throw;
             }
         }
+        public async Task CreateDanhBaChienDichNhanh(CreateDanhBaChienDichNhanhDto dto)
+        {
+            _logger.LogInformation($"{nameof(CreateDanhBaChienDichNhanh)} dto={JsonSerializer.Serialize(new { dto.TenDanhBa, dto.Type, TruongCount = dto.Truong?.Count ?? 0, DataCount = dto.Data?.Count ?? 0 })}");
+
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            const int BATCH_SIZE = 5000;
+
+            try
+            {
+                if (dto.Type != TypeDanhBa.Sms && dto.Type != TypeDanhBa.Email)
+                {
+                    throw new UserFriendlyException(ErrorCodes.InternalServerError);
+                }
+
+                if (string.IsNullOrWhiteSpace(dto.TenDanhBa))
+                {
+                    throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired,
+                        ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
+                }
+
+                if (dto.Truong == null || !dto.Truong.Any())
+                {
+                    throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired,
+                        ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
+                }
+
+                if (dto.Data == null || !dto.Data.Any())
+                {
+                    throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired,
+                        ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
+                }
+
+                var truongList = dto.Truong[0].Split(';').Select(t => t.Trim()).ToList();
+
+                int hoVaTenIndex = -1;
+                int soDienThoaiIndex = -1;
+                int maSoNguoiDungIndex = -1;
+
+                for (int i = 0; i < truongList.Count; i++)
+                {
+                    var tenTruong = truongList[i].ToLower();
+
+                    if (tenTruong.Contains("họ") && tenTruong.Contains("tên"))
+                    {
+                        hoVaTenIndex = i;
+                    }
+                    else if (tenTruong.Contains("số") && tenTruong.Contains("điện thoại"))
+                    {
+                        soDienThoaiIndex = i;
+                    }
+                    else if (tenTruong.Contains("mã số") && tenTruong.Contains("người dùng"))
+                    {
+                        maSoNguoiDungIndex = i;
+                    }
+                }
+
+                if (hoVaTenIndex == -1 || soDienThoaiIndex == -1 || maSoNguoiDungIndex == -1)
+                {
+                    throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequiredFieldNotFound,
+                        ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequiredFieldNotFound));
+                }
+
+                var vietnamNow = GetVietnamTime();
+                var phoneRegex = new System.Text.RegularExpressions.Regex(@"^\d{10}$", System.Text.RegularExpressions.RegexOptions.Compiled);
+                var existingMaSoSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                for (int rowIndex = 0; rowIndex < dto.Data.Count; rowIndex++)
+                {
+                    var dataRow = dto.Data[rowIndex];
+                    var row = dataRow.Split(';');
+                    var actualRowNumber = rowIndex + 1;
+
+                    if (row.Length != truongList.Count)
+                    {
+                        throw new UserFriendlyException(ErrorCodes.DanhBaErrorDataColumnMismatch,
+                            string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorDataColumnMismatch), actualRowNumber));
+                    }
+
+                    var hoVaTen = row[hoVaTenIndex]?.Trim();
+                    var soDienThoai = row[soDienThoaiIndex]?.Trim();
+                    var maSoNguoiDung = row[maSoNguoiDungIndex]?.Trim();
+
+                    if (string.IsNullOrWhiteSpace(hoVaTen))
+                    {
+                        throw new UserFriendlyException(ErrorCodes.DanhBaErrorHoVaTenRequired,
+                            string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorHoVaTenRequired), actualRowNumber));
+                    }
+
+                    if (string.IsNullOrWhiteSpace(soDienThoai))
+                    {
+                        throw new UserFriendlyException(ErrorCodes.DanhBaErrorSoDienThoaiRequired,
+                            string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorSoDienThoaiRequired), actualRowNumber));
+                    }
+
+                    if (!phoneRegex.IsMatch(soDienThoai))
+                    {
+                        throw new UserFriendlyException(ErrorCodes.DanhBaErrorSoDienThoaiInvalidAtRow,
+                            string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorSoDienThoaiInvalidAtRow), actualRowNumber));
+                    }
+
+                    if (string.IsNullOrWhiteSpace(maSoNguoiDung))
+                    {
+                        throw new UserFriendlyException(ErrorCodes.DanhBaErrorMaSoNguoiDungRequired,
+                            string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorMaSoNguoiDungRequired), actualRowNumber));
+                    }
+
+                    if (existingMaSoSet.Contains(maSoNguoiDung))
+                    {
+                        throw new UserFriendlyException(ErrorCodes.DanhBaErrorMaSoNguoiDungFoundAtRow,
+                            string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorMaSoNguoiDungFoundAtRow), maSoNguoiDung, actualRowNumber));
+                    }
+
+                    existingMaSoSet.Add(maSoNguoiDung);
+                }
+                int idDanhBa;
+                using (var danhBaTransaction = await _smDbContext.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        var danhBa = new domain.DanhBa.DanhBa
+                        {
+                            TenDanhBa = dto.TenDanhBa,
+                            Mota = "",
+                            GhiChu = "",
+                            Type = dto.Type,
+                            CreatedDate = vietnamNow,
+                            Deleted = false
+                        };
+                        _smDbContext.DanhBas.Add(danhBa);
+                        await _smDbContext.SaveChangesAsync();
+                        idDanhBa = danhBa.Id;
+
+                        await danhBaTransaction.CommitAsync();
+                        _logger.LogInformation($"Created DanhBa with ID: {idDanhBa}");
+                    }
+                    catch (Exception ex)
+                    {
+                        await danhBaTransaction.RollbackAsync();
+                        _logger.LogError(ex, "Error creating DanhBa");
+                        throw;
+                    }
+                }
+                var truongDataDict = new Dictionary<string, int>(truongList.Count, StringComparer.OrdinalIgnoreCase);
+                using (var truongTransaction = await _smDbContext.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        var newTruongDatas = truongList.Select(tenTruong => new domain.DanhBa.DanhBaTruongData
+                        {
+                            IdDanhBa = idDanhBa,
+                            TenTruong = tenTruong,
+                            Type = "string",
+                            CreatedDate = vietnamNow,
+                            Deleted = false
+                        }).ToList();
+
+                        await _smDbContext.BulkInsertAsync(newTruongDatas, options =>
+                        {
+                            options.BatchSize = BATCH_SIZE;
+                            options.BulkCopyTimeout = 300;
+                        });
+
+                        var insertedTruongData = await _smDbContext.DanhBaTruongDatas
+                            .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
+                            .Select(x => new { x.TenTruong, x.Id })
+                            .AsNoTracking()
+                            .ToListAsync();
+
+                        foreach (var item in insertedTruongData)
+                        {
+                            truongDataDict[item.TenTruong] = item.Id;
+                        }
+
+                        await truongTransaction.CommitAsync();
+                        _logger.LogInformation($"Created {truongDataDict.Count} TruongData records");
+                    }
+                    catch (Exception ex)
+                    {
+                        await truongTransaction.RollbackAsync();
+                        _logger.LogError(ex, "Error creating TruongData");
+                        throw;
+                    }
+                }
+                using (var dataTransaction = await _smDbContext.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        var newDanhBaSms = new List<domain.DanhBa.DanhBaSms>(dto.Data.Count);
+
+                        foreach (var dataRow in dto.Data)
+                        {
+                            var row = dataRow.Split(';');
+                            var hoVaTen = row[hoVaTenIndex]?.Trim();
+                            var soDienThoai = row[soDienThoaiIndex]?.Trim();
+                            var maSoNguoiDung = row[maSoNguoiDungIndex]?.Trim();
+
+                            newDanhBaSms.Add(new domain.DanhBa.DanhBaSms
+                            {
+                                IdDanhBa = idDanhBa,
+                                HoVaTen = hoVaTen ?? "",
+                                SoDienThoai = soDienThoai ?? "",
+                                MaSoNguoiDung = maSoNguoiDung ?? "",
+                                CreatedDate = vietnamNow,
+                                Deleted = false
+                            });
+                        }
+
+                        await _smDbContext.BulkInsertAsync(newDanhBaSms, options =>
+                        {
+                            options.BatchSize = BATCH_SIZE;
+                            options.BulkCopyTimeout = 300;
+                        });
+
+                        var insertedDanhBaSms = await _smDbContext.DanhBaSms
+                            .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
+                            .Select(x => new { x.Id, x.MaSoNguoiDung })
+                            .AsNoTracking()
+                            .ToListAsync();
+
+                        var maSoToIdDict = insertedDanhBaSms.ToDictionary(x => x.MaSoNguoiDung, x => x.Id, StringComparer.OrdinalIgnoreCase);
+
+                        var newDanhBaData = new List<domain.DanhBa.DanhBaData>(dto.Data.Count * truongList.Count);
+
+                        for (int rowIndex = 0; rowIndex < dto.Data.Count; rowIndex++)
+                        {
+                            var dataRow = dto.Data[rowIndex];
+                            var row = dataRow.Split(';');
+                            var maSoNguoiDung = row[maSoNguoiDungIndex]?.Trim();
+
+                            if (maSoToIdDict.TryGetValue(maSoNguoiDung ?? "", out int danhBaChiTietId))
+                            {
+                                for (int colIndex = 0; colIndex < row.Length; colIndex++)
+                                {
+                                    var cellData = row[colIndex]?.Trim() ?? "";
+                                    var tenTruong = truongList[colIndex];
+
+                                    if (truongDataDict.TryGetValue(tenTruong, out int truongDataId))
+                                    {
+                                        newDanhBaData.Add(new domain.DanhBa.DanhBaData
+                                        {
+                                            Data = cellData,
+                                            IdTruongData = truongDataId,
+                                            IdDanhBaChiTiet = danhBaChiTietId,
+                                            IdDanhBaChienDich = idDanhBa,
+                                            CreatedDate = vietnamNow,
+                                            Deleted = false
+                                        });
+                                    }
+                                }
+                            }
+                        }
+
+                        await _smDbContext.BulkInsertAsync(newDanhBaData, options =>
+                        {
+                            options.BatchSize = BATCH_SIZE;
+                            options.BulkCopyTimeout = 300;
+                        });
+
+                        await dataTransaction.CommitAsync();
+
+                        _logger.LogInformation($"Created {newDanhBaSms.Count} DanhBaSms and {newDanhBaData.Count} DanhBaData records");
+                    }
+                    catch (Exception ex)
+                    {
+                        await dataTransaction.RollbackAsync();
+                        _logger.LogError(ex, "Error creating DanhBaSms and DanhBaData");
+                        throw;
+                    }
+                }
+
+                stopwatch.Stop();
+                _logger.LogInformation($"CreateDanhBaChienDichNhanh completed successfully in {stopwatch.Elapsed.TotalSeconds:F2}s. DanhBa ID: {idDanhBa}");
+            }
+            catch (Exception ex)
+            {
+                stopwatch?.Stop();
+                _logger.LogError(ex, "Error in CreateDanhBaChienDichNhanh");
+                throw;
+            }
+        }
         private async Task<List<List<string>>> _getSheetData(string sheetUrl, string sheetName)
         {
             var serviceAccountPath = _configuration["Google:ServiceAccountPath"];

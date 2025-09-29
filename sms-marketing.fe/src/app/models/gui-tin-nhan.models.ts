@@ -2,7 +2,7 @@ export interface ISaveConfigChienDich {
     idChienDich: number;
     idDanhBa: number;
     idBrandName: number;
-    isFlashSms: boolean;
+    isFlashSms?: boolean;
     isAccented: boolean;
     noiDung: string;
 }
@@ -12,7 +12,7 @@ export interface ISendSms {
   idChienDich: number;
   idDanhBa: number;
   idBrandName: number;
-  isFlashSms: boolean;
+  isFlashSms?: boolean;
   isAccented: boolean;
   noiDung: string;
 }
@@ -29,6 +29,7 @@ export interface IPreviewSendSms {
 
 export interface IViewPreviewSendSms {
   idDanhBaSms?: number;
+  brandName?: string;
   soDienThoai?: string;
   personalizedText?: string;
   smsCount?: number;

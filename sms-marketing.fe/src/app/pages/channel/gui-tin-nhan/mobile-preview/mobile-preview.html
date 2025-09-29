@@ -1,46 +1,91 @@
-<div class="flex flex-row justify-center">
-    <div class="w-10/12">
-        <p-inputgroup>
-            <p-inputgroup-addon>
-                <p-button icon="pi pi-arrow-left" severity="secondary" (onClick)="onChangeIndex(-1)" />
-            </p-inputgroup-addon>
-            <input pInputText [placeholder]="previewSms.soDienThoai ?? ''" readonly class="pointer-events-none" />
-            <p-inputgroup-addon>
-                <p-button icon="pi pi-arrow-right" severity="secondary" (onClick)="onChangeIndex(1)" />
-            </p-inputgroup-addon>
-        </p-inputgroup>
+<div class="flex flex-row justify-center mb-3 -mt-18">
+    <div class="inline-flex items-center gap-4 bg-white px-5 py-3 rounded-full shadow-lg border border-gray-200">
+        <p-button 
+            icon="pi pi-chevron-left" 
+            severity="secondary" 
+            (onClick)="onChangeIndex(-1)"
+            [rounded]="true"
+            [text]="true" />
+        <span class="font-semibold text-gray-800 text-sm px-2">
+            {{ previewSms.soDienThoai ?? '' }}
+        </span>
+        <p-button 
+            icon="pi pi-chevron-right" 
+            severity="secondary" 
+            (onClick)="onChangeIndex(1)"
+            [rounded]="true"
+            [text]="true" />
     </div>
 </div>
-<div class="flex items-center justify-center mt-3">
-    <!-- iPhone 15 Container -->
-    <div class="relative w-72 h-[600px] rounded-[45px] shadow-[0_0_2px_2px_rgba(255,255,255,0.1)] border-8 border-zinc-900">
+<div class="flex flex-col items-center justify-center mt-0">
+    <!-- iPhone 15 Container - Optimized Size -->
+    <div class="relative w-64 h-[520px] rounded-[40px] shadow-[0_0_2px_2px_rgba(255,255,255,0.1)] border-[7px] border-zinc-900 bg-white">
         <!-- Dynamic Island -->
-        <div class="absolute top-2 left-1/2 transform -translate-x-1/2 w-[90px] h-[22px] bg-zinc-900 rounded-full z-20"></div>
+        <div class="absolute top-1.5 left-1/2 transform -translate-x-1/2 w-20 h-5 bg-zinc-900 rounded-full z-20"></div>
 
-        <div class="absolute -inset-[1px] border-[3px] border-zinc-700 border-opacity-40 rounded-[37px] pointer-events-none"></div>
+        <div class="absolute -inset-[1px] border-[3px] border-zinc-700 border-opacity-40 rounded-[34px] pointer-events-none"></div>
 
         <!-- Screen Content -->
-        <div class="relative w-full h-full rounded-[37px] overflow-hidden">
-            <div class="flex flex-col justify-between h-full pb-5">
-                @if (noiDung()) {
-                <div class="bg-gray-200 text-black mt-12 ml-3 px-4 py-2 rounded-2xl max-w-[80%] rounded-bl-none">{{ noiDung() }}</div>
-                } @if (previewSms.smsCount) {
-                <div class="bg-gray-200 text-black mt-12 mx-3 px-4 py-2 rounded-2xl max-w-[90%]">SL tin nhắn: {{ previewSms.smsCount }}</div>
+        <div class="relative w-full h-full rounded-[33px] overflow-hidden bg-white">
+            <!-- Header with phone number -->
+            <div class="flex items-center justify-between px-3 py-2.5 bg-gray-50 mt-7">
+                <div class="flex items-center gap-2">
+                    <button class="text-blue-500">
+                        <i class="pi pi-chevron-left text-sm"></i>
+                    </button>
+                    <span class="font-medium text-xs">{{ previewSms.brandName ?? '447491163443' }}</span>
+                </div>
+                <div class="flex items-center gap-2.5">
+                    <button class="text-gray-600">
+                        <i class="pi pi-phone text-sm"></i>
+                    </button>
+                    <button class="text-gray-600">
+                        <i class="pi pi-ellipsis-v text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div class="flex flex-col px-2.5 py-2 h-[calc(100%-120px)] overflow-y-auto">
+                @if (previewSms.personalizedText) {
+                <div class="bg-gray-200 text-black px-3 py-2 rounded-2xl max-w-[85%] rounded-tl-none text-xs leading-relaxed mb-2">
+                    {{ previewSms.personalizedText }}
+                </div>
                 }
+            </div>
+
+            <!-- Bottom Input Area -->
+            <div class="absolute bottom-0 left-0 right-0 px-2.5 py-2 bg-white border-t border-gray-200">
+                <div class="flex items-center gap-1.5">
+                    <button class="text-gray-500">
+                        <i class="pi pi-plus text-lg"></i>
+                    </button>
+                    <div class="flex-1 bg-gray-100 rounded-full px-3 py-1.5">
+                        <input type="text" placeholder="" class="bg-transparent border-none outline-none w-full text-xs" readonly />
+                    </div>
+                    <button class="text-gray-500">
+                        <i class="pi pi-microphone text-lg"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Left Side Buttons -->
         <!-- Silent Switch -->
-        <div class="absolute left-[-12px] top-20 w-[6px] h-8 bg-zinc-900 rounded-l-md shadow-md"></div>
+        <div class="absolute left-[-10px] top-16 w-[5px] h-7 bg-zinc-900 rounded-l-md shadow-md"></div>
 
         <!-- Volume Up -->
-        <div class="absolute left-[-12px] top-36 w-[6px] h-12 bg-zinc-900 rounded-l-md shadow-md"></div>
+        <div class="absolute left-[-10px] top-28 w-[5px] h-10 bg-zinc-900 rounded-l-md shadow-md"></div>
 
         <!-- Volume Down -->
-        <div class="absolute left-[-12px] top-52 w-[6px] h-12 bg-zinc-900 rounded-l-md shadow-md"></div>
+        <div class="absolute left-[-10px] top-40 w-[5px] h-10 bg-zinc-900 rounded-l-md shadow-md"></div>
 
         <!-- Right Side Button (Power) -->
-        <div class="absolute right-[-12px] top-36 w-[6px] h-16 bg-zinc-900 rounded-r-md shadow-md"></div>
+        <div class="absolute right-[-10px] top-28 w-[5px] h-14 bg-zinc-900 rounded-r-md shadow-md"></div>
     </div>
+
+    <!-- SMS Count below phone -->
+    @if (previewSms.smsCount) {
+    <div class="bg-gray-200 text-black mt-3 px-4 py-2 rounded-2xl text-sm">Tin nhắn: {{ previewSms.smsCount }}</div>
+    }
 </div>

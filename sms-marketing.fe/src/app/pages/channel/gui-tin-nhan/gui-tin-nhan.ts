@@ -14,6 +14,7 @@ import { MobilePreview } from './mobile-preview/mobile-preview';
 import { ChipModule } from 'primeng/chip';
 import { DialogService } from 'primeng/dynamicdialog';
 import { Import } from './import/import';
+import { CreateQuick } from './create-quick/create-quick';
 
 @Component({
     selector: 'app-gui-tin-nhan',
@@ -102,6 +103,14 @@ export class GuiTinNhan extends BaseComponent {
     }
     onOpenCreateDanhBa() {
         const ref = this._dialogService.open(Import, { header: 'Tạo danh bạ và import danh sách người nhận', closable: true, modal: true, styleClass: 'w-[600px]', focusOnShow: false });
+        ref.onClose.subscribe((result) => {
+            if (result) {
+                   location.reload();
+            }
+        });
+    }
+    onOpenCreateDanhBaNhanh(){
+        const ref = this._dialogService.open(CreateQuick, { header: 'Tạo danh bạ và import danh sách người nhận', closable: true, modal: true, styleClass: 'w-[600px]', focusOnShow: false });
         ref.onClose.subscribe((result) => {
             if (result) {
                    location.reload();
