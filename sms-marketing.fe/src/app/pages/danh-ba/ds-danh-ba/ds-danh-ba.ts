@@ -27,11 +27,11 @@ export class DsDanhBa extends BaseComponent {
 
     columns: IColumn[] = [
         { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
-        { header: 'Tên danh bạ', field: 'tenDanhBa', headerContainerStyle: 'min-width: 10rem', },
+        { header: 'Tên danh bạ', field: 'tenDanhBa', headerContainerStyle: 'min-width: 10rem',cellClass: 'cursor-pointer text-blue-600 hover:text-blue-800 hover:underline',clickable: true  },
         { header: 'Mô tả', field: 'mota', headerContainerStyle: 'min-width: 20rem' },
         { header: 'Số người nhận', field: 'soLuongNguoiNhan', headerContainerStyle: 'min-width: 5rem' },
         { header: 'Thời gian tạo', field: 'createdDate',headerContainerStyle: 'width: 15rem' , cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
-        { header: 'Thao tác', headerContainerStyle: 'width: 5rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
+        { header: 'Thao tác', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
     data: IViewRowDanhBa[] = [];
@@ -52,6 +52,28 @@ export class DsDanhBa extends BaseComponent {
         this.query.pageNumber = ($event.page ?? 0) +1;
         this.getData();
     }
+    onCustomEmit(data: { type: string; data: IViewRowDanhBa; field?: string }) {
+    if (data.type === TblActionTypes.detail) {
+        this.navigateToDetail(data.data); 
+    } else if (data.type === TblActionTypes.delete) {
+        this.onDelete(data.data);
+    } else if (data.type === TblActionTypes.update) {
+        this.onOpenUpdate(data.data);
+    } else if (data.type === 'cellClick' && data.field === 'tenDanhBa') {
+        this.navigateToDetail(data.data); 
+    }
+}
+
+    navigateToDetail(danhBa: IViewRowDanhBa) {
+        //console.log('Navigating with:', danhBa?.id);
+        if (danhBa?.id) {
+            this.router.navigate(['/danh-ba/ds/chi-tiet'], {
+                queryParams: {
+                     id: danhBa.id  
+            }
+        });
+    }
+}
 
     getData() {
         this.loading = true;
@@ -86,21 +108,6 @@ export class DsDanhBa extends BaseComponent {
                 this.getData();
             }
         });
-    }
-
-    onCustomEmit(data: { type: string; data: IViewRowDanhBa }) {
-        if (data.type === TblActionTypes.detail) {
-            const uri = '/danh-ba/chi-tiet';
-            this.router.navigate([uri], {
-                queryParams: {
-                    id: data.data.id
-                }
-            });
-        } else if (data.type === TblActionTypes.delete) {
-            this.onDelete(data.data);
-        } else if (data.type === TblActionTypes.update) {
-            this.onOpenUpdate(data.data);
-        }
     }
 
     onDelete(data: IViewRowDanhBa) {

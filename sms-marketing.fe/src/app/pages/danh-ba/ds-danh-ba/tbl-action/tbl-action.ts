@@ -9,20 +9,23 @@ import { Menu } from 'primeng/menu';
 export const TblActionTypes = {
     detail: 'detail',
     update: 'update',
-    delete: 'delete'
+    delete: 'delete',
+    config: 'config',
 }
 
 @Component({
     selector: 'app-tbl-action',
+    standalone: true,
     imports: [SharedImports, Menu],
     templateUrl: 'tbl-action.html'
 })
 export class TblAction extends BaseComponent {
+    private static currentOpenMenu: Menu | null = null;
     tblEmit = inject(TBL_CUSTOM_COMP_EMIT);
     @Input() row: IViewRowDanhBa = {};
     @Input() rowIndex: number = 0;
     @Input() data: any;
-    @ViewChild('menu') menu!: Menu;
+    @ViewChild('menu', { static: false }) menu!: Menu;
     
     actionType = TblActionTypes;
     menuItems: MenuItem[] = [];
@@ -49,7 +52,21 @@ export class TblAction extends BaseComponent {
         });
     }
     
-    onMenuClick(event: Event) {
-        this.menu.toggle(event);
+     onMenuClick(event: any) {
+        event?.stopPropagation();
+        event?.preventDefault();
+
+        if (TblAction.currentOpenMenu && TblAction.currentOpenMenu !== this.menu) {
+            TblAction.currentOpenMenu.hide();
+        }
+
+        this.menu?.toggle(event);
+        TblAction.currentOpenMenu = this.menu?.visible ? this.menu : null;
+    }
+
+    ngOnDestroy(): void {
+        if (TblAction.currentOpenMenu === this.menu) {
+            TblAction.currentOpenMenu = null;
+        }
     }
 }

@@ -34,7 +34,8 @@ export class ChienDichReport extends BaseComponent{
            header: 'Tên chiến dịch', 
             field: 'tenChienDich', 
             headerContainerStyle: 'min-width: 6rem',
-            cellClass: 'cursor-pointer text-blue-600 hover:text-blue-800 hover:underline'
+            cellClass: 'cursor-pointer text-blue-600 hover:text-blue-800 hover:underline',
+            clickable: true 
         },
         
         { header: 'Tên danh bạ', field: 'danhBa.tenDanhBa', headerContainerStyle: 'min-width: 6rem', },
@@ -70,7 +71,7 @@ export class ChienDichReport extends BaseComponent{
     
     onCustomEmit($event: any) {
         if ($event.type === 'cellClick' && $event.field === 'tenChienDich') {
-            this.navigateToDetail($event.rowData);
+            this.navigateToDetail($event.data);
         }
     }
 

@@ -11,6 +11,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Create } from './create/create';
 import { PaginatorState } from 'primeng/paginator';
 import { TblAction, TblActionTypes } from './tbl-action/tbl-action';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
     selector: 'app-sms',
@@ -20,7 +21,7 @@ import { TblAction, TblActionTypes } from './tbl-action/tbl-action';
 })
 export class Sms extends BaseComponent {
     _chienDichService = inject(ChienDichService);
-
+    _sanitizer = inject(DomSanitizer);
     statusList = CampaginStatuses.List;
 
     searchForm: FormGroup = new FormGroup({
@@ -32,12 +33,13 @@ export class Sms extends BaseComponent {
 
     columns: IColumn[] = [
         { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
-        { header: 'Tên chiến dịch', field: 'tenChienDich', headerContainerStyle: 'min-width: 12rem' },
+        { header: 'Tên chiến dịch', field: 'tenChienDich', headerContainerStyle: 'min-width: 12rem' ,cellClass: 'cursor-pointer text-blue-600 hover:text-blue-800 hover:underline',clickable: true},
         { header: 'Nội dung', field: 'noiDung', headerContainerStyle: 'min-width: 12rem' },
-        { header: 'Trạng Thái', field: 'trangThaiText', headerContainerStyle: 'width: 6rem' },
+        { header: 'Trạng Thái', field: 'trangThaiText', headerContainerStyle: 'width: 6rem', cellRender: 'html' },
+
         { header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
         { header: 'Thời gian gửi', field: 'ngayBatDau', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
-        { header: 'Thao tác', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
+        { header: 'Thao tác', headerContainerStyle: 'width: 5rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
     data: IViewRowChienDich[] = [];
@@ -53,25 +55,26 @@ export class Sms extends BaseComponent {
     onSearch() {
         this.getData();
     }
-
-    getData() {
-        this.loading = true;
-        this._chienDichService.findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value }).subscribe({
-            next: (res) => {
-                if (this.isResponseSucceed(res, false)) {
-                    this.data = res.data.items.map(item => ({
+   getData() {
+    this.loading = true;
+    this._chienDichService.findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value }).subscribe({
+        next: (res) => {
+            if (this.isResponseSucceed(res, false)) {
+                this.data = res.data.items.map(item => ({
                     ...item,
-                    trangThaiText: item.trangThai ? 'Đã gửi' : 'Nháp'
+                    trangThaiText: item.trangThai 
+                        ? '<span style="color: #15803d; font-weight: 700;">Đã gửi</span>' 
+                        : '<span style="color: #9ca3af;">Nháp</span>'
                 }));
                 this.totalRecords = res.data.totalItems;
-
-                }
-            },
-            complete: () => {
-                this.loading = false;
             }
-        });
-    }
+        },
+        complete: () => {
+            this.loading = false;
+        }
+    });
+}
+
 
     onOpenCreate() {
         const ref = this._dialogService.open(Create, { header: 'Tạo chiến dịch', closable: true, modal: true, styleClass: 'w-[600px]', focusOnShow: false });
@@ -129,18 +132,26 @@ export class Sms extends BaseComponent {
         this.getData();
     }
 
-    onCustomEmit(data: { type: string; data: IViewRowChienDich }) {
+    onCustomEmit(data: { type: string; data: IViewRowChienDich; field?: string }) {
         if (data.type === TblActionTypes.detail) {
-            const uri = 'channel/gui-sms';
-            this.router.navigate([uri], {
-                queryParams: {
-                    idChienDich: data.data.id
-                }
-            });
+                this.navigateToDetail(data.data); 
         } else if (data.type === TblActionTypes.delete) {
             this.onDelete(data.data);
         } else if (data.type === TblActionTypes.duplicate){
             this.onDuplicate(data.data);
         }
+        else if (data.type === 'cellClick' && data.field === 'tenChienDich') {
+        this.navigateToDetail(data.data); 
     }
+    }
+    navigateToDetail(chienDich: IViewRowChienDich) {
+    console.log('Navigating with:', chienDich?.id);
+    if (chienDich?.id) {
+        this.router.navigate(['/channel/gui-sms'], {
+            queryParams: {
+                idChienDich: chienDich.id  
+            }
+        });
+    }
+}
 }

@@ -8,7 +8,8 @@ export type IColumn = {
   cellViewType?: string,
   cellRender?: string,
   dateFormat?: string,
-  customComponent?: any
+  customComponent?: any,
+  clickable?: boolean;
 }
 
 

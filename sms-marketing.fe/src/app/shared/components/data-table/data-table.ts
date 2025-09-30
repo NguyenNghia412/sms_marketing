@@ -1,7 +1,7 @@
 import { CellViewTypes } from '@/shared/constants/data-table.constants';
 import { IColumn, ICustomEmit } from '@/shared/models/data-table.models';
 import { CommonModule, CurrencyPipe, DatePipe, NgClass, NgComponentOutlet } from '@angular/common';
-import { Component, EventEmitter, inject, InjectionToken, Injector, input, OnInit, Output, output } from '@angular/core';
+import { Component, EventEmitter, inject, InjectionToken, Injector, input, OnInit, Output } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -12,7 +12,7 @@ export const TBL_CUSTOM_COMP_EMIT = new InjectionToken<EventEmitter<any>>('TBL_C
 
 @Component({
     selector: 'app-data-table',
-    imports: [TableModule, PaginatorModule, CurrencyPipe, DatePipe, IconFieldModule, InputIconModule, NgClass, NgComponentOutlet, CommonModule, PaginatorModule],
+    imports: [TableModule, PaginatorModule, CurrencyPipe, DatePipe, IconFieldModule, InputIconModule, NgClass, NgComponentOutlet, CommonModule],
     templateUrl: './data-table.html',
     styleUrl: './data-table.scss'
 })
@@ -31,11 +31,11 @@ export class DataTable implements OnInit {
     @Output() onCustomComp = new EventEmitter<any>();
 
     cellViewTypes = CellViewTypes;
-
     sanitizer = inject(DomSanitizer);
+    customInjector!: Injector;
 
-    get customInjector() {
-        return Injector.create({
+    ngOnInit(): void {
+        this.customInjector = Injector.create({
             providers: [
                 {
                     provide: TBL_CUSTOM_COMP_EMIT,
@@ -44,9 +44,7 @@ export class DataTable implements OnInit {
             ],
             parent: this.injector
         });
-    }
-
-    ngOnInit(): void {
+        
         this.customEmit.subscribe((data) => this.onTblCustomCompEmit(data));
     }
 
@@ -61,13 +59,18 @@ export class DataTable implements OnInit {
     onPage($event: any) {
         this.onPageChanged.emit($event);
     }
-    onCellClick(col: IColumn, row: any) {
-    if (col.field === 'tenChienDich') {
-        this.onCustomComp.emit({
-            type: 'cellClick',
-            field: col.field,
-            rowData: row
-        });
+    
+     onCellClick(col: IColumn, row: any) {
+        if (col.clickable) {
+            this.onCustomComp.emit({
+                type: 'cellClick',
+                field: col.field,
+                data: row // Đổi từ rowData thành data để consistent với các emit khác
+            });
+        }
     }
-}
+    isCellClickable(col: IColumn): boolean {
+        return col.clickable === true;
+    }
+
 }

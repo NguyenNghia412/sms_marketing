@@ -4,5 +4,5 @@ import { ChiTiet } from "./chi-tiet/chi-tiet";
 
 export default [
   { path: 'ds', data: { breadcrumb: 'ds-danh-ba' }, component: DsDanhBa },
-  { path: 'chi-tiet', data: { breadcrumb: 'danh-ba-chi-tiet' }, component: ChiTiet },
+  { path: 'ds/chi-tiet', data: { breadcrumb: 'danh-ba-chi-tiet' }, component: ChiTiet },
 ] as Routes
