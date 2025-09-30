@@ -70,7 +70,9 @@ export interface IViewRowNguoiNhan {
   id?: number,
   //emailHuce?: string,
   hoVaTen?: string,
-  maSoNguoiDung?: string,
+  //moTa?: string,
+  //maSoNguoiDung?: string,
+  //soLuongNguoiNhan: number,
   soDienThoai?: string,
 }
 export interface ICreateDanhBaChienDichQuick{

@@ -28,8 +28,8 @@ export class DanhBaService {
         return this.http.put<IBaseResponse>(`${this.api}?idDanhBa=${body.id}`, body);
     }
 
-    delete(id: number) {
-        return this.http.delete<IBaseResponse>(`${this.api}?id=${id}`);
+    delete(idDanhBa: number) {
+        return this.http.delete<IBaseResponse>(`${this.api}?idDanhBa=${idDanhBa}`);
     }
 
     downloadImportTemplate() {

@@ -10,7 +10,7 @@ namespace thongbao.be.application.DanhBa.Dtos
     {
         public int IdDanhBa { get; set; }
         public string HoVaTen { get; set; } = String.Empty;
-        public string MaSoNguoiDung { get; set; } = String.Empty;
+        //public string MaSoNguoiDung { get; set; } = String.Empty;
         public string SoDienThoai { get; set; } = String.Empty;
         //public string EmailHuce { get; set; } = String.Empty;
     }

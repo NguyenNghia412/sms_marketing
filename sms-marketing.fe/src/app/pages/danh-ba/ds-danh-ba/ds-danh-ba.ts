@@ -19,6 +19,7 @@ import { PaginatorState } from 'primeng/paginator';
 })
 export class DsDanhBa extends BaseComponent {
     _danhBaService = inject(DanhBaService);
+    
 
     searchForm: FormGroup = new FormGroup({
         search: new FormControl('')
@@ -27,8 +28,10 @@ export class DsDanhBa extends BaseComponent {
     columns: IColumn[] = [
         { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
         { header: 'Tên danh bạ', field: 'tenDanhBa', headerContainerStyle: 'min-width: 10rem', },
-        { header: 'Thời gian tạo', field: 'createdDate',headerContainerStyle: 'width: 10rem' , cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
-        { header: 'Thao tác', headerContainerStyle: 'width: 12rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
+        { header: 'Mô tả', field: 'mota', headerContainerStyle: 'min-width: 20rem' },
+        { header: 'Số người nhận', field: 'soLuongNguoiNhan', headerContainerStyle: 'min-width: 5rem' },
+        { header: 'Thời gian tạo', field: 'createdDate',headerContainerStyle: 'width: 15rem' , cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
+        { header: 'Thao tác', headerContainerStyle: 'width: 5rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
     data: IViewRowDanhBa[] = [];

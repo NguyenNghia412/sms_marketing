@@ -85,14 +85,14 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var truongDataMapping = await GetTruongDataMapping(idDanhBa);
             var allRecords = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
-                .Select(x => new { x.Id, x.MaSoNguoiDung, x.SoDienThoai })
+                .Select(x => new { x.Id, x.SoDienThoai })
                 .ToListAsync();
             if (currentIndex < 1 || currentIndex > allRecords.Count)
                 return null;
             var currentRecord = allRecords[currentIndex - 1];
 
             var userData = await GetDanhBaDataForBatch(new List<int> { currentRecord.Id }, idChienDich);
-            var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, currentRecord.MaSoNguoiDung, IsAccented);
+            var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, currentRecord.SoDienThoai, IsAccented);
             var formattedPhoneNumber = FormatPhoneNumber(currentRecord.SoDienThoai);
             var length = personalizedText.Length;
 
@@ -130,7 +130,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var truongDataMapping = await GetTruongDataMapping(idDanhBa);
             var allRecords = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
-                .Select(x => new { x.Id, x.MaSoNguoiDung, x.SoDienThoai })
+                .Select(x => new { x.Id, x.SoDienThoai })
                 .ToListAsync();
 
             var recordIds = allRecords.Select(x => x.Id).ToList();
@@ -150,7 +150,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             foreach (var record in allRecords)
             {
                 var userData = allUserData.Where(x => x.IdDanhBaChiTiet == record.Id).ToList();
-                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, record.MaSoNguoiDung, isAccented);
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, record.SoDienThoai, isAccented);
 
                 var formattedNumber = FormatPhoneNumber(record.SoDienThoai);
                 var prefix = formattedNumber.Length >= 4 ? formattedNumber.Substring(2, 2) : "";
@@ -350,7 +350,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var truongDataMapping = await GetTruongDataMapping(idDanhBa);
             var allRecords = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
-                .Select(x => new { x.Id, x.MaSoNguoiDung, x.SoDienThoai })
+                .Select(x => new { x.Id, x.SoDienThoai })
                 .ToListAsync();
 
             var recordIds = allRecords.Select(x => x.Id).ToList();
@@ -362,7 +362,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             foreach (var record in allRecords)
             {
                 var userData = allUserData.Where(x => x.IdDanhBaChiTiet == record.Id).ToList();
-                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, record.MaSoNguoiDung, isAccented);
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, record.SoDienThoai, isAccented);
 
                 var length = personalizedText.Length;
                 int smsCount;
@@ -442,7 +442,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var danhBaChiTiets = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
                 .OrderBy(x => x.Id)
-                .Select(x => new { x.Id, x.MaSoNguoiDung, x.SoDienThoai })
+                .Select(x => new { x.Id, x.SoDienThoai })
                 .ToListAsync();
 
             if (!danhBaChiTiets.Any())
@@ -460,7 +460,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     .Where(x => x.IdDanhBaChiTiet == danhBaChiTiet.Id)
                     .ToList();
 
-                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, danhBaChiTiet.MaSoNguoiDung, IsAccented);
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, danhBaChiTiet.SoDienThoai, IsAccented);
 
                 var formattedPhoneNumber = FormatPhoneNumber(danhBaChiTiet.SoDienThoai);
 
@@ -484,7 +484,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 .OrderBy(x => x.Id)
                 .Skip(batchIndex * BATCH_SIZE)
                 .Take(BATCH_SIZE)
-                .Select(x => new { x.Id, x.MaSoNguoiDung, x.SoDienThoai })
+                .Select(x => new { x.Id, x.SoDienThoai })
                 .ToListAsync();
 
             if (!danhBaChiTiets.Any())
@@ -502,7 +502,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     .Where(x => x.IdDanhBaChiTiet == danhBaChiTiet.Id)
                     .ToList();
 
-                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, danhBaChiTiet.MaSoNguoiDung, IsAccented);
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, danhBaChiTiet.SoDienThoai, IsAccented);
 
                 var formattedPhoneNumber = FormatPhoneNumber(danhBaChiTiet.SoDienThoai);
 

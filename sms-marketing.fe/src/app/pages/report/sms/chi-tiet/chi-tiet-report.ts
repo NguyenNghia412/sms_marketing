@@ -10,17 +10,21 @@ import { CellViewTypes } from "@/shared/constants/data-table.constants";
 import { IFindPagingChiTietChienDichReport, IViewChiTietChienDichReport } from "@/models/report-sms.models";
 import { PaginatorState } from "primeng/paginator";
 import { ActivatedRoute } from "@angular/router";
+import { Breadcrumb } from "primeng/breadcrumb";
+import { MenuItem } from "primeng/api";
 
 @Component({
     selector: 'app-thong-ke-chien-dich-chi-tiet',
-    imports: [...SharedImports, DataTable],
+    imports: [...SharedImports, DataTable,Breadcrumb],
     templateUrl: './chi-tiet-report.html',
     styleUrl: './chi-tiet-report.scss'
 })
 export class ChiTietChienDichReport extends BaseComponent implements OnInit {
+    
     _reportSmsService = inject(ReportSmsService);
     private route = inject(ActivatedRoute);
-    
+    items: MenuItem[] = [{ label: 'Thông kê', routerLink: '/report/chien-dich-report'  }, { label: 'Thống kê chi tiết ' }];
+    home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
     statusList = CampaginStatuses.List;
     idChienDich: number = 0;
     idDanhBa: number = 0;
@@ -34,6 +38,7 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
 
     columns: IColumn[] = [
         { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
+        
         { header: 'Họ và tên', field: 'hoVaTen', headerContainerStyle: 'min-width: 8rem' },
         { header: 'Mã số người dùng', field: 'maSoNguoiDung', headerContainerStyle: 'min-width: 8rem' },
         { header: 'Số điện thoại', field: 'soDienThoai', headerContainerStyle: 'min-width: 8rem' },

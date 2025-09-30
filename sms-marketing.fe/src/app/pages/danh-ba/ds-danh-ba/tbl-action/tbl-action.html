@@ -1,5 +1,4 @@
-<div class="flex flex-row justify-between space-x-2">
-  <button pButton pRipple type="button" [icon]="'pi pi-eye'" (click)="onClick(actionType.detail)" title="Chi tiết"></button>
-  <button pButton pRipple type="button" [icon]="'pi pi-pencil'" (click)="onClick(actionType.update)" title="Cập nhật"></button>
-  <button pButton pRipple type="button" [icon]="'pi pi-trash'" (click)="onClick(actionType.delete)" title="Xóa"></button>
+<div class="flex flex-row justify-end">
+    <p-button icon="pi pi-cog" (onClick)="onMenuClick($event)" title="Cấu hình" />
+    <p-menu #menu [model]="menuItems" [popup]="true"   appendTo="body"/>
 </div>

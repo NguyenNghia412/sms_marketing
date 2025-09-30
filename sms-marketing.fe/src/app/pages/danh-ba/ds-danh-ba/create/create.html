@@ -6,6 +6,13 @@
         <p-message severity="error" variant="simple" size="small">{{ getError('tenDanhBa') }} </p-message>
         }
     </div>
+     <div class="mb-3">
+        <label for="mota" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Mô tả</label>
+        <input pInputText formControlName="mota" id="moTa" type="text" class="w-full mb-2" />
+        @if (form.get('mota')?.hasError('required') && form.get('mota')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('mota') }} </p-message>
+        }
+    </div>
     <div class="mt-5 flex flex-row justify-end">
         <p-button label="Lưu" icon="pi pi-save" type="submit" [loading]="loading" />
     </div>

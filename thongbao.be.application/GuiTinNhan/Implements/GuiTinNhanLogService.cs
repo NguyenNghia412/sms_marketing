@@ -88,7 +88,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         {
                             Id = dbs.Id,
                             HoVaTen = dbs.HoVaTen,
-                            MaSoNguoiDung = dbs.MaSoNguoiDung,
+                            //MaSoNguoiDung = dbs.MaSoNguoiDung,
                             SoDienThoai = dbs.SoDienThoai,
                             BrandName = new BrandNameDto
                             {

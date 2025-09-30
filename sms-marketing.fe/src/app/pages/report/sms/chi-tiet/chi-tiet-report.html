@@ -2,6 +2,7 @@
     <div class="flex flex-row justify-between items-center mb-4">
         <div class="font-semibold text-xl uppercase">Thống kê  chi tiết chiến dịch gửi SMS</div>
     </div>
+    <p-breadcrumb [home]="home" [model]="items" />
     <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
         <div class="flex flex-row justify-between items-end space-x-2">
             <div class="flex flex-row justify-between align-items-end space-x-2 flex-1">
