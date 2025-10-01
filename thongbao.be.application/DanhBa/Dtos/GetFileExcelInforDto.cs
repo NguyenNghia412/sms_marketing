@@ -9,6 +9,6 @@ namespace thongbao.be.application.DanhBa.Dtos
 {
     public  class GetFileExcelInforDto
     {
-        public IFormFile File { get; set; }
+        public required IFormFile File { get; set; }
     }
 }

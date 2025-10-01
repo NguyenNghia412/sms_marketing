@@ -1,6 +1,6 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="mb-3">
-        <label for="tenChienDich" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên chiến dịch (*)</label>
+        <label for="tenChienDich" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên chiến dịch <span class="text-red-500">*</span></label>
         <input pInputText formControlName="tenChienDich" id="tenChienDich" type="text" class="w-full mb-2" />
         @if (form.get('tenChienDich')?.hasError('required') && form.get('tenChienDich')?.touched) {
         <p-message severity="error" variant="simple" size="small">{{ getError('tenChienDich') }} </p-message>

@@ -11,10 +11,13 @@ namespace thongbao.be.application.DanhBa.Dtos
     {
         public string TenDanhBa { get; set; } = String.Empty;
         public int Type { get; set; }
-        public IFormFile File { get; set; }
+        public required IFormFile File { get; set; }
+        public int InDexColumnSoDienThoai { get; set; }
+        public int IndexColumnHoTen { get; set; }
         public int IndexRowStartImport { get; set; }
         public int IndexRowHeader { get; set; }
         public string SheetName { get; set; } = String.Empty;
+        public string? Mota { get; set; } 
 
     }
 }

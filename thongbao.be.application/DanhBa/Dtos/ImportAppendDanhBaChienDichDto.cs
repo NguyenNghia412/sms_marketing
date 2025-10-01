@@ -9,12 +9,11 @@ namespace thongbao.be.application.DanhBa.Dtos
 {
     public  class ImportAppendDanhBaChienDichDto
     {
-        
-            public IFormFile File { get; set; } 
+            public int IdDanhBa { get; set; }
+            public required IFormFile File { get; set; } 
             public int IndexRowStartImport { get; set; }
             public int IndexRowHeader { get; set; }
             public string SheetName { get; set; } = String.Empty;
-            public int IdDanhBa { get; set; } 
         
     }
 }

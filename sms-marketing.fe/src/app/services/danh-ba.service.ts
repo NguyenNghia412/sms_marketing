@@ -1,4 +1,4 @@
-import { ICreateDanhBa, ICreateDanhBaChienDichQuick, ICreateDanhBaSmsQuick, IFindPagingDanhBa, IFindPagingNguoiNhan, IImportCreateDanhBa, IUpdateDanhBa, IUploadFileImportDanhBa, IVerifyImportCreateDanhBa, IVerifyImportDanhBa, IViewRowDanhBa, IViewRowNguoiNhan, IViewVerifyImportDanhBa } from '@/models/danh-ba.models';
+import { GetFileExcelInforResponseDto, ICreateDanhBa, ICreateDanhBaChienDichQuick, ICreateDanhBaSmsQuick, IFindPagingDanhBa, IFindPagingNguoiNhan, IGetExcelInfor, IImportCreateDanhBa, IUpdateDanhBa, IUploadFileImportDanhBa, IVerifyImportCreateDanhBa, IVerifyImportDanhBa, IViewRowDanhBa, IViewRowNguoiNhan, IViewVerifyImportDanhBa } from '@/models/danh-ba.models';
 import { IBaseResponse, IBaseResponseWithData, IBaseResponsePaging } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -97,6 +97,8 @@ export class DanhBaService {
         formData.append('TenDanhBa', body.TenDanhBa);
         formData.append('Type', body.Type.toString());
         formData.append('File', body.File, body.File.name);
+        formData.append('IndexColumnHoTen', (body.IndexColumnHoTen ?? '').toString());
+        formData.append('IndexColumnSoDienThoai', (body.IndexColumnSoDienThoai ?? '').toString());
         formData.append('IndexRowStartImport', body.IndexRowStartImport.toString());
         formData.append('IndexRowHeader', body.IndexRowHeader.toString());
         formData.append('SheetName', body.SheetName);
@@ -111,6 +113,8 @@ export class DanhBaService {
         formData.append('TenDanhBa', body.TenDanhBa);
         formData.append('Type', body.Type.toString());
         formData.append('File', body.File, body.File.name);
+        formData.append('IndexColumnHoTen', (body.IndexColumnHoTen ?? '').toString());
+        formData.append('IndexColumnSoDienThoai', (body.IndexColumnSoDienThoai ?? '').toString());
         formData.append('IndexRowStartImport', body.IndexRowStartImport.toString());
         formData.append('IndexRowHeader', body.IndexRowHeader.toString());
         formData.append('SheetName', body.SheetName);
@@ -138,5 +142,13 @@ export class DanhBaService {
     deleteNguoiNhan(id: number,idNguoiNhan:number){
         const uri = `${this.api}/${id}/nguoi-nhan/${idNguoiNhan}`;
         return this.http.delete<IBaseResponse>(uri);
+    }
+
+    getExcelInfor(body:IGetExcelInfor){
+        const uri = `${this.api}/file-excel-infor`;
+
+        const formData = new FormData();
+        formData.append('File', body.File, body.File.name);
+        return this.http.post<IBaseResponseWithData<GetFileExcelInforResponseDto>>(uri, formData);
     }
 }

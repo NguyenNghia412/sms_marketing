@@ -1,0 +1,159 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="space-y-6">
+        <div class="bg-surface-0 dark:bg-surface-900 rounded-lg border border-surface-200 dark:border-surface-700 p-4">
+            <h3 class="text-base font-semibold text-surface-900 dark:text-surface-0 mb-4">Thông tin cơ bản</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label for="SheetName" class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                        Tên sheet <span class="text-red-500">*</span>
+                    </label>
+                    <p-select 
+                        formControlName="SheetName" 
+                        id="SheetName" 
+                        [options]="sheetNameOptions" 
+                        optionLabel="label" 
+                        optionValue="value" 
+                        placeholder="Chọn sheet"
+                        class="w-full"
+                        styleClass="w-full">
+                    </p-select>
+                    @if (form.get('SheetName')?.hasError('required') && form.get('SheetName')?.touched) {
+                    <small class="text-red-500 mt-1 block">{{ getError('SheetName') }}</small>
+                    }
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="IndexColumnHoTen" class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                            Cột họ và tên <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            pInputText 
+                            formControlName="IndexColumnHoTen" 
+                            id="IndexColumnHoTen" 
+                            type="number" 
+                            placeholder="Nhập số cột"
+                            class="w-full" />
+                        @if (form.get('IndexColumnHoTen')?.hasError('required') && form.get('IndexColumnHoTen')?.touched) {
+                        <small class="text-red-500 mt-1 block">{{ getError('IndexColumnHoTen') }}</small>
+                        }
+                    </div>
+
+                    <div>
+                        <label for="IndexColumnSoDienThoai" class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                            Cột số điện thoại <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            pInputText 
+                            formControlName="IndexColumnSoDienThoai" 
+                            id="IndexColumnSoDienThoai" 
+                            type="number" 
+                            placeholder="Nhập số cột"
+                            class="w-full" />
+                        @if (form.get('IndexColumnSoDienThoai')?.hasError('required') && form.get('IndexColumnSoDienThoai')?.touched) {
+                        <small class="text-red-500 mt-1 block">{{ getError('IndexColumnSoDienThoai') }}</small>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-blue-50 dark:bg-blue-950/30 rounded-lg border-2 border-blue-200 dark:border-blue-800 p-3">
+            <div class="flex items-center gap-2">
+                <i class="pi pi-cog text-blue-600 dark:text-blue-400" style="font-size: 1rem;"></i>
+                <h4 class="text-sm font-semibold text-blue-900 dark:text-blue-100 flex-1" style="margin: 0; line-height: 1rem;">Cấu hình nâng cao</h4>
+                <p-button 
+                    icon="pi pi-chevron-down" 
+                    [text]="true" 
+                    [rounded]="true" 
+                    size="small"
+                    severity="secondary"
+                    (onClick)="op.toggle($event)"
+                    [pTooltip]="'Click để xem thêm tùy chọn'"
+                    tooltipPosition="left" />
+            </div>
+            
+            <p class="text-xs text-blue-700 dark:text-blue-300 mb-0 mt-1">
+                Nhấn vào biểu tượng bên phải để cấu hình các tùy chọn nâng cao
+            </p>
+        </div>
+
+        <p-popover #op>
+            <div class="p-4" style="min-width: 350px;">
+                <h4 class="text-base font-semibold text-surface-900 dark:text-surface-0 mb-4 pb-2 border-b border-surface-200 dark:border-surface-700">
+                    Tùy chọn nâng cao
+                </h4>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label for="Type" class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                            Loại danh bạ <span class="text-red-500">*</span>
+                        </label>
+                        <p-select 
+                            formControlName="Type" 
+                            id="Type" 
+                            [options]="loaiDanhBaOptions" 
+                            optionLabel="label" 
+                            optionValue="value" 
+                            placeholder="Chọn loại danh bạ"
+                            class="w-full"
+                            styleClass="w-full">
+                        </p-select>
+                        @if (form.get('Type')?.hasError('required') && form.get('Type')?.touched) {
+                        <small class="text-red-500 mt-1 block">{{ getError('Type') }}</small>
+                        }
+                    </div>
+
+                    <div>
+                        <label for="IndexRowHeader" class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                            Dòng tiêu đề <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            pInputText 
+                            formControlName="IndexRowHeader" 
+                            id="IndexRowHeader" 
+                            type="number" 
+                            placeholder="Nhập số dòng"
+                            class="w-full" />
+                        @if (form.get('IndexRowHeader')?.hasError('required') && form.get('IndexRowHeader')?.touched) {
+                        <small class="text-red-500 mt-1 block">{{ getError('IndexRowHeader') }}</small>
+                        }
+                    </div>
+
+                    <div>
+                        <label for="IndexRowStartImport" class="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                            Dòng bắt đầu có dữ liệu <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            pInputText 
+                            formControlName="IndexRowStartImport" 
+                            id="IndexRowStartImport" 
+                            type="number" 
+                            placeholder="Nhập số dòng"
+                            class="w-full" />
+                        @if (form.get('IndexRowStartImport')?.hasError('required') && form.get('IndexRowStartImport')?.touched) {
+                        <small class="text-red-500 mt-1 block">{{ getError('IndexRowStartImport') }}</small>
+                        }
+                    </div>
+                </div>
+            </div>
+        </p-popover>
+    </div>
+
+    <div class="mt-6 flex flex-row justify-end gap-3 pt-4 border-t border-surface-200 dark:border-surface-700">
+        <p-button 
+            label="Hủy" 
+            icon="pi pi-times" 
+            severity="secondary" 
+            (onClick)="onCancel()" 
+            [outlined]="true"
+            size="large" />
+        <p-button 
+            label="Import" 
+            icon="pi pi-file-import" 
+            type="submit" 
+            [loading]="loading"
+            size="large" />
+    </div>
+</form>

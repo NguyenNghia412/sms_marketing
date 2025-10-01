@@ -102,7 +102,7 @@ export class GuiTinNhan extends BaseComponent {
                             ngayBatDau: res.data.ngayBatDau,
                             ngayKetThuc: res.data.ngayKetThuc,
                             noiDung: res.data.noiDung,
-                            isFlashSms: res.data.isFlashSms,
+                            //isFlashSms: res.data.isFlashSms,
                             isAccented: res.data.isAccented
                         });
                     }

@@ -47,12 +47,14 @@ export interface IVerifyImportDanhBa {
 }
 export interface IVerifyImportCreateDanhBa {
   TenDanhBa: string,
+  Mota: string,
   Type:number,
   File: File,
+  IndexColumnHoTen : number,
+  IndexColumnSoDienThoai: number,
   IndexRowStartImport: number,
   IndexRowHeader: number,
   SheetName: string,
-  IdDanhBa: number
 }
 export interface IImportCreateDanhBa extends IVerifyImportCreateDanhBa {}
 export interface IUploadFileImportDanhBa extends IVerifyImportDanhBa {}
@@ -83,4 +85,15 @@ export interface ICreateDanhBaChienDichQuick{
 }
 export interface ICreateDanhBaSmsQuick{
   data:string[],
+}
+export interface IGetExcelInfor{
+  File:File
+}
+export interface SheetInfoDto {
+  sheetName: string;
+  headers: string[];
+}
+
+export interface GetFileExcelInforResponseDto {
+  sheets: SheetInfoDto[];
 }
