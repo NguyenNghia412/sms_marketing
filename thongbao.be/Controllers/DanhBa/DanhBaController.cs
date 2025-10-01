@@ -136,7 +136,7 @@ namespace thongbao.be.Controllers.DanhBa
             try
             {
                 var excelTemplate = await _danhBaService.ExportDanhBaChiTietExcelTemplate();
-                var fileName = $"Mau File Excel Import Danh Ba Nguoi Dung Theo Chien Dich.xlsx";
+                var fileName = $"Mau File Excel Import Danh Ba Nguoi Nhan Sms.xlsx";
                 return File(
                    excelTemplate,
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -315,6 +315,20 @@ namespace thongbao.be.Controllers.DanhBa
             {
                 await _danhBaService.CreateDanhBaChienDichNhanh( dto);
                 return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.DanhBaAdd)]
+        [HttpPost("file-excel-infor")]
+        public async Task<ApiResponse> GetFileExcelInfor([FromForm] GetFileExcelInforDto dto)
+        {
+            try
+            {
+                 var data =  await _danhBaService.GetFileExcelInfor(dto);
+                return new(data);
             }
             catch (Exception ex)
             {

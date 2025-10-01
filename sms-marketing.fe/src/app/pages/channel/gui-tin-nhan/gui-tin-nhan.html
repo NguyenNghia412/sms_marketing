@@ -24,8 +24,8 @@
                     <label for="idDanhBa" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Người nhận (*)</label>
                     <div class="flex gap-2 mb-2">
                         <p-select id="idDanhBa" formControlName="idDanhBa" [options]="listDanhBa" optionLabel="tenDanhBa" optionValue="id" [filter]="true" placeholder="Chọn người nhận" class="flex-1" appendTo="body" />
-                        <p-button icon="pi pi-address-book" [outlined]="true" severity="secondary" (onClick)="menu.toggle($event)" />
-                        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+                        <p-button icon="pi pi-address-book" [outlined]="true" severity="secondary" (onClick)="onOpenCreateDanhBa()" />
+                        
                     </div>
                     @if (form.get('idDanhBa')?.hasError('required') && form.get('idDanhBa')?.touched) {
                     <p-message severity="error" variant="simple" size="small">{{ getError('idDanhBa') }} </p-message>

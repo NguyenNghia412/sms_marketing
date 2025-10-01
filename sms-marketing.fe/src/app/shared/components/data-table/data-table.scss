@@ -1,0 +1,8 @@
+::ng-deep .p-datatable .p-datatable-tbody > tr > td.status-cell {
+    padding: 0 !important;
+    vertical-align: middle !important;
+    
+    * {
+        margin: 0 !important;
+    }
+}

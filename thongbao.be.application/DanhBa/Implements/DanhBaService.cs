@@ -11,6 +11,7 @@ using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Google.Apis.Util.Store;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -296,13 +297,6 @@ namespace thongbao.be.application.DanhBa.Implements
             var worksheet = workbook.Worksheets.Add("Data");
 
 
-            worksheet.Cell(1, 1).Value = "IMPORT DANH BẠ NGƯỜI DÙNG";
-            worksheet.Range(1, 1, 1, 13).Merge();
-            worksheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-            worksheet.Cell(1, 1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-            worksheet.Cell(1, 1).Style.Font.Bold = true;
-            worksheet.Cell(1, 1).Style.Font.FontSize = 18;
-            worksheet.Row(1).Height = 25;
 
 
             var headers = new string[]
@@ -313,7 +307,7 @@ namespace thongbao.be.application.DanhBa.Implements
 
             for (int i = 0; i < headers.Length; i++)
             {
-                var cell = worksheet.Cell(4, i + 1);
+                var cell = worksheet.Cell(1, i + 1);
                 cell.Value = headers[i];
                 cell.Style.Font.Bold = true;
                 cell.Style.Fill.BackgroundColor = XLColor.LightGray;
@@ -350,13 +344,7 @@ namespace thongbao.be.application.DanhBa.Implements
             var worksheet = workbook.Worksheets.Add("Data");
 
 
-            worksheet.Cell(1, 1).Value = "IMPORT DANH BẠ NGƯỜI DÙNG THEO CHIẾN DỊCH";
-            worksheet.Range(1, 1, 1, 7).Merge();
-            worksheet.Cell(1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-            worksheet.Cell(1, 1).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-            worksheet.Cell(1, 1).Style.Font.Bold = true;
-            worksheet.Cell(1, 1).Style.Font.FontSize = 18;
-            worksheet.Row(1).Height = 25;
+
 
 
             var headers = new string[]
@@ -366,7 +354,7 @@ namespace thongbao.be.application.DanhBa.Implements
 
             for (int i = 0; i < headers.Length; i++)
             {
-                var cell = worksheet.Cell(4, i + 1);
+                var cell = worksheet.Cell(1, i + 1);
                 cell.Value = headers[i];
                 cell.Style.Font.Bold = true;
                 cell.Style.Fill.BackgroundColor = XLColor.LightGray;
@@ -2445,6 +2433,54 @@ namespace thongbao.be.application.DanhBa.Implements
                 throw;
             }
         }
+        public async Task<GetFileExcelInforResponseDto> GetFileExcelInfor(GetFileExcelInforDto dto)
+        {
+            _logger.LogInformation($"{nameof(GetFileExcelInfor)}");
+
+            if (dto.File == null || dto.File.Length == 0)
+            {
+                throw new UserFriendlyException(ErrorCodes.ImportExcelFileErrorEmpty,
+                    ErrorMessages.GetMessage(ErrorCodes.ImportExcelFileErrorEmpty));
+            }
+
+            var result = new GetFileExcelInforResponseDto
+            {
+                Sheets = new List<SheetInfoDto>()
+            };
+
+            using var stream = new MemoryStream();
+            await dto.File.CopyToAsync(stream);
+            stream.Position = 0;
+
+            using var workbook = new XLWorkbook(stream);
+
+            foreach (var worksheet in workbook.Worksheets)
+            {
+                var sheetInfo = new SheetInfoDto
+                {
+                    SheetName = worksheet.Name,
+                    Headers = new List<string>()
+                };
+
+                var firstRow = worksheet.FirstRowUsed();
+                if (firstRow != null)
+                {
+                    var lastColumnUsed = firstRow.LastCellUsed()?.Address.ColumnNumber ?? 0;
+
+                    for (int col = 1; col <= lastColumnUsed; col++)
+                    {
+                        var cell = firstRow.Cell(col);
+                        var headerValue = cell.IsEmpty() ? string.Empty : cell.GetValue<string>().Trim();
+                        sheetInfo.Headers.Add(headerValue);
+                    }
+                }
+
+                result.Sheets.Add(sheetInfo);
+            }
+
+            return result;
+        }
+
         private async Task<List<List<string>>> _getSheetData(string sheetUrl, string sheetName)
         {
             var serviceAccountPath = _configuration["Google:ServiceAccountPath"];

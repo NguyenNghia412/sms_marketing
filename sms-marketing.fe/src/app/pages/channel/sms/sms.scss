@@ -1,14 +1,7 @@
-::ng-deep {
-    // Style cho ô trạng thái "Đã gửi"
-    app-data-table td:nth-child(4) {
-        &:has(.status-sent) {
-            color: #15803d !important;
-            font-weight: 700 !important;
-        }
-        
-        &:has(.status-draft) {
-            color: #9ca3af !important;
-            font-weight: 400 !important;
-        }
+::ng-deep .status-cell {
+    padding: 0 !important;
+    
+    > * {
+        margin: 0 !important;
     }
 }

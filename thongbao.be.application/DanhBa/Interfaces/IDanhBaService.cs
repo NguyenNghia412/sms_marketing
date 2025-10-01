@@ -30,5 +30,8 @@ namespace thongbao.be.application.DanhBa.Interfaces
         public  Task<VerifyImportDanhBaChienDichResponseDto> VerifyImportCreateDanhBaSms(ImportDanhBaSmsDto dto);
         public  Task<ImportDanhBaChienDichResponseDto> ImportCreateDanhBaChienDich(ImportDanhBaSmsDto dto);
         public Task CreateDanhBaChienDichNhanh(CreateDanhBaChienDichNhanhDto dto);
+        public  Task<GetFileExcelInforResponseDto> GetFileExcelInfor(GetFileExcelInforDto dto);
+
+
     }
 }

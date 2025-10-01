@@ -64,7 +64,12 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.DanhBaErrorSoDienThoaiInvalidAtRow, "Số điện thoại không đúng định dạng tại dòng {0}" },
             { ErrorCodes.DanhBaErrorMaSoNguoiDungFoundAtRow, "Mã số người dùng '{0}' đã tồn tại tại dòng {1}" },
             { ErrorCodes.ChienDichErrorTrangThaiTrue,"Chiến dịch này đã được gửi. Yêu cầu nhân bản chiến dịch để có thể thực hiện tiếp lệnh gửi" },
-            { ErrorCodes.DanhBaErrorSoDienThoaiFound,"Số điện thoại '{0}' đã tồn tại tại dòng {1}" }
+            { ErrorCodes.DanhBaErrorSoDienThoaiFound,"Số điện thoại '{0}' đã tồn tại tại dòng {1}" },
+            { ErrorCodes.ChienDichErrorTrangThaiTrueCannotDelete,"Chiến dịch đã được gửi, không thể xóa"},
+            { ErrorCodes.GoogleSheetUrlErrorInvalid, "URL Google Sheet không hợp lệ hoặc không thể truy cập được" },
+            { ErrorCodes.ErrorNoPermissionAccessGoogleSheet,"Không có quyền truy cập vào Google Sheet" },
+            { ErrorCodes.ErrorServiceAccountNotFoundInAppSetting,"Không tìm thấy config đường dẫn của service-account trong appsetting.json" },
+            { ErrorCodes.ErrorServiceAccountNotFound,"Không tim thấy file service-account.json" },
         };
 
         public static string GetMessage(int code)

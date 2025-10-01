@@ -17,16 +17,9 @@ export class Import extends BaseComponent {
     private _ref = inject(DynamicDialogRef);
     private _config = inject(DynamicDialogConfig);
     _danhBaService = inject(DanhBaService);
-      loaiDanhBaOptions = [
-        { label: 'SMS', value: 1 },
-        { label: 'Email', value: 2 }
-    ];
+
     override form: FormGroup = new FormGroup({
         TenDanhBa : new FormControl(null, [Validators.required]),
-        Type: new FormControl(1, [Validators.required]),
-        IndexRowStartImport: new FormControl(5, [Validators.required]),
-        IndexRowHeader: new FormControl(4, [Validators.required]),
-        SheetName: new FormControl('Data', [Validators.required]),
         File: new FormControl(null, [Validators.required])
     });
 
@@ -34,17 +27,8 @@ export class Import extends BaseComponent {
         TenDanhBa:{
             required:'Không được bỏ trống'
         },
-        LoaiDanhBa:{
+        File:{
             required:'Không được bỏ trống'
-        },
-        IndexRowStartImport: {
-            required: 'Không được bỏ trống'
-        },
-        IndexRowHeader: {
-            required: 'Không được bỏ trống'
-        },
-        SheetName: {
-            required: 'Không được bỏ trống'
         }
     };
 
@@ -67,48 +51,6 @@ export class Import extends BaseComponent {
             return;
         }
 
-        const body: IVerifyImportCreateDanhBa = { ...this.form.value };
-
-        this.loading = true;
-        this._danhBaService.verifyFileImportGuiTinNhan(body).subscribe({
-            next: (value) => {
-                if (this.isResponseSucceed(value)) {
-                    this.confirmAction(
-                        {
-                            header: 'Tiếp tục import?',
-                            message: `Số dòng import: ${value.data.totalRowsImported}; Số trường dữ liệu: ${value.data.totalDataImported}`
-                        },
-                        () => {
-                            this.callApiImport();
-                        }
-                    );
-                }
-            },
-            error: (err) => {
-                this.messageError(err?.message);
-            },
-            complete: () => {
-                this.loading = false;
-            }
-        });
-    }
-
-    callApiImport() {
-        const body: IImportCreateDanhBa = { ...this.form.value };
-
-        this.loading = true;
-        this._danhBaService.uploadFileImportGuiTinNhan(body).subscribe({
-            next: (value) => {
-                if (this.isResponseSucceed(value)) {
-                    this._ref.close(true);
-                }
-            },
-            error: (err) => {
-                this.messageError(err?.message);
-            },
-            complete: () => {
-                this.loading = false;
-            }
-        });
+       
     }
 }

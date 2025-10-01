@@ -125,6 +125,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
             }
+            if (chienDich.TrangThai == true)
+            {
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorTrangThaiTrueCannotDelete);
+            }
 
             var chienDichLogTrangThaiGuiList = _smDbContext.ChienDichLogTrangThaiGuis
                 .Where(x => x.IdChienDich == idChienDich && !x.Deleted)

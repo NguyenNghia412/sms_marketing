@@ -37,6 +37,8 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int MauNoiDungErrorNotFound = 302;
         public const int ChienDichErrorBrandNameNotFound = 303;
         public const int ChienDichErrorTrangThaiTrue = 304;
+        public const int ChienDichErrorTrangThaiTrueCannotDelete = 305;
+       
 
         public const int DanhBaErrorNotFound = 501;
         public const int DanhBaErrorRequired = 502;
@@ -75,6 +77,11 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int ImportExcelFileErrorInvalid = 810;
         public const int ImportDanhBaChienDichErrorMaSoNguoiDungDuplicate = 811;
         public const int ImportDanhBaChienDichErrorSoDienThoaiDuplicate = 812;
+
+        public const int ErrorNoPermissionAccessGoogleSheet = 901;
+        public const int ErrorServiceAccountNotFoundInAppSetting = 902;
+        public const int ErrorServiceAccountNotFound = 903;
+
 
 
 

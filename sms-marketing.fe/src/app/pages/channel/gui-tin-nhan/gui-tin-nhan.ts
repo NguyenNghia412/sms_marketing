@@ -19,7 +19,7 @@ import { Menu } from 'primeng/menu';
 
 @Component({
     selector: 'app-gui-tin-nhan',
-    imports: [SharedImports, Breadcrumb, MobilePreview, ChipModule, Menu],
+    imports: [SharedImports, Breadcrumb, MobilePreview, ChipModule],
     templateUrl: './gui-tin-nhan.html',
     styleUrl: './gui-tin-nhan.scss',
     
@@ -29,7 +29,7 @@ export class GuiTinNhan extends BaseComponent {
     private _chienDichService = inject(ChienDichService);
     private _guiTinNhanService = inject(GuiTinNhanService);
 
-    @ViewChild('menu') menu!: Menu;
+    //@ViewChild('menu') menu!: Menu;
     
     items: MenuItem[] = [{ label: 'Danh sách chiến dịch', routerLink: '/channel/sms' }, { label: 'Gửi tin nhắn sms' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
@@ -37,7 +37,7 @@ export class GuiTinNhan extends BaseComponent {
     listDanhBa: IViewRowDanhBa[] = [];
     listBrandname: IViewBrandname[] = [];
 
-    menuItems: MenuItem[] = [
+    /*menuItems: MenuItem[] = [
         {
             label: 'Thêm danh bạ mới',
             icon: 'pi pi-plus-circle',
@@ -48,7 +48,7 @@ export class GuiTinNhan extends BaseComponent {
             icon: 'pi pi-plus-circle',
             command: () => this.onOpenCreateDanhBaNhanh()
         }
-    ];
+    ];*/
 
     override form: FormGroup = new FormGroup({
         idBrandName: new FormControl(null, [Validators.required]),

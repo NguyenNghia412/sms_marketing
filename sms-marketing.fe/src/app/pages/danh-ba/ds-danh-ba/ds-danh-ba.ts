@@ -31,7 +31,7 @@ export class DsDanhBa extends BaseComponent {
         { header: 'Mô tả', field: 'mota', headerContainerStyle: 'min-width: 20rem' },
         { header: 'Số người nhận', field: 'soLuongNguoiNhan', headerContainerStyle: 'min-width: 5rem' },
         { header: 'Thời gian tạo', field: 'createdDate',headerContainerStyle: 'width: 15rem' , cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
-        { header: 'Thao tác', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
+        { header: 'Thao tác', headerContainerStyle: 'width: 5rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
     data: IViewRowDanhBa[] = [];
