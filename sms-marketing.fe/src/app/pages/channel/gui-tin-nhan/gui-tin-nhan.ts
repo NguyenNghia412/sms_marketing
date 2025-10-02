@@ -1,5 +1,5 @@
 import { IViewRowDanhBa } from '@/models/danh-ba.models';
-import { IPreviewSendSms, ISaveConfigChienDich, ISendSms } from '@/models/gui-tin-nhan.models';
+import { IListSoDienThoai, IPreviewSendSms, ISaveConfigChienDich, ISendSms } from '@/models/gui-tin-nhan.models';
 import { IViewBrandname } from '@/models/sms.models';
 import { ChienDichService } from '@/services/chien-dich.service';
 import { DanhBaService } from '@/services/danh-ba.service';
@@ -8,7 +8,7 @@ import { BaseComponent } from '@/shared/components/base/base-component';
 import { Breadcrumb } from '@/shared/components/breadcrumb/breadcrumb';
 import { SharedImports } from '@/shared/import.shared';
 import { Component, inject, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { MobilePreview } from './mobile-preview/mobile-preview';
 import { ChipModule } from 'primeng/chip';
@@ -16,48 +16,35 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { Import } from './import/import';
 import { CreateQuick } from './create-quick/create-quick';
 import { Menu } from 'primeng/menu';
+import { RadioButtonModule } from 'primeng/radiobutton';
 
 @Component({
     selector: 'app-gui-tin-nhan',
-    imports: [SharedImports, Breadcrumb, MobilePreview, ChipModule],
+    imports: [SharedImports, Breadcrumb, MobilePreview, ChipModule, RadioButtonModule, FormsModule],
     templateUrl: './gui-tin-nhan.html',
     styleUrl: './gui-tin-nhan.scss',
-    
 })
 export class GuiTinNhan extends BaseComponent {
     private _danhBaService = inject(DanhBaService);
     private _chienDichService = inject(ChienDichService);
     private _guiTinNhanService = inject(GuiTinNhanService);
 
-    //@ViewChild('menu') menu!: Menu;
-    
     items: MenuItem[] = [{ label: 'Danh sách chiến dịch', routerLink: '/channel/sms' }, { label: 'Gửi tin nhắn sms' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
     idChienDich: number = 0;
     listDanhBa: IViewRowDanhBa[] = [];
     listBrandname: IViewBrandname[] = [];
-
-    /*menuItems: MenuItem[] = [
-        {
-            label: 'Thêm danh bạ mới',
-            icon: 'pi pi-plus-circle',
-            command: () => this.onOpenCreateDanhBa()
-        },
-        {
-            label: 'Thêm danh bạ nhanh',
-            icon: 'pi pi-plus-circle',
-            command: () => this.onOpenCreateDanhBaNhanh()
-        }
-    ];*/
+    nguoiNhanType: 'danhBa' | 'soDienThoai' = 'danhBa';
+    
 
     override form: FormGroup = new FormGroup({
         idBrandName: new FormControl(null, [Validators.required]),
         idDanhBa: new FormControl(null, [Validators.required]),
+        soDienThoai: new FormControl(''),
         tenChienDich: new FormControl('', [Validators.required]),
         ngayBatDau: new FormControl(new Date()),
         ngayKetThuc: new FormControl(new Date()),
         noiDung: new FormControl('', [Validators.required]),
-        //isFlashSms: new FormControl(true),
         isAccented: new FormControl(true)
     });
 
@@ -66,6 +53,9 @@ export class GuiTinNhan extends BaseComponent {
             required: 'Không được bỏ trống'
         },
         idDanhBa: {
+            required: 'Không được bỏ trống'
+        },
+        soDienThoai: {
             required: 'Không được bỏ trống'
         },
         idBrandName: {
@@ -96,13 +86,12 @@ export class GuiTinNhan extends BaseComponent {
                     if (this.isResponseSucceed(res)) {
                         this.form.setValue({
                             idBrandName: res.data.idBrandName,
-                            // idDanhBa: null,
                             idDanhBa: res.data.danhBas && res.data.danhBas.length > 0 ? res.data.danhBas[0].id : 0,
+                            soDienThoai: '',
                             tenChienDich: res.data.tenChienDich,
                             ngayBatDau: res.data.ngayBatDau,
                             ngayKetThuc: res.data.ngayKetThuc,
                             noiDung: res.data.noiDung,
-                            //isFlashSms: res.data.isFlashSms,
                             isAccented: res.data.isAccented
                         });
                     }
@@ -111,24 +100,59 @@ export class GuiTinNhan extends BaseComponent {
         });
     }
 
+    onNguoiNhanTypeChange() {
+        this.updateValidation();
+    }
+
+    updateValidation() {
+        const idDanhBaControl = this.form.get('idDanhBa');
+        const soDienThoaiControl = this.form.get('soDienThoai');
+
+        if (this.nguoiNhanType === 'danhBa') {
+            idDanhBaControl?.setValidators([Validators.required]);
+            soDienThoaiControl?.clearValidators();
+            soDienThoaiControl?.setValue('');
+        } else {
+            soDienThoaiControl?.setValidators([Validators.required]);
+            idDanhBaControl?.clearValidators();
+            idDanhBaControl?.setValue(null);
+        }
+
+        idDanhBaControl?.updateValueAndValidity();
+        soDienThoaiControl?.updateValueAndValidity();
+    }
+
     get selectedDanhBa() {
         const rslt = this.listDanhBa.find((x) => x.id === this.form.value['idDanhBa']);
-
         return rslt;
     }
+
     onOpenCreateDanhBa() {
-        const ref = this._dialogService.open(Import, { header: 'Tạo danh bạ và import danh sách người nhận', closable: true, modal: true, styleClass: 'w-[600px]', focusOnShow: false });
+        const ref = this._dialogService.open(Import, {
+            header: 'Tạo danh bạ và import danh sách người nhận',
+            closable: true,
+            modal: true,
+            styleClass: 'w-[600px]',
+            focusOnShow: false
+        });
         ref.onClose.subscribe((result) => {
             if (result) {
-                   location.reload();
+                location.reload();
             }
         });
     }
-    onOpenCreateDanhBaNhanh(){
-        const ref = this._dialogService.open(CreateQuick, { header: 'Tạo danh bạ và import danh sách người nhận', closable: true, modal: true, styleClass: 'w-[600px]', focusOnShow: false });
+
+    onOpenCreateDanhBaNhanh() {
+        const ref = this._dialogService.open(CreateQuick, {
+            header: 'Tạo danh bạ và import danh sách người nhận',
+            closable: true,
+            modal: true,
+            styleClass: 'w-[600px]',
+            focusOnShow: false
+        });
         ref.onClose.subscribe((result) => {
             if (result) {
-                   location.reload();
+                location.reload();
             }
         });
     }
@@ -137,7 +161,7 @@ export class GuiTinNhan extends BaseComponent {
         const control = this.form.get('noiDung');
         if (!control) return;
 
-        text = `[${text}]`
+        text = `[${text}]`;
 
         const currentValue = control.value || '';
         const start = textarea.selectionStart;
@@ -149,7 +173,6 @@ export class GuiTinNhan extends BaseComponent {
         const newValue = before + text + after;
         control.setValue(newValue);
 
-        // update cursor position after patch
         setTimeout(() => {
             textarea.focus();
             textarea.selectionStart = textarea.selectionEnd = start + text.length;
@@ -161,7 +184,24 @@ export class GuiTinNhan extends BaseComponent {
             return;
         }
 
-        const body: ISendSms = { ...this.form.value, idChienDich: this.idChienDich };
+        const body: ISendSms = {
+            idChienDich: this.idChienDich,
+            idBrandName: this.form.value.idBrandName,
+            isAccented: this.form.value.isAccented,
+            noiDung: this.form.value.noiDung
+        };
+        if (this.nguoiNhanType === 'danhBa') {
+            body.idDanhBa = this.form.value.idDanhBa;
+        } else {
+            const soDienThoaiText = this.form.value.soDienThoai || '';
+            const phoneNumbers = soDienThoaiText
+                .split(/[\n,;\s]+/) 
+                .map((s: string) => s.trim())
+                .filter((s: string) => s.length > 0);
+            
+            body.danhSachSoDienThoai = phoneNumbers.map((sdt: string) => ({ soDienThoai: sdt }));
+        }
+
         this.loading = true;
         this._guiTinNhanService.sendSms(body).subscribe({
             next: (res) => {
@@ -182,7 +222,19 @@ export class GuiTinNhan extends BaseComponent {
             return;
         }
 
-        const body: ISaveConfigChienDich = { ...this.form.value, idChienDich: this.idChienDich };
+        const body: ISaveConfigChienDich = {
+            idChienDich: this.idChienDich,
+            idBrandName: this.form.value.idBrandName,
+            isAccented: this.form.value.isAccented,
+            noiDung: this.form.value.noiDung
+        };
+
+        if (this.nguoiNhanType === 'danhBa') {
+            body.idDanhBa = this.form.value.idDanhBa;
+        } else {
+            body.idDanhBa = null;
+        }
+
         this.loading = true;
         this._guiTinNhanService.saveConfigChienDich(body).subscribe({
             next: (res) => {

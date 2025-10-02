@@ -217,7 +217,7 @@ namespace thongbao.be.application.DanhBa.Implements
             }
             var response = new GetTruongDataDanhBaSmsResponseDto
             {
-                TruongDataList = truongDataList.Select(x => new TruongDataItem
+                TruongData = truongDataList.Select(x => new TruongDataItem
                 {
                     Id = x.Id,
                     TenTruong = x.TenTruong,
@@ -1015,7 +1015,7 @@ namespace thongbao.be.application.DanhBa.Implements
         }
         public async Task<VerifyImportDanhBaChienDichResponseDto> VerifyImportDanhBaChienDich(ImportAppendDanhBaChienDichDto dto)
         {
-            _logger.LogInformation($"{nameof(VerifyImportDanhBaChienDich)} dto={JsonSerializer.Serialize(new { dto.IndexRowStartImport, dto.IndexRowHeader, dto.SheetName, dto.IdDanhBa })}");
+            _logger.LogInformation($"{nameof(VerifyImportDanhBaChienDich)} dto={JsonSerializer.Serialize(new { dto.IndexRowStartImport, dto.IndexRowHeader, dto.SheetName, dto.IdDanhBa, dto.IndexColumnHoTen, dto.IndexColumnSoDienThoai })}");
 
             if (dto.File == null || dto.File.Length == 0)
             {
@@ -1046,36 +1046,20 @@ namespace thongbao.be.application.DanhBa.Implements
                     string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportHeaderErrorInvalid), dto.IndexRowHeader));
             }
 
-            var requiredHeaders = new[]
-            {
-                "Họ và tên(*)", "Số điện thoại(*)"
-            };
-
             var headerRow = excelData[headerRowIndex];
+            var hoTenColumnIndex = dto.IndexColumnHoTen - 1;
+            var soDienThoaiColumnIndex = dto.IndexColumnSoDienThoai - 1;
 
-            var requiredHeaderIndexes = new Dictionary<string, int>();
-
-            foreach (var requiredHeader in requiredHeaders)
+            if (headerRow.Count <= hoTenColumnIndex || hoTenColumnIndex < 0)
             {
-                var headerIndex = -1;
-                for (int i = 0; i < headerRow.Count; i++)
-                {
-                    var currentHeader = headerRow[i]?.Trim();
+                throw new UserFriendlyException(ErrorCodes.ImportHeaderErrorInvalid,
+                    string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportHeaderErrorInvalid), dto.IndexRowHeader));
+            }
 
-                    if (currentHeader == requiredHeader)
-                    {
-                        headerIndex = i;
-                        break;
-                    }
-                }
-
-                if (headerIndex == -1)
-                {
-                    throw new UserFriendlyException(ErrorCodes.ImportHeaderErrorInvalid,
-                        string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportHeaderErrorInvalid), dto.IndexRowHeader));
-                }
-
-                requiredHeaderIndexes[requiredHeader] = headerIndex;
+            if (headerRow.Count <= soDienThoaiColumnIndex || soDienThoaiColumnIndex < 0)
+            {
+                throw new UserFriendlyException(ErrorCodes.ImportHeaderErrorInvalid,
+                    string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportHeaderErrorInvalid), dto.IndexRowHeader));
             }
 
             var existingSoDienThoai = await _smDbContext.DanhBaSms
@@ -1101,37 +1085,32 @@ namespace thongbao.be.application.DanhBa.Implements
                 }
 
                 totalRowsImported++;
-                var requiredColumnIndexes = new[] { 1, 2, 3 };
 
-                foreach (var colIndex in requiredColumnIndexes)
+                if (row.Count <= hoTenColumnIndex || string.IsNullOrWhiteSpace(row[hoTenColumnIndex]))
                 {
-                    if (row.Count <= colIndex || string.IsNullOrWhiteSpace(row[colIndex]))
-                    {
-                        throw new UserFriendlyException(ErrorCodes.ImportRequiredFieldErrorEmpty,
-                            string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportRequiredFieldErrorEmpty), actualRowNumber));
-                    }
+                    throw new UserFriendlyException(ErrorCodes.ImportRequiredFieldErrorEmpty,
+                        string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportRequiredFieldErrorEmpty), actualRowNumber));
                 }
 
-                var phoneNumber = row[2].Trim();
+                if (row.Count <= soDienThoaiColumnIndex || string.IsNullOrWhiteSpace(row[soDienThoaiColumnIndex]))
+                {
+                    throw new UserFriendlyException(ErrorCodes.ImportRequiredFieldErrorEmpty,
+                        string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportRequiredFieldErrorEmpty), actualRowNumber));
+                }
+
+                var phoneNumber = row[soDienThoaiColumnIndex].Trim();
                 if (!System.Text.RegularExpressions.Regex.IsMatch(phoneNumber, @"^\d{10}$"))
                 {
                     throw new UserFriendlyException(ErrorCodes.ImportPhoneNumberErrorInvalid,
                         string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportPhoneNumberErrorInvalid), actualRowNumber));
                 }
 
-                /*var email = row[3].Trim();
-                if (!System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-                {
-                    throw new UserFriendlyException(ErrorCodes.ImportEmailHuceErrorInvalid,
-                        string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportEmailHuceErrorInvalid), actualRowNumber));
-                }*/
-
-                var soDienThoai = row[2].Trim();
+                var soDienThoai = row[soDienThoaiColumnIndex].Trim();
 
                 if (existingMaSoSet.Contains(soDienThoai))
                 {
                     throw new UserFriendlyException(ErrorCodes.DanhBaErrorMaSoNguoiDungFound,
-                        string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportDanhBaChienDichErrorSoDienThoaiDuplicate),soDienThoai, actualRowNumber));
+                        string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportDanhBaChienDichErrorSoDienThoaiDuplicate), soDienThoai, actualRowNumber));
                 }
                 if (newMaSoSet.Contains(soDienThoai))
                 {
@@ -1159,7 +1138,7 @@ namespace thongbao.be.application.DanhBa.Implements
         }
         public async Task<ImportDanhBaChienDichResponseDto> ImportAppendDanhBaChienDich(ImportAppendDanhBaChienDichDto dto)
         {
-            _logger.LogInformation($"{nameof(ImportAppendDanhBaChienDich)} dto={JsonSerializer.Serialize(new { dto.IndexRowStartImport, dto.IndexRowHeader, dto.SheetName, dto.IdDanhBa })}");
+            _logger.LogInformation($"{nameof(ImportAppendDanhBaChienDich)} dto={JsonSerializer.Serialize(new { dto.IndexRowStartImport, dto.IndexRowHeader, dto.SheetName, dto.IdDanhBa, dto.IndexColumnHoTen, dto.IndexColumnSoDienThoai })}");
 
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             const int BATCH_SIZE = 5000;
@@ -1191,46 +1170,19 @@ namespace thongbao.be.application.DanhBa.Implements
                 }
 
                 var headerRow = excelData[headerRowIndex];
+                var hoTenColumnIndex = dto.IndexColumnHoTen - 1;
+                var soDienThoaiColumnIndex = dto.IndexColumnSoDienThoai - 1;
 
-                var headerPatterns = new Dictionary<string, string[]>
+                if (headerRow.Count <= hoTenColumnIndex || hoTenColumnIndex < 0)
                 {
-                    ["HoTen"] = new[] { "Họ và tên(*)", "Ho va ten(*)", "Họ và tên", "Ho va ten", "HovaTen(*)", "HoTen" },
-                    ["SoDienThoai"] = new[] { "Số điện thoại(*)", "So dien thoai(*)", "Số điện thoại", "So dien thoai", "SoDienThoai(*)", "SoDienThoai" },
-                    //["EmailHuce"] = new[] { "Email Huce(*)", "Email Huce", "EmailHuce(*)", "EmailHuce" },
-                    //["MaSoNguoiDung"] = new[] { "Mã số người dùng(*)", "Ma so nguoi dung(*)", "Mã số người dùng", "Ma so nguoi dung", "MaSoNguoiDung(*)", "MaSoNguoiDung" }
-                };
-                var headerIndexMap = new Dictionary<string, int>();
+                    throw new UserFriendlyException(ErrorCodes.ImportHeaderErrorInvalid,
+                        string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportHeaderErrorInvalid), dto.IndexRowHeader));
+                }
 
-                foreach (var patternGroup in headerPatterns)
+                if (headerRow.Count <= soDienThoaiColumnIndex || soDienThoaiColumnIndex < 0)
                 {
-                    var headerIndex = -1;
-
-                    for (int i = 0; i < headerRow.Count; i++)
-                    {
-                        var cellHeader = headerRow[i]?.Trim();
-                        if (string.IsNullOrWhiteSpace(cellHeader)) continue;
-
-                        if (patternGroup.Value.Any(pattern =>
-                            string.Equals(cellHeader, pattern, StringComparison.OrdinalIgnoreCase) ||
-                            cellHeader.Contains("tên") && patternGroup.Key == "HoTen" ||
-                            cellHeader.Contains("điện thoại") && patternGroup.Key == "SoDienThoai" ||
-                            cellHeader.Contains("dien thoai") && patternGroup.Key == "SoDienThoai" ))
-                            //cellHeader.Contains("Email") && cellHeader.Contains("Huce") && patternGroup.Key == "EmailHuce" ||
-                            //cellHeader.Contains("Mã số") && patternGroup.Key == "MaSoNguoiDung" ||
-                            //cellHeader.Contains("Ma so") && patternGroup.Key == "MaSoNguoiDung"))
-                        {
-                            headerIndex = i;
-                            break;
-                        }
-                    }
-
-                    if (headerIndex == -1)
-                    {
-                        throw new UserFriendlyException(ErrorCodes.ImportHeaderErrorInvalid,
-                            string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportHeaderErrorInvalid), dto.IndexRowHeader));
-                    }
-
-                    headerIndexMap[patternGroup.Key] = headerIndex;
+                    throw new UserFriendlyException(ErrorCodes.ImportHeaderErrorInvalid,
+                        string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportHeaderErrorInvalid), dto.IndexRowHeader));
                 }
 
                 var allHeaders = headerRow.Where(h => !string.IsNullOrWhiteSpace(h?.Trim())).Select(h => h.Trim()).ToList();
@@ -1314,12 +1266,10 @@ namespace thongbao.be.application.DanhBa.Implements
                     if (row.All(cell => string.IsNullOrWhiteSpace(cell)))
                         continue;
 
-                    var hoVaTen = row.Count > headerIndexMap["HoTen"] ? row[headerIndexMap["HoTen"]]?.Trim() : "";
-                    var soDienThoai = row.Count > headerIndexMap["SoDienThoai"] ? row[headerIndexMap["SoDienThoai"]]?.Trim() : "";
-                   // var emailHuce = row.Count > headerIndexMap["EmailHuce"] ? row[headerIndexMap["EmailHuce"]]?.Trim() : "";
-                    //var maSoNguoiDung = row.Count > headerIndexMap["MaSoNguoiDung"] ? row[headerIndexMap["MaSoNguoiDung"]]?.Trim() : "";
+                    var hoVaTen = row.Count > hoTenColumnIndex ? row[hoTenColumnIndex]?.Trim() : "";
+                    var soDienThoai = row.Count > soDienThoaiColumnIndex ? row[soDienThoaiColumnIndex]?.Trim() : "";
 
-                    if (string.IsNullOrWhiteSpace(hoVaTen) || string.IsNullOrWhiteSpace(soDienThoai) /*|| string.IsNullOrWhiteSpace(maSoNguoiDung)*/)
+                    if (string.IsNullOrWhiteSpace(hoVaTen) || string.IsNullOrWhiteSpace(soDienThoai))
                     {
                         throw new UserFriendlyException(ErrorCodes.ImportRequiredFieldErrorEmpty,
                             string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportRequiredFieldErrorEmpty), actualRowNumber));
@@ -1330,12 +1280,6 @@ namespace thongbao.be.application.DanhBa.Implements
                         throw new UserFriendlyException(ErrorCodes.ImportPhoneNumberErrorInvalid,
                             string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportPhoneNumberErrorInvalid), actualRowNumber));
                     }
-
-                    /*if (!System.Text.RegularExpressions.Regex.IsMatch(emailHuce, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-                    {
-                        throw new UserFriendlyException(ErrorCodes.ImportEmailHuceErrorInvalid,
-                            string.Format(ErrorMessages.GetMessage(ErrorCodes.ImportEmailHuceErrorInvalid), actualRowNumber));
-                    }*/
 
                     totalRowsImported++;
 
@@ -1357,8 +1301,6 @@ namespace thongbao.be.application.DanhBa.Implements
                             IdDanhBa = dto.IdDanhBa,
                             HoVaTen = hoVaTen,
                             SoDienThoai = soDienThoai,
-                            //EmailHuce = emailHuce,
-                            //MaSoNguoiDung = maSoNguoiDung
                         };
                     }
                     else
@@ -1367,9 +1309,7 @@ namespace thongbao.be.application.DanhBa.Implements
                         {
                             IdDanhBa = dto.IdDanhBa,
                             HoVaTen = hoVaTen,
-                            //MaSoNguoiDung = maSoNguoiDung,
                             SoDienThoai = soDienThoai,
-                           // EmailHuce = emailHuce,
                             CreatedDate = vietnamNow,
                             Deleted = false
                         };
@@ -1429,7 +1369,7 @@ namespace thongbao.be.application.DanhBa.Implements
                         }
                     }
 
-               
+
                     var finalDanhBaDatas = new List<domain.DanhBa.DanhBaData>(pendingDanhBaDataMappings.Count);
 
                     foreach (var mapping in pendingDanhBaDataMappings)
@@ -1441,8 +1381,8 @@ namespace thongbao.be.application.DanhBa.Implements
                             {
                                 Data = mapping.CellValue,
                                 IdTruongData = truongDataId,
-                                IdDanhBaChiTiet = danhBaChiTietId,        
-                                IdDanhBaChienDich = dto.IdDanhBa,         
+                                IdDanhBaChiTiet = danhBaChiTietId,
+                                IdDanhBaChienDich = dto.IdDanhBa,
                                 CreatedDate = vietnamNow,
                                 Deleted = false
                             });
@@ -1926,29 +1866,11 @@ namespace thongbao.be.application.DanhBa.Implements
                     ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorTruongDataNotFound));
             }
 
-            int hoVaTenIndex = -1;
-            int soDienThoaiIndex = -1;
-            //int maSoNguoiDungIndex = -1;
+            int hoVaTenIndex = dto.IndexTruongHoTen - 1;
+            int soDienThoaiIndex = dto.IndexTruongSoDienThoai - 1;
 
-            for (int i = 0; i < danhBaTruongDatas.Count; i++)
-            {
-                var tenTruong = danhBaTruongDatas[i].TenTruong.Trim().ToLower();
-
-                if (tenTruong.Contains("họ") && tenTruong.Contains("tên"))
-                {
-                    hoVaTenIndex = i;
-                }
-                else if (tenTruong.Contains("số") && tenTruong.Contains("điện thoại"))
-                {
-                    soDienThoaiIndex = i;
-                }
-                //else if (tenTruong.Contains("mã số") && tenTruong.Contains("người dùng"))
-                //{
-                    //maSoNguoiDungIndex = i;
-                //}
-            }
-
-            if (hoVaTenIndex == -1 || soDienThoaiIndex == -1 /*|| maSoNguoiDungIndex == -1*/)
+            if (hoVaTenIndex < 0 || hoVaTenIndex >= danhBaTruongDatas.Count ||
+                soDienThoaiIndex < 0 || soDienThoaiIndex >= danhBaTruongDatas.Count)
             {
                 throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequiredFieldNotFound,
                     ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequiredFieldNotFound));
@@ -1966,8 +1888,8 @@ namespace thongbao.be.application.DanhBa.Implements
             var newDanhBaData = new List<domain.DanhBa.DanhBaData>();
             for (int rowIndex = 0; rowIndex < dto.Data.Count; rowIndex++)
             {
-                var dataRow = dto.Data[rowIndex];;
-                var row = dataRow.Split(';');
+                var dataRow = dto.Data[rowIndex]; ;
+                var row = dataRow.Split(',');
                 if (row.Length != danhBaTruongDatas.Count)
                 {
                     throw new UserFriendlyException(ErrorCodes.DanhBaErrorDataColumnMismatch,
@@ -1976,7 +1898,6 @@ namespace thongbao.be.application.DanhBa.Implements
 
                 var hoVaTen = row[hoVaTenIndex]?.Trim();
                 var soDienThoai = row[soDienThoaiIndex]?.Trim();
-                //var maSoNguoiDung = row[maSoNguoiDungIndex]?.Trim();
 
                 if (string.IsNullOrWhiteSpace(hoVaTen))
                 {
@@ -1990,11 +1911,6 @@ namespace thongbao.be.application.DanhBa.Implements
                         string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorSoDienThoaiRequired), rowIndex + 1));
                 }
 
-                /*if (string.IsNullOrWhiteSpace(maSoNguoiDung))
-                {
-                    throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired,
-                        string.Format(ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorMaSoNguoiDungRequired), rowIndex + 1));
-                }*/
                 if (soDienThoai.Length != 10 || !soDienThoai.All(char.IsDigit))
                 {
                     throw new UserFriendlyException(ErrorCodes.DanhBaErrorSoDienThoaiInvalid,
@@ -2013,7 +1929,6 @@ namespace thongbao.be.application.DanhBa.Implements
                     IdDanhBa = idDanhBa,
                     HoVaTen = hoVaTen,
                     SoDienThoai = soDienThoai,
-                    //MaSoNguoiDung = maSoNguoiDung,
                     CreatedDate = vietnamNow,
                     Deleted = false
                 };
@@ -2045,10 +1960,10 @@ namespace thongbao.be.application.DanhBa.Implements
                 for (int rowIndex = 0; rowIndex < dto.Data.Count; rowIndex++)
                 {
                     var dataRow = dto.Data[rowIndex];
-                    var row = dataRow.Split(';');
-                    var soDienThoai= row[soDienThoaiIndex]?.Trim();
+                    var row = dataRow.Split(',');
+                    var soDienThoai = row[soDienThoaiIndex]?.Trim();
 
-                    if (soDienThoaiToIdDict.TryGetValue(soDienThoai?? "", out int danhBaChiTietId))
+                    if (soDienThoaiToIdDict.TryGetValue(soDienThoai ?? "", out int danhBaChiTietId))
                     {
                         for (int colIndex = 0; colIndex < row.Length; colIndex++)
                         {

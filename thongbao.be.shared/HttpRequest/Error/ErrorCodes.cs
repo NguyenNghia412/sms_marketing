@@ -56,6 +56,8 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int DanhBaErrorMaSoNguoiDungRequired = 514;
         public const int DanhBaErrorSoDienThoaiInvalidAtRow = 515;
         public const int DanhBaErrorMaSoNguoiDungFoundAtRow = 516;
+        public const int DanhBaErrorDanhSachSoDienThoaiInvalid = 518;
+        public const int DanhBaErrorDanhSachSoDienThoaiRequired = 519;
 
         public const int ToChucErrorNotFound = 601;
         public const int ToChucErrorLoaiToChucNotFound = 602;

@@ -1,7 +1,9 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-  <div class="mb-3">
-    <a (click)="downloadImportTemplate()" class="text-blue-500 underline cursor-pointer">Tải file mẫu</a>
-  </div>
+  <div class="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 mb-3">
+        <i class="pi pi-download text-blue-600 dark:text-blue-400"></i>
+        <a (click)="downloadImportTemplate()" class="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-medium">Tải file mẫu import</a>
+    </div>
+
   <div class="mb-3">
         <label for="TenDanhBa" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên danh bạ <span class="text-red-500">*</span></label>
         <input pInputText formControlName="TenDanhBa" id="TenDanhBa" type="text" class="w-full mb-2" />

@@ -8,6 +8,8 @@ namespace thongbao.be.application.DanhBa.Dtos
 {
     public  class CreateDanhBaDataNhanhDto
     {
+        public int IndexTruongHoTen { get; set; }
+        public int IndexTruongSoDienThoai { get; set; }
         public List<string> Data { get; set; } = new List<string>();
     }
 }

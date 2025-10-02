@@ -43,7 +43,9 @@ export interface IVerifyImportDanhBa {
   IndexRowStartImport: number,
   IndexRowHeader: number,
   SheetName: string,
-  IdDanhBa: number
+  IdDanhBa: number,
+  IndexColumnHoTen : number,
+  IndexColumnSoDienThoai: number,
 }
 export interface IVerifyImportCreateDanhBa {
   TenDanhBa: string,
@@ -84,6 +86,8 @@ export interface ICreateDanhBaChienDichQuick{
   data:string[],
 }
 export interface ICreateDanhBaSmsQuick{
+  indexTruongHoTen?: number,
+  indexTruongSoDienThoai?: number,
   data:string[],
 }
 export interface IGetExcelInfor{
@@ -96,4 +100,11 @@ export interface SheetInfoDto {
 
 export interface GetFileExcelInforResponseDto {
   sheets: SheetInfoDto[];
+}
+export interface TruongDataItem{
+  id?: number,
+  tenTruong?: string,
+}
+export interface GetTruongDataDanhBaSmsResponse{
+  truongData: TruongDataItem[]
 }

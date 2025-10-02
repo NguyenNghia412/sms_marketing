@@ -8,7 +8,7 @@ namespace thongbao.be.application.DanhBa.Dtos
 {
     public class GetTruongDataDanhBaSmsResponseDto
     {
-        public List<TruongDataItem> TruongDataList { get; set; } = new List<TruongDataItem>();
+        public List<TruongDataItem> TruongData { get; set; } = new List<TruongDataItem>();
     }
 
     public class TruongDataItem

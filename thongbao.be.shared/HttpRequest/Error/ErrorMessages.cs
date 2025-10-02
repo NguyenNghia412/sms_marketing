@@ -56,7 +56,7 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.DanhBaErrorDanhBaChiTietNotFound,"Danh bạ chi tiết người dùng không tồn tại" },
             { ErrorCodes.ChienDichErrorBrandNameNotFound,"BrandName không tồn tại" },
             { ErrorCodes.DanhBaErrorTruongDataNotFound, "Không tìm thấy trường dữ liệu trong danh bạ" },
-            { ErrorCodes.DanhBaErrorRequiredFieldNotFound, "Không tìm thấy các trường bắt buộc: Họ và tên, Số điện thoại, Mã số người dùng" },
+            { ErrorCodes.DanhBaErrorRequiredFieldNotFound, "Không tìm thấy các trường bắt buộc: Họ và tên, Số điện thoại" },
             { ErrorCodes.DanhBaErrorDataColumnMismatch, "Số lượng cột dữ liệu không khớp với số trường tại dòng {0}" },
             { ErrorCodes.DanhBaErrorHoVaTenRequired, "Họ và tên không được để trống tại dòng {0}" },
             { ErrorCodes.DanhBaErrorSoDienThoaiRequired, "Số điện thoại không được để trống tại dòng {0}" },
@@ -70,6 +70,8 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.ErrorNoPermissionAccessGoogleSheet,"Không có quyền truy cập vào Google Sheet" },
             { ErrorCodes.ErrorServiceAccountNotFoundInAppSetting,"Không tìm thấy config đường dẫn của service-account trong appsetting.json" },
             { ErrorCodes.ErrorServiceAccountNotFound,"Không tim thấy file service-account.json" },
+            { ErrorCodes.DanhBaErrorDanhSachSoDienThoaiInvalid, "Số điện thoại '{0}' không hợp lệ (phải đủ 10 số)" },
+            { ErrorCodes.DanhBaErrorDanhSachSoDienThoaiRequired, "Vui lòng cung cấp IdDanhBa hoặc DanhSachSoDienThoai" },
         };
 
         public static string GetMessage(int code)

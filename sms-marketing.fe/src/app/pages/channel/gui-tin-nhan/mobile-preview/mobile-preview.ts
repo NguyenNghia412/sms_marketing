@@ -1,4 +1,4 @@
-import { IPreviewSendSms, IViewPreviewSendSms } from '@/models/gui-tin-nhan.models';
+import { IListSoDienThoai, IPreviewSendSms, IViewPreviewSendSms } from '@/models/gui-tin-nhan.models';
 import { GuiTinNhanService } from '@/services/gui-tin-nhan.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { SharedImports } from '@/shared/import.shared';
@@ -16,8 +16,9 @@ export class MobilePreview extends BaseComponent {
     idChienDich = input.required<number>();
     idBrandName = input.required<number | null | undefined>();
     idDanhBa = input.required<number | null | undefined>();
+    soDienThoai = input.required<string | null | undefined>();
+    nguoiNhanType = input.required<'danhBa' | 'soDienThoai'>();
     noiDung = input.required<string | null | undefined>();
-    //isFlashSms = input.required<boolean>();
     isAccented = input.required<boolean>();
 
     private _guiTinNhanService = inject(GuiTinNhanService);
@@ -29,14 +30,28 @@ export class MobilePreview extends BaseComponent {
     constructor() {
         super();
         effect(() => {
+            this.noiDung();
+            
             clearTimeout(this.debounceTimer);
 
-            if (this.idBrandName() && this.idDanhBa() && this.noiDung()) {
-                this.debounceTimer = setTimeout(() => {
-                    this.onPreviewSendSms();
-                }, 500); // debounce 0.5s
+            if (this.nguoiNhanType() === 'danhBa') {
+                if (this.idBrandName() && this.idDanhBa() && this.noiDung()) {
+                    this.currentIndex = 1;
+                    this.debounceTimer = setTimeout(() => {
+                        this.onPreviewSendSms();
+                    }, 500);
+                } else {
+                    this.previewSms = {};
+                }
             } else {
-                this.previewSms = {};
+                if (this.idBrandName() && this.soDienThoai() && this.noiDung()) {
+                    this.currentIndex = 1;
+                    this.debounceTimer = setTimeout(() => {
+                        this.onPreviewSendSms();
+                    }, 2000);
+                } else {
+                    this.previewSms = {};
+                }
             }
         });
     }
@@ -45,12 +60,22 @@ export class MobilePreview extends BaseComponent {
         const body: IPreviewSendSms = {
             idChienDich: this.idChienDich(),
             idBrandName: this.idBrandName() ?? 0,
-            idDanhBa: this.idDanhBa() ?? 0,
             currentIndex: this.currentIndex,
             isAccented: this.isAccented(),
-            //isFlashSms: this.isFlashSms(),
             noiDung: this.noiDung() || ''
         };
+
+        if (this.nguoiNhanType() === 'danhBa') {
+            body.idDanhBa = this.idDanhBa() ?? undefined;
+        } else {
+            const soDienThoaiText = this.soDienThoai() || '';
+            const phoneNumbers = soDienThoaiText
+                .split(/[\n,;\s]+/)
+                .map((s: string) => s.trim())
+                .filter((s: string) => s.length > 0);
+            
+            body.danhSachSoDienThoai = phoneNumbers.map((sdt: string) => ({ soDienThoai: sdt }));
+        }
 
         this.loading = true;
         this._guiTinNhanService.previewSendSms(body).subscribe({
@@ -69,10 +94,10 @@ export class MobilePreview extends BaseComponent {
     }
 
     onChangeIndex(step: number) {
-      if (this.currentIndex + step > 0) {
-        this.currentIndex += step;
-        this.onPreviewSendSms();
-      }
+        if (this.currentIndex + step > 0) {
+            this.currentIndex += step;
+            this.onPreviewSendSms();
+        }
     }
 
     ngOnDestroy() {

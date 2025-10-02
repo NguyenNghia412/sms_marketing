@@ -13,6 +13,8 @@ namespace thongbao.be.application.DanhBa.Dtos
             public required IFormFile File { get; set; } 
             public int IndexRowStartImport { get; set; }
             public int IndexRowHeader { get; set; }
+            public int IndexColumnSoDienThoai { get; set; }
+            public int IndexColumnHoTen { get; set; }
             public string SheetName { get; set; } = String.Empty;
         
     }

@@ -1,8 +1,59 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="mb-3">
-        <label for="Data" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Dữ liệu(*)</label>
+        <label class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Danh sách trường dữ liệu</label>
+        @if (truongData && truongData.length > 0) {
+            @for (item of truongData; track $index) {
+                <p-chip [label]="($index +1) + '. ' + (item.tenTruong || '')" class="m-1" />
+            }
+        } @else {
+            <small class="block text-surface-600 dark:text-surface-400">Không có trường dữ liệu</small>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="IndexTruongHoTen" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Vị trí trường Họ và Tên <span class="text-red-500">*</span></label>
         <small class="block text-surface-600 dark:text-surface-400 mb-2">
-            Nhập từng dòng dữ liệu, các giá trị ngăn cách bởi dấu chấm phẩy (;)  tương ứng với các trường dữ liệu của danh bạ. Mỗi dòng là một bản ghi
+            Nhập vị trí (index) của trường Họ và Tên trong danh sách trường ở trên (bắt đầu từ 0)
+        </small>
+        <input 
+            pInputText 
+            type="number" 
+            formControlName="IndexTruongHoTen" 
+            id="IndexTruongHoTen" 
+            class="w-full"
+            placeholder="VD: 1" />
+        @if (form.get('IndexTruongHoTen')?.hasError('required') && form.get('IndexTruongHoTen')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('IndexTruongHoTen') }}</p-message>
+        }
+        @if (form.get('IndexTruongHoTen')?.hasError('min') && form.get('IndexTruongHoTen')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('IndexTruongHoTen') }}</p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="IndexTruongSoDienThoai" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Vị trí trường Số điện thoại <span class="text-red-500">*</span></label>
+        <small class="block text-surface-600 dark:text-surface-400 mb-2">
+            Nhập vị trí (index) của trường Số điện thoại trong danh sách trường ở trên (bắt đầu từ 0)
+        </small>
+        <input 
+            pInputText 
+            type="number" 
+            formControlName="IndexTruongSoDienThoai" 
+            id="IndexTruongSoDienThoai" 
+            class="w-full"
+            placeholder="VD: 2" />
+        @if (form.get('IndexTruongSoDienThoai')?.hasError('required') && form.get('IndexTruongSoDienThoai')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('IndexTruongSoDienThoai') }}</p-message>
+        }
+        @if (form.get('IndexTruongSoDienThoai')?.hasError('min') && form.get('IndexTruongSoDienThoai')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('IndexTruongSoDienThoai') }}</p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="Data" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Dữ liệu <span class="text-red-500">*</span></label>
+        <small class="block text-surface-600 dark:text-surface-400 mb-2">
+            Nhập từng dòng dữ liệu, các giá trị ngăn cách bởi dấu phẩy (,) tương ứng với các trường dữ liệu của danh bạ. Mỗi dòng là một bản ghi
         </small>
         <textarea 
             pInputTextarea 
@@ -10,10 +61,10 @@
             id="Data" 
             rows="10" 
             class="w-full mb-2"
-            placeholder="VD:&#10;1;Nguyễn Việt Cường;0326235002;0211466;K66;1000000&#10;2;Nguyễn Trọng Nghĩa;0389105608;0211465;K70;1000000">
+            placeholder="VD:&#10;1,Nguyễn Việt Cường,0326235002,0211466,K66,1000000&#10;2,Nguyễn Trọng Nghĩa,0389105608,0211465,K70,1000000">
         </textarea>
         @if (form.get('Data')?.hasError('required') && form.get('Data')?.touched) {
-        <p-message severity="error" variant="simple" size="small">{{ getError('Data') }} </p-message>
+        <p-message severity="error" variant="simple" size="small">{{ getError('Data') }}</p-message>
         }
     </div>
 
