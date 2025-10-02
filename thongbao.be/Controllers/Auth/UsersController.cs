@@ -34,8 +34,8 @@ namespace thongbao.be.Controllers.Auth
         {
             try
             {
-                await _usersService.Create(dto);
-                return new();
+                var data = await _usersService.Create(dto);
+                return new(data);
             }
             catch (Exception ex)
             {

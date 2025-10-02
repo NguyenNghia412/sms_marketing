@@ -11,7 +11,7 @@ namespace thongbao.be.application.Auth.Interfaces
 {
     public interface IUsersService
     {
-        public Task<AppUser> Create(CreateUserDto dto);
+        public Task<ViewUserDto> Create(CreateUserDto dto);
         public Task Update(UpdateUserDto dto);
         public Task<BaseResponsePagingDto<ViewUserDto>> FindPaging(FindPagingUserDto dto);
         public Task<ViewUserDto> FindById(string id);

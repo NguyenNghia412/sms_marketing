@@ -137,5 +137,17 @@ namespace thongbao.be.application.Auth.Implements
             await _smDbContext.SaveChangesAsync();
             await trans.CommitAsync();
         }
+
+        public async Task<List<ViewRoleDto>> GetList() {
+            _logger.LogInformation($"{nameof(GetList)}");
+
+            var query = _roleManager.Roles.AsNoTracking().AsQueryable();
+            var data = await query.OrderBy(x => x.Name)
+                        .ToListAsync();
+
+            var result = _mapper.Map<List<ViewRoleDto>>(data);
+
+            return result;
+        }
     }
 }

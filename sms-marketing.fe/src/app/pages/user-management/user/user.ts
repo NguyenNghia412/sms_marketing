@@ -8,6 +8,7 @@ import { IColumn } from '@/shared/models/data-table.models';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { PaginatorState } from 'primeng/paginator';
+import { Create } from './create/create';
 
 @Component({
     selector: 'app-user',
@@ -24,11 +25,11 @@ export class User extends BaseComponent {
 
     columns: IColumn[] = [
         { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
-        { header: 'Tài khoản', field: 'userName', headerContainerStyle: 'min-width: 10rem', },
-        { header: 'Họ tên', field: 'fullName', headerContainerStyle: 'min-width: 10rem', },
-        { header: 'Email', field: 'email', headerContainerStyle: 'min-width: 10rem', },
-        { header: 'SĐT', field: 'phoneNumber', headerContainerStyle: 'min-width: 10rem', },
-        { header: 'Thời gian tạo', field: 'createdAt',headerContainerStyle: 'width: 10rem' , cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
+        { header: 'Tài khoản', field: 'userName', headerContainerStyle: 'min-width: 10rem' },
+        { header: 'Họ tên', field: 'fullName', headerContainerStyle: 'min-width: 10rem' },
+        { header: 'Email', field: 'email', headerContainerStyle: 'min-width: 10rem' },
+        { header: 'SĐT', field: 'phoneNumber', headerContainerStyle: 'min-width: 10rem' },
+        { header: 'Thời gian tạo', field: 'createdAt', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' }
         // { header: 'Thao tác', headerContainerStyle: 'width: 12rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
@@ -68,7 +69,28 @@ export class User extends BaseComponent {
             });
     }
 
-    onOpenCreate() {}
+    onOpenCreate() {
+        const ref = this._dialogService.open(Create, { header: 'Tạo tài khoản', closable: true, modal: true, styleClass: 'w-[700px]', focusOnShow: false });
+        ref.onClose.subscribe((result) => {
+            if (result) {
+                this.getData();
+            }
+        });
+    }
 
-    onCustomEmit(event: any) {}
+    onOpenUpdate(data: IViewRowUser) {
+        const ref = this._dialogService.open(Create, { header: 'Cập nhật tài khoản', closable: true, modal: true, styleClass: 'w-[700px]', focusOnShow: false, data });
+        ref.onClose.subscribe((result) => {
+            if (result) {
+                this.getData();
+            }
+        });
+    }
+
+    onCustomEmit(data: { type: string; data: IViewRowUser; field?: string }) {
+        // if (data.type === TblActionTypes.update) {
+        //     this.onOpenUpdate(data.data);
+        // } else if (data.type === TblActionTypes.delete) {
+        // }
+    }
 }

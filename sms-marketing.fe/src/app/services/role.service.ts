@@ -20,6 +20,10 @@ export class RoleService {
         return this.http.get<IBaseResponseWithData<IViewRowRole>>(`${this.api}/${id}`);
     }
 
+    getList() {
+        return this.http.get<IBaseResponseWithData<IViewRowRole[]>>(`${this.api}/list`);
+    }
+
     create(body: ICreateRole) {
         return this.http.post<IBaseResponse>(`${this.api}`, body);
     }
