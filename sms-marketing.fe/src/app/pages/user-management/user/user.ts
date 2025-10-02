@@ -9,6 +9,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { PaginatorState } from 'primeng/paginator';
 import { Create } from './create/create';
+import { TblAction, TblActionTypes } from './tbl-action/tbl-action';
 
 @Component({
     selector: 'app-user',
@@ -29,8 +30,7 @@ export class User extends BaseComponent {
         { header: 'Họ tên', field: 'fullName', headerContainerStyle: 'min-width: 10rem' },
         { header: 'Email', field: 'email', headerContainerStyle: 'min-width: 10rem' },
         { header: 'SĐT', field: 'phoneNumber', headerContainerStyle: 'min-width: 10rem' },
-        { header: 'Thời gian tạo', field: 'createdAt', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' }
-        // { header: 'Thao tác', headerContainerStyle: 'width: 12rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
+        { header: 'Thao tác', headerContainerStyle: 'width: 6rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
     data: IViewRowUser[] = [];
@@ -88,9 +88,9 @@ export class User extends BaseComponent {
     }
 
     onCustomEmit(data: { type: string; data: IViewRowUser; field?: string }) {
-        // if (data.type === TblActionTypes.update) {
-        //     this.onOpenUpdate(data.data);
-        // } else if (data.type === TblActionTypes.delete) {
-        // }
+        if (data.type === TblActionTypes.update) {
+            this.onOpenUpdate(data.data);
+        } else if (data.type === TblActionTypes.delete) {
+        }
     }
 }

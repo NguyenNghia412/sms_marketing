@@ -4,12 +4,17 @@ export interface IViewRowUser {
   id?: string;
   userName?: string;
   email?: string;
+  msAccount?: string;
   phoneNumber?: string | null;
   fullName?: string;
   emailConfirmed?: boolean;
   phoneNumberConfirmed?: boolean;
   createdAt?: string; // or Date if you plan to parse it
   roles?: string[];
+}
+
+export interface IViewUser extends IViewRowUser {
+  passwordRandom?: string
 }
 
 export interface ICreateUser {

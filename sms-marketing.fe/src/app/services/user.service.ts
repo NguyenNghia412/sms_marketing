@@ -1,5 +1,5 @@
-import { ICreateUser, IFindPagingUser, IUpdateUser, IViewRowUser } from '@/models/user.models';
-import { IBaseResponse, IBaseResponsePaging } from '@/shared/models/request-paging.base.models';
+import { ICreateUser, IFindPagingUser, IUpdateUser, IViewRowUser, IViewUser } from '@/models/user.models';
+import { IBaseResponse, IBaseResponsePaging, IBaseResponseWithData } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
@@ -16,8 +16,12 @@ export class UserService {
         });
     }
 
+    getById(id: string) {
+        return this.http.get<IBaseResponseWithData<IViewRowUser>>(`${this.api}/${id}`);
+    }
+
     create(body: ICreateUser) {
-        return this.http.post<IBaseResponse>(`${this.api}`, body);
+        return this.http.post<IBaseResponseWithData<IViewUser>>(`${this.api}`, body);
     }
 
     update(body: IUpdateUser) {

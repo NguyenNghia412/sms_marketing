@@ -33,13 +33,6 @@ namespace thongbao.be.application.Auth.Dtos.User
         [Phone]
         public string? PhoneNumber { get; set; }
 
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Không được bỏ trống")]
-        public string Password
-        {
-            get => _password;
-            set => _password = value?.Trim() ?? string.Empty;
-        }
-
         public string? FullName { get; set; }
 
         public List<string> RoleNames { get; set; } = new List<string>();

@@ -1,16 +1,15 @@
-import { IViewPermission } from '@/models/permission.models';
-import { ICreateRole, IUpdateRole, IViewRowRole } from '@/models/role.models';
+import { IViewRowRole } from '@/models/role.models';
 import { ICreateUser, IUpdateUser } from '@/models/user.models';
-import { PermissionService } from '@/services/permission.service';
 import { RoleService } from '@/services/role.service';
 import { UserService } from '@/services/user.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { SharedImports } from '@/shared/import.shared';
 import { Component, inject } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CheckboxChangeEvent } from 'primeng/checkbox';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { PickListModule } from 'primeng/picklist';
+import { concatMap } from 'rxjs';
 
 @Component({
     selector: 'app-create',
@@ -25,7 +24,6 @@ export class Create extends BaseComponent {
     private _roleService = inject(RoleService);
 
     listRole: IViewRowRole[] = [];
-    isRandomPassword: boolean = true;
 
     override form: FormGroup = new FormGroup(
         {
@@ -34,13 +32,14 @@ export class Create extends BaseComponent {
             email: new FormControl('', [Validators.required]),
             roleNames: new FormControl([], [Validators.required]),
             phoneNumber: new FormControl('', [Validators.required]),
-            password: new FormControl('123456Aa@', [Validators.required]),
-            msAccount: new FormControl('')
+            password: new FormControl(''),
+            msAccount: new FormControl(''),
+            isRandomPassword: new FormControl(true)
         }
     );
 
     override ValidationMessages: Record<string, Record<string, string>> = {
-        name: {
+        userName: {
             required: 'Không được bỏ trống'
         },
         fullName: {
@@ -55,29 +54,63 @@ export class Create extends BaseComponent {
         roleNames: {
             required: 'Không được bỏ trống'
         },
-        password: {
-            required: 'Không được bỏ trống'
-        }
     };
 
     get isUpdate() {
         return this._config.data?.id;
     }
-    
+
 
     override ngOnInit(): void {
-        this._roleService.getList().subscribe({
-            next: (res) => {
-                if (this.isResponseSucceed(res)) {
-                    this.listRole = res.data;
-                }
-            }
-        });
+        if (this.isUpdate) {
+            this.initOnUpdate();
+        } else {
+            this.initOnCreate();
+        }
     }
 
-    onChangeIsRandomPassword(event :  CheckboxChangeEvent) {
+    initOnCreate() {
+        this._roleService.getList()
+            .subscribe({
+                next: (res) => {
+                    if (this.isResponseSucceed(res)) {
+                        this.listRole = res.data;
+                    }
+                }
+            });
+    }
+
+    initOnUpdate() {
+        this._roleService.getList()
+            .pipe(
+                concatMap(res => {
+                    if (this.isResponseSucceed(res)) {
+                        this.listRole = res.data;
+                    }
+                    return this._userService.getById(this._config.data.id);
+                })
+            )
+            .subscribe({
+                next: (res) => {
+                    if (this.isResponseSucceed(res)) {
+                        this.form.setValue({
+                            userName: res.data.userName,
+                            fullName: res.data.fullName,
+                            email: res.data.email,
+                            phoneNumber: res.data.phoneNumber,
+                            msAccount: res.data?.msAccount,
+                            roleNames: res.data.roles,
+                            password: '',
+                            isRandomPassword: false,
+                        });
+                    }
+                }
+            });
+    }
+
+    onChangeIsRandomPassword(event: CheckboxChangeEvent) {
         if (event.checked) {
-            this.form.patchValue({password: null});
+            this.form.patchValue({ password: null });
         }
     }
 
@@ -101,7 +134,10 @@ export class Create extends BaseComponent {
         this._userService.create(body).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, true, 'Đã tạo tài khoản')) {
-                    this._ref?.close(true);
+                    if (!!res.data.passwordRandom) {
+                        this.form.patchValue({ password: res.data.passwordRandom })
+                    }
+                    // this._ref?.close(true);
                 }
             },
             error: (err) => {

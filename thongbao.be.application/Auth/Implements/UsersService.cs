@@ -81,7 +81,11 @@ namespace thongbao.be.application.Auth.Implements
 
             var user = await _userManager.FindByIdAsync(id);
 
-            return _mapper.Map<ViewUserDto>(user);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var data = _mapper.Map<ViewUserDto>(user);
+            data.Roles = roles;
+            return data;
         }
 
         public async Task<ViewUserDto> FindByMsAccount(string msAccount)
