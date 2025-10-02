@@ -84,5 +84,20 @@ namespace thongbao.be.Controllers.Auth
                 return OkException(ex);
             }
         }
+
+        [Permission(PermissionKeys.RoleView)]
+        [HttpGet("list")]
+        public async Task<ApiResponse> GetList()
+        {
+            try
+            {
+                var data = await _roleService.GetList();
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

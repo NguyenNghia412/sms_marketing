@@ -13,6 +13,7 @@ namespace thongbao.be.application.Auth.Dtos.User
         public string Email { get; set; } = default!;
         public string? PhoneNumber { get; set; }
         public string? FullName { get; set; }
+        public string? PasswordRandom { get; set; }
         public bool EmailConfirmed { get; set; }
         public bool PhoneNumberConfirmed { get; set; }
         public DateTime CreatedAt { get; set; }

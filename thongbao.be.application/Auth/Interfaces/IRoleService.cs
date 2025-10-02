@@ -14,5 +14,6 @@ namespace thongbao.be.application.Auth.Interfaces
         public Task Update(UpdateRoleDto dto);
         public Task<BaseResponsePagingDto<ViewRoleDto>> FindPaging(FindPagingRoleDto dto);
         public Task<ViewRoleDto> FindById(string id);
+        public Task<List<ViewRoleDto>> GetList();
     }
 }

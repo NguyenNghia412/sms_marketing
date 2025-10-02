@@ -17,6 +17,7 @@ using thongbao.be.infrastructure.data;
 using thongbao.be.shared.HttpRequest.BaseRequest;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
+using thongbao.be.shared.Utils;
 
 namespace thongbao.be.application.Auth.Implements
 {
@@ -32,11 +33,18 @@ namespace thongbao.be.application.Auth.Implements
             _userManager = userManager;
         }
 
-        public async Task<AppUser> Create(CreateUserDto dto)
+        public async Task<ViewUserDto> Create(CreateUserDto dto)
         {
             _logger.LogInformation($"{nameof(Create)} dto={JsonSerializer.Serialize(dto)}");
 
             using var transaction = await _smDbContext.Database.BeginTransactionAsync();
+
+            bool isRandomPassword = string.IsNullOrEmpty(dto.Password);
+            if (isRandomPassword)
+            {
+                dto.Password = CryptoUtils.GenerateRandomString(8);
+            }
+
             var newUser = new AppUser
             {
                 UserName = dto.UserName,
@@ -57,7 +65,14 @@ namespace thongbao.be.application.Auth.Implements
             await _smDbContext.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            return newUser;
+            var rslt = _mapper.Map<ViewUserDto>(newUser);
+
+            if (isRandomPassword)
+            {
+                rslt.PasswordRandom = dto.Password;
+            }
+
+            return rslt;
         }
 
         public async Task<ViewUserDto> FindById(string id)

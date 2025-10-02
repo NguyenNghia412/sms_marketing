@@ -1,4 +1,4 @@
-import { IBaseRequestPaging } from "@/shared/models/request-paging.base.models";
+import { IBaseRequestPaging } from '@/shared/models/request-paging.base.models';
 
 export interface IViewRowUser {
   id?: string;
@@ -10,6 +10,20 @@ export interface IViewRowUser {
   phoneNumberConfirmed?: boolean;
   createdAt?: string; // or Date if you plan to parse it
   roles?: string[];
+}
+
+export interface ICreateUser {
+  userName?: string,
+  email?: string,
+  phoneNumber?: string,
+  password?: string,
+  fullName?: string,
+  roleNames?: string[],
+  msAccount?: string
+}
+
+export interface IUpdateUser extends ICreateUser {
+  id: string
 }
 
 export interface IFindPagingUser extends IBaseRequestPaging {}

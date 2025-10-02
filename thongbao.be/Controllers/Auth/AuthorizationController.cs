@@ -366,7 +366,7 @@ namespace thongbao.be.Controllers.Auth
             {
                 _logger.LogInformation("Creating new user for email: {Email}", email);
 
-                user = await _usersService.Create(new application.Auth.Dtos.User.CreateUserDto
+                var newUser = await _usersService.Create(new application.Auth.Dtos.User.CreateUserDto
                 {
                     UserName = email,
                     Email = email,
@@ -374,6 +374,7 @@ namespace thongbao.be.Controllers.Auth
                     FullName = name ?? "",
                     Password = "Password@7"
                 });
+                user = await userManager.FindByIdAsync(newUser.Id);
 
                 _logger.LogInformation("New user created with ID: {UserId}", user.Id);
             }

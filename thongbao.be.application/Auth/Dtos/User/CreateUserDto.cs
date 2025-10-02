@@ -30,7 +30,6 @@ namespace thongbao.be.application.Auth.Dtos.User
         [Phone]
         public string? PhoneNumber { get; set; }
 
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Không được bỏ trống")]
         public string Password
         {
             get => _password;

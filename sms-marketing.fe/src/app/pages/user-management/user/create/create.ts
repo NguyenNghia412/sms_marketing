@@ -1,11 +1,14 @@
 import { IViewPermission } from '@/models/permission.models';
-import { ICreateRole, IUpdateRole } from '@/models/role.models';
+import { ICreateRole, IUpdateRole, IViewRowRole } from '@/models/role.models';
+import { ICreateUser, IUpdateUser } from '@/models/user.models';
 import { PermissionService } from '@/services/permission.service';
 import { RoleService } from '@/services/role.service';
+import { UserService } from '@/services/user.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { SharedImports } from '@/shared/import.shared';
 import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { CheckboxChangeEvent } from 'primeng/checkbox';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { PickListModule } from 'primeng/picklist';
 
@@ -18,44 +21,64 @@ import { PickListModule } from 'primeng/picklist';
 export class Create extends BaseComponent {
     private _ref = inject(DynamicDialogRef);
     private _config = inject(DynamicDialogConfig);
-    private _permissionService = inject(PermissionService);
+    private _userService = inject(UserService);
     private _roleService = inject(RoleService);
 
-    listPermission: IViewPermission[] = [];
-    selectedPermissions: IViewPermission[] = [];
+    listRole: IViewRowRole[] = [];
+    isRandomPassword: boolean = true;
 
-    override form: FormGroup = new FormGroup({
-        name: new FormControl('', [Validators.required])
-    });
+    override form: FormGroup = new FormGroup(
+        {
+            userName: new FormControl('', [Validators.required]),
+            fullName: new FormControl('', [Validators.required]),
+            email: new FormControl('', [Validators.required]),
+            roleNames: new FormControl([], [Validators.required]),
+            phoneNumber: new FormControl('', [Validators.required]),
+            password: new FormControl('123456Aa@', [Validators.required]),
+            msAccount: new FormControl('')
+        }
+    );
 
     override ValidationMessages: Record<string, Record<string, string>> = {
         name: {
             required: 'Không được bỏ trống'
+        },
+        fullName: {
+            required: 'Không được bỏ trống'
+        },
+        email: {
+            required: 'Không được bỏ trống'
+        },
+        phoneNumber: {
+            required: 'Không được bỏ trống'
+        },
+        roleNames: {
+            required: 'Không được bỏ trống'
+        },
+        password: {
+            required: 'Không được bỏ trống'
         }
     };
-
-    override ngOnInit(): void {
-        this.getPermission();
-    }
 
     get isUpdate() {
         return this._config.data?.id;
     }
+    
 
-    getPermission() {
-        this._permissionService.getList().subscribe({
+    override ngOnInit(): void {
+        this._roleService.getList().subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res)) {
-                    this.listPermission = res.data;
-
-                    if (this.isUpdate) {
-                        this.form.patchValue({ name: this._config.data?.name });
-                        this.listPermission = res.data.filter((x) => !(this._config.data?.permissionKey || []).includes(x.key));
-                        this.selectedPermissions = res.data.filter((x) => (this._config.data?.permissionKey || []).includes(x.key));
-                    }
+                    this.listRole = res.data;
                 }
             }
         });
+    }
+
+    onChangeIsRandomPassword(event :  CheckboxChangeEvent) {
+        if (event.checked) {
+            this.form.patchValue({password: null});
+        }
     }
 
     onSubmit() {
@@ -71,14 +94,13 @@ export class Create extends BaseComponent {
     }
 
     onSubmitCreate() {
-        const body: ICreateRole = {
-            name: this.form.value['name'],
-            permissionKey: this.selectedPermissions.map((x) => x.key!)
+        const body: ICreateUser = {
+            ...this.form.value
         };
         this.loading = true;
-        this._roleService.create(body).subscribe({
+        this._userService.create(body).subscribe({
             next: (res) => {
-                if (this.isResponseSucceed(res, true, 'Đã thêm vai trò')) {
+                if (this.isResponseSucceed(res, true, 'Đã tạo tài khoản')) {
                     this._ref?.close(true);
                 }
             },
@@ -92,13 +114,12 @@ export class Create extends BaseComponent {
     }
 
     onSubmitUpdate() {
-        const body: IUpdateRole = {
+        const body: IUpdateUser = {
             id: this._config.data?.id,
-            name: this.form.value['name'],
-            permissionKey: this.selectedPermissions.map((x) => x.key!)
+            ...this.form.value
         };
         this.loading = true;
-        this._roleService.update(body).subscribe({
+        this._userService.update(body).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, true, 'Đã cập nhật')) {
                     this._ref?.close(true);
