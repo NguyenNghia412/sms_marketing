@@ -6,9 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using thongbao.be.infrastructure.data;
+using thongbao.be.shared.Constants.Auth;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace thongbao.be.application.Base
 {
@@ -30,6 +33,18 @@ namespace thongbao.be.application.Base
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
+        }
+
+        protected string getCurrentUserId()
+        {
+            var data = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return data!;
+        }
+
+        protected string getCurrentName()
+        {
+            var data = _httpContextAccessor.HttpContext.User.FindFirstValue(Claims.Name);
+            return data!;
         }
     }
 }

@@ -27,4 +27,8 @@ export class UserService {
     update(body: IUpdateUser) {
         return this.http.put<IBaseResponse>(`${this.api}`, body);
     }
+
+    getMe() {
+        return this.http.get<IBaseResponseWithData<IViewUser>>(`${this.api}/me`);
+    }
 }

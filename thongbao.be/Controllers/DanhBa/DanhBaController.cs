@@ -39,6 +39,7 @@ namespace thongbao.be.Controllers.DanhBa
                 return OkException(ex);
             }
         }
+
         [Permission(PermissionKeys.DanhBaAdd)]
         [HttpPost("nguoi-nhan-moi")]
         public ApiResponse CreateNguoiNhan(CreateNguoiNhanDto dto)

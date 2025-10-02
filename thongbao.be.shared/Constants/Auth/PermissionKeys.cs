@@ -11,6 +11,20 @@ namespace thongbao.be.shared.Constants.Auth
         public const string Menu = "Menu.";
         public const string Function = "Function.";
 
+        public const string MenuMarketing = Menu + "Marketing";
+        public const string MenuMarketingSms = MenuMarketing + "_Sms";
+        public const string MenuMarketingEmail = MenuMarketing + "_Email";
+        public const string MenuMarketingZns = MenuMarketing + "_Zns";
+
+        public const string MenuUserManagement = Menu + "UserManagement";
+        public const string MenuUserManagementUser = MenuUserManagement + "_User";
+        public const string MenuUserManagementRole = MenuUserManagement + "_User";
+
+        public const string MenuContact = Menu + "Contact";
+        public const string MenuTemplate = Menu + "Template";
+        public const string MenuReport = Menu + "Report";
+        public const string MenuTraoBang = Menu + "TraoBang";
+
         public const string CategoryUser = "QL User";
         public const string UserAdd = Function + "UserAdd";
         public const string UserUpdate = Function + "UserUpdate";
@@ -30,7 +44,6 @@ namespace thongbao.be.shared.Constants.Auth
         public const string ChienDichDelete = Function + "ChienDichDelete";
         public const string ChienDichView = Function + "ChienDichView";
 
-
         public const string CategoryHopTrucTuyen = "QL Họp trực tuyến";
         public const string HopTrucTuyenAdd = Function + "HopTrucTuyenAdd";
         public const string HopTrucTuyenUpdate = Function + "HopTrucTuyenUpdate";
@@ -44,14 +57,11 @@ namespace thongbao.be.shared.Constants.Auth
         public const string DanhBaView = Function + "DanhBaView";
         public const string DanhBaImport = Function + "DanhBaImport";
 
-
         public const string CategoryToChuc = "QL Tổ chức";
         public const string ToChucAdd = Function + "ToChucAdd";
         public const string ToChucUpdate = Function + "ToChucUpdate";
         public const string ToChucDelete = Function + "ToChucDelete";
         public const string ToChucView = Function + "ToChucView";
-
-
 
         public const string CategoryMauNoiDung = "QL Mẫu Nội Dung";
         public const string MauNoiDungAdd = Function + "MauNoiDungAdd";
@@ -62,11 +72,22 @@ namespace thongbao.be.shared.Constants.Auth
         public const string GuiTinNhanAdd = Function + "GuiTinNhanAdd";
 
 
-
-
-
         public static readonly (string Key, string Name, string Category)[] All =
         {
+            (MenuMarketing, "Menu Marketing", "Menu"),
+            (MenuMarketingSms, "Menu Marketing - SMS", "Menu"),
+            (MenuMarketingEmail, "Menu Marketing - Email", "Menu"),
+            (MenuMarketingZns, "Menu Marketing - ZNS", "Menu"),
+
+            (MenuUserManagement, "Menu Quản lý User", "Menu"),
+            (MenuUserManagementUser, "Menu Quản lý User - User", "Menu"),
+            (MenuUserManagementRole, "Menu Quản lý User - Role", "Menu"),
+
+            (MenuContact, "Menu Danh bạ", "Menu"),
+            (MenuTemplate, "Menu Template", "Menu"),
+            (MenuReport, "Menu Báo cáo", "Menu"),
+            (MenuTraoBang, "Menu Trao Bằng", "Menu"),
+
             (UserAdd, "Thêm user", CategoryUser),
             (UserUpdate, "Cập nhật User" , CategoryUser),
             (UserDelete, "Xoá User" , CategoryUser),

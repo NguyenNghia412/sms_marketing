@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using thongbao.be.application.Auth.Interfaces;
 using thongbao.be.application.Base;
 using thongbao.be.domain.Auth;
 using thongbao.be.infrastructure.data;
+using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.HttpRequest.BaseRequest;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
@@ -152,5 +154,30 @@ namespace thongbao.be.application.Auth.Implements
             await _smDbContext.SaveChangesAsync();
             await transaction.CommitAsync();
         }
+
+        public async Task<ViewMeDto> GetMe()
+        {
+            _logger.LogInformation($"{nameof(GetMe)}");
+            var userId = getCurrentUserId();
+            
+            var data = await _userManager.FindByIdAsync(userId)
+                ?? throw new UserFriendlyException(ErrorCodes.AuthErrorUserNotFound);
+            var user = _mapper.Map<ViewMeDto>(data);
+
+            var roles = await _userManager.GetRolesAsync(data);
+            user.Roles = roles;
+
+            var permissions = (from u in _smDbContext.Users
+                               join userRole in _smDbContext.UserRoles on u.Id equals userRole.UserId
+                               join role in _smDbContext.Roles on userRole.RoleId equals role.Id
+                               join roleClaims in _smDbContext.RoleClaims on role.Id equals roleClaims.RoleId
+                               where u.Id == userId
+                                 && roleClaims.ClaimType == CustomClaimTypes.Permission
+                               select roleClaims.ClaimValue).ToList();
+            user.Permissions = permissions;
+
+            return user;
+        }
+
     }
 }

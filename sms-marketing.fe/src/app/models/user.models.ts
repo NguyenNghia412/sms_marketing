@@ -15,6 +15,7 @@ export interface IViewRowUser {
 
 export interface IViewUser extends IViewRowUser {
   passwordRandom?: string
+  permissions?: string[]
 }
 
 export interface ICreateUser {

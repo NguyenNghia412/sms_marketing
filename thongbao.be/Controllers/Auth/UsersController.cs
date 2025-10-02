@@ -122,5 +122,23 @@ namespace thongbao.be.Controllers.Auth
                 return OkException(ex);
             }
         }
+
+        /// <summary>
+        /// Lấy thông tin chính mình
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("me")]
+        public async Task<ApiResponse> GetMe()
+        {
+            try
+            {
+                var data = await _usersService.GetMe();
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }
