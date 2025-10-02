@@ -202,7 +202,29 @@ namespace thongbao.be.application.DanhBa.Implements
 
             return response;
         }
-
+        public async Task<GetTruongDataDanhBaSmsResponseDto> GetTruongData( int idDanhBa)
+        {
+            _logger.LogInformation($"{nameof(GetTruongData)} idDanhBa={idDanhBa}");
+            var danhBa = await _smDbContext.DanhBas.FirstOrDefaultAsync(x => x.Id == idDanhBa && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
+            var truongDataList = await _smDbContext.DanhBaTruongDatas
+                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
+                .OrderBy(x => x.Id)
+                .ToListAsync();
+           foreach(var truong in truongDataList)
+            {
+                truong.TenTruong = truong.TenTruong;
+            }
+            var response = new GetTruongDataDanhBaSmsResponseDto
+            {
+                TruongDataList = truongDataList.Select(x => new TruongDataItem
+                {
+                    Id = x.Id,
+                    TenTruong = x.TenTruong,
+                }).ToList()
+            };
+            return response;
+        }
         public void CreateNguoiNhan(CreateNguoiNhanDto dto)
         {
             _logger.LogInformation($"{nameof(CreateNguoiNhan)} dto={JsonSerializer.Serialize(dto)}");

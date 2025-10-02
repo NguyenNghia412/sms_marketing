@@ -335,6 +335,20 @@ namespace thongbao.be.Controllers.DanhBa
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.DanhBaView)]
+        [HttpGet("{idDanhBa}/truong-data")]
+        public async Task<ApiResponse> GetTruongData([FromRoute] int idDanhBa)
+        {
+            try
+            {
+                var data = await _danhBaService.GetTruongData(idDanhBa);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
 
 
     }
