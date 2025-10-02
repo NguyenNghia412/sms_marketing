@@ -15,6 +15,7 @@ export abstract class BaseComponent implements OnInit {
 
     ValidationMessages: Record<string, Record<string, string>> = {};
     MAX_PAGE_SIZE = 10;
+    START_PAGE_NUMBER = 1;
     form!: FormGroup; // declare, but not initialize
     loading: boolean = false;
     totalRecords: number = 100;

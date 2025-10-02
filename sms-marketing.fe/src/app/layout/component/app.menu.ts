@@ -57,13 +57,32 @@ export class AppMenu {
                     }
                 ]
             },
-             {
+            {
                 items: [
                     {
                         label: 'Thống kê',
-                                           items: [
+                        items: [
                             { label: 'SMS', heroIcon: 'heroChatBubbleBottomCenterText', routerLink: ['/report/chien-dich-report'] },
-                                           ]
+                        ]
+                    }
+                ]
+            },
+            {
+                items: [
+                    {
+                        label: 'QL Tài khoản',
+                        items: [
+                            {
+                                label: 'Người dùng',
+                                heroIcon: 'heroUser',
+                                routerLink: ['/user-management/user']
+                            },
+                            {
+                                label: 'Vai trò',
+                                heroIcon: 'heroUserGroup',
+                                routerLink: ['/user-management/role']
+                            }
+                        ]
                     }
                 ]
             },

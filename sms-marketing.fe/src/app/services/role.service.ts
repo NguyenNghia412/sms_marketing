@@ -1,0 +1,30 @@
+import { ICreateRole, IFindPagingRole, IUpdateRole, IViewRowRole } from '@/models/role.models';
+import { IBaseResponse, IBaseResponsePaging, IBaseResponseWithData } from '@/shared/models/request-paging.base.models';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class RoleService {
+    api = '/api/app/roles';
+    http = inject(HttpClient);
+
+    findPaging(query: IFindPagingRole) {
+        return this.http.get<IBaseResponsePaging<IViewRowRole>>(this.api, {
+            params: { ...query }
+        });
+    }
+
+    getById(id: string) {
+        return this.http.get<IBaseResponseWithData<IViewRowRole>>(`${this.api}/${id}`);
+    }
+
+    create(body: ICreateRole) {
+        return this.http.post<IBaseResponse>(`${this.api}`, body);
+    }
+
+    update(body: IUpdateRole) {
+        return this.http.put<IBaseResponse>(`${this.api}`, body);
+    }
+}

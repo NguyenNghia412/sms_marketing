@@ -17,7 +17,7 @@ import { TblAction, TblActionTypes } from './tbl-action/tbl-action';
   styleUrl: './mau-noi-dung.scss'
 })
 export class MauNoiDung extends BaseComponent {
-_templateService = inject(TemplateService);
+    _templateService = inject(TemplateService);
 
     searchForm: FormGroup = new FormGroup({
         search: new FormControl('')
