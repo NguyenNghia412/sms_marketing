@@ -13,5 +13,6 @@ namespace thongbao.be.shared.Constants.Db
 
         public const string Auth = "auth";
         public const string Core = "core";
+        public const string TraoBang = "tb";
     }
 }
