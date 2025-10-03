@@ -85,6 +85,38 @@ export class AppMenu {
             {
                 items: [
                     {
+                        label: 'Trao bằng',
+                        visible: true,
+                        items: [
+                            {
+                                label: 'Cấu hình',
+                                visible: true,
+                                items: [
+                                    {
+                                        label: 'Kế hoạch',
+                                        visible: true,
+                                        routerLink: ['/trao-bang/config/plan']
+                                    },
+                                    {
+                                        label: 'Khoa',
+                                        visible: true,
+                                        routerLink: ['/trao-bang/config/sub-plan']
+                                    },
+                                    {
+                                        label: 'SV nhận bằng',
+                                        visible: true,
+                                        routerLink: ['/trao-bang/config/sv']
+                                    },
+                                ]
+                            },
+                        ]
+                    }
+                ],
+                visible: true,
+            },
+            {
+                items: [
+                    {
                         label: 'QL Tài khoản',
                         visible: this._sharedService.isGranted(PermissionConstants.MenuUserManagement),
                         items: [

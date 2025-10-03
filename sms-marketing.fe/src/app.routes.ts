@@ -20,6 +20,7 @@ export const appRoutes: Routes = [
             { path: 'report', loadChildren:()  => import('./app/pages/report/sms/sms-report.routers')},
             { path: 'meeting', loadChildren: () => import('./app/pages/meeting/meetings.routes') },
             { path: 'user-management', loadChildren: () => import('./app/pages/user-management/user-management.routes') },
+            { path: 'trao-bang', loadChildren: () => import('./app/pages/trao-bang/trao-bang.routes') },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'documentation', component: Documentation },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
