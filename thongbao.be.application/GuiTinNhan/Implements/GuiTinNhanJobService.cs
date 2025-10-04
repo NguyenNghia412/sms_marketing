@@ -57,7 +57,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _logger.LogInformation($"{nameof(SaveThongTinChienDich)}");
             var vietnamNow = GetVietnamTime();
 
-            // Validate không cần list số điện thoại ở đây vì chỉ save khi có IdDanhBa
             if (!idDanhBa.HasValue)
             {
                 throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound);

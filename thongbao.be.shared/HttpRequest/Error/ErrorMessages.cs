@@ -72,6 +72,7 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.ErrorServiceAccountNotFound,"Không tim thấy file service-account.json" },
             { ErrorCodes.DanhBaErrorDanhSachSoDienThoaiInvalid, "Số điện thoại '{0}' không hợp lệ (phải đủ 10 số)" },
             { ErrorCodes.DanhBaErrorDanhSachSoDienThoaiRequired, "Vui lòng cung cấp IdDanhBa hoặc DanhSachSoDienThoai" },
+            { ErrorCodes.TraoBangErrorPlanNotFound, "Kế hoạch không tồn tại" }
         };
 
         public static string GetMessage(int code)

@@ -71,6 +71,11 @@ namespace thongbao.be.shared.Constants.Auth
 
         public const string GuiTinNhanAdd = Function + "GuiTinNhanAdd";
 
+        public const string CategoryPlan = "QL Plan";
+        public const string PlanAdd = Function + "PlanAdd";
+        public const string PlanUpdate = Function + "PlanUpdate";
+        public const string PlanDelete = Function + "PlanDelete";
+        public const string PlanView = Function + "PlanView";
 
         public static readonly (string Key, string Name, string Category)[] All =
         {
@@ -124,6 +129,11 @@ namespace thongbao.be.shared.Constants.Auth
             (MauNoiDungUpdate, "Cập nhật Mẫu Nội Dung", CategoryMauNoiDung),
             (MauNoiDungDelete, "Xoá Mẫu Nội Dung", CategoryMauNoiDung),
             (MauNoiDungView, "Xem Mẫu Nội Dung", CategoryMauNoiDung),
+
+            (PlanAdd, "Thêm Plan ", CategoryPlan),
+            (PlanUpdate, "Cập nhật Plan", CategoryPlan),
+            (PlanDelete, "Xoá Plan", CategoryPlan),
+            (PlanView, "Xem Plan", CategoryPlan),
 
         };
     }

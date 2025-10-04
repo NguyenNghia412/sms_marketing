@@ -25,11 +25,23 @@ namespace thongbao.be.domain.TraoBang
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int IdSubPlan { get; set; }
+        public string HoVaTen { get; set; } = String.Empty;
+        public string Email { get; set; } = String.Empty ;
         public string MaSoSinhVien { get; set; } = String.Empty;
+        public string Lop { get; set; } = String.Empty;
+        public DateTime NgaySinh { get; set; }
+        public string CapBang { get; set; } = String.Empty;
+        public string TenNganhDaoTao { get; set; } = String.Empty;  
+        public string XepHang { get; set; } = String.Empty;
+        public string ThanhTich { get; set; } = String.Empty;   
+        public string KhoaQuanLy { get; set; } = String.Empty;
+        
+        public string SoQuyetDinhTotNghiep { get; set; } = String.Empty;
+        public DateTime NgayQuyetDinh { get; set; } 
         public string? Note { get; set; } 
         public bool IsShow { get; set; }
         public int Order { get; set; }
-        public int TrangThai { get; set; } = TraoBangConstants.XepHang;
+        public int TrangThai { get; set; } 
         public string LinkQR { get; set; } = String.Empty;
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }

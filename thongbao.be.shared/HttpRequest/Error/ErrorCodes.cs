@@ -84,6 +84,8 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int ErrorServiceAccountNotFoundInAppSetting = 902;
         public const int ErrorServiceAccountNotFound = 903;
 
+        public const int TraoBangErrorPlanNotFound = 1001;
+
 
 
 

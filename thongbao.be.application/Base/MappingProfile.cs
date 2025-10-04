@@ -12,11 +12,13 @@ using thongbao.be.application.DiemDanh.Dtos;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.application.MauNoiDung.Dtos;
 using thongbao.be.application.ToChuc.Dtos;
+using thongbao.be.application.TraoBang.Dtos;
 using thongbao.be.domain.Auth;
 using thongbao.be.domain.DanhBa;
 using thongbao.be.domain.DiemDanh;
 using thongbao.be.domain.GuiTinNhan;
 using thongbao.be.domain.MauNoiDung;
+using thongbao.be.domain.TraoBang;
 
 namespace thongbao.be.application.Base
 {
@@ -40,6 +42,7 @@ namespace thongbao.be.application.Base
             CreateMap<domain.MauNoiDung.MauNoiDung, ViewMauNoiDungDto>();
             CreateMap<domain.MauNoiDung.MauNoiDung, GetListMauNoiDungResponseDto>();
             CreateMap<ChienDichLogTrangThaiGui, ViewChienDichLogDto>();
+            CreateMap<Plan,ViewPlanDto>();
         }
     }
 }

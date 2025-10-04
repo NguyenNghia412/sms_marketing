@@ -31,6 +31,8 @@ using thongbao.be.application.MauNoiDung.Implements;
 using thongbao.be.application.MauNoiDung.Interfaces;
 using thongbao.be.application.ToChuc.Implements;
 using thongbao.be.application.ToChuc.Interfaces;
+using thongbao.be.application.TraoBang.Implements;
+using thongbao.be.application.TraoBang.Interface;
 using thongbao.be.domain.Auth;
 using thongbao.be.infrastructure.data;
 using thongbao.be.infrastructure.data.Seeder;
@@ -253,6 +255,7 @@ builder.Services.AddScoped<IGuiTinNhanJobService, GuiTinNhanJobService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISendSmsService, SendSmsService>();
 builder.Services.AddScoped<IGuiTinNhanLogService, GuiTinNhanLogService>();
+builder.Services.AddScoped<IPlanService, PlanService>();
 #endregion
 
 builder.Services.AddHttpClient();

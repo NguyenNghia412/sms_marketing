@@ -25,6 +25,7 @@ namespace thongbao.be.domain.TraoBang
         public int Id { get; set; }
         public int IdPlan { get; set; }
         public string Ten { get; set; } = String.Empty;
+        public string TruongKhoa { get; set; } = String.Empty;
         public string? MoTa { get; set; } = String.Empty;
         public string? Note { get; set; } = String.Empty;
         public string MoBai { get; set; } = String.Empty;
