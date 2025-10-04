@@ -77,6 +77,13 @@ namespace thongbao.be.shared.Constants.Auth
         public const string PlanDelete = Function + "PlanDelete";
         public const string PlanView = Function + "PlanView";
 
+        public const string CategorySubPlan = "QL SubPlan";
+        public const string SubPlanAdd = Function + "SubPlanAdd";
+        public const string SubPlanUpdate = Function + "SubPlanUpdate";
+        public const string SubPlanDelete = Function + "SubPlanDelete";
+        public const string SubPlanView = Function + "SubPlanView";
+
+
         public static readonly (string Key, string Name, string Category)[] All =
         {
             (MenuMarketing, "Menu Marketing", "Menu"),
@@ -134,6 +141,11 @@ namespace thongbao.be.shared.Constants.Auth
             (PlanUpdate, "Cập nhật Plan", CategoryPlan),
             (PlanDelete, "Xoá Plan", CategoryPlan),
             (PlanView, "Xem Plan", CategoryPlan),
+
+            (SubPlanAdd, "Thêm SubPlan ", CategorySubPlan),
+            (SubPlanUpdate, "Cập nhật SubPlan", CategorySubPlan),
+            (SubPlanDelete, "Xoá SubPlan", CategorySubPlan),
+            (SubPlanView, "Xem SubPlan", CategorySubPlan),
 
         };
     }

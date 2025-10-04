@@ -1,0 +1,19 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using thongbao.be.application.TraoBang.Dtos;
+using thongbao.be.shared.HttpRequest.BaseRequest;
+
+namespace thongbao.be.application.TraoBang.Interface
+{
+    public interface ISubPlanService
+    {
+        public void Create(int idPlan, CreateSubPlanDto dto);
+        public void Update(UpdateSubPlanDto dto);
+        public BaseResponsePagingDto<ViewSubPlanDto> FindPaging(FindPagingSubPlanDto dto);
+        public void UpdateIsShow(UpdateSubPlanIsShowDto dto);
+        public void Delete(int idPlan, int idSubPlan);
+    }
+}

@@ -43,6 +43,7 @@ namespace thongbao.be.application.Base
             CreateMap<domain.MauNoiDung.MauNoiDung, GetListMauNoiDungResponseDto>();
             CreateMap<ChienDichLogTrangThaiGui, ViewChienDichLogDto>();
             CreateMap<Plan,ViewPlanDto>();
+            CreateMap<SubPlan,ViewSubPlanDto>();
         }
     }
 }

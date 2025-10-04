@@ -256,6 +256,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISendSmsService, SendSmsService>();
 builder.Services.AddScoped<IGuiTinNhanLogService, GuiTinNhanLogService>();
 builder.Services.AddScoped<IPlanService, PlanService>();
+builder.Services.AddScoped<ISubPlanService, SubPlanService>();
 #endregion
 
 builder.Services.AddHttpClient();
