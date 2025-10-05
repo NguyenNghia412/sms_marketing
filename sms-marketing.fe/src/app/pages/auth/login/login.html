@@ -1,7 +1,9 @@
 <app-floating-configurator />
-<div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden">
+<div
+    class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden">
     <div class="flex flex-col items-center justify-center">
-        <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
+        <div
+            style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
             <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
                 <div class="flex flex-col items-center mb-8">
                     <img src="logo_sm.png" class="h-18" />
@@ -9,21 +11,28 @@
                     <span class="text-muted-color font-medium">Đăng nhập hệ thống</span>
                 </div>
                 @if (errorMsg) {
-                  <p-message severity="error" [life]="10000" closable>{{ errorMsg }}</p-message>
+                <p-message severity="error" [life]="10000" closable>{{ errorMsg }}</p-message>
                 }
                 <form [formGroup]="form" class="w-full py-2" (ngSubmit)="onSubmit()">
                     <div class="mb-8">
-                        <label for="username" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Tài khoản</label>
-                        <input formControlName="username" pInputText id="username" type="text" class="w-full md:w-120 mb-1" />
+                        <label for="username"
+                            class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Tài
+                            khoản</label>
+                        <input formControlName="username" pInputText id="username" type="text"
+                            class="w-full md:w-120 mb-1" />
                         @if (form.get('username')?.hasError('required') && form.get('username')?.touched) {
-                        <p-message severity="error" variant="simple" size="small">{{ getError('username') }} </p-message>
+                        <p-message severity="error" variant="simple" size="small">{{ getError('username') }}
+                        </p-message>
                         }
                     </div>
                     <div class="mb-8">
-                        <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Mật khẩu</label>
-                        <p-password formControlName="password" id="password1" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false"></p-password>
+                        <label for="password1"
+                            class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Mật khẩu</label>
+                        <p-password formControlName="password" id="password1" [toggleMask]="true" styleClass="mb-4"
+                            [fluid]="true" [feedback]="false"></p-password>
                         @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
-                        <p-message severity="error" variant="simple" size="small">{{ getError('password') }} </p-message>
+                        <p-message severity="error" variant="simple" size="small">{{ getError('password') }}
+                        </p-message>
                         }
                     </div>
                     <!-- <div class="flex items-center justify-between mt-2 mb-8 gap-8">
@@ -36,10 +45,11 @@
                     <p-button label="Đăng nhập" styleClass="w-full" type="submit" [loading]="loading"></p-button>
                     <!-- <div class="mt-5">
                         <p-button label="Đăng nhập bằng Google" styleClass="w-full" class="!bg-orange-300 !text-white" type="button" (onClick)="redirectBackendAuthorize()"></p-button>
-                    </div>
-                    <div class="mt-5">
-                        <p-button label="Đăng nhập bằng MS" styleClass="w-full" class="!bg-orange-300 !text-white" type="button" (onClick)="loginMs()"></p-button>
                     </div> -->
+                    <div class="mt-5">
+                        <p-button icon="pi pi-microsoft" label="Đăng nhập bằng Mircosoft Office 365" styleClass="w-full"
+                            class="!bg-orange-300 !text-white" type="button" (onClick)="loginMs()"></p-button>
+                    </div>
                 </form>
             </div>
         </div>
