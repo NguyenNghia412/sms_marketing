@@ -6,8 +6,8 @@ import { inject, Injectable } from '@angular/core';
 @Injectable({
     providedIn: 'root'
 })
-export class TraoBangPlanService {
-    api = '/api/app/trao-bang/sub-plan';
+export class TraoBangSubPlanService {
+    api = '/api/core/trao-bang/sub-plan';
     http = inject(HttpClient);
 
     findPaging(query: IFindPagingConfigSubPlan) {
@@ -26,6 +26,10 @@ export class TraoBangPlanService {
 
     update(body: IUpdateConfigSubPlan) {
         return this.http.put<IBaseResponse>(`${this.api}`, body);
+    }
+
+    delete(id: number) {
+        return this.http.delete<IBaseResponse>(`${this.api}/${id}`);
     }
 
 }

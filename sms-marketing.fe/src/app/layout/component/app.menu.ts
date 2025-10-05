@@ -24,7 +24,6 @@ export class AppMenu {
     model: IAppMenuItem[] = [];
 
     ngOnInit() {
-        console.log(this._sharedService.roles)
         this.model = [
             // {
             //     items:[
@@ -93,7 +92,7 @@ export class AppMenu {
                                 visible: true,
                                 items: [
                                     {
-                                        label: 'Kế hoạch',
+                                        label: 'Chương trình',
                                         visible: true,
                                         routerLink: ['/trao-bang/config/plan']
                                     },
