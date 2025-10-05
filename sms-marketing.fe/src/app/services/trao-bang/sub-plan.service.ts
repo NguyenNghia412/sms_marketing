@@ -21,15 +21,15 @@ export class TraoBangSubPlanService {
     }
 
     create(body: ICreateConfigSubPlan) {
-        return this.http.post<IBaseResponse>(`${this.api}`, body);
+        return this.http.post<IBaseResponse>(`${this.api}/${body.idPlan}`, body);
     }
 
     update(body: IUpdateConfigSubPlan) {
         return this.http.put<IBaseResponse>(`${this.api}`, body);
     }
 
-    delete(id: number) {
-        return this.http.delete<IBaseResponse>(`${this.api}/${id}`);
+    delete(id: number, idPlan: number) {
+        return this.http.delete<IBaseResponse>(`${this.api}/${id}/plan/${idPlan}`);
     }
 
 }

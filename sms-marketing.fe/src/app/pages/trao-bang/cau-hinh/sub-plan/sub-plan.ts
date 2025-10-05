@@ -13,7 +13,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-sub-plan',
-    imports: [SharedImports, DataTable],
+  imports: [SharedImports, DataTable],
   templateUrl: './sub-plan.html',
   styleUrl: './sub-plan.scss'
 })
@@ -31,8 +31,8 @@ export class SubPlan extends BaseComponent {
     { header: 'Mở bài', field: 'moBai', headerContainerStyle: 'min-width: 10rem' },
     { header: 'Kết bài', field: 'ketBai', headerContainerStyle: 'min-width: 10rem' },
     { header: 'Ghi chú', field: 'note', headerContainerStyle: 'min-width: 10rem' },
-    { header: 'Thứ tự', field: 'order', headerContainerStyle: 'min-width: 10rem' },
-    { header: 'Hiển thị', field: 'isShow', headerContainerStyle: 'min-width: 10rem', cellViewType: CellViewTypes.CHECKBOX },
+    { header: 'Thứ tự', field: 'order', headerContainerStyle: 'width: 10rem' },
+    { header: 'Hiển thị', field: 'isShow', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.CHECKBOX },
     { header: 'Thao tác', headerContainerStyle: 'width: 6rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
   ];
 
@@ -73,7 +73,7 @@ export class SubPlan extends BaseComponent {
   }
 
   onOpenCreate() {
-    const ref = this._dialogService.open(Create, { header: 'Tạo kế hoạch', closable: true, modal: true, styleClass: 'w-[700px]', focusOnShow: false });
+    const ref = this._dialogService.open(Create, { header: 'Tạo khoa', closable: true, modal: true, styleClass: 'w-[700px]', focusOnShow: false });
     ref.onClose.subscribe((result) => {
       if (result) {
         this.getData();
@@ -82,7 +82,7 @@ export class SubPlan extends BaseComponent {
   }
 
   onOpenUpdate(data: IViewRowConfigSubPlan) {
-    const ref = this._dialogService.open(Create, { header: 'Cập nhật kế hoạch', closable: true, modal: true, styleClass: 'w-[700px]', focusOnShow: false, data });
+    const ref = this._dialogService.open(Create, { header: 'Cập nhật khoa', closable: true, modal: true, styleClass: 'w-[700px]', focusOnShow: false, data });
     ref.onClose.subscribe((result) => {
       if (result) {
         this.getData();
@@ -93,11 +93,11 @@ export class SubPlan extends BaseComponent {
   onDelete(data: IViewRowConfigSubPlan) {
     this.confirmDelete(
       {
-        header: 'Bạn chắc chắn muốn xóa chương trình?',
+        header: 'Bạn chắc chắn muốn xóa khoa?',
         message: 'Không thể khôi phục sau khi xóa'
       },
       () => {
-        this._subPlanService.delete(data.id || 0).subscribe(
+        this._subPlanService.delete(data.id || 0, data.idPlan || 0).subscribe(
           (res) => {
             if (this.isResponseSucceed(res, true, 'Đã xóa')) {
               this.getData();

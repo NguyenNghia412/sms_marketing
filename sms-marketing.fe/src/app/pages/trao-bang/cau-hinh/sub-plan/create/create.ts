@@ -1,4 +1,6 @@
+import { IViewRowConfigPlan } from '@/models/trao-bang/plan.models';
 import { ICreateConfigSubPlan, IUpdateConfigSubPlan } from '@/models/trao-bang/sub-plan.models';
+import { TraoBangPlanService } from '@/services/trao-bang/plan.service';
 import { TraoBangSubPlanService } from '@/services/trao-bang/sub-plan.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { SharedImports } from '@/shared/import.shared';
@@ -16,19 +18,27 @@ export class Create extends BaseComponent {
     private _ref = inject(DynamicDialogRef);
     private _config = inject(DynamicDialogConfig);
     private _subPlanService = inject(TraoBangSubPlanService);
+    private _planService = inject(TraoBangPlanService);
+
+    listPlan: IViewRowConfigPlan[] = [];
 
     override form: FormGroup = new FormGroup({
         id: new FormControl(null),
+        idPlan: new FormControl(null, [Validators.required]),
         ten: new FormControl('', [Validators.required]),
         moTa: new FormControl(''),
         truongKhoa: new FormControl(''),
         note: new FormControl(''),
         moBai: new FormControl(''),
         ketBai: new FormControl(''),
+        isShow: new FormControl(true),
         order: new FormControl(1, [Validators.required])
     });
 
     override ValidationMessages: Record<string, Record<string, string>> = {
+        idPlan: {
+            required: 'Không được bỏ trống'
+        },
         ten: {
             required: 'Không được bỏ trống'
         },
@@ -38,6 +48,7 @@ export class Create extends BaseComponent {
     };
 
     override ngOnInit(): void {
+        this.getListPlan();
         if (this.isUpdate) {
             this.form.setValue({
                 ...this._config.data
@@ -47,6 +58,16 @@ export class Create extends BaseComponent {
 
     get isUpdate() {
         return this._config.data?.id;
+    }
+
+    getListPlan() {
+        this._planService.getList().subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res)) {
+                    this.listPlan = res.data
+                }
+            }
+        })
     }
 
     onSubmit() {
@@ -83,7 +104,7 @@ export class Create extends BaseComponent {
 
     onSubmitUpdate() {
         const body: IUpdateConfigSubPlan = {
-            id: this._config.data.id,
+            idSubPlan: this._config.data.id,
             ...this.form.value,
         };
         this.loading = true;

@@ -20,6 +20,10 @@ export class TraoBangPlanService {
         return this.http.get<IBaseResponseWithData<IViewRowConfigPlan>>(`${this.api}/${id}`);
     }
 
+    getList() {
+        return this.http.get<IBaseResponseWithData<IViewRowConfigPlan[]>>(`${this.api}/list`);
+    }
+
     create(body: ICreateConfigPlan) {
         return this.http.post<IBaseResponse>(`${this.api}`, body);
     }

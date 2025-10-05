@@ -27,5 +27,5 @@ export interface ICreateConfigSubPlan {
 }
 
 export interface IUpdateConfigSubPlan extends ICreateConfigSubPlan {
-    id: number;
+    idSubPlan: number;
 }
