@@ -149,7 +149,6 @@ export class Sms extends BaseComponent {
     }
 
     navigateToDetail(chienDich: IViewRowChienDich) {
-        console.log('Navigating with:', chienDich?.id);
         if (chienDich?.id) {
             this.router.navigate(['/channel/gui-sms'], {
                 queryParams: {

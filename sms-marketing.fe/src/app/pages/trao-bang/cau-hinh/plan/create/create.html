@@ -1,0 +1,26 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+        <label for="ten" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên chương trình <span
+                class="text-red-500">*</span></label>
+        <input pInputText formControlName="ten" id="ten" type="text" class="w-full mb-2" />
+        @if (form.get('ten')?.hasError('required') && form.get('ten')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('ten') }} </p-message>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="moTa" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Mô tả</label>
+        <input pInputText formControlName="moTa" id="moTa" type="text" class="w-full mb-2" />
+        @if (form.get('moTa')?.hasError('required') && form.get('moTa')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('moTa') }} </p-message>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="time" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Thời gian <span
+                class="text-red-500">*</span></label>
+        <p-datepicker formControlName="time" id="time" selectionMode="range" [showTime]="true"
+            [showIcon]="true" [showOnFocus]="false" styleClass="w-full" [appendTo]="'body'" />
+    </div>
+    <div class="mt-5 flex flex-row justify-end">
+        <p-button label="Lưu" icon="pi pi-save" type="submit" [loading]="loading" />
+    </div>
+</form>
