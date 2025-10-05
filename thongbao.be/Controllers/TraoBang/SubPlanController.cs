@@ -95,6 +95,34 @@ namespace thongbao.be.Controllers.TraoBang
                 return OkException(ex);
             }
         }
-
+        [Permission(PermissionKeys.SubPlanUpdate)]
+        [HttpPut("sort")]
+        public ApiResponse Sort([FromBody] MoveOrderSubPlanDto dto)
+        {
+            try
+            {
+                var data=  _subPlanService.MoveOrder(dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.SubPlanView)]
+        [HttpGet("plan/{idPlan}/list")]
+        public async Task<ApiResponse> ListSubPlan([FromRoute] int idPlan)
+        {
+            try
+            {
+                var result = await  _subPlanService.GetListSubPlan(idPlan);
+                return new(result);
+                
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

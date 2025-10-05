@@ -14,5 +14,6 @@ namespace thongbao.be.application.TraoBang.Interface
         public void Update(int id, UpdatePlanDto dto);
         public BaseResponsePagingDto<ViewPlanDto> FindPaging(FindPagingPlanDto dto);
         public void Delete(int id);
+        public  Task<List<GetListPlanResponseDto>> GetListPlan();
     }
 }

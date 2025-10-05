@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using thongbao.be.application.MauNoiDung.Interfaces;
 using thongbao.be.application.TraoBang.Dtos;
+using thongbao.be.application.TraoBang.Implements;
 using thongbao.be.application.TraoBang.Interface;
 using thongbao.be.Attributes;
 using thongbao.be.Controllers.Base;
@@ -74,6 +75,21 @@ namespace thongbao.be.Controllers.TraoBang
             {
                 _planService.Delete(id);
                 return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.PlanView)]
+        [HttpGet("list")]
+        public async Task <ApiResponse> ListPlan()
+        {
+            try
+            {
+                var result = await _planService.GetListPlan();
+                return new(result);
+                
             }
             catch (Exception ex)
             {

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -78,6 +79,23 @@ namespace thongbao.be.application.TraoBang.Implements
                 TotalItems = query.Count(),
                 Items = items
             };  
+        }
+        public async Task<List<GetListPlanResponseDto>> GetListPlan()
+        {
+            _logger.LogInformation($"{nameof(GetListPlan)}");
+
+            var plans = await _smDbContext.Plans
+                .AsNoTracking()
+                .Where(x => !x.Deleted)
+                .OrderByDescending(x => x.CreatedDate)
+                .Select(x => new GetListPlanResponseDto
+                {
+                    Id = x.Id,
+                    Ten = x.Ten
+                })
+                .ToListAsync();
+
+            return plans;
         }
         public void Delete(int id)
         {
