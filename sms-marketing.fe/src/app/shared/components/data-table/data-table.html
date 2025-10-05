@@ -22,7 +22,11 @@
                 {{ get(row, col.field || '') | date: (col.dateFormat || 'dd/MM/yyyy') }}
                 } @else if (col.cellViewType === cellViewTypes.CURRENCY) {
                 {{ get(row, col.field || '') | currency: 'USD' : 'symbol' }}
-                } @else if ('field' in col) {
+                }
+                @else if (col.cellViewType === cellViewTypes.CHECKBOX) {
+                    <input type="checkbox" [checked]="get(row, col.field || '')" readonly disabled />
+                }
+                @else if ('field' in col) {
                 {{ get(row, col.field || '') }}
                 }
             </td>

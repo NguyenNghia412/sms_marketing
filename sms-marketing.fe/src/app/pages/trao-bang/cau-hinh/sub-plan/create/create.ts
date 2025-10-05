@@ -1,8 +1,7 @@
-import { ICreateConfigPlan, IUpdateConfigPlan } from '@/models/trao-bang/plan.models';
-import { TraoBangPlanService } from '@/services/trao-bang/plan.service';
+import { ICreateConfigSubPlan, IUpdateConfigSubPlan } from '@/models/trao-bang/sub-plan.models';
+import { TraoBangSubPlanService } from '@/services/trao-bang/sub-plan.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { SharedImports } from '@/shared/import.shared';
-import { Utils } from '@/shared/utils';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -16,20 +15,24 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 export class Create extends BaseComponent {
     private _ref = inject(DynamicDialogRef);
     private _config = inject(DynamicDialogConfig);
-    private _planService = inject(TraoBangPlanService);
+    private _subPlanService = inject(TraoBangSubPlanService);
 
     override form: FormGroup = new FormGroup({
         id: new FormControl(null),
         ten: new FormControl('', [Validators.required]),
         moTa: new FormControl(''),
-        time: new FormControl(null, [Validators.required])
+        truongKhoa: new FormControl(''),
+        note: new FormControl(''),
+        moBai: new FormControl(''),
+        ketBai: new FormControl(''),
+        order: new FormControl(1, [Validators.required])
     });
 
     override ValidationMessages: Record<string, Record<string, string>> = {
         ten: {
             required: 'Không được bỏ trống'
         },
-        time: {
+        order: {
             required: 'Không được bỏ trống'
         }
     };
@@ -37,10 +40,7 @@ export class Create extends BaseComponent {
     override ngOnInit(): void {
         if (this.isUpdate) {
             this.form.setValue({
-                id: this._config.data.id,
-                ten: this._config.data.ten,
-                moTa: this._config.data.moTa,
-                time: [new Date(this._config.data.thoiGianBatDau), new Date(this._config.data.thoiGianKetThuc)]
+                ...this._config.data
             });
         }
     }
@@ -62,19 +62,13 @@ export class Create extends BaseComponent {
     }
 
     onSubmitCreate() {
-        const from = Utils.formatDateCallApi(this.form.value['time'][0])
-        const to = this.form.value['time'][1] ? Utils.formatDateCallApi(this.form.value['time'][1]) : from;
-
-        const body: ICreateConfigPlan = {
-            ten: this.form.value['ten'],
-            moTa: this.form.value['moTa'],
-            thoiGianBatDau: from,
-            thoiGianKetThuc: to
+        const body: ICreateConfigSubPlan = {
+            ...this.form.value,
         };
         this.loading = true;
-        this._planService.create(body).subscribe({
+        this._subPlanService.create(body).subscribe({
             next: (res) => {
-                if (this.isResponseSucceed(res, true, 'Đã thêm chương trình')) {
+                if (this.isResponseSucceed(res, true, 'Đã thêm khoa')) {
                     this._ref?.close(true);
                 }
             },
@@ -88,18 +82,12 @@ export class Create extends BaseComponent {
     }
 
     onSubmitUpdate() {
-        const from = Utils.formatDateCallApi(this.form.value['time'][0])
-        const to = this.form.value['time'][1] ? Utils.formatDateCallApi(this.form.value['time'][1]) : from;
-
-        const body: IUpdateConfigPlan = {
-            id: this.form.value['id'],
-            ten: this.form.value['ten'],
-            moTa: this.form.value['moTa'],
-            thoiGianBatDau: from,
-            thoiGianKetThuc: to
+        const body: IUpdateConfigSubPlan = {
+            id: this._config.data.id,
+            ...this.form.value,
         };
         this.loading = true;
-        this._planService.update(body).subscribe({
+        this._subPlanService.update(body).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, true, 'Đã lưu')) {
                     this._ref?.close(true);

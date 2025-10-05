@@ -6,7 +6,7 @@ import { inject, Injectable } from '@angular/core';
 @Injectable({
     providedIn: 'root'
 })
-export class TraoBangPlanService {
+export class TraoBangSubPlanService {
     api = '/api/core/trao-bang/sub-plan';
     http = inject(HttpClient);
 
