@@ -9,6 +9,7 @@ import { Footer } from "./footer/footer";
 import { TraoBangSvService } from '@/services/trao-bang/sv-nhan-bang.service';
 import { DialogMssv } from './dialog-mssv/dialog-mssv';
 import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv } from '@/models/trao-bang/sv-nhan-bang.models';
+import { SubPlanStatuses } from '@/shared/constants/sv-nhan-bang.constants';
 
 @Component({
   selector: 'app-scan-qr-sv',
@@ -19,16 +20,32 @@ import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv } fr
 export class ScanQrSv extends BaseComponent {
 
   _svTraoBangService = inject(TraoBangSvService);
-  idSubPlan: number = 1;
+  idSubPlan: number = 0;
   currentSubPlanInfo: IViewScanQrCurrentSubPlan = {};
   students: IViewScanQrTienDoSv[] = [];
   listSubPlan: IViewScanQrSubPlan[] = [];
   pushedSuccessSv: IViewScanQrTienDoSv = {};
 
   override ngOnInit(): void {
-    this.getHangDoi();
-    this.getListSubPlan();
-    this.getCurrentSubPlan();
+    this.initData();
+  }
+
+  initData() {
+    this._svTraoBangService.getQrListSubPlan(1).subscribe({
+      next: res => {
+        if (this.isResponseSucceed(res)) {
+          this.listSubPlan = res.data
+          const dangTrao = this.listSubPlan.find(x => x.trangThai === SubPlanStatuses.DANG_TRAO_BANG);
+          if (typeof dangTrao !== 'undefined') {
+            this.idSubPlan = dangTrao.id || 0;
+          } else {
+            this.idSubPlan = 0;
+          }
+          this.getCurrentSubPlan();
+          this.getHangDoi();
+        }
+      }
+    })
   }
 
 
@@ -37,6 +54,12 @@ export class ScanQrSv extends BaseComponent {
       next: res => {
         if (this.isResponseSucceed(res)) {
           this.listSubPlan = res.data
+          const dangTrao = this.listSubPlan.find(x => x.trangThai === SubPlanStatuses.DANG_TRAO_BANG);
+          if (typeof dangTrao !== 'undefined') {
+            this.idSubPlan = dangTrao.id || 0;
+          } else {
+            this.idSubPlan = 1;
+          }
         }
       }
     })
@@ -57,6 +80,8 @@ export class ScanQrSv extends BaseComponent {
       next: res => {
         if (this.isResponseSucceed(res)) {
           this.students = res.data
+        } else {
+          this.students = [];
         }
       }
     })
@@ -102,6 +127,19 @@ export class ScanQrSv extends BaseComponent {
         this.loading = false;
       })
     }
+  }
+
+  onNextSubPlan() {
+    this.loading = true;
+      this._svTraoBangService.nextSubPlan().subscribe({
+        next: res => {
+          if (this.isResponseSucceed(res)) {
+            this.initData();
+          }
+        }
+      }).add(() => {
+        this.loading = false;
+      })
   }
 
 }

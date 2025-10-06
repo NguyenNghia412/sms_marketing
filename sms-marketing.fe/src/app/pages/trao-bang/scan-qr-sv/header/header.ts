@@ -1,5 +1,5 @@
 import { SharedImports } from '@/shared/import.shared';
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-header',
@@ -8,4 +8,9 @@ import { Component, input } from '@angular/core';
 })
 export class Header {
   tenKhoa = input.required<string>()
+  onNextSubPlan = output()
+
+  onClickNext() {
+    this.onNextSubPlan.emit()
+  }
 }

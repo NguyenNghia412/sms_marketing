@@ -9,7 +9,7 @@
     <div class="w-full lg:w-3/4 flex flex-col gap-3">
 
         <!-- HEADER -->
-        <app-header [tenKhoa]="currentSubPlanInfo.ten || ''" />
+        <app-header [tenKhoa]="currentSubPlanInfo.ten || ''" (onNextSubPlan)="onNextSubPlan()" />
 
         <div class="flex flex-col lg:flex-row gap-3">
 
