@@ -128,6 +128,7 @@ string msRedirectUri = builder.Configuration.GetSection("AuthServer:MS:RedirectU
 builder.Services.Configure<AuthServerSettings>(builder.Configuration.GetSection("AuthServer"));
 builder.Services.Configure<AuthGoogleSettings>(builder.Configuration.GetSection("AuthServer:Google"));
 builder.Services.Configure<AuthMsSettings>(builder.Configuration.GetSection("AuthServer:MS"));
+builder.Services.Configure<CdsConnectSettings>(builder.Configuration.GetSection("CdsConnect:Url"));
 
 
 builder.Services.AddOpenIddict()

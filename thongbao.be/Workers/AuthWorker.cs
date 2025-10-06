@@ -82,6 +82,31 @@ namespace thongbao.be.Workers
                     }
                 });
             }
+
+            if (await manager.FindByClientIdAsync("client-guest-traobang") is null)
+            {
+                await manager.CreateAsync(new OpenIddictApplicationDescriptor
+                {
+                    ClientId = "client-guest-traobang",
+                    ClientSecret = "zoT32UBxcmnjKBUHkZi9EhDzzlIEI5nJ",
+                    RedirectUris =
+                    {
+                        new Uri("http://localhost:4200/auth/callback")
+                    },
+                    Permissions =
+                    {
+                        Permissions.Endpoints.Token,
+                        Permissions.Endpoints.Authorization,
+                        Permissions.Endpoints.Revocation,
+                        Permissions.GrantTypes.Password,
+                        Permissions.GrantTypes.RefreshToken,
+                        Permissions.GrantTypes.AuthorizationCode,
+                        Permissions.ResponseTypes.Code,
+                        Permissions.Scopes.Roles,
+
+                    }
+                });
+            }
         }
 
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
