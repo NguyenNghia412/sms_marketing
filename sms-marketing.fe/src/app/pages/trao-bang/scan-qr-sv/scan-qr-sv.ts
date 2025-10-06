@@ -8,7 +8,7 @@ import { StudentList } from "./student-list/student-list";
 import { Footer } from "./footer/footer";
 import { TraoBangSvService } from '@/services/trao-bang/sv-nhan-bang.service';
 import { DialogMssv } from './dialog-mssv/dialog-mssv';
-import { IViewScanQrCurrentSubPlan, IViewScanQrTienDoSv } from '@/models/trao-bang/sv-nhan-bang.models';
+import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv } from '@/models/trao-bang/sv-nhan-bang.models';
 
 @Component({
   selector: 'app-scan-qr-sv',
@@ -22,11 +22,24 @@ export class ScanQrSv extends BaseComponent {
   idSubPlan: number = 1;
   currentSubPlanInfo: IViewScanQrCurrentSubPlan = {};
   students: IViewScanQrTienDoSv[] = [];
+  listSubPlan: IViewScanQrSubPlan[] = [];
   pushedSuccessSv: IViewScanQrTienDoSv = {};
 
   override ngOnInit(): void {
     this.getHangDoi();
+    this.getListSubPlan();
     this.getCurrentSubPlan();
+  }
+
+
+  getListSubPlan() {
+    this._svTraoBangService.getQrListSubPlan(1).subscribe({
+      next: res => {
+        if (this.isResponseSucceed(res)) {
+          this.listSubPlan = res.data
+        }
+      }
+    })
   }
 
   getCurrentSubPlan() {
@@ -71,6 +84,24 @@ export class ScanQrSv extends BaseComponent {
         this.pushHangDoi(mssv);
       }
     });
+  }
+
+  onChangeSubPlan(idSubPlan: number | null | undefined) {
+    if (idSubPlan) {
+      this.loading = true;
+      this._svTraoBangService.backToDaTraoBangSubPlan(idSubPlan).subscribe({
+        next: res => {
+          if (this.isResponseSucceed(res)) {
+            this.idSubPlan = idSubPlan;
+            this.getHangDoi();
+            this.getListSubPlan();
+            this.getCurrentSubPlan();
+          }
+        }
+      }).add(() => {
+        this.loading = false;
+      })
+    }
   }
 
 }

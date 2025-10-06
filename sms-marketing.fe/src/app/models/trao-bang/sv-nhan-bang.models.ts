@@ -74,3 +74,10 @@ export interface IViewScanQrTienDoSv {
     trangThai?: number;
     tenKhoa?: string;
 }
+
+export interface IViewScanQrSubPlan {
+    id?: number;
+    ten?: string;
+    tienDo?: string;
+    trangThai?: number;
+}

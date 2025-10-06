@@ -1,4 +1,5 @@
-import { ICreateSvNhanBang, IFindPagingSvNhanBang, IGetTienDoHangDoi as IGetTienDoHangDoi, IUpdateSvNhanBang, IViewRowSvNhanBang, IViewScanQrCurrentSubPlan, IViewScanQrTienDoSv } from '@/models/trao-bang/sv-nhan-bang.models';
+import { IViewRowConfigSubPlan } from '@/models/trao-bang/sub-plan.models';
+import { ICreateSvNhanBang, IFindPagingSvNhanBang, IGetTienDoHangDoi as IGetTienDoHangDoi, IUpdateSvNhanBang, IViewRowSvNhanBang, IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv } from '@/models/trao-bang/sv-nhan-bang.models';
 import { IBaseResponse, IBaseResponsePaging, IBaseResponseWithData } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -31,26 +32,38 @@ export class TraoBangSvService {
     update(body: IUpdateSvNhanBang) {
         return this.http.put<IBaseResponse>(`${this.api}/sinh-vien-nhan-bang`, body);
     }
-    
+
     delete(id: number) {
         return this.http.delete<IBaseResponse>(`${this.api}/${id}`);
     }
-    
+
     pushHangDoi(mssv: string) {
         return this.http.post<IBaseResponseWithData<IViewScanQrTienDoSv>>(`${this.api}/sinh-vien-nhan-bang/hang-doi?mssv=${mssv}`, null);
     }
-    
+
     getHangDoi(query: IGetTienDoHangDoi) {
         if (!query.SoLuong) {
             query.SoLuong = 5;
         }
         return this.http.get<IBaseResponseWithData<IViewScanQrTienDoSv[]>>(`${this.api}/sinh-vien-nhan-bang/tien-do`, {
-            params: {...query}
+            params: { ...query }
         });
     }
 
     getCurrentSubPlanById(id: number) {
         return this.http.get<IBaseResponseWithData<IViewScanQrCurrentSubPlan>>(`${this.api}/${id}/thong-tin-subplan`);
+    }
+
+    getQrListSubPlan(idPlan: number) {
+        return this.http.get<IBaseResponseWithData<IViewScanQrSubPlan[]>>(`${this.api}/plan/${idPlan}/list-sub-plan-infor`);
+    }
+
+    backToDaTraoBangSubPlan(idSubPlan: number) {
+        return this.http.put<IBaseResponse>(`${this.api}/${idSubPlan}/trang-thai-sub-plan`, null);
+    }
+
+    nextSubPlan(idSubPlan: number) {
+        return this.http.post<IBaseResponse>(`${this.api}/${idSubPlan}/next-sub-plan`, null);
     }
 
 }
