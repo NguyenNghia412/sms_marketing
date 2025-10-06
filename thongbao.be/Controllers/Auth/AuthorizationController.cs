@@ -143,6 +143,15 @@ namespace thongbao.be.Controllers.Auth
                     // Note: the client credentials are automatically validated by OpenIddict:
                     // if client_id or client_secret are invalid, this action won't be invoked.
 
+                    // ✅ Get your custom field
+                    //var isGuestTraoBang = request.GetParameter(CustomLoginParameters.LOGIN_TYPE)?.ToString() == CustomLoginParameters.LOGIN_TYPE_GUEST_TRAOBANG;
+
+                    //if (isGuestTraoBang)
+                    //{
+                        
+                    //}
+
+                    // Tạo token bình thường
                     var application = await _applicationManager.FindByClientIdAsync(request.ClientId) ??
                         throw new InvalidOperationException("The application cannot be found.");
 
