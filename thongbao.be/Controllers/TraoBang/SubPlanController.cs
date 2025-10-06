@@ -196,7 +196,7 @@ namespace thongbao.be.Controllers.TraoBang
                 return OkException(ex);
             }
         }
-        [Permission(PermissionKeys.SubPlanView)]
+        [AllowAnonymous]
         [HttpGet("sinh-vien-nhan-bang/{mssv}")]
         public async Task<ApiResponse> GetByMssv([FromRoute] string mssv)
         {
