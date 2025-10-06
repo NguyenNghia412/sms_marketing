@@ -325,13 +325,27 @@ namespace thongbao.be.Controllers.TraoBang
             }
         }
         [Permission(PermissionKeys.SubPlanAdd)]
-        [HttpPut("{idSubPlan}/sinh-vien-nhan-bang/{id}/trang-thai")]
+        [HttpPut("{idSubPlan}/sinh-vien-nhan-bang/{id}/gittrang-thai")]
         public ApiResponse UpdateTrangThaiSinhVienNhanBang([FromRoute] int idSubPlan,[FromRoute] int id)
         {
             try
             {
                 _subPlanService.UpdateTrangThaiSinhVienNhanBang(idSubPlan,id);
                 return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [AllowAnonymous]
+        [HttpGet("{idSubPlan}/sinh-vien-nhan-bang/{id}/infor-sinh-vien-dang-trao")]
+        public async Task<ApiResponse> GetInforSinhVienDangTrao([FromRoute] int idSubPlan, [FromRoute] int id)
+        {
+            try
+            {
+                var data = await _subPlanService.GetSinhVienDangTraoBang(idSubPlan, id);
+                return new(data);
             }
             catch (Exception ex)
             {

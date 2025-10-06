@@ -597,6 +597,35 @@ namespace thongbao.be.application.TraoBang.Implements
             _smDbContext.TienDoTraoBangs.Update(sinhVien);
             _smDbContext.SaveChanges();
         }
+        public async Task<GetSinhVienDangTraoBangInforDto> GetSinhVienDangTraoBang(int idSubPlan, int id)
+        {
+            _logger.LogInformation($"{nameof(GetSinhVienDangTraoBang)} - IdSubPlan: {idSubPlan}, Id: {id}");
+
+            var subPlan = await _smDbContext.SubPlans
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+
+            var tienDo = await _smDbContext.TienDoTraoBangs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id && x.IdSubPlan == idSubPlan && x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienTraoBangNotFound);
+
+            var sinhVien = await _smDbContext.DanhSachSinhVienNhanBangs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == tienDo.IdSinhVienNhanBang && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
+
+            return new GetSinhVienDangTraoBangInforDto
+            {
+                Id = sinhVien.Id,
+                HoVaTen = sinhVien.HoVaTen,
+                TenNganhDaoTao = sinhVien.TenNganhDaoTao,
+                XepHang = sinhVien.XepHang,
+                ThanhTich = sinhVien.ThanhTich,
+                CapBang = sinhVien.CapBang
+            };
+        }
         public void UpdateTrangThaiSubPlan ( int id)
         {
             _logger.LogInformation($"{nameof(UpdateTrangThaiSubPlan)}");
