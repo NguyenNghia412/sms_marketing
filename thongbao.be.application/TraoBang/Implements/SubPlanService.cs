@@ -586,6 +586,17 @@ namespace thongbao.be.application.TraoBang.Implements
                 IsShow = true
             };
         }
+        public void UpdateTrangThaiSinhVienNhanBang(int idSubPlan, int id)
+        {
+            _logger.LogInformation($"{nameof(UpdateTrangThaiSinhVienNhanBang)} ");
+            var subPlan = _smDbContext.SubPlans.FirstOrDefault(x => x.Id == idSubPlan && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+            var sinhVien = _smDbContext.TienDoTraoBangs.FirstOrDefault(x => x.Id == id && x.IdSubPlan == idSubPlan && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
+            sinhVien.TrangThai = TraoBangConstants.DangTraoBang;
+            _smDbContext.TienDoTraoBangs.Update(sinhVien);
+            _smDbContext.SaveChanges();
+        }
         public void UpdateTrangThaiSubPlan ( int id)
         {
             _logger.LogInformation($"{nameof(UpdateTrangThaiSubPlan)}");
@@ -647,7 +658,7 @@ namespace thongbao.be.application.TraoBang.Implements
 
         public async Task<List<GetListSubPlanDto>> GetListSubPlanInfor(int idPlan)
         {
-            _logger.LogInformation($"{nameof(GetListSubPlan)}, idPlan= {idPlan} ");
+            _logger.LogInformation($"{nameof(GetListSubPlanInfor)}, idPlan= {idPlan}");
 
             var subPlans = await _smDbContext.SubPlans
                 .AsNoTracking()
@@ -658,7 +669,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 .ThenBy(x => x.Order)
                 .ToListAsync();
 
-            var items = new List<GetSubPlanItemDto>();
+            var items = new List<GetListSubPlanDto>();
 
             foreach (var subPlan in subPlans)
             {
@@ -672,19 +683,16 @@ namespace thongbao.be.application.TraoBang.Implements
 
                 var tienDo = tongSo > 0 ? $"{daTrao}/{tongSo}" : "0/0";
 
-                items.Add(new GetSubPlanItemDto
+                items.Add(new GetListSubPlanDto
                 {
                     Id = subPlan.Id,
                     Ten = subPlan.Ten,
+                    TrangThai = subPlan.TrangThai,
                     TienDo = tienDo
                 });
             }
 
-            return new List<GetListSubPlanDto>{new GetListSubPlanDto
-                                               {
-                                                   Items = items
-                                               }
-            };
+            return items;
         }
         public async Task<GetInforSubPlanDto> GetInforSubPlan(int idSubPlan)
         {

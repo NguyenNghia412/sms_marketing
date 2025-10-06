@@ -324,5 +324,19 @@ namespace thongbao.be.Controllers.TraoBang
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.SubPlanAdd)]
+        [HttpPut("{idSubPlan}/sinh-vien-nhan-bang/{id}/trang-thai")]
+        public ApiResponse UpdateTrangThaiSinhVienNhanBang([FromRoute] int idSubPlan,[FromRoute] int id)
+        {
+            try
+            {
+                _subPlanService.UpdateTrangThaiSinhVienNhanBang(idSubPlan,id);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }
