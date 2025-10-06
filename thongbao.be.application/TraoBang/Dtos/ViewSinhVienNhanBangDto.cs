@@ -10,6 +10,7 @@ namespace thongbao.be.application.TraoBang.Dtos
     {
         public int Id { get; set; }
         public int IdSubPlan { get; set; }
+        public string TenSubPlan { get; set; } = String.Empty;
         public string HoVaTen { get; set; } = String.Empty;
         public string Email { get; set; } = String.Empty;
         public string EmailSinhVien { get; set; } = String.Empty;
@@ -26,7 +27,7 @@ namespace thongbao.be.application.TraoBang.Dtos
         public DateTime NgayQuyetDinh { get; set; }
         public string? Note { get; set; }
         public bool IsShow { get; set; }
-        public int Order { get; set; }
+        public string Order { get; set; } = String.Empty;
         public int TrangThai { get; set; }
         public string LinkQR { get; set; } = String.Empty;
     }

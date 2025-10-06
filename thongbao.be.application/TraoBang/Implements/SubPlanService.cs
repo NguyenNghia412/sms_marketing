@@ -432,7 +432,17 @@ namespace thongbao.be.application.TraoBang.Implements
                 .FirstOrDefaultAsync(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower())
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
 
+            var subPlan = await _smDbContext.SubPlans
+                .FirstOrDefaultAsync(x => x.Id == sinhVien.IdSubPlan && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+
+            var maxOrder = await _smDbContext.DanhSachSinhVienNhanBangs
+                .Where(x => x.IdSubPlan == sinhVien.IdSubPlan && !x.Deleted)
+                .MaxAsync(x => (int?)x.Order) ?? 0;
+
             var result = _mapper.Map<ViewSinhVienNhanBangDto>(sinhVien);
+            result.TenSubPlan = subPlan.Ten;
+            result.Order = $"{sinhVien.Order}/{maxOrder}";
 
             return result;
         }
