@@ -585,11 +585,11 @@ namespace thongbao.be.application.TraoBang.Implements
                 IsShow = true
             };
         }
-        public async Task<ViewTienDoNhanBangResponseDto> GetTienDoNhanBang(ViewTienDoNhanBangRequestDto dto)
+        public async Task<List<ViewTienDoNhanBangResponseDto>> GetTienDoNhanBang(ViewTienDoNhanBangRequestDto dto)
         {
             _logger.LogInformation($"{nameof(GetTienDoNhanBang)}, dto= {JsonSerializer.Serialize(dto)} ");
 
-            var result = await _smDbContext.TienDoTraoBangs
+            var results = await _smDbContext.TienDoTraoBangs
                 .AsNoTracking()
                 .Where(x => !x.Deleted
                             && x.IdSubPlan == dto.IdSubPlan
@@ -597,14 +597,14 @@ namespace thongbao.be.application.TraoBang.Implements
                 .OrderBy(x => x.Order)
                 .Skip(0)
                 .Take(dto.SoLuong)
-                .FirstOrDefaultAsync();
+                .ToListAsync();
 
-            if (result == null)
+            if (!results.Any())
             {
                 throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
             }
 
-            return new ViewTienDoNhanBangResponseDto
+            return results.Select(result => new ViewTienDoNhanBangResponseDto
             {
                 Id = result.Id,
                 HoVaTen = result.HoVaTen,
@@ -612,7 +612,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 TrangThai = result.TrangThai,
                 Order = result.Order,
                 IsShow = result.IsShow
-            };
+            }).ToList();
         }
         public async Task<GetInforSubPlanDto> GetInforSubPlan(int idSubPlan)
         {
