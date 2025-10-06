@@ -87,6 +87,9 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int TraoBangErrorPlanNotFound = 1001;
         public const int TraoBangErrorSubPlanNotFound = 1002;
         public const int TraoBangErrorSubPlanOrderInvalid = 1003;
+        public const int TraoBangErrorSinhVienDaTonTai = 1004;
+        public const int TraoBangErrorSinhVienNotFound = 1005;
+        public const int TraoBangErrorSinhVienOrderInvalid = 1006;
 
 
 

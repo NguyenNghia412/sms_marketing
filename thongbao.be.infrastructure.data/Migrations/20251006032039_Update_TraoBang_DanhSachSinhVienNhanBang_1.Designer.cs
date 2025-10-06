@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using thongbao.be.infrastructure.data;
 
@@ -11,9 +12,11 @@ using thongbao.be.infrastructure.data;
 namespace thongbao.be.infrastructure.data.Migrations
 {
     [DbContext(typeof(SmDbContext))]
-    partial class SmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251006032039_Update_TraoBang_DanhSachSinhVienNhanBang_1")]
+    partial class Update_TraoBang_DanhSachSinhVienNhanBang_1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

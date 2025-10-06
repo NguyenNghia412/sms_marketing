@@ -27,6 +27,7 @@ namespace thongbao.be.domain.TraoBang
         public int IdSubPlan { get; set; }
         public string HoVaTen { get; set; } = String.Empty;
         public string Email { get; set; } = String.Empty ;
+        public string EmailSinhVien { get; set; } = String.Empty;
         public string MaSoSinhVien { get; set; } = String.Empty;
         public string Lop { get; set; } = String.Empty;
         public DateTime NgaySinh { get; set; }

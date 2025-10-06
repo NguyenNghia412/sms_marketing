@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Graph.Drives.Item.Items.Item.Workbook.Functions.ImTan;
 using thongbao.be.application.TraoBang.Dtos;
 using thongbao.be.application.TraoBang.Interface;
 using thongbao.be.Attributes;
@@ -13,7 +14,7 @@ namespace thongbao.be.Controllers.TraoBang
     [Route("api/core/trao-bang/sub-plan")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class SubPlanController:BaseController
+    public class SubPlanController : BaseController
     {
         private readonly ISubPlanService _subPlanService;
 
@@ -37,11 +38,11 @@ namespace thongbao.be.Controllers.TraoBang
         }
         [Permission(PermissionKeys.SubPlanUpdate)]
         [HttpPut("")]
-        public async Task<ApiResponse> Update( [FromBody] UpdateSubPlanDto dto)
+        public async Task<ApiResponse> Update([FromBody] UpdateSubPlanDto dto)
         {
             try
             {
-                await _subPlanService.Update( dto);
+                await _subPlanService.Update(dto);
                 return new();
             }
             catch (Exception ex)
@@ -87,7 +88,7 @@ namespace thongbao.be.Controllers.TraoBang
         {
             try
             {
-                _subPlanService.Delete( idPlan, idSubPlan);
+                _subPlanService.Delete(idPlan, idSubPlan);
                 return new();
             }
             catch (Exception ex)
@@ -101,7 +102,7 @@ namespace thongbao.be.Controllers.TraoBang
         {
             try
             {
-                var data=  _subPlanService.MoveOrder(dto);
+                var data = _subPlanService.MoveOrder(dto);
                 return new(data);
             }
             catch (Exception ex)
@@ -115,9 +116,94 @@ namespace thongbao.be.Controllers.TraoBang
         {
             try
             {
-                var result = await  _subPlanService.GetListSubPlan(idPlan);
+                var result = await _subPlanService.GetListSubPlan(idPlan);
                 return new(result);
-                
+
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.SubPlanAdd)]
+        [HttpPost("import-ggsheet")]
+        public async Task<ApiResponse> ImportSubPlanFromGgSheet([FromBody] ImportDanhSachSinhVienNhanBangDto dto)
+        {
+            try
+            {
+                var data = await _subPlanService.ImportDanhSachNhanBang(dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        [Permission(PermissionKeys.SubPlanView)]
+        [HttpGet("paging-danh-sach-sinh-vien-nhan-bang")]
+        public ApiResponse PagingSinhVienNhanBang([FromQuery] FindPagingSinhVienNhanBangDto dto)
+        {
+            try
+            {
+                var data = _subPlanService.PagingSinhVienNhanBang(dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.SubPlanAdd)]
+        [HttpPost("sinh-vien-nhan-bang")]
+        public ApiResponse CreateSinhVienNhanBang([FromBody] CreateSinhVienNhanBangDto dto)
+        {
+            try
+            {
+                _subPlanService.CreateSinhVienNhanBang(dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.SubPlanUpdate)]
+        [HttpPut("sinh-vien-nhan-bang")]
+        public ApiResponse UpdateSinhVienNhanBang([FromBody] UpdateSinhVienNhanBangDto dto)
+        {
+            try
+            {
+                _subPlanService.UpdateSinhVienNhanBang(dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.SubPlanDelete)]
+        [HttpDelete("/{idSubPlan}/sinh-vien-nhan-bang/{id}")]
+        public ApiResponse DeleteSinhVienNhanBang([FromRoute] int idSubPlan,[FromRoute] int id)
+        {
+            try
+            {
+                _subPlanService.DeleteSinhVienNhanBang(idSubPlan,id);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.SubPlanView)]
+        [HttpGet("sinh-vien-nhan-bang/{mssv}")]
+        public async Task<ApiResponse> GetByMssv([FromRoute] string mssv)
+        {
+            try
+            {
+                var data =await _subPlanService.ShowSinhVienNhanBangInfor(mssv);
+                return new(data);
             }
             catch (Exception ex)
             {
