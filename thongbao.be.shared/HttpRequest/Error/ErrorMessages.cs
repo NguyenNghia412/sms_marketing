@@ -78,7 +78,8 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.TraoBangErrorSinhVienDaTonTai,"Sinh viên trong danh sách nhận bằng đã tồn tại" },
             { ErrorCodes.TraoBangErrorSinhVienNotFound,"Sinh viên không tồn tại trong danh sách nhận bằng" },
             { ErrorCodes.TraoBangErrorSinhVienOrderInvalid, "Số thự tự của sinh viên không hợp lệ" },
-            { ErrorCodes.TraoBangErrorSinhVienDaTonTaiTrongHangDoi,"Sinh viên nhận bằng đã tồn tại trong hàng đợi" }
+            { ErrorCodes.TraoBangErrorSinhVienDaTonTaiTrongHangDoi,"Sinh viên nhận bằng đã tồn tại trong hàng đợi" },
+            { ErrorCodes.TraoBangErrorSinhVienTraoBangNotFound,"Sinh viên đang trao bằng không tồn tại" }
         };
 
         public static string GetMessage(int code)

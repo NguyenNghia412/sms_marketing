@@ -91,6 +91,7 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int TraoBangErrorSinhVienNotFound = 1005;
         public const int TraoBangErrorSinhVienOrderInvalid = 1006;
         public const int TraoBangErrorSinhVienDaTonTaiTrongHangDoi = 1007;
+        public const int TraoBangErrorSinhVienTraoBangNotFound = 1008;
 
 
 
