@@ -27,8 +27,11 @@ namespace thongbao.be.application.TraoBang.Dtos
         public DateTime NgayQuyetDinh { get; set; }
         public string? Note { get; set; }
         public bool IsShow { get; set; }
+        public bool IsShowNext { get; set; }
+        public bool IsShowPrev { get; set; }
         public string Order { get; set; } = String.Empty;
         public int TrangThai { get; set; }
         public string LinkQR { get; set; } = String.Empty;
+        
     }
 }

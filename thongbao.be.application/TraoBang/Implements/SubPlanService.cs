@@ -440,6 +440,10 @@ namespace thongbao.be.application.TraoBang.Implements
                 .Where(x => x.IdSubPlan == sinhVien.IdSubPlan && !x.Deleted)
                 .MaxAsync(x => (int?)x.Order) ?? 0;
 
+            var minOrder = await _smDbContext.DanhSachSinhVienNhanBangs
+                .Where(x => x.IdSubPlan == sinhVien.IdSubPlan && !x.Deleted)
+                .MinAsync(x => (int?)x.Order) ?? 0;
+
             var totalSubPlans = await _smDbContext.SubPlans
                 .Where(x => x.IdPlan == subPlan.IdPlan && !x.Deleted)
                 .CountAsync();
@@ -447,9 +451,12 @@ namespace thongbao.be.application.TraoBang.Implements
             var result = _mapper.Map<ViewSinhVienNhanBangDto>(sinhVien);
             result.OrderSubPlan = $"{subPlan.Order}/{totalSubPlans}";
             result.Order = $"{sinhVien.Order}/{maxOrder}";
+            result.IsShowNext = sinhVien.Order < maxOrder;
+            result.IsShowPrev = sinhVien.Order > minOrder;
 
             return result;
         }
+
         public async Task<ViewSinhVienNhanBangDto> NextSinhVienNhanBang(string mssv)
         {
             _logger.LogInformation($"{nameof(NextSinhVienNhanBang)}, mssv= {mssv} ");
@@ -476,6 +483,10 @@ namespace thongbao.be.application.TraoBang.Implements
                 .Where(x => x.IdSubPlan == nextSinhVien.IdSubPlan && !x.Deleted)
                 .MaxAsync(x => (int?)x.Order) ?? 0;
 
+            var minOrder = await _smDbContext.DanhSachSinhVienNhanBangs
+                .Where(x => x.IdSubPlan == nextSinhVien.IdSubPlan && !x.Deleted)
+                .MinAsync(x => (int?)x.Order) ?? 0;
+
             var totalSubPlans = await _smDbContext.SubPlans
                 .Where(x => x.IdPlan == subPlan.IdPlan && !x.Deleted)
                 .CountAsync();
@@ -483,6 +494,8 @@ namespace thongbao.be.application.TraoBang.Implements
             var result = _mapper.Map<ViewSinhVienNhanBangDto>(nextSinhVien);
             result.OrderSubPlan = $"{subPlan.Order}/{totalSubPlans}";
             result.Order = $"{nextSinhVien.Order}/{maxOrder}";
+            result.IsShowNext = nextSinhVien.Order < maxOrder;
+            result.IsShowPrev = nextSinhVien.Order > minOrder;
 
             return result;
         }
@@ -513,6 +526,10 @@ namespace thongbao.be.application.TraoBang.Implements
                 .Where(x => x.IdSubPlan == previousSinhVien.IdSubPlan && !x.Deleted)
                 .MaxAsync(x => (int?)x.Order) ?? 0;
 
+            var minOrder = await _smDbContext.DanhSachSinhVienNhanBangs
+                .Where(x => x.IdSubPlan == previousSinhVien.IdSubPlan && !x.Deleted)
+                .MinAsync(x => (int?)x.Order) ?? 0;
+
             var totalSubPlans = await _smDbContext.SubPlans
                 .Where(x => x.IdPlan == subPlan.IdPlan && !x.Deleted)
                 .CountAsync();
@@ -520,6 +537,8 @@ namespace thongbao.be.application.TraoBang.Implements
             var result = _mapper.Map<ViewSinhVienNhanBangDto>(previousSinhVien);
             result.OrderSubPlan = $"{subPlan.Order}/{totalSubPlans}";
             result.Order = $"{previousSinhVien.Order}/{maxOrder}";
+            result.IsShowNext = previousSinhVien.Order < maxOrder;
+            result.IsShowPrev = previousSinhVien.Order > minOrder;
 
             return result;
         }

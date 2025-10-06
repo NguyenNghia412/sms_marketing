@@ -48,7 +48,7 @@ namespace thongbao.be.infrastructure.data
         public DbSet<SubPlan> SubPlans { get; set; }
         public DbSet<DanhSachSinhVienNhanBang> DanhSachSinhVienNhanBangs { get; set; }
         public DbSet<TraoBangLog> TraoBangLogs { get; set; }
-
+        public DbSet<TienDoTraoBang> TienDoTraoBangs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -184,6 +184,11 @@ namespace thongbao.be.infrastructure.data
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
             modelBuilder.Entity<TraoBangLog>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<TienDoTraoBang>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
