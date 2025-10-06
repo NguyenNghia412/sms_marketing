@@ -73,7 +73,8 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.DanhBaErrorDanhSachSoDienThoaiInvalid, "Số điện thoại '{0}' không hợp lệ (phải đủ 10 số)" },
             { ErrorCodes.DanhBaErrorDanhSachSoDienThoaiRequired, "Vui lòng cung cấp IdDanhBa hoặc DanhSachSoDienThoai" },
             { ErrorCodes.TraoBangErrorPlanNotFound, "Kế hoạch không tồn tại" },
-            { ErrorCodes.TraoBangErrorSubPlanNotFound, "Kế hoạch con không tồn tại" }
+            { ErrorCodes.TraoBangErrorSubPlanNotFound, "Kế hoạch con không tồn tại" },
+            { ErrorCodes.TraoBangErrorSubPlanOrderInvalid,"Thứ tự kế hoạch con không hợp lệ"}
         };
 
         public static string GetMessage(int code)

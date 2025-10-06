@@ -37,11 +37,11 @@ namespace thongbao.be.Controllers.TraoBang
         }
         [Permission(PermissionKeys.SubPlanUpdate)]
         [HttpPut("")]
-        public ApiResponse Update( [FromBody] UpdateSubPlanDto dto)
+        public async Task<ApiResponse> Update( [FromBody] UpdateSubPlanDto dto)
         {
             try
             {
-                _subPlanService.Update( dto);
+                await _subPlanService.Update( dto);
                 return new();
             }
             catch (Exception ex)
@@ -83,11 +83,11 @@ namespace thongbao.be.Controllers.TraoBang
         }
         [Permission(PermissionKeys.SubPlanDelete)]
         [HttpDelete("{idSubPlan}/plan/{idPlan}")]
-        public ApiResponse Delete([FromRoute] int idSubPlan, [FromRoute] int idPlan)
+        public ApiResponse Delete([FromRoute] int idPlan, [FromRoute] int idSubPlan)
         {
             try
             {
-                _subPlanService.Delete(idSubPlan, idPlan);
+                _subPlanService.Delete( idPlan, idSubPlan);
                 return new();
             }
             catch (Exception ex)

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ClosedXML.Excel;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Sheets.v4;
 using Microsoft.AspNetCore.Http;
@@ -39,11 +40,17 @@ namespace thongbao.be.application.TraoBang.Implements
         {
             _configuration = configuration;
         }
-        public void Create (int idPlan, CreateSubPlanDto dto)
+        public void Create(int idPlan, CreateSubPlanDto dto)
         {
             _logger.LogInformation($"{nameof(Create)}, dto = {JsonSerializer.Serialize(dto)}");
+
             var plan = _smDbContext.Plans.FirstOrDefault(x => x.Id == idPlan && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorPlanNotFound);
+
+            var maxOrder = _smDbContext.SubPlans
+                .Where(x => x.IdPlan == idPlan && !x.Deleted)
+                .Max(x => (int?)x.Order) ?? 0;
+
             var subplan = new domain.TraoBang.SubPlan
             {
                 Ten = dto.Ten,
@@ -53,30 +60,82 @@ namespace thongbao.be.application.TraoBang.Implements
                 KetBai = dto.KetBai ?? "",
                 Note = dto.Note,
                 IsShow = true,
-                Order = dto.Order,
+                Order = maxOrder + 1,
                 IdPlan = idPlan,
                 CreatedDate = GetVietnamTime(),
                 Deleted = false
             };
+
             _smDbContext.SubPlans.Add(subplan);
             _smDbContext.SaveChanges();
         }
-        public void Update (UpdateSubPlanDto dto)
+        public async Task Update(UpdateSubPlanDto dto)
         {
             _logger.LogInformation($"{nameof(Update)}, dto = {JsonSerializer.Serialize(dto)}");
-            var plan = _smDbContext.Plans.FirstOrDefault(x => x.Id == dto.IdPlan && !x.Deleted)
+
+            var plan = await _smDbContext.Plans
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == dto.IdPlan && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorPlanNotFound);
-            var subplan = _smDbContext.SubPlans.FirstOrDefault(x => x.Id == dto.IdSubPlan && !x.Deleted)
+
+            var subplan = await _smDbContext.SubPlans
+                .FirstOrDefaultAsync(x => x.Id == dto.IdSubPlan && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+
+            var subPlans = await _smDbContext.SubPlans
+                .Where(x => x.IdPlan == dto.IdPlan && !x.Deleted)
+                .OrderBy(x => x.Order)
+                .ToListAsync();
+
+            var movingSubPlan = subPlans.FirstOrDefault(x => x.Id == dto.IdSubPlan && !x.Deleted);
+            if (movingSubPlan == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+            }
+
+            var currentOrder = movingSubPlan.Order;
+            var newOrder = dto.NewOrder;
+            if( newOrder < 1 || newOrder > subPlans.Count)
+            {
+                throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanOrderInvalid);
+            }
+            if (currentOrder == newOrder)
+            {
+                return;
+            }
+
+            if (newOrder < currentOrder)
+            {
+                foreach (var sp in subPlans)
+                {
+                    if (sp.Order >= newOrder && sp.Order < currentOrder)
+                    {
+                        sp.Order++;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var sp in subPlans)
+                {
+                    if (sp.Order <= newOrder && sp.Order > currentOrder)
+                    {
+                        sp.Order--;
+                    }
+                }
+            }
+
             subplan.Ten = dto.Ten;
             subplan.MoTa = dto.MoTa;
             subplan.TruongKhoa = dto.TruongKhoa;
             subplan.MoBai = dto.MoBai ?? "";
             subplan.KetBai = dto.KetBai ?? "";
             subplan.Note = dto.Note;
-            //subplan.Order = dto.Order;
+            subplan.Order = dto.NewOrder;
+            subplan.IsShow = dto.IsShow;
+
             _smDbContext.SubPlans.Update(subplan);
-            _smDbContext.SaveChanges();
+            await _smDbContext.SaveChangesAsync();
         }
         public BaseResponsePagingDto<ViewSubPlanDto> FindPaging (FindPagingSubPlanDto dto)
         {

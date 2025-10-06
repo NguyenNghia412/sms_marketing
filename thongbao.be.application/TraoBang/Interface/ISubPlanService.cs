@@ -12,7 +12,7 @@ namespace thongbao.be.application.TraoBang.Interface
     public interface ISubPlanService
     {
         public void Create(int idPlan, CreateSubPlanDto dto);
-        public void Update(UpdateSubPlanDto dto);
+        public Task Update(UpdateSubPlanDto dto);
         public BaseResponsePagingDto<ViewSubPlanDto> FindPaging(FindPagingSubPlanDto dto);
         public void UpdateIsShow(UpdateSubPlanIsShowDto dto);
         public void Delete(int idPlan, int idSubPlan);
