@@ -18,6 +18,9 @@ export interface IViewGuestSvNhanBang {
     xepHang?: string;
     note?: string;
     trangThai?: number;
-    order?: number;
+    order?: string;
+    orderSubPlan?: string;
     isShow?: boolean;
+    isShowPrev?: boolean;
+    isShowNext?: boolean;
 }

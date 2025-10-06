@@ -25,7 +25,7 @@
     </div>
     <div class="flex justify-between mb-2">
       <span class="font-medium text-gray-600">Khoa:</span>
-      <div class="max-w-56 md:max-w-96">  
+      <div class="max-w-56 md:max-w-96">
         <span class="text-gray-800">{{ data.khoaQuanLy }}</span>
       </div>
     </div>
@@ -59,12 +59,24 @@
 
   <!-- Queue status -->
   <div
-    class="bg-yellow-100 text-yellow-800 py-2 px-3 rounded-md font-medium flex items-center justify-center gap-2 mb-2 text-sm md:text-base">
-    <i class="pi pi-hourglass text-yellow-600"></i>
-    DỰ KIẾN HÀNG ĐỢI - STT: <span class="font-bold">{{ data.order }}</span>
+    class="bg-yellow-100 text-yellow-800 py-2 px-3 rounded-md font-medium mb-2 flex flex-row justify-between items-center">
+    <div>
+      @if (isShowPrevBtn) {
+        <i class="pi pi-chevron-left cursor-pointer text-yellow-600" (click)="onPrev()"></i>
+      }
+    </div>
+    <div class="flex flex-row items-center justify-center gap-2  text-sm md:text-base">
+      <i class="pi pi-hourglass text-yellow-600"></i>
+      DỰ KIẾN HÀNG ĐỢI - STT: <span class="font-bold">{{ data.order }}</span>
+    </div>
+    <div>
+      @if (isShowNextBtn) {
+        <i class="pi pi-chevron-right cursor-pointer text-yellow-600" (click)="onNext()"></i>
+      }
+    </div>
   </div>
 
   <div class="text-sm md:text-base text-gray-600">
-    Thứ tự khoa lên nhận bằng: <span class="font-semibold text-blue-700">{{ data.tenSubPlan }}</span>
+    Thứ tự khoa lên nhận bằng: <span class="font-semibold text-blue-700">{{ data.orderSubPlan }}</span>
   </div>
 </div>
