@@ -15,6 +15,14 @@ export class GuestSvNhanBangService {
         return this.http.get<IBaseResponseWithData<IViewGuestSvNhanBang>>(`${this.api}/${mssv}`);
     }
 
+    getNextByMssv(mssv: string) {
+        return this.http.get<IBaseResponseWithData<IViewGuestSvNhanBang>>(`${this.api}/${mssv}/next`);
+    }
+
+    getPrevByMssv(mssv: string) {
+        return this.http.get<IBaseResponseWithData<IViewGuestSvNhanBang>>(`${this.api}/${mssv}/prev`);
+    }
+
     downloadQr(imageUrl: string) {
         this.http.get(imageUrl, { responseType: 'blob' }).subscribe((blob) => {
             const url = window.URL.createObjectURL(blob);

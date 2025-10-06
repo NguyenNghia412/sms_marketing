@@ -10,6 +10,10 @@ import { TblAction, TblActionTypes } from './tbl-action/tbl-action';
 import { IFindPagingSvNhanBang, IViewRowSvNhanBang } from '@/models/trao-bang/sv-nhan-bang.models';
 import { PaginatorState } from 'primeng/paginator';
 import { Create } from './create/create';
+import { TraoBangSubPlanService } from '@/services/trao-bang/sub-plan.service';
+import { IViewRowConfigSubPlan } from '@/models/trao-bang/sub-plan.models';
+import { concatMap } from 'rxjs';
+import { IBaseResponseWithData } from '@/shared/models/request-paging.base.models';
 
 @Component({
   selector: 'app-sv-nhan-bang',
@@ -19,39 +23,73 @@ import { Create } from './create/create';
 })
 export class SvNhanBang extends BaseComponent {
  _svNhanBangService = inject(TraoBangSvService);
+ _subPlanService = inject(TraoBangSubPlanService);
 
   searchForm: FormGroup = new FormGroup({
-    search: new FormControl('')
+    search: new FormControl(''),
+    idSubPlan: new FormControl(null),
   });
 
   columns: IColumn[] = [
     { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
     { header: 'MSSV', field: 'maSoSinhVien', headerContainerStyle: 'width: 10rem' },
     { header: 'Họ tên', field: 'hoVaTen', headerContainerStyle: 'min-width: 10rem' },
-    { header: 'Tên khoa', field: 'tenSubPlan', headerContainerStyle: 'min-width: 10rem' },
+    { header: 'Tên khoa', field: 'khoaQuanLy', headerContainerStyle: 'min-width: 10rem' },
     { header: 'Lớp', field: 'lop', headerContainerStyle: 'width: 10rem' },
     { header: 'Ngành', field: 'tenNganhDaoTao', headerContainerStyle: 'min-width: 10rem' },
     { header: 'Ghi chú', field: 'note', headerContainerStyle: 'min-width: 10rem' },
     { header: 'Thứ tự', field: 'order', headerContainerStyle: 'width: 10rem' },
-    { header: 'QR', field: 'linkQR', headerContainerStyle: 'width: 10rem' },
+    { header: 'QR', field: 'linkQR', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.LINK_BLANK },
     { header: 'Trạng thái', field: 'trangThai', headerContainerStyle: 'width: 10rem' },
     { header: 'Hiển thị', field: 'isShow', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.CHECKBOX },
     { header: 'Thao tác', headerContainerStyle: 'width: 6rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
   ];
 
+  listSubPlan: IViewRowConfigSubPlan[] = [];
   data: IViewRowSvNhanBang[] = [];
   query: IFindPagingSvNhanBang = {
     pageNumber: this.START_PAGE_NUMBER,
     pageSize: this.MAX_PAGE_SIZE,
-    IdSubPlan: 1,
   };
 
   override ngOnInit(): void {
-    this.getData();
+    this.initData();
+  }
+
+  initData() {
+    this.loading = true;
+    this._subPlanService.getList(1).pipe(
+      concatMap((res) => {
+        if (this.isResponseSucceed(res)) {
+          this.listSubPlan = res.data;
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            this.query.IdSubPlan = res.data[0].id;
+            this.searchForm.patchValue({
+              idSubPlan: this.query.IdSubPlan,
+            });
+          }
+        }
+        return this._svNhanBangService.findPaging(this.query);
+      })
+    ).subscribe({
+      next: res => {
+        if (this.isResponseSucceed(res, false)) {
+            this.data = res.data.items;
+            this.totalRecords = res.data.totalItems;
+          }
+      }
+    }).add(() => {
+      this.loading = false;
+    })
   }
 
   onSearch() {
     this.getData();
+  }
+
+  onChangeSubPlan() {
+    this.query.pageNumber = this.START_PAGE_NUMBER;
+    this.onSearch();
   }
 
   onPageChanged($event: PaginatorState) {
@@ -62,7 +100,7 @@ export class SvNhanBang extends BaseComponent {
   getData() {
     this.loading = true;
     this._svNhanBangService
-      .findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value })
+      .findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value, IdSubPlan: this.searchForm.get('idSubPlan')?.value })
       .subscribe({
         next: (res) => {
           if (this.isResponseSucceed(res, false)) {
@@ -77,7 +115,7 @@ export class SvNhanBang extends BaseComponent {
   }
 
   onOpenCreate() {
-    const ref = this._dialogService.open(Create, { header: 'Tạo SV', closable: true, modal: true, styleClass: 'w-[700px]', focusOnShow: false });
+    const ref = this._dialogService.open(Create, { header: 'Tạo SV', closable: true, modal: true, styleClass: 'w-[900px]', focusOnShow: false });
     ref.onClose.subscribe((result) => {
       if (result) {
         this.getData();
@@ -86,7 +124,7 @@ export class SvNhanBang extends BaseComponent {
   }
 
   onOpenUpdate(data: IViewRowSvNhanBang) {
-    const ref = this._dialogService.open(Create, { header: 'Cập nhật SV', closable: true, modal: true, styleClass: 'w-[700px]', focusOnShow: false, data });
+    const ref = this._dialogService.open(Create, { header: 'Cập nhật SV', closable: true, modal: true, styleClass: 'w-[900px]', focusOnShow: false, data });
     ref.onClose.subscribe((result) => {
       if (result) {
         this.getData();

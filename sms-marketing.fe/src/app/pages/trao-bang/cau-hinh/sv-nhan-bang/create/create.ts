@@ -1,7 +1,7 @@
-import { IViewRowConfigPlan } from '@/models/trao-bang/plan.models';
-import { ICreateConfigSubPlan, IUpdateConfigSubPlan } from '@/models/trao-bang/sub-plan.models';
-import { TraoBangPlanService } from '@/services/trao-bang/plan.service';
+import { IViewRowConfigSubPlan } from '@/models/trao-bang/sub-plan.models';
+import { ICreateSvNhanBang, IUpdateSvNhanBang } from '@/models/trao-bang/sv-nhan-bang.models';
 import { TraoBangSubPlanService } from '@/services/trao-bang/sub-plan.service';
+import { TraoBangSvService } from '@/services/trao-bang/sv-nhan-bang.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { SharedImports } from '@/shared/import.shared';
 import { Component, inject } from '@angular/core';
@@ -17,38 +17,45 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 export class Create extends BaseComponent {
     private _ref = inject(DynamicDialogRef);
     private _config = inject(DynamicDialogConfig);
+    private _svNhanBangService = inject(TraoBangSvService);
     private _subPlanService = inject(TraoBangSubPlanService);
-    private _planService = inject(TraoBangPlanService);
 
-    listPlan: IViewRowConfigPlan[] = [];
+    listSubPlan: IViewRowConfigSubPlan[] = [];
 
     override form: FormGroup = new FormGroup({
-        id: new FormControl(null),
-        idPlan: new FormControl(null, [Validators.required]),
-        ten: new FormControl('', [Validators.required]),
-        moTa: new FormControl(''),
-        truongKhoa: new FormControl(''),
+        idSubPlan: new FormControl(null, [Validators.required]),
+        hoVaTen: new FormControl('', [Validators.required]),
+        maSoSinhVien: new FormControl('', [Validators.required]),
+        email: new FormControl(''),
+        emailSinhVien: new FormControl(''),
+        lop: new FormControl(''),
+        ngaySinh: new FormControl(''),
+        capBang: new FormControl(''),
+        tenNganhDaoTao: new FormControl(''),
+        xepHang: new FormControl(''),
+        thanhTich: new FormControl(''),
+        khoaQuanLy: new FormControl(''),
+        soQuyetDinhTotNghiep: new FormControl(''),
+        ngayQuyetDinh: new FormControl(''),
         note: new FormControl(''),
-        moBai: new FormControl(''),
-        ketBai: new FormControl(''),
-        isShow: new FormControl(true),
-        order: new FormControl(1, [Validators.required])
+        linkQR: new FormControl(''),
+        trangThai: new FormControl(''),
     });
 
     override ValidationMessages: Record<string, Record<string, string>> = {
-        idPlan: {
+        idSubPlan: {
             required: 'Không được bỏ trống'
         },
-        ten: {
+        hoVaTen: {
             required: 'Không được bỏ trống'
         },
-        order: {
+        maSoSinhVien: {
             required: 'Không được bỏ trống'
         }
     };
 
     override ngOnInit(): void {
-        this.getListPlan();
+        this.getListSubPlan();
         if (this.isUpdate) {
             this.form.setValue({
                 ...this._config.data
@@ -60,11 +67,11 @@ export class Create extends BaseComponent {
         return this._config.data?.id;
     }
 
-    getListPlan() {
-        this._planService.getList().subscribe({
+    getListSubPlan() {
+        this._subPlanService.getList(1).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res)) {
-                    this.listPlan = res.data
+                    this.listSubPlan = res.data
                 }
             }
         })
@@ -83,13 +90,13 @@ export class Create extends BaseComponent {
     }
 
     onSubmitCreate() {
-        const body: ICreateConfigSubPlan = {
+        const body: ICreateSvNhanBang = {
             ...this.form.value,
         };
         this.loading = true;
-        this._subPlanService.create(body).subscribe({
+        this._svNhanBangService.create(body).subscribe({
             next: (res) => {
-                if (this.isResponseSucceed(res, true, 'Đã thêm khoa')) {
+                if (this.isResponseSucceed(res, true, 'Đã thêm sv')) {
                     this._ref?.close(true);
                 }
             },
@@ -103,12 +110,12 @@ export class Create extends BaseComponent {
     }
 
     onSubmitUpdate() {
-        const body: IUpdateConfigSubPlan = {
+        const body: IUpdateSvNhanBang = {
             idSubPlan: this._config.data.id,
             ...this.form.value,
         };
         this.loading = true;
-        this._subPlanService.update(body).subscribe({
+        this._svNhanBangService.update(body).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, true, 'Đã lưu')) {
                     this._ref?.close(true);

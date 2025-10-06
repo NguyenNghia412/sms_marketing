@@ -29,7 +29,23 @@ export interface IFindPagingSvNhanBang extends IBaseRequestPaging {
 }
 
 export interface ICreateSvNhanBang {
-
+  idSubPlan: number;
+  hoVaTen: string;
+  email: string;
+  emailSinhVien: string;
+  maSoSinhVien: string;
+  lop: string;
+  ngaySinh: string; // ISO datetime string
+  capBang: string;
+  tenNganhDaoTao: string;
+  xepHang: string;
+  thanhTich: string;
+  khoaQuanLy: string;
+  soQuyetDinhTotNghiep: string;
+  ngayQuyetDinh: string; // ISO datetime string
+  note: string;
+  trangThai: number;
+  linkQR: string;
 }
 
 export interface IUpdateSvNhanBang extends ICreateSvNhanBang {
