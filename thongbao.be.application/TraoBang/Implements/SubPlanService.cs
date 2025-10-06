@@ -250,7 +250,7 @@ namespace thongbao.be.application.TraoBang.Implements
             _logger.LogInformation($"{nameof(PagingSinhVienNhanBang)}, dto= {JsonSerializer.Serialize(dto)} ");
 
             var query = from sv in _smDbContext.DanhSachSinhVienNhanBangs
-                        where !sv.Deleted && sv.IdSubPlan == dto.IdSubPlan
+                        where !sv.Deleted && sv.IdSubPlan == dto.IdSubPlan && sv.TrangThai == TraoBangConstants.ThamGiaTraoBang
                         orderby sv.Order ascending
                         select sv;
 
@@ -544,15 +544,13 @@ namespace thongbao.be.application.TraoBang.Implements
 
             return result;
         }
-        public void DiemDanhNhanBang(string mssv)
+        public DiemDanhNhanBangDto DiemDanhNhanBang(string mssv)
         {
             _logger.LogInformation($"{nameof(DiemDanhNhanBang)}, mssv= {mssv} ");
-
-            var sinhVien =  _smDbContext.DanhSachSinhVienNhanBangs
+            var sinhVien = _smDbContext.DanhSachSinhVienNhanBangs
                 .FirstOrDefault(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower())
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
-
-            var maxOrder =  _smDbContext.TienDoTraoBangs
+            var maxOrder = _smDbContext.TienDoTraoBangs
                 .Where(x => x.IdSubPlan == sinhVien.IdSubPlan && !x.Deleted)
                 .Max(x => (int?)x.Order) ?? 0;
             var mssvexisting = _smDbContext.TienDoTraoBangs.Any(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower());
@@ -560,6 +558,8 @@ namespace thongbao.be.application.TraoBang.Implements
             {
                 throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienDaTonTaiTrongHangDoi);
             }
+            var subPlan = _smDbContext.SubPlans
+                .FirstOrDefault(x => x.Id == sinhVien.IdSubPlan && !x.Deleted);
             var tienDoTraoBang = new TienDoTraoBang
             {
                 IdSubPlan = sinhVien.IdSubPlan,
@@ -572,10 +572,18 @@ namespace thongbao.be.application.TraoBang.Implements
                 CreatedDate = DateTime.Now,
                 Deleted = false
             };
-
-             _smDbContext.TienDoTraoBangs.Add(tienDoTraoBang);
-             _smDbContext.SaveChanges();
-            
+            _smDbContext.TienDoTraoBangs.Add(tienDoTraoBang);
+            _smDbContext.SaveChanges();
+            return new DiemDanhNhanBangDto
+            {
+                TenKhoa = subPlan?.Ten ?? String.Empty,
+                Id = sinhVien.Id,
+                HoVaTen = sinhVien.HoVaTen,
+                MaSoSinhVien = sinhVien.MaSoSinhVien,
+                TrangThai = TraoBangConstants.ChuanBi,
+                Order = maxOrder + 1,
+                IsShow = true
+            };
         }
         public async Task<ViewTienDoNhanBangResponseDto> GetTienDoNhanBang(ViewTienDoNhanBangRequestDto dto)
         {
@@ -604,6 +612,37 @@ namespace thongbao.be.application.TraoBang.Implements
                 TrangThai = result.TrangThai,
                 Order = result.Order,
                 IsShow = result.IsShow
+            };
+        }
+        public async Task<GetInforSubPlanDto> GetInforSubPlan(int idSubPlan)
+        {
+            _logger.LogInformation($"{nameof(GetInforSubPlan)}, idSubPlan= {idSubPlan} ");
+            var subPlan = await _smDbContext.SubPlans
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+
+            var soLuongThamGia = await _smDbContext.DanhSachSinhVienNhanBangs
+                .AsNoTracking()
+                .CountAsync(x => x.IdSubPlan == idSubPlan && !x.Deleted && x.TrangThai == TraoBangConstants.ThamGiaTraoBang);
+
+            var soLuongVangMat = await _smDbContext.DanhSachSinhVienNhanBangs
+                .AsNoTracking()
+                .CountAsync(x => x.IdSubPlan == idSubPlan && !x.Deleted && x.TrangThai == TraoBangConstants.VangMat);
+
+            var soLuongDaTrao = await _smDbContext.TienDoTraoBangs
+                .AsNoTracking()
+                .CountAsync(x => x.IdSubPlan == idSubPlan && !x.Deleted && x.TrangThai == TraoBangConstants.DaTraoBang);
+
+            var soLuongConLai = soLuongThamGia - soLuongDaTrao;
+
+            return new GetInforSubPlanDto
+            {
+                Ten = subPlan.Ten,
+                SoLuongThamGia = soLuongThamGia,
+                SoLuongVangMat = soLuongVangMat,
+                SoLuongDaTrao = soLuongDaTrao,
+                SoLuongConLai = soLuongConLai
             };
         }
 

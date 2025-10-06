@@ -45,6 +45,7 @@ namespace thongbao.be.application.Base
             CreateMap<Plan,ViewPlanDto>();
             CreateMap<SubPlan,ViewSubPlanDto>();
             CreateMap<DanhSachSinhVienNhanBang, ViewSinhVienNhanBangDto>();
+
         }
     }
 }

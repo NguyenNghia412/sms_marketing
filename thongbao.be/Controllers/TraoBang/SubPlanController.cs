@@ -244,8 +244,8 @@ namespace thongbao.be.Controllers.TraoBang
         {
             try
             {
-                _subPlanService.DiemDanhNhanBang(mssv);
-                return new();
+                 var data =_subPlanService.DiemDanhNhanBang(mssv);
+                return new(data);
             }
             catch (Exception ex)
             {
@@ -266,5 +266,20 @@ namespace thongbao.be.Controllers.TraoBang
                 return OkException(ex);
             }
         }
-    }
+        [Permission(PermissionKeys.SubPlanView)]
+        [HttpGet("{idSubPlan}/thong-tin-subplan")]
+        public async Task<ApiResponse> GetThongTinSubPlan([FromRoute] int idSubPlan)
+        {
+            try
+            {
+                var data = await _subPlanService.GetInforSubPlan(idSubPlan);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        }
 }
