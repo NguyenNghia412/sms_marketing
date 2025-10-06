@@ -4,7 +4,7 @@
     @for (item of data(); track $index) {
     <div>
         <p-tag [severity]="subPlanStatuses.getSeverity(item.trangThai || 0)" class="w-full text-left" >
-            <div [ngClass]="['w-full text-base ', item.trangThai === subPlanStatuses.DA_TRAO_BANG ? 'cursor-pointer' : '' ]" (click)="onClickSubPlan(item)">
+            <div [ngClass]="['w-full text-base ', item.trangThai !== subPlanStatuses.DANG_TRAO_BANG ? 'cursor-pointer' : '' ]" (click)="onClickSubPlan(item)">
                 @if (item.trangThai === subPlanStatuses.DA_TRAO_BANG) {<i class="pi pi-check mr-1"></i>}
                 @if (item.trangThai === subPlanStatuses.DANG_TRAO_BANG) {<i class="pi pi-arrow-right mr-1"></i>}
                 {{item.ten}} <br>
