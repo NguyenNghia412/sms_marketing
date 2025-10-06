@@ -238,5 +238,33 @@ namespace thongbao.be.Controllers.TraoBang
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.SubPlanAdd)]
+        [HttpPost("sinh-vien-nhan-bang/hang-doi")]
+        public ApiResponse DiemDanhNhanBang([FromQuery] string mssv)
+        {
+            try
+            {
+                _subPlanService.DiemDanhNhanBang(mssv);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.SubPlanView)]
+        [HttpGet("sinh-vien-nhan-bang/tien-do")]
+        public async Task<ApiResponse> GetTienDoNhanBang([FromQuery] ViewTienDoNhanBangRequestDto dto)
+        {
+            try
+            {
+                var data = await _subPlanService.GetTienDoNhanBang(dto);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }
