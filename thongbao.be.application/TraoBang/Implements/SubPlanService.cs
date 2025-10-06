@@ -5,6 +5,7 @@ using EFCore.BulkExtensions;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Sheets.v4;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -642,6 +643,48 @@ namespace thongbao.be.application.TraoBang.Implements
             }
 
             _smDbContext.SaveChanges();
+        }
+
+        public async Task<List<GetListSubPlanDto>> GetListSubPlanInfor(int idPlan)
+        {
+            _logger.LogInformation($"{nameof(GetListSubPlan)}, idPlan= {idPlan} ");
+
+            var subPlans = await _smDbContext.SubPlans
+                .AsNoTracking()
+                .Where(x => x.IdPlan == idPlan && !x.Deleted)
+                .OrderByDescending(x => x.TrangThai == TraoBangConstants.DaTraoBang)
+                .ThenByDescending(x => x.TrangThai == TraoBangConstants.DangTraoBang)
+                .ThenByDescending(x => x.TrangThai == TraoBangConstants.ChuanBi)
+                .ThenBy(x => x.Order)
+                .ToListAsync();
+
+            var items = new List<GetSubPlanItemDto>();
+
+            foreach (var subPlan in subPlans)
+            {
+                var daTrao = await _smDbContext.TienDoTraoBangs
+                    .AsNoTracking()
+                    .CountAsync(x => x.IdSubPlan == subPlan.Id && !x.Deleted && x.TrangThai == TraoBangConstants.DaTraoBang);
+
+                var tongSo = await _smDbContext.DanhSachSinhVienNhanBangs
+                    .AsNoTracking()
+                    .CountAsync(x => x.IdSubPlan == subPlan.Id && !x.Deleted && x.TrangThai == TraoBangConstants.ThamGiaTraoBang);
+
+                var tienDo = tongSo > 0 ? $"{daTrao}/{tongSo}" : "0/0";
+
+                items.Add(new GetSubPlanItemDto
+                {
+                    Id = subPlan.Id,
+                    Ten = subPlan.Ten,
+                    TienDo = tienDo
+                });
+            }
+
+            return new List<GetListSubPlanDto>{new GetListSubPlanDto
+                                               {
+                                                   Items = items
+                                               }
+            };
         }
         public async Task<GetInforSubPlanDto> GetInforSubPlan(int idSubPlan)
         {

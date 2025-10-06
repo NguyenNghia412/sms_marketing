@@ -310,5 +310,19 @@ namespace thongbao.be.Controllers.TraoBang
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.SubPlanView)]
+        [HttpGet("plan/{idPlan}/list-sub-plan-infor")]
+        public async Task<ApiResponse> GetListSubPlanInfor([FromRoute] int idPlan)
+        {
+            try
+            {
+                var data = await _subPlanService.GetListSubPlanInfor(idPlan);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }
