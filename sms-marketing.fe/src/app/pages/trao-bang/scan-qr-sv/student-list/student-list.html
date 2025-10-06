@@ -13,20 +13,22 @@
     </ng-template>
 
     <ng-template pTemplate="body" let-student>
-        <tr [ngClass]="{
+        <!-- <tr [ngClass]="{
                   'bg-green-50': student.trangThai === 'Đã trao',
                   'bg-yellow-50': student.trangThai === 'Đang trao',
                   'bg-gray-50': student.trangThai === 'Chuẩn bị'
-                }">
-            <td>{{ student.stt }}</td>
-            <td>{{ student.mssv }}</td>
-            <td>{{ student.hoTen }}</td>
+                }"> -->
+        <tr>
+            <td>{{ student.order }}</td>
+            <td>{{ student.maSoSinhVien }}</td>
+            <td>{{ student.hoVaTen }}</td>
             <td>
-                <span class="px-2 py-1 rounded text-xs" [ngClass]="{
+                <p-tag [severity]="constStatuses.getSeverity(student.trangThai)" [value]="constStatuses.getName(student.trangThai)" />
+                <!-- <span class="px-2 py-1 rounded text-xs" [ngClass]="{
                     'bg-green-200 text-green-800': student.trangThai === 'Đã trao',
                     'bg-yellow-200 text-yellow-800': student.trangThai === 'Đang trao',
                     'bg-gray-200 text-gray-700': student.trangThai === 'Chuẩn bị'
-                  }">{{ student.trangThai }}</span>
+                  }">{{ student.trangThai }}</span> -->
             </td>
         </tr>
     </ng-template>

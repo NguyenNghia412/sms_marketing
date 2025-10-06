@@ -1,0 +1,13 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+        <label for="mssv" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Mã sinh viên <span
+                class="text-red-500">*</span></label>
+        <input pInputText formControlName="mssv" id="mssv" type="text" class="w-full mb-2" />
+        @if (form.get('mssv')?.hasError('required') && form.get('mssv')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('mssv') }} </p-message>
+        }
+    </div>
+    <div class="mt-5 flex flex-row justify-end">
+        <p-button label="Đưa vào hàng đợi" icon="pi pi-send" type="submit" [loading]="loading" />
+    </div>
+</form>

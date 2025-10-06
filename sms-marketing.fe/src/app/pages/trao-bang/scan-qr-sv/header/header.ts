@@ -1,5 +1,5 @@
 import { SharedImports } from '@/shared/import.shared';
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-header',
@@ -7,5 +7,5 @@ import { Component } from '@angular/core';
   templateUrl: './header.html',
 })
 export class Header {
-
+  tenKhoa = input.required<string>()
 }

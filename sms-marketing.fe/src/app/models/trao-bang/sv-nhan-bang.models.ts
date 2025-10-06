@@ -29,25 +29,48 @@ export interface IFindPagingSvNhanBang extends IBaseRequestPaging {
 }
 
 export interface ICreateSvNhanBang {
-  idSubPlan: number;
-  hoVaTen: string;
-  email: string;
-  emailSinhVien: string;
-  maSoSinhVien: string;
-  lop: string;
-  ngaySinh: string; // ISO datetime string
-  capBang: string;
-  tenNganhDaoTao: string;
-  xepHang: string;
-  thanhTich: string;
-  khoaQuanLy: string;
-  soQuyetDinhTotNghiep: string;
-  ngayQuyetDinh: string; // ISO datetime string
-  note: string;
-  trangThai: number;
-  linkQR: string;
+    idSubPlan: number;
+    hoVaTen: string;
+    email: string;
+    emailSinhVien: string;
+    maSoSinhVien: string;
+    lop: string;
+    ngaySinh: string; // ISO datetime string
+    capBang: string;
+    tenNganhDaoTao: string;
+    xepHang: string;
+    thanhTich: string;
+    khoaQuanLy: string;
+    soQuyetDinhTotNghiep: string;
+    ngayQuyetDinh: string; // ISO datetime string
+    note: string;
+    trangThai: number;
+    linkQR: string;
 }
 
 export interface IUpdateSvNhanBang extends ICreateSvNhanBang {
     id: number;
+}
+
+export interface IGetTienDoHangDoi {
+    IdSubPlan: number;
+    SoLuong?: number;
+}
+
+export interface IViewScanQrCurrentSubPlan {
+    soLuongConLai?: number
+    soLuongDaTrao?: number
+    soLuongThamGia?: number
+    soLuongVangMat?: number
+    ten?: string
+}
+
+export interface IViewScanQrTienDoSv {
+    id?: number;
+    hoVaTen?: string;
+    maSoSinhVien?: string;
+    isShow?: boolean;
+    order?: number;
+    trangThai?: number;
+    tenKhoa?: string;
 }
