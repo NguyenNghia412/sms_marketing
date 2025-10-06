@@ -28,7 +28,7 @@ export class SvNhanBang extends BaseComponent {
     { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
     { header: 'MSSV', field: 'maSoSinhVien', headerContainerStyle: 'width: 10rem' },
     { header: 'Họ tên', field: 'hoVaTen', headerContainerStyle: 'min-width: 10rem' },
-    { header: 'Tên khoa', field: 'tenSubPlan', headerContainerStyle: 'min-width: 10rem' },
+    { header: 'Tên khoa', field: 'khoaQuanLy', headerContainerStyle: 'min-width: 10rem' },
     { header: 'Lớp', field: 'lop', headerContainerStyle: 'width: 10rem' },
     { header: 'Ngành', field: 'tenNganhDaoTao', headerContainerStyle: 'min-width: 10rem' },
     { header: 'Ghi chú', field: 'note', headerContainerStyle: 'min-width: 10rem' },

@@ -108,6 +108,11 @@ export class AppMenu {
                                     },
                                 ]
                             },
+                            {
+                                label: 'Quét QR',
+                                routerLink: ['/trao-bang/scan-qr-sv'],
+                                visible: true,
+                            }
                         ]
                     }
                 ],
