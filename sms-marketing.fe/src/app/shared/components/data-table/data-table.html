@@ -1,4 +1,5 @@
-<p-table #dt1 [value]="data() || []" dataKey="id" [rows]="pageSize()" [loading]="loading()" [rowHover]="true" [showGridlines]="true" [paginator]="false" responsiveLayout="scroll">
+<p-table #dt1 [value]="data() || []" dataKey="id" [rows]="pageSize()" [loading]="loading()" [rowHover]="true"
+    [showGridlines]="true" [paginator]="false" responsiveLayout="scroll">
     <ng-template #header>
         <tr>
             @for (col of (columns()); track $index) {
@@ -13,7 +14,8 @@
             @for (col of (columns()); track $index) {
             <td [style]="col.cellStyle" [ngClass]="col.cellClass" (click)="onCellClick(col, row)">
                 @if (col.cellViewType === cellViewTypes.CUSTOM_COMP) {
-                <ng-container *ngComponentOutlet="col.customComponent; injector: customInjector ; inputs: {row, rowIndex, data: get(row, col.field || '') }"></ng-container>
+                <ng-container
+                    *ngComponentOutlet="col.customComponent; injector: customInjector ; inputs: {row, rowIndex, data: get(row, col.field || '') }"></ng-container>
                 } @else if (col.cellViewType === cellViewTypes.INDEX) {
                 <span>{{ rowIndex + 1 }}</span>
                 } @else if (col.cellRender) {
@@ -24,7 +26,10 @@
                 {{ get(row, col.field || '') | currency: 'USD' : 'symbol' }}
                 }
                 @else if (col.cellViewType === cellViewTypes.CHECKBOX) {
-                    <input type="checkbox" [checked]="get(row, col.field || '')" readonly disabled />
+                <input type="checkbox" [checked]="get(row, col.field || '')" readonly disabled />
+                }
+                @else if (col.cellViewType === cellViewTypes.LINK_BLANK) {
+                    <a [href]="get(row, col.field || '')" target="_blank" class="!underline cursor-pointer text-blue-600">{{get(row, col.field || '')}}</a>
                 }
                 @else if ('field' in col) {
                 {{ get(row, col.field || '') }}

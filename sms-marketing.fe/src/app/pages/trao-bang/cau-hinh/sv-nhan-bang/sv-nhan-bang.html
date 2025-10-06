@@ -5,32 +5,23 @@
 
     <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
         <div class="flex flex-row justify-between items-center mb-4 space-x-2">
-            <div class="flex flex-col justify-end flex-1">
+            <div class="flex flex-row space-x-2">
+                <p-select id="idBrandName" formControlName="idSubPlan" [options]="listSubPlan" optionLabel="ten"
+                    optionValue="id" [filter]="true" placeholder="Chọn khoa" class="w-full" appendTo="body"
+                    (onChange)="onChangeSubPlan()" />
                 <p-iconfield class="w-full">
                     <p-inputicon class="pi pi-search" />
-                    <input formControlName="search"
-                           pInputText
-                           type="text"
-                           placeholder="Search"
-                           class="w-150 " />
+                    <input formControlName="search" pInputText type="text" placeholder="Search" class="w-150 " />
                 </p-iconfield>
             </div>
 
-            <p-button label="Thêm mới"
-                      styleClass="w-32"
-                      (onClick)="onOpenCreate()" />
+            <p-button label="Thêm mới" styleClass="w-32" (onClick)="onOpenCreate()" />
         </div>
     </form>
 
     <div class="mt-4">
-        <app-data-table
-            [columns]="columns"
-            [data]="data"
-            [loading]="loading"
-            (onCustomComp)="onCustomEmit($event)"
-            [pageSize]="query.pageSize"
-            [pageNumber]="query.pageNumber"
-            [total]="totalRecords"
+        <app-data-table [columns]="columns" [data]="data" [loading]="loading" (onCustomComp)="onCustomEmit($event)"
+            [pageSize]="query.pageSize" [pageNumber]="query.pageNumber" [total]="totalRecords"
             (onPageChanged)="onPageChanged($event)" />
     </div>
 </div>

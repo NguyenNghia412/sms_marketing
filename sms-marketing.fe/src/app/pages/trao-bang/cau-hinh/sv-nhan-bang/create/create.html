@@ -1,55 +1,86 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid grid-cols-3 gap-2">
         <div class="mb-3">
-            <label for="idPlan" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Chương trình <span
+            <label for="idSubPlan" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Khoa <span
                     class="text-red-500">*</span></label>
-            <p-select id="idPlan" formControlName="idPlan" [options]="listPlan" optionLabel="ten" optionValue="id"
-                [filter]="true" placeholder="Chọn chương trình" class="w-full mb-2" appendTo="body" />
-            @if (form.get('idPlan')?.hasError('required') && form.get('idPlan')?.touched) {
-            <p-message severity="error" variant="simple" size="small">{{ getError('idPlan') }} </p-message>
+            <p-select id="idSubPlan" formControlName="idSubPlan" [options]="listSubPlan" optionLabel="ten"
+                optionValue="id" [filter]="true" placeholder="Chọn khoa" class="w-full mb-2" appendTo="body" />
+            @if (form.get('idSubPlan')?.hasError('required') && form.get('idSubPlan')?.touched) {
+            <p-message severity="error" variant="simple" size="small">{{ getError('idSubPlan') }} </p-message>
             }
         </div>
         <div class="mb-3">
-            <label for="ten" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên khoa<span
+            <label for="hoVaTen" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Họ tên<span
                     class="text-red-500">*</span></label>
-            <input pInputText formControlName="ten" id="ten" type="text" class="w-full mb-2" />
-            @if (form.get('ten')?.hasError('required') && form.get('ten')?.touched) {
-            <p-message severity="error" variant="simple" size="small">{{ getError('ten') }} </p-message>
+            <input pInputText formControlName="hoVaTen" id="hoVaTen" type="text" class="w-full mb-2" />
+            @if (form.get('hoVaTen')?.hasError('required') && form.get('hoVaTen')?.touched) {
+            <p-message severity="error" variant="simple" size="small">{{ getError('hoVaTen') }} </p-message>
             }
         </div>
         <div class="mb-3">
-            <label for="moTa" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Mô tả</label>
-            <input pInputText formControlName="moTa" id="moTa" type="text" class="w-full mb-2" />
-        </div>
-        <div class="mb-3">
-            <label for="order" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Thứ tự<span
+            <label for="maSoSinhVien" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Mã số SV<span
                     class="text-red-500">*</span></label>
-            <input pInputText formControlName="order" id="order" type="number" class="w-full mb-2" />
-            @if (form.get('order')?.hasError('required') && form.get('order')?.touched) {
-            <p-message severity="error" variant="simple" size="small">{{ getError('order') }} </p-message>
+            <input pInputText formControlName="maSoSinhVien" id="maSoSinhVien" type="text" class="w-full mb-2" />
+            @if (form.get('maSoSinhVien')?.hasError('required') && form.get('maSoSinhVien')?.touched) {
+            <p-message severity="error" variant="simple" size="small">{{ getError('maSoSinhVien') }} </p-message>
             }
         </div>
         <div class="mb-3">
-            <label for="truongKhoa" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Trưởng
-                khoa</label>
-            <input pInputText formControlName="truongKhoa" id="truongKhoa" type="text" class="w-full mb-2" />
+            <label for="email" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Email Quản lý</label>
+            <input pInputText formControlName="email" id="email" type="email" class="w-full mb-2" />
         </div>
-    </div>
-    <div class="flex items-center mb-3">
-        <p-checkbox inputId="isShow" name="isShow" formControlName="isShow" [binary]="true" />
-        <label for="isShow" class="ml-2 cursor-pointer">Có hiển thị</label>
-    </div>
-    <div class="mb-3">
-        <label for="moBai" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Mở bài</label>
-        <textarea pTextarea rows="3" formControlName="moBai" id="moBai" type="text" class="w-full mb-2"></textarea>
-    </div>
-    <div class="mb-3">
-        <label for="ketBai" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Kết bài</label>
-        <textarea pTextarea rows="3" formControlName="ketBai" id="ketBai" type="text" class="w-full mb-2"></textarea>
+        <div class="mb-3">
+            <label for="emailSinhVien" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Email
+                SV</label>
+            <input pInputText formControlName="emailSinhVien" id="emailSinhVien" type="emailSinhVien"
+                class="w-full mb-2" />
+        </div>
+        <div class="mb-3">
+            <label for="lop" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Lớp</label>
+            <input pInputText formControlName="lop" id="lop" type="text" class="w-full mb-2" />
+        </div>
+        <div class="mb-3">
+            <label for="ngaySinh" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Ngày sinh</label>
+            <input pInputText formControlName="ngaySinh" id="ngaySinh" type="text" class="w-full mb-2" />
+        </div>
+        <div class="mb-3">
+            <label for="capBang" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Cấp bằng</label>
+            <input pInputText formControlName="capBang" id="capBang" type="text" class="w-full mb-2" />
+        </div>
+        <div class="mb-3">
+            <label for="tenNganhDaoTao"
+                class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Ngành</label>
+            <input pInputText formControlName="tenNganhDaoTao" id="tenNganhDaoTao" type="text" class="w-full mb-2" />
+        </div>
+        <div class="mb-3">
+            <label for="xepHang" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Xếp hạng</label>
+            <input pInputText formControlName="xepHang" id="xepHang" type="text" class="w-full mb-2" />
+        </div>
+        <div class="mb-3">
+            <label for="thanhTich" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Thành
+                tích</label>
+            <input pInputText formControlName="thanhTich" id="thanhTich" type="text" class="w-full mb-2" />
+        </div>
+        <div class="mb-3">
+            <label for="khoaQuanLy" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Khoa QL</label>
+            <input pInputText formControlName="khoaQuanLy" id="khoaQuanLy" type="text" class="w-full mb-2" />
+        </div>
+        <div class="mb-3">
+            <label for="soQuyetDinhTotNghiep" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Số
+                QĐ</label>
+            <input pInputText formControlName="soQuyetDinhTotNghiep" id="soQuyetDinhTotNghiep" type="text"
+                class="w-full mb-2" />
+        </div>
+        <div class="mb-3">
+            <label for="ngayQuyetDinh" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Ngày
+                QĐ</label>
+            <input pInputText formControlName="ngayQuyetDinh" id="ngayQuyetDinh" type="text" class="w-full mb-2" />
+        </div>
+
     </div>
     <div class="mb-3">
         <label for="note" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Ghi chú</label>
-        <textarea pTextarea rows="3" formControlName="note" id="note" type="text" class="w-full mb-2"></textarea>
+        <textarea pInputTextarea formControlName="note" id="note" type="text" class="w-full mb-2" rows="3"></textarea>
     </div>
     <div class="mt-5 flex flex-row justify-end">
         <p-button label="Lưu" icon="pi pi-save" type="submit" [loading]="loading" />

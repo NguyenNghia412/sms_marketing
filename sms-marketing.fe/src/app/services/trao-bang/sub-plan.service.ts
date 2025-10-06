@@ -20,6 +20,10 @@ export class TraoBangSubPlanService {
         return this.http.get<IBaseResponseWithData<IViewRowConfigSubPlan>>(`${this.api}/${id}`);
     }
 
+    getList(idPlan: number) {
+        return this.http.get<IBaseResponseWithData<IViewRowConfigSubPlan[]>>(`${this.api}/plan/${idPlan}/list`);
+    }
+
     create(body: ICreateConfigSubPlan) {
         return this.http.post<IBaseResponse>(`${this.api}/${body.idPlan}`, body);
     }

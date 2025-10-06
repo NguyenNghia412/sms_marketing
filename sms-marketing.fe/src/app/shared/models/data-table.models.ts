@@ -9,7 +9,8 @@ export type IColumn = {
   cellRender?: string,
   dateFormat?: string,
   customComponent?: any,
-  clickable?: boolean;
+  clickable?: boolean,
+  isFrozenRight?: boolean,
 }
 
 
