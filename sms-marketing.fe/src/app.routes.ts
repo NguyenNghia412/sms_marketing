@@ -6,6 +6,7 @@ import { Landing } from './app/pages/landing/landing';
 import { Notfound } from './app/pages/notfound/notfound';
 import { authGuard } from '@/shared/guard/auth-guard';
 import { diemDanhGuard } from '@/shared/guard/diem-danh-guard';
+import { GuestProfile } from '@/pages/trao-bang/guest-profile/guest-profile';
 
 export const appRoutes: Routes = [
     {
@@ -17,7 +18,7 @@ export const appRoutes: Routes = [
             { path: 'channel', loadChildren: () => import('./app/pages/channel/channel.routes') },
             { path: 'danh-ba', loadChildren: () => import('./app/pages/danh-ba/danh-ba.routes') },
             { path: 'template', loadChildren: () => import('./app/pages/template/template.routes') },
-            { path: 'report', loadChildren:()  => import('./app/pages/report/sms/sms-report.routers')},
+            { path: 'report', loadChildren: () => import('./app/pages/report/sms/sms-report.routers') },
             { path: 'meeting', loadChildren: () => import('./app/pages/meeting/meetings.routes') },
             { path: 'user-management', loadChildren: () => import('./app/pages/user-management/user-management.routes') },
             { path: 'trao-bang', loadChildren: () => import('./app/pages/trao-bang/trao-bang.routes') },
@@ -26,7 +27,13 @@ export const appRoutes: Routes = [
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
         ]
     },
-    { path: 'diem-danh', canActivate: [diemDanhGuard], loadChildren: () => import('./app/pages/diem-danh/diem-danh.routes')  },
+    {
+        path: 'guest',
+        children: [
+            { path: 'trao-bang/profile', component: GuestProfile }
+        ]
+    },
+    { path: 'diem-danh', canActivate: [diemDanhGuard], loadChildren: () => import('./app/pages/diem-danh/diem-danh.routes') },
     { path: 'landing', component: Landing },
     { path: 'notfound', component: Notfound },
     { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },

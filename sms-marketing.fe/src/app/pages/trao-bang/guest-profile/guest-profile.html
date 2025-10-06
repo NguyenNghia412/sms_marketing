@@ -1,0 +1,54 @@
+
+<div class="w-11/12 lg:w-[500px] mx-auto mt-8 rounded-2xl shadow-lg border border-gray-200 bg-white p-6 text-center">
+  <!-- Title -->
+  <h3 class="text-base md:text-lg font-bold text-gray-800 mb-4 flex items-center justify-center gap-2">
+    🎓 MÃ QR NHẬN BẰNG TỐT NGHIỆP
+  </h3>
+
+  <!-- QR Placeholder -->
+  <div
+    class="w-[250px] h-[250px] mx-auto flex items-center justify-center border border-gray-300 text-gray-400 rounded-md mb-4"
+  >
+    <img [src]="data.linkQR" class="w-[250px] h-[250px]" />
+  </div>
+
+  <!-- Download button -->
+  <button
+    pButton
+    type="button"
+    label="TẢI MÃ QR"
+    icon="pi pi-download"
+    severity="primary"
+    class="px-4 py-2 rounded-lg font-medium mb-4 "
+  ></button>
+
+  <!-- Info box -->
+  <div class="bg-gray-50 rounded-lg border border-gray-200 text-left p-4 mb-4 text-sm md:text-base">
+    <div class="flex justify-between mb-2">
+      <span class="font-medium text-gray-600">Họ và tên:</span>
+      <span class="text-gray-800">{{ data.hoVaTen }}</span>
+    </div>
+    <div class="flex justify-between mb-2">
+      <span class="font-medium text-gray-600">Mã sinh viên:</span>
+      <span class="text-gray-800">{{ data.maSoSinhVien }}</span>
+    </div>
+    <div class="flex justify-between mb-2">
+      <span class="font-medium text-gray-600">Khoa:</span>
+      <span class="text-gray-800">{{ data.khoaQuanLy }}</span>
+    </div>
+    <div class="flex justify-between">
+      <span class="font-medium text-gray-600">Ngành:</span>
+      <span class="text-gray-800">{{ data.tenNganhDaoTao }}</span>
+    </div>
+  </div>
+
+  <!-- Queue status -->
+  <div class="bg-yellow-100 text-yellow-800 py-2 px-3 rounded-md font-medium flex items-center justify-center gap-2 mb-2 text-sm md:text-base">
+    <i class="pi pi-hourglass text-yellow-600"></i>
+    ĐANG TRONG HÀNG ĐỢI - VỊ TRÍ: <span class="font-bold">{{ data.order }}</span>
+  </div>
+
+  <div class="text-sm text-gray-600">
+    Khoa đang trao bằng: <span class="font-semibold text-blue-700 text-sm md:text-base">{{ data.tenSubPlan }}</span>
+  </div>
+</div>

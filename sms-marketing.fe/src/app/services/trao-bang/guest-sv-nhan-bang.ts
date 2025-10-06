@@ -1,0 +1,18 @@
+import { IViewGuestSvNhanBang } from '@/models/trao-bang/guest-sv-nhan-bang.models';
+import { ICreateConfigSubPlan, IFindPagingConfigSubPlan, IUpdateConfigSubPlan, IViewRowConfigSubPlan } from '@/models/trao-bang/sub-plan.models';
+import { IBaseResponse, IBaseResponsePaging, IBaseResponseWithData } from '@/shared/models/request-paging.base.models';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class GuestSvNhanBangService {
+    api = '/api/core/trao-bang/sub-plan/sinh-vien-nhan-bang';
+    http = inject(HttpClient);
+
+    getByMssv(mssv: string) {
+        return this.http.get<IBaseResponseWithData<IViewGuestSvNhanBang>>(`${this.api}/${mssv}`);
+    }
+
+}
