@@ -296,5 +296,19 @@ namespace thongbao.be.Controllers.TraoBang
             }
 
         }
+        [Permission(PermissionKeys.SubPlanAdd)]
+        [HttpPost("{idSubPlan}/next-sub-plan")]
+        public ApiResponse TaoSubPlanTiepTheo([FromRoute] int idSubPlan)
+        {
+            try
+            {
+                _subPlanService.NextSubPlan(idSubPlan);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }
