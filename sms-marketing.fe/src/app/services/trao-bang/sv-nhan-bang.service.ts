@@ -62,8 +62,8 @@ export class TraoBangSvService {
         return this.http.put<IBaseResponse>(`${this.api}/${idSubPlan}/trang-thai-sub-plan`, null);
     }
 
-    nextSubPlan(idSubPlan: number) {
-        return this.http.post<IBaseResponse>(`${this.api}/${idSubPlan}/next-sub-plan`, null);
+    nextSubPlan() {
+        return this.http.post<IBaseResponse>(`${this.api}/next-sub-plan`, null);
     }
 
 }

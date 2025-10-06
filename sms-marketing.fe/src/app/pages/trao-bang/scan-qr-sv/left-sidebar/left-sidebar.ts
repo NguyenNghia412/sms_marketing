@@ -16,7 +16,7 @@ export class LeftSidebar {
   subPlanStatuses = SubPlanStatuses
 
   onClickSubPlan(data: IViewScanQrSubPlan) {
-    if (data.trangThai === this.subPlanStatuses.DA_TRAO_BANG) {
+    if (data.trangThai !== this.subPlanStatuses.DANG_TRAO_BANG) {
       this.onChangeSubPlan.emit(data.id)
     }
   }
