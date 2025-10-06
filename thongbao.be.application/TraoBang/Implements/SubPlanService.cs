@@ -585,6 +585,15 @@ namespace thongbao.be.application.TraoBang.Implements
                 IsShow = true
             };
         }
+        public void UpdateTrangThaiSubPlan ( int id)
+        {
+            _logger.LogInformation($"{nameof(UpdateTrangThaiSubPlan)}");
+            var subPlan = _smDbContext.SubPlans.FirstOrDefault(x => x.Id == id && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+            subPlan.TrangThai = TraoBangConstants.DangTraoBang;
+            _smDbContext.SubPlans.Update(subPlan);
+            _smDbContext.SaveChanges();
+        }
         public async Task<List<ViewTienDoNhanBangResponseDto>> GetTienDoNhanBang(ViewTienDoNhanBangRequestDto dto)
         {
             _logger.LogInformation($"{nameof(GetTienDoNhanBang)}, dto= {JsonSerializer.Serialize(dto)} ");
@@ -634,7 +643,9 @@ namespace thongbao.be.application.TraoBang.Implements
                 .AsNoTracking()
                 .CountAsync(x => x.IdSubPlan == idSubPlan && !x.Deleted && x.TrangThai == TraoBangConstants.DaTraoBang);
 
-            var soLuongConLai = soLuongThamGia - soLuongDaTrao;
+            var soLuongConLai = await _smDbContext.TienDoTraoBangs
+                .AsNoTracking()
+                .CountAsync(x => x.IdSubPlan == idSubPlan && !x.Deleted && x.TrangThai == TraoBangConstants.ChuanBi);
 
             return new GetInforSubPlanDto
             {

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Graph.Drives.Item.Items.Item.Workbook.Functions.ImTan;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Query.ExpressionTranslators.Internal;
 using thongbao.be.application.TraoBang.Dtos;
 using thongbao.be.application.TraoBang.Interface;
 using thongbao.be.Attributes;
@@ -184,11 +185,11 @@ namespace thongbao.be.Controllers.TraoBang
         }
         [Permission(PermissionKeys.SubPlanDelete)]
         [HttpDelete("{idSubPlan}/sinh-vien-nhan-bang/{id}")]
-        public ApiResponse DeleteSinhVienNhanBang([FromRoute] int idSubPlan,[FromRoute] int id)
+        public ApiResponse DeleteSinhVienNhanBang([FromRoute] int idSubPlan, [FromRoute] int id)
         {
             try
             {
-                _subPlanService.DeleteSinhVienNhanBang(idSubPlan,id);
+                _subPlanService.DeleteSinhVienNhanBang(idSubPlan, id);
                 return new();
             }
             catch (Exception ex)
@@ -202,7 +203,7 @@ namespace thongbao.be.Controllers.TraoBang
         {
             try
             {
-                var data =await _subPlanService.ShowSinhVienNhanBangInfor(mssv);
+                var data = await _subPlanService.ShowSinhVienNhanBangInfor(mssv);
                 return new(data);
             }
             catch (Exception ex)
@@ -244,7 +245,7 @@ namespace thongbao.be.Controllers.TraoBang
         {
             try
             {
-                 var data =_subPlanService.DiemDanhNhanBang(mssv);
+                var data = _subPlanService.DiemDanhNhanBang(mssv);
                 return new(data);
             }
             catch (Exception ex)
@@ -280,6 +281,20 @@ namespace thongbao.be.Controllers.TraoBang
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.SubPlanUpdate)]
+        [HttpPut("{id}/trang-thai-sub-plan")]
+        public ApiResponse UpdateTrangThaiSubPlan([FromRoute] int id)
+        {
+            try
+            {
+                _subPlanService.UpdateTrangThaiSubPlan(id);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
 
         }
+    }
 }

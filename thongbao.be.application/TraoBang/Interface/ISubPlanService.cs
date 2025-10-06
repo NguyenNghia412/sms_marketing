@@ -29,6 +29,7 @@ namespace thongbao.be.application.TraoBang.Interface
         public DiemDanhNhanBangDto DiemDanhNhanBang(string mssv);
         public  Task<List<ViewTienDoNhanBangResponseDto>> GetTienDoNhanBang(ViewTienDoNhanBangRequestDto dto);
         public  Task<GetInforSubPlanDto> GetInforSubPlan(int idSubPlan);
+        public void UpdateTrangThaiSubPlan(int id);
 
         }
 }
