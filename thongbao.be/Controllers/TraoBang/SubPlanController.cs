@@ -210,5 +210,33 @@ namespace thongbao.be.Controllers.TraoBang
                 return OkException(ex);
             }
         }
+        [AllowAnonymous]
+        [HttpGet("sinh-vien-nhan-bang/{mssv}/next")]
+        public async Task<ApiResponse> GetNextByMssv([FromRoute] string mssv)
+        {
+            try
+            {
+                var data = await _subPlanService.NextSinhVienNhanBang(mssv);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [AllowAnonymous]
+        [HttpGet("sinh-vien-nhan-bang/{mssv}/prev")]
+        public async Task<ApiResponse> GetPrevMssv([FromRoute] string mssv)
+        {
+            try
+            {
+                var data = await _subPlanService.PreviousSinhVienNhanBang(mssv);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

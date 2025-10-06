@@ -10,7 +10,7 @@ namespace thongbao.be.application.TraoBang.Dtos
     {
         public int Id { get; set; }
         public int IdSubPlan { get; set; }
-        public string TenSubPlan { get; set; } = String.Empty;
+        public string OrderSubPlan { get; set; } = String.Empty;
         public string HoVaTen { get; set; } = String.Empty;
         public string Email { get; set; } = String.Empty;
         public string EmailSinhVien { get; set; } = String.Empty;

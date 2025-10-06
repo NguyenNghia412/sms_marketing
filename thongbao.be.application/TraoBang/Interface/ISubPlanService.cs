@@ -24,5 +24,7 @@ namespace thongbao.be.application.TraoBang.Interface
         public  Task UpdateSinhVienNhanBang(UpdateSinhVienNhanBangDto dto);
         public void DeleteSinhVienNhanBang(int idSubPlan, int id);
         public  Task<ViewSinhVienNhanBangDto> ShowSinhVienNhanBangInfor(string mssv);
+        public  Task<ViewSinhVienNhanBangDto> NextSinhVienNhanBang(string mssv);
+        public  Task<ViewSinhVienNhanBangDto> PreviousSinhVienNhanBang(string mssv);
     }
 }

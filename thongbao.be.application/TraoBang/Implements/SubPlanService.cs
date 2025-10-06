@@ -440,9 +440,86 @@ namespace thongbao.be.application.TraoBang.Implements
                 .Where(x => x.IdSubPlan == sinhVien.IdSubPlan && !x.Deleted)
                 .MaxAsync(x => (int?)x.Order) ?? 0;
 
+            var totalSubPlans = await _smDbContext.SubPlans
+                .Where(x => x.IdPlan == subPlan.IdPlan && !x.Deleted)
+                .CountAsync();
+
             var result = _mapper.Map<ViewSinhVienNhanBangDto>(sinhVien);
-            result.TenSubPlan = subPlan.Ten;
+            result.OrderSubPlan = $"{subPlan.Order}/{totalSubPlans}";
             result.Order = $"{sinhVien.Order}/{maxOrder}";
+
+            return result;
+        }
+        public async Task<ViewSinhVienNhanBangDto> NextSinhVienNhanBang(string mssv)
+        {
+            _logger.LogInformation($"{nameof(NextSinhVienNhanBang)}, mssv= {mssv} ");
+
+            var currentSinhVien = await _smDbContext.DanhSachSinhVienNhanBangs
+                .FirstOrDefaultAsync(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower())
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
+
+            var nextSinhVien = await _smDbContext.DanhSachSinhVienNhanBangs
+                .Where(x => !x.Deleted && x.IdSubPlan == currentSinhVien.IdSubPlan && x.Order > currentSinhVien.Order)
+                .OrderBy(x => x.Order)
+                .FirstOrDefaultAsync();
+
+            if (nextSinhVien == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
+            }
+
+            var subPlan = await _smDbContext.SubPlans
+                .FirstOrDefaultAsync(x => x.Id == nextSinhVien.IdSubPlan && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+
+            var maxOrder = await _smDbContext.DanhSachSinhVienNhanBangs
+                .Where(x => x.IdSubPlan == nextSinhVien.IdSubPlan && !x.Deleted)
+                .MaxAsync(x => (int?)x.Order) ?? 0;
+
+            var totalSubPlans = await _smDbContext.SubPlans
+                .Where(x => x.IdPlan == subPlan.IdPlan && !x.Deleted)
+                .CountAsync();
+
+            var result = _mapper.Map<ViewSinhVienNhanBangDto>(nextSinhVien);
+            result.OrderSubPlan = $"{subPlan.Order}/{totalSubPlans}";
+            result.Order = $"{nextSinhVien.Order}/{maxOrder}";
+
+            return result;
+        }
+
+        public async Task<ViewSinhVienNhanBangDto> PreviousSinhVienNhanBang(string mssv)
+        {
+            _logger.LogInformation($"{nameof(PreviousSinhVienNhanBang)}, mssv= {mssv} ");
+
+            var currentSinhVien = await _smDbContext.DanhSachSinhVienNhanBangs
+                .FirstOrDefaultAsync(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower())
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
+
+            var previousSinhVien = await _smDbContext.DanhSachSinhVienNhanBangs
+                .Where(x => !x.Deleted && x.IdSubPlan == currentSinhVien.IdSubPlan && x.Order < currentSinhVien.Order)
+                .OrderByDescending(x => x.Order)
+                .FirstOrDefaultAsync();
+
+            if (previousSinhVien == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
+            }
+
+            var subPlan = await _smDbContext.SubPlans
+                .FirstOrDefaultAsync(x => x.Id == previousSinhVien.IdSubPlan && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+
+            var maxOrder = await _smDbContext.DanhSachSinhVienNhanBangs
+                .Where(x => x.IdSubPlan == previousSinhVien.IdSubPlan && !x.Deleted)
+                .MaxAsync(x => (int?)x.Order) ?? 0;
+
+            var totalSubPlans = await _smDbContext.SubPlans
+                .Where(x => x.IdPlan == subPlan.IdPlan && !x.Deleted)
+                .CountAsync();
+
+            var result = _mapper.Map<ViewSinhVienNhanBangDto>(previousSinhVien);
+            result.OrderSubPlan = $"{subPlan.Order}/{totalSubPlans}";
+            result.Order = $"{previousSinhVien.Order}/{maxOrder}";
 
             return result;
         }
