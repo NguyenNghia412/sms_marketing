@@ -664,7 +664,7 @@ namespace thongbao.be.application.TraoBang.Implements
 
             if (!results.Any())
             {
-                throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
+                return null;
             }
 
             return results.Select(result => new ViewTienDoNhanBangResponseDto
@@ -677,7 +677,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 IsShow = result.IsShow
             }).ToList();
         }
-        public void NextSubPlan()
+        public GetNextSubPlanResponseDto? NextSubPlan()
         {
             _logger.LogInformation($"{nameof(NextSubPlan)}");
 
@@ -689,7 +689,9 @@ namespace thongbao.be.application.TraoBang.Implements
             _smDbContext.SubPlans.Update(currentSubPlan);
 
             var nextSubPlan = _smDbContext.SubPlans
-                .FirstOrDefault(x => x.Order == currentSubPlan.Order + 1 && !x.Deleted);
+                .Where(x => x.TrangThai != TraoBangConstants.DaTraoBang && x.Id != currentSubPlan.Id && !x.Deleted)
+                .OrderBy(x => x.Order)
+                .FirstOrDefault();
 
             if (nextSubPlan != null)
             {
@@ -698,6 +700,15 @@ namespace thongbao.be.application.TraoBang.Implements
             }
 
             _smDbContext.SaveChanges();
+
+            return nextSubPlan != null ? new GetNextSubPlanResponseDto
+            {
+                Id = nextSubPlan.Id,
+                TenSubPlan = nextSubPlan.Ten,
+                TruongKhoa = nextSubPlan.TruongKhoa,
+                Order = nextSubPlan.Order,
+                TrangThai = nextSubPlan.TrangThai
+            } : null;
         }
 
         public async Task<List<GetListSubPlanDto>> GetListSubPlanInfor(int idPlan)

@@ -298,12 +298,12 @@ namespace thongbao.be.Controllers.TraoBang
         }
         [Permission(PermissionKeys.SubPlanAdd)]
         [HttpPost("next-sub-plan")]
-        public ApiResponse TaoSubPlanTiepTheo()
+        public ApiResponse NextSubPlan()
         {
             try
             {
-                _subPlanService.NextSubPlan();
-                return new();
+                var data = _subPlanService.NextSubPlan();
+                return new(data);
             }
             catch (Exception ex)
             {
