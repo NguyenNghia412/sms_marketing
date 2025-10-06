@@ -74,7 +74,10 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.DanhBaErrorDanhSachSoDienThoaiRequired, "Vui lòng cung cấp IdDanhBa hoặc DanhSachSoDienThoai" },
             { ErrorCodes.TraoBangErrorPlanNotFound, "Kế hoạch không tồn tại" },
             { ErrorCodes.TraoBangErrorSubPlanNotFound, "Kế hoạch con không tồn tại" },
-            { ErrorCodes.TraoBangErrorSubPlanOrderInvalid,"Thứ tự kế hoạch con không hợp lệ"}
+            { ErrorCodes.TraoBangErrorSubPlanOrderInvalid,"Thứ tự kế hoạch con không hợp lệ"},
+            { ErrorCodes.TraoBangErrorSinhVienDaTonTai,"Sinh viên trong danh sách nhận bằng đã tồn tại" },
+            { ErrorCodes.TraoBangErrorSinhVienNotFound,"Sinh viên không tồn tại trong danh sách nhận bằng" },
+            { ErrorCodes.TraoBangErrorSinhVienOrderInvalid, "Số thự tự của sinh viên không hợp lệ" },
         };
 
         public static string GetMessage(int code)
