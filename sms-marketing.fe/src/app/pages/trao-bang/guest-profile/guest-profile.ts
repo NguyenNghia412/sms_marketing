@@ -10,7 +10,7 @@ import { ActivatedRoute } from '@angular/router';
   imports: [SharedImports],
   templateUrl: './guest-profile.html',
   styleUrl: './guest-profile.scss'
-})
+})  
 export class GuestProfile extends BaseComponent {
 
   _guestService = inject(GuestSvNhanBangService);
@@ -35,5 +35,10 @@ export class GuestProfile extends BaseComponent {
         this.messageError(err);
       }
     });
+  }
+
+  downloadQr() {
+    const imageUrl = this.data.linkQR || '';
+    this._guestService.downloadQr(imageUrl);
   }
 }

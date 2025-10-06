@@ -15,4 +15,15 @@ export class GuestSvNhanBangService {
         return this.http.get<IBaseResponseWithData<IViewGuestSvNhanBang>>(`${this.api}/${mssv}`);
     }
 
+    downloadQr(imageUrl: string) {
+        this.http.get(imageUrl, { responseType: 'blob' }).subscribe((blob) => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'image.jpg'; // file name
+            a.click();
+            window.URL.revokeObjectURL(url);
+        });
+    }
+
 }
