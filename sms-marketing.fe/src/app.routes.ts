@@ -7,6 +7,8 @@ import { Notfound } from './app/pages/notfound/notfound';
 import { authGuard } from '@/shared/guard/auth-guard';
 import { diemDanhGuard } from '@/shared/guard/diem-danh-guard';
 import { GuestProfile } from '@/pages/trao-bang/guest-profile/guest-profile';
+import { MainScreen } from '@/pages/trao-bang/main-screen/main-screen';
+import { SideScreen } from '@/pages/trao-bang/side-screen/side-screen';
 
 export const appRoutes: Routes = [
     {
@@ -31,6 +33,18 @@ export const appRoutes: Routes = [
         path: 'guest',
         children: [
             { path: 'trao-bang/profile', component: GuestProfile }
+        ]
+    },
+    {
+        path: 'guest',
+        children: [
+            { path: 'trao-bang/main-screen', component: MainScreen }
+        ]
+    },
+    {
+        path: 'guest',
+        children: [
+            { path: 'trao-bang/side-screen', component: SideScreen }
         ]
     },
     { path: 'diem-danh', canActivate: [diemDanhGuard], loadChildren: () => import('./app/pages/diem-danh/diem-danh.routes') },
