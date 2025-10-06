@@ -183,7 +183,7 @@ namespace thongbao.be.Controllers.TraoBang
             }
         }
         [Permission(PermissionKeys.SubPlanDelete)]
-        [HttpDelete("/{idSubPlan}/sinh-vien-nhan-bang/{id}")]
+        [HttpDelete("{idSubPlan}/sinh-vien-nhan-bang/{id}")]
         public ApiResponse DeleteSinhVienNhanBang([FromRoute] int idSubPlan,[FromRoute] int id)
         {
             try
