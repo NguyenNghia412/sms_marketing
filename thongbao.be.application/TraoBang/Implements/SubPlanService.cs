@@ -626,13 +626,26 @@ namespace thongbao.be.application.TraoBang.Implements
                 CapBang = sinhVien.CapBang
             };
         }
-        public void UpdateTrangThaiSubPlan ( int id)
+        public void UpdateTrangThaiSubPlan(int id)
         {
             _logger.LogInformation($"{nameof(UpdateTrangThaiSubPlan)}");
+
             var subPlan = _smDbContext.SubPlans.FirstOrDefault(x => x.Id == id && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+
+            var currentSubPlans = _smDbContext.SubPlans
+                .Where(x => x.TrangThai == TraoBangConstants.DangTraoBang && x.Id != id && !x.Deleted)
+                .ToList();
+
+            foreach (var current in currentSubPlans)
+            {
+                current.TrangThai = TraoBangConstants.ChuanBi;
+                _smDbContext.SubPlans.Update(current);
+            }
+
             subPlan.TrangThai = TraoBangConstants.DangTraoBang;
             _smDbContext.SubPlans.Update(subPlan);
+
             _smDbContext.SaveChanges();
         }
         public async Task<List<ViewTienDoNhanBangResponseDto>> GetTienDoNhanBang(ViewTienDoNhanBangRequestDto dto)
@@ -664,17 +677,19 @@ namespace thongbao.be.application.TraoBang.Implements
                 IsShow = result.IsShow
             }).ToList();
         }
-        public void NextSubPlan(int idSubPlan)
+        public void NextSubPlan()
         {
-            _logger.LogInformation($"{nameof(NextSubPlan)}, idSubPlan= {idSubPlan} ");
-            var subPlan = _smDbContext.SubPlans.FirstOrDefault(x => x.Id == idSubPlan && !x.Deleted)
+            _logger.LogInformation($"{nameof(NextSubPlan)}");
+
+            var currentSubPlan = _smDbContext.SubPlans
+                .FirstOrDefault(x => x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
 
-            subPlan.TrangThai = TraoBangConstants.DaTraoBang;
-            _smDbContext.SubPlans.Update(subPlan);
+            currentSubPlan.TrangThai = TraoBangConstants.DaTraoBang;
+            _smDbContext.SubPlans.Update(currentSubPlan);
 
             var nextSubPlan = _smDbContext.SubPlans
-                .FirstOrDefault(x => x.Order == subPlan.Order + 1 && !x.Deleted);
+                .FirstOrDefault(x => x.Order == currentSubPlan.Order + 1 && !x.Deleted);
 
             if (nextSubPlan != null)
             {
