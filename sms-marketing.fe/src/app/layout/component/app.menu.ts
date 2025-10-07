@@ -112,6 +112,11 @@ export class AppMenu {
                                 label: 'Quét QR',
                                 routerLink: ['/trao-bang/scan-qr-sv'],
                                 visible: true,
+                            },
+                            {
+                                label: 'MC',
+                                routerLink: ['/trao-bang/mc-screen'],
+                                visible: true,
                             }
                         ]
                     }
