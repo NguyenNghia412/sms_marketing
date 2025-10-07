@@ -6,8 +6,8 @@
         <p-tag [severity]="subPlanStatuses.getSeverity(item.trangThai || 0)" class="w-full text-left">
             <div [ngClass]="['w-full py-2 text-base ', (item.trangThai !== subPlanStatuses.DANG_TRAO_BANG && allowChangeSubPlan()) ? 'cursor-pointer' : '' ]"
                 (click)="onClickSubPlan(item)">
-                @if (allowChangeSubPlan() && item.trangThai === subPlanStatuses.DA_TRAO_BANG) {<i class="pi pi-check mr-1"></i>}
-                @if (allowChangeSubPlan() && item.trangThai === subPlanStatuses.DANG_TRAO_BANG) {<i class="pi pi-arrow-right mr-1"></i>}
+                @if (item.trangThai === subPlanStatuses.DA_TRAO_BANG) {<i class="pi pi-check mr-1"></i>}
+                @if (item.trangThai === subPlanStatuses.DANG_TRAO_BANG) {<i class="pi pi-arrow-right mr-1"></i>}
                 {{item.order}}.{{item.ten}} 
                 <span class="text-sm text-gray-500">({{item.tienDo}})</span>
             </div>
