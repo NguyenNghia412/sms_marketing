@@ -325,7 +325,7 @@ namespace thongbao.be.Controllers.TraoBang
             }
         }
         [Permission(PermissionKeys.SubPlanAdd)]
-        [HttpPut("{idSubPlan}/sinh-vien-nhan-bang/{id}/gittrang-thai")]
+        [HttpPut("{idSubPlan}/sinh-vien-nhan-bang/{id}/trang-thai")]
         public ApiResponse UpdateTrangThaiSinhVienNhanBang([FromRoute] int idSubPlan,[FromRoute] int id)
         {
             try

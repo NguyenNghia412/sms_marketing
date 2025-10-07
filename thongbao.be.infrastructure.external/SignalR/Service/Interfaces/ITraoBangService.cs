@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace thongbao.be.infrastructure.external.SignalR.Service.Interfaces
 {
-    internal interface ITraoBangService
+    public interface ITraoBangService
     {
+        Task NotifySinhVienDangTrao(int idSubPlan, int id);
     }
 }

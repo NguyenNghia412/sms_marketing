@@ -5,17 +5,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using thongbao.be.infrastructure.external.SignalR.Hub.Implements;
+using thongbao.be.infrastructure.external.SignalR.Hub.Interfaces;
 using thongbao.be.infrastructure.external.SignalR.Service.Interfaces;
 
 namespace thongbao.be.infrastructure.external.SignalR.Service.Implements
 {
-    internal class TraoBangService: ITraoBangService
+    public class TraoBangService : ITraoBangService
     {
-        private readonly IHubContext<TraoBangHub> _hubContext;
+        private readonly IHubContext<TraoBangHub, ITraoBangHub> _hubContext;
 
-        public TraoBangService(IHubContext<TraoBangHub> hubContext)
+        public TraoBangService(IHubContext<TraoBangHub, ITraoBangHub> hubContext)
         {
             _hubContext = hubContext;
+        }
+
+        public async Task NotifySinhVienDangTrao(int idSubPlan, int id)
+        {
+            await _hubContext.Clients.All.ReceiveSinhVienDangTrao(idSubPlan, id);
         }
     }
 }
