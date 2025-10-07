@@ -1,11 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { LeftSidebar } from "./left-sidebar/left-sidebar";
 import { StudentList } from "./student-list/student-list";
 import { SharedImports } from '@/shared/import.shared';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { TraoBangSvService } from '@/services/trao-bang/sv-nhan-bang.service';
-import { SubPlanStatuses } from '@/shared/constants/sv-nhan-bang.constants';
+import { SubPlanStatuses, TraoBangConst } from '@/shared/constants/sv-nhan-bang.constants';
 import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IViewSvDangTraoBang } from '@/models/trao-bang/sv-nhan-bang.models';
+import * as signalR from '@microsoft/signalr';
 
 @Component({
   selector: 'app-mc-screen',
@@ -13,8 +14,9 @@ import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IVi
   templateUrl: './mc-screen.html',
   styleUrl: './mc-screen.scss'
 })
-export class McScreen extends BaseComponent {
+export class McScreen extends BaseComponent implements OnDestroy {
 
+  hubConnection: signalR.HubConnection | undefined;
   _svTraoBangService = inject(TraoBangSvService);
   idSubPlan: number = 0;
   currentSubPlanInfo: IViewScanQrCurrentSubPlan = {};
@@ -24,6 +26,7 @@ export class McScreen extends BaseComponent {
 
   override ngOnInit(): void {
     this.initData();
+    this.connectHub();
   }
 
   initData() {
@@ -45,7 +48,7 @@ export class McScreen extends BaseComponent {
     this.getSvDangTrao();
   }
 
-   getListSubPlan() {
+  getListSubPlan() {
     this._svTraoBangService.getQrListSubPlan(1).subscribe({
       next: res => {
         if (this.isResponseSucceed(res)) {
@@ -92,5 +95,40 @@ export class McScreen extends BaseComponent {
       }
     })
   }
+
+   connectHub() {
+      const hubUrl = TraoBangConst.HUB;
+      console.log(hubUrl)
+      this.hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl(hubUrl, {
+          skipNegotiation: true,
+          transport: signalR.HttpTransportType.WebSockets,
+        })
+        .build();
+  
+      this.hubConnection.on('ReceiveChonKhoa', (...args) => {
+        console.log(args)
+        const idSubPlan = args[0];
+
+        if (!idSubPlan) return;
+        
+        this.initData();
+      });
+
+      this.hubConnection.on('ReceiveCheckIn', (...args) => {
+        console.log(args)
+        const mssv = args[0];
+
+        if (!mssv) return;
+        
+        this.getHangDoi();
+      });
+  
+      this.hubConnection.start().then();
+    }
+  
+    ngOnDestroy(): void {
+      this.hubConnection?.stop().then();
+    }
 
 }

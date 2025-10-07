@@ -1,3 +1,5 @@
+import { environment } from "src/environments/environment";
+
 export class SvNhanBangStatuses {
     static XEP_HANG = 1;
     static CHUAN_BI = 2;
@@ -54,4 +56,8 @@ export class SubPlanStatuses {
         return typeof found != 'undefined' ? found.name : '';
     }
 
+}
+
+export class TraoBangConst {
+    static HUB = environment.baseUrl + '/hub/trao-bang'
 }
