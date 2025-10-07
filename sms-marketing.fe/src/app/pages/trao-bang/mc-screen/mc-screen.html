@@ -16,10 +16,10 @@
             <div class="border rounded-lg bg-green-50 border-green-300 p-4 flex items-center mb-3">
                 <!-- Info -->
                 <div class="ml-4 space-y-1">
-                    <div class="font-bold text-lg">NGUYỄN VĂN A</div>
-                    <div><span class="font-semibold">MSSV:</span> 2021600123</div>
-                    <div><span class="font-semibold">Khoa:</span> Cơ khí</div>
-                    <div><span class="font-semibold">Ngành:</span> Kỹ thuật Cơ khí</div>
+                    <div class="font-bold text-lg">{{ svDangTrao.hoVaTen }}</div>
+                    <div><span class="font-semibold">MSSV:</span>{{ svDangTrao.maSoSinhVien  }}</div>
+                    <div><span class="font-semibold">Khoa:</span> {{ svDangTrao.tenSubPlan }}</div>
+                    <div><span class="font-semibold">Ngành:</span> {{ svDangTrao.tenNganhDaoTao }}</div>
                 </div>
             </div>
 
@@ -41,7 +41,7 @@
 
             <!-- Footer info -->
             <div class="text-center text-sm text-gray-500 mt-4">
-                Đang chờ: <span class="font-semibold">12</span> | Đã trao: <span class="font-semibold">45/98</span>
+                Đang chờ: <span class="font-semibold">{{ currentSubPlanInfo.soLuongConLai }}</span> | Đã trao: <span class="font-semibold">{{currentSubPlanInfo.soLuongDaTrao}}/{{currentSubPlanInfo.soLuongThamGia}}</span>
             </div>
         </div>
 

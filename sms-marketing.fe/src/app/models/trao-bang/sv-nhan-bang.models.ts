@@ -81,3 +81,14 @@ export interface IViewScanQrSubPlan {
     tienDo?: string;
     trangThai?: number;
 }
+
+export interface IViewSvDangTraoBang {
+    id?: number;
+    hoVaTen?: string;
+    capBang?: string;
+    tenNganhDaoTao?: string;
+    thanhTich?: string;
+    xepHang?: string;
+    maSoSinhVien?: string;
+    tenSubPlan?: string;
+}

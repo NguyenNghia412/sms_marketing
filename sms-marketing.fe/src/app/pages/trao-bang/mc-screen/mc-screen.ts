@@ -5,7 +5,7 @@ import { SharedImports } from '@/shared/import.shared';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { TraoBangSvService } from '@/services/trao-bang/sv-nhan-bang.service';
 import { SubPlanStatuses } from '@/shared/constants/sv-nhan-bang.constants';
-import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv } from '@/models/trao-bang/sv-nhan-bang.models';
+import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IViewSvDangTraoBang } from '@/models/trao-bang/sv-nhan-bang.models';
 
 @Component({
   selector: 'app-mc-screen',
@@ -20,7 +20,7 @@ export class McScreen extends BaseComponent {
   currentSubPlanInfo: IViewScanQrCurrentSubPlan = {};
   students: IViewScanQrTienDoSv[] = [];
   listSubPlan: IViewScanQrSubPlan[] = [];
-  pushedSuccessSv: IViewScanQrTienDoSv = {};
+  svDangTrao: IViewSvDangTraoBang = {};
 
   override ngOnInit(): void {
     this.initData();
@@ -42,6 +42,7 @@ export class McScreen extends BaseComponent {
         }
       }
     })
+    this.getSvDangTrao();
   }
 
    getListSubPlan() {
@@ -77,6 +78,16 @@ export class McScreen extends BaseComponent {
           this.students = res.data
         } else {
           this.students = [];
+        }
+      }
+    })
+  }
+
+  getSvDangTrao() {
+    this._svTraoBangService.getSvDangTraoBang().subscribe({
+      next: res => {
+        if (this.isResponseSucceed(res)) {
+          this.svDangTrao = res.data
         }
       }
     })

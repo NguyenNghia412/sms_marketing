@@ -3,3 +3,55 @@
 @use './layout/layout.scss';
 @use 'primeicons/primeicons.css';
 @use './demo/demo.scss';
+
+
+@font-face {
+  font-family: 'svn-snell';
+  src: url('../assets/fonts/SVN-SNELL\ ROUNDHAND\ SCRIPT.TTF');
+}
+
+@font-face {
+  font-family: 'svn-snell-bold';
+  src: url('../assets/fonts/SVN-SNELL\ ROUNDHAND\ SCRIPT\ BOLD.TTF');
+}
+
+@font-face {
+  font-family: 'avo';
+  src: url('../assets/fonts/UTM\ AVO.TTF');
+}
+
+@font-face {
+  font-family: 'avo-bold';
+  src: url('../assets/fonts/UTM\ AVOBOLD.TTF');
+}
+
+@font-face {
+  font-family: 'avo-bold-italic';
+  src: url('../assets/fonts/UTM\ AVOBOLD_ITALIC.TTF');
+}
+
+@font-face {
+  font-family: 'avo-italic';
+  src: url('../assets/fonts/UTM\ AVOITALIC.TTF');
+}
+
+@font-face {
+  font-family: 'helvetins';
+  src: url('../assets/fonts/UTM\ HELVETINS.TTF');
+}
+
+.font-snell {
+    font-family: 'svn-snell';
+}
+
+.font-helvetins {
+    font-family: 'helvetins';
+}
+
+.font-avo {
+    font-family: 'avo';
+}
+
+.font-avo-bold {
+    font-family: 'avo-bold';
+}
