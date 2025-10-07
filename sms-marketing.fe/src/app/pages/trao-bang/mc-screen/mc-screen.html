@@ -1,0 +1,52 @@
+<div class="flex flex-col lg:flex-row gap-3 p-3">
+    <!-- LEFT SIDEBAR -->
+    <div class="w-full lg:w-1/4 bg-white rounded-xl shadow p-3">
+        <app-left-sidebar [data]="listSubPlan" />
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="w-full lg:w-3/4 flex flex-col gap-3">
+        <div class="p-4 bg-white rounded-xl shadow">
+            <!-- Title -->
+            <div class="text-gray-700 font-semibold mb-2">
+                <i class="pi pi-angle-right mr-2 text-sm"></i> ĐANG TRAO BẰNG
+            </div>
+
+            <!-- Student Info Card -->
+            <div class="border rounded-lg bg-green-50 border-green-300 p-4 flex items-center mb-3">
+                <!-- Info -->
+                <div class="ml-4 space-y-1">
+                    <div class="font-bold text-lg">NGUYỄN VĂN A</div>
+                    <div><span class="font-semibold">MSSV:</span> 2021600123</div>
+                    <div><span class="font-semibold">Khoa:</span> Cơ khí</div>
+                    <div><span class="font-semibold">Ngành:</span> Kỹ thuật Cơ khí</div>
+                </div>
+            </div>
+
+            <!-- Next student -->
+            <div class="border border-yellow-400 bg-yellow-50 text-sm p-3 rounded-md mb-4">
+                <div class="font-semibold text-yellow-800 mb-1">
+                    <i class="pi pi-chevron-right mr-2 text-xs"></i> KẾ TIẾP
+                </div>
+                <div>Trần Thị B - 2021600124 - Cơ khí</div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-between items-center">
+                <p-button label="VỀ TRƯỚC" icon="pi pi-angle-left" styleClass="p-button-secondary w-[150px]"></p-button>
+
+                <p-button label="KẾ TIẾP" iconPos="right" icon="pi pi-angle-right"
+                    styleClass="p-button-success w-[150px]"></p-button>
+            </div>
+
+            <!-- Footer info -->
+            <div class="text-center text-sm text-gray-500 mt-4">
+                Đang chờ: <span class="font-semibold">12</span> | Đã trao: <span class="font-semibold">45/98</span>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-4">
+            <app-student-list [students]="students" />
+        </div>
+    </div>
+</div>
