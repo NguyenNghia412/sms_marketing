@@ -367,5 +367,20 @@ namespace thongbao.be.Controllers.TraoBang
                 return OkException(ex);
             }
         }
+
+        [Permission(PermissionKeys.SubPlanAdd)]
+        [HttpPost("sinh-vien-nhan-bang/next-trao-bang")]
+        public async Task<ApiResponse> NextSinhVienTraoBang(int idSubPlan)
+        {
+            try
+            {
+                var data = await _subPlanService.NextSinhVienTraoBang( idSubPlan);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }
