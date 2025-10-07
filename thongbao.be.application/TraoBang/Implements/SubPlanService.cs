@@ -432,7 +432,7 @@ namespace thongbao.be.application.TraoBang.Implements
             _logger.LogInformation($"{nameof(ShowSinhVienNhanBangInfor)}, mssv= {mssv} ");
 
             var sinhVien = await _smDbContext.DanhSachSinhVienNhanBangs
-                .FirstOrDefaultAsync(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower())
+                .FirstOrDefaultAsync(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower() && x.TrangThai == TraoBangConstants.ThamGiaTraoBang)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
 
             var subPlan = await _smDbContext.SubPlans
@@ -465,11 +465,11 @@ namespace thongbao.be.application.TraoBang.Implements
             _logger.LogInformation($"{nameof(NextSinhVienNhanBang)}, mssv= {mssv} ");
 
             var currentSinhVien = await _smDbContext.DanhSachSinhVienNhanBangs
-                .FirstOrDefaultAsync(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower())
+                .FirstOrDefaultAsync(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower() && x.TrangThai == TraoBangConstants.ThamGiaTraoBang)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
 
             var nextSinhVien = await _smDbContext.DanhSachSinhVienNhanBangs
-                .Where(x => !x.Deleted && x.IdSubPlan == currentSinhVien.IdSubPlan && x.Order > currentSinhVien.Order)
+                .Where(x => !x.Deleted && x.IdSubPlan == currentSinhVien.IdSubPlan && x.Order > currentSinhVien.Order && x.TrangThai == TraoBangConstants.ThamGiaTraoBang)
                 .OrderBy(x => x.Order)
                 .FirstOrDefaultAsync();
 
@@ -479,15 +479,15 @@ namespace thongbao.be.application.TraoBang.Implements
             }
 
             var subPlan = await _smDbContext.SubPlans
-                .FirstOrDefaultAsync(x => x.Id == nextSinhVien.IdSubPlan && !x.Deleted)
+                .FirstOrDefaultAsync(x => x.Id == nextSinhVien.IdSubPlan && !x.Deleted )
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
 
             var maxOrder = await _smDbContext.DanhSachSinhVienNhanBangs
-                .Where(x => x.IdSubPlan == nextSinhVien.IdSubPlan && !x.Deleted)
+                .Where(x => x.IdSubPlan == nextSinhVien.IdSubPlan && !x.Deleted && x.TrangThai == TraoBangConstants.ThamGiaTraoBang)
                 .MaxAsync(x => (int?)x.Order) ?? 0;
 
             var minOrder = await _smDbContext.DanhSachSinhVienNhanBangs
-                .Where(x => x.IdSubPlan == nextSinhVien.IdSubPlan && !x.Deleted)
+                .Where(x => x.IdSubPlan == nextSinhVien.IdSubPlan && !x.Deleted && x.TrangThai == TraoBangConstants.ThamGiaTraoBang)
                 .MinAsync(x => (int?)x.Order) ?? 0;
 
             var totalSubPlans = await _smDbContext.SubPlans
@@ -508,11 +508,11 @@ namespace thongbao.be.application.TraoBang.Implements
             _logger.LogInformation($"{nameof(PreviousSinhVienNhanBang)}, mssv= {mssv} ");
 
             var currentSinhVien = await _smDbContext.DanhSachSinhVienNhanBangs
-                .FirstOrDefaultAsync(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower())
+                .FirstOrDefaultAsync(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower() && x.TrangThai == TraoBangConstants.ThamGiaTraoBang)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
 
             var previousSinhVien = await _smDbContext.DanhSachSinhVienNhanBangs
-                .Where(x => !x.Deleted && x.IdSubPlan == currentSinhVien.IdSubPlan && x.Order < currentSinhVien.Order)
+                .Where(x => !x.Deleted && x.IdSubPlan == currentSinhVien.IdSubPlan && x.Order < currentSinhVien.Order && x.TrangThai == TraoBangConstants.ThamGiaTraoBang)
                 .OrderByDescending(x => x.Order)
                 .FirstOrDefaultAsync();
 
@@ -522,15 +522,15 @@ namespace thongbao.be.application.TraoBang.Implements
             }
 
             var subPlan = await _smDbContext.SubPlans
-                .FirstOrDefaultAsync(x => x.Id == previousSinhVien.IdSubPlan && !x.Deleted)
+                .FirstOrDefaultAsync(x => x.Id == previousSinhVien.IdSubPlan && !x.Deleted )
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
 
             var maxOrder = await _smDbContext.DanhSachSinhVienNhanBangs
-                .Where(x => x.IdSubPlan == previousSinhVien.IdSubPlan && !x.Deleted)
+                .Where(x => x.IdSubPlan == previousSinhVien.IdSubPlan && !x.Deleted && x.TrangThai == TraoBangConstants.ThamGiaTraoBang)
                 .MaxAsync(x => (int?)x.Order) ?? 0;
 
             var minOrder = await _smDbContext.DanhSachSinhVienNhanBangs
-                .Where(x => x.IdSubPlan == previousSinhVien.IdSubPlan && !x.Deleted)
+                .Where(x => x.IdSubPlan == previousSinhVien.IdSubPlan && !x.Deleted && x.TrangThai == TraoBangConstants.ThamGiaTraoBang)
                 .MinAsync(x => (int?)x.Order) ?? 0;
 
             var totalSubPlans = await _smDbContext.SubPlans
