@@ -7,6 +7,7 @@ import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IVi
 import * as signalR from '@microsoft/signalr';
 import { LeftSidebar } from '../scan-qr-sv/left-sidebar/left-sidebar';
 import { StudentList } from '../scan-qr-sv/student-list/student-list';
+import { concatMap } from 'rxjs';
 
 @Component({
   selector: 'app-mc-screen',
@@ -22,7 +23,8 @@ export class McScreen extends BaseComponent implements OnDestroy {
   currentSubPlanInfo: IViewScanQrCurrentSubPlan = {};
   students: IViewScanQrTienDoSv[] = [];
   listSubPlan: IViewScanQrSubPlan[] = [];
-  svDangTrao: IViewSvDangTraoBang = {};
+  svDangTrao: IViewSvDangTraoBang | null = {};
+  svChuanBi: IViewSvDangTraoBang | null = {};
 
   override ngOnInit(): void {
     this.initData();
@@ -75,25 +77,36 @@ export class McScreen extends BaseComponent implements OnDestroy {
   }
 
   getHangDoi() {
-    this._svTraoBangService.getHangDoi({ IdSubPlan: this.idSubPlan, SoLuong: 7 }).subscribe({
-      next: res => {
-        if (this.isResponseSucceed(res)) {
-          this.students = res.data
-        } else {
-          this.students = [];
+    this._svTraoBangService.getHangDoi({ IdSubPlan: this.idSubPlan, SoLuong: 7 })
+      .pipe(
+        concatMap(res => {
+          if (this.isResponseSucceed(res)) {
+            this.students = res.data
+          } else {
+            this.students = [];
+          }
+          return this._svTraoBangService.getSvChuanBi(this.idSubPlan);
+        })
+      )
+      .subscribe({
+        next: res => {
+          if (this.isResponseSucceed(res)) {
+            this.svChuanBi = res.data
+          }
         }
-      }
-    })
+      })
   }
 
   getSvDangTrao() {
-    this._svTraoBangService.getSvDangTraoBang().subscribe({
-      next: res => {
-        if (this.isResponseSucceed(res)) {
-          this.svDangTrao = res.data
+    this._svTraoBangService.getSvDangTraoBang()
+      .subscribe({
+        next: res => {
+          if (this.isResponseSucceed(res)) {
+            this.svDangTrao = res.data
+          }
+          return this._svTraoBangService.getSvChuanBi(this.idSubPlan);
         }
-      }
-    })
+      })
   }
 
   nextTraoBang() {

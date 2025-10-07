@@ -122,8 +122,8 @@ export class ScanQrSv extends BaseComponent implements OnDestroy {
         next: res => {
           if (this.isResponseSucceed(res)) {
             this.idSubPlan = idSubPlan;
-            this.getHangDoi();
             this.getListSubPlan();
+            this.getHangDoi();
             this.getCurrentSubPlan();
           }
         }
