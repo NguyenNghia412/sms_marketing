@@ -878,8 +878,7 @@ namespace thongbao.be.application.TraoBang.Implements
                     .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
 
                 await _traoBangService.NotifySinhVienDangTrao(idSubPlan, sinhVienDauTien.Id);
-                await _traoBangService.NotifyNextSinhVienTraoBang(idSubPlan);
-
+              
                 return new GetSinhVienDangTraoBangInforDto
                 {
                     TenSubPlan = subPlan?.Ten ?? string.Empty,
@@ -923,7 +922,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
 
             await _traoBangService.NotifySinhVienDangTrao(idSubPlan, sinhVienTiepTheo.Id);
-            await _traoBangService.NotifyNextSinhVienTraoBang(idSubPlan);
+          
 
             return new GetSinhVienDangTraoBangInforDto
             {
@@ -936,6 +935,49 @@ namespace thongbao.be.application.TraoBang.Implements
                 ThanhTich = sinhVienInfoTiepTheo?.ThanhTich ?? string.Empty,
                 CapBang = sinhVienInfoTiepTheo?.CapBang ?? string.Empty,
                 Note = sinhVienInfoTiepTheo?.Note ?? string.Empty
+            };
+        }
+        // GetInFor sinh viên được trao bằng tiếp theo 
+        public async Task<GetInforSinhVienChuanBiDuocTraoBangResponseDto?> GetInforSinhVienChuanBiDuocTraoBang(int idSubPlan)
+        {
+            _logger.LogInformation($"{nameof(GetInforSinhVienChuanBiDuocTraoBang)}, idSubPlan= {idSubPlan} ");
+            var subPlan = await _smDbContext.SubPlans
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+
+            var sinhVienTiepTheo = await _smDbContext.TienDoTraoBangs
+                .Where(x => x.IdSubPlan == idSubPlan
+                            && x.TrangThai == TraoBangConstants.ChuanBi
+                            && !x.Deleted)
+                .OrderBy(x => x.Order)
+                .FirstOrDefaultAsync();
+
+            if (sinhVienTiepTheo == null)
+            {
+                return null;
+            }
+
+            var sinhVienInfor = await _smDbContext.DanhSachSinhVienNhanBangs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == sinhVienTiepTheo.IdSinhVienNhanBang && !x.Deleted);
+
+            if (sinhVienInfor == null)
+            {
+                return null;
+            }
+
+            return new GetInforSinhVienChuanBiDuocTraoBangResponseDto
+            {
+                TenSubPlan = subPlan?.Ten ?? string.Empty,
+                Id = sinhVienInfor.Id,
+                HoVaTen = sinhVienInfor?.HoVaTen ?? string.Empty,
+                MaSoSinhVien = sinhVienInfor?.MaSoSinhVien ?? string.Empty,
+                TenNganhDaoTao = sinhVienInfor?.TenNganhDaoTao ?? string.Empty,
+                XepHang = sinhVienInfor?.XepHang ?? string.Empty,
+                ThanhTich = sinhVienInfor?.ThanhTich ?? string.Empty,
+                CapBang = sinhVienInfor?.CapBang ?? string.Empty,
+                Note = sinhVienInfor?.Note ?? string.Empty
             };
         }
         public async Task<ImportDanhSachSinhVienNhanBangResponseDto> ImportDanhSachNhanBang(ImportDanhSachSinhVienNhanBangDto dto)

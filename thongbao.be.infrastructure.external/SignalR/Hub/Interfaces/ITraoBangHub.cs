@@ -12,7 +12,7 @@ namespace thongbao.be.infrastructure.external.SignalR.Hub.Interfaces
         public Task ReceiveChonKhoa(int idSubPlan);
         public Task ReceiveChuyenKhoa();
         public Task ReceiveCheckIn(string mssv);
-        public Task ReceiveNextSinhVienTraoBang( int idSubPlan);
+     
 
     }
 }

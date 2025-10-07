@@ -35,5 +35,6 @@ namespace thongbao.be.infrastructure.external.SignalR.Service.Implements
         {
             await _hubContext.Clients.All.ReceiveCheckIn( mssv);
         }
+       
     }
 }
