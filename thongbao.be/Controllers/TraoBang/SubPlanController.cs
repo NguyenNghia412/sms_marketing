@@ -339,12 +339,12 @@ namespace thongbao.be.Controllers.TraoBang
             }
         }
         [AllowAnonymous]
-        [HttpGet("{idSubPlan}/infor-sinh-vien-dang-trao")]
-        public async Task<ApiResponse> GetInforSinhVienDangTrao([FromRoute]int idSubPlan)
+        [HttpGet("infor-sinh-vien-dang-trao")]
+        public async Task<ApiResponse> GetInforSinhVienDangTrao()
         {
             try
             {
-                var data = await _subPlanService.GetSinhVienDangTraoBang(idSubPlan);
+                var data = await _subPlanService.GetSinhVienDangTraoBang();
                 return new(data);
             }
             catch (Exception ex)
