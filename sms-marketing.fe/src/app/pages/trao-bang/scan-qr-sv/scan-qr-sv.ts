@@ -1,6 +1,6 @@
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { SharedImports } from '@/shared/import.shared';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { LeftSidebar } from "./left-sidebar/left-sidebar";
 import { Header } from "./header/header";
@@ -9,7 +9,8 @@ import { Footer } from "./footer/footer";
 import { TraoBangSvService } from '@/services/trao-bang/sv-nhan-bang.service';
 import { DialogMssv } from './dialog-mssv/dialog-mssv';
 import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv } from '@/models/trao-bang/sv-nhan-bang.models';
-import { SubPlanStatuses } from '@/shared/constants/sv-nhan-bang.constants';
+import { SubPlanStatuses, TraoBangHubConst } from '@/shared/constants/sv-nhan-bang.constants';
+import * as signalR from '@microsoft/signalr';
 
 @Component({
   selector: 'app-scan-qr-sv',
@@ -17,7 +18,9 @@ import { SubPlanStatuses } from '@/shared/constants/sv-nhan-bang.constants';
   templateUrl: './scan-qr-sv.html',
   styleUrl: './scan-qr-sv.scss'
 })
-export class ScanQrSv extends BaseComponent {
+export class ScanQrSv extends BaseComponent implements OnDestroy {
+
+  hubConnection: signalR.HubConnection | undefined;
 
   _svTraoBangService = inject(TraoBangSvService);
   idSubPlan: number = 0;
@@ -28,6 +31,7 @@ export class ScanQrSv extends BaseComponent {
 
   override ngOnInit(): void {
     this.initData();
+    this.connectHub();
   }
 
   initData() {
@@ -76,7 +80,7 @@ export class ScanQrSv extends BaseComponent {
   }
 
   getHangDoi() {
-    this._svTraoBangService.getHangDoi({ IdSubPlan: this.idSubPlan, SoLuong: 10 }).subscribe({
+    this._svTraoBangService.getHangDoi({ IdSubPlan: this.idSubPlan, SoLuong: 7 }).subscribe({
       next: res => {
         if (this.isResponseSucceed(res)) {
           this.students = res.data
@@ -131,15 +135,39 @@ export class ScanQrSv extends BaseComponent {
 
   onNextSubPlan() {
     this.loading = true;
-      this._svTraoBangService.nextSubPlan().subscribe({
-        next: res => {
-          if (this.isResponseSucceed(res)) {
-            this.initData();
-          }
+    this._svTraoBangService.nextSubPlan().subscribe({
+      next: res => {
+        if (this.isResponseSucceed(res)) {
+          this.initData();
         }
-      }).add(() => {
-        this.loading = false;
+      }
+    }).add(() => {
+      this.loading = false;
+    })
+  }
+
+  connectHub() {
+    const hubUrl = TraoBangHubConst.HUB;
+    this.hubConnection = new signalR.HubConnectionBuilder()
+      .withUrl(hubUrl, {
+        skipNegotiation: true,
+        transport: signalR.HttpTransportType.WebSockets,
       })
+      .build();
+
+    this.hubConnection.on(TraoBangHubConst.ReceiveSinhVienDangTrao, (...args) => {
+      const idSubPlan = args[0];
+
+      if (!idSubPlan) return;
+
+      this.initData();
+    });
+
+    this.hubConnection.start().then();
+  }
+
+  ngOnDestroy(): void {
+    this.hubConnection?.stop().then();
   }
 
 }

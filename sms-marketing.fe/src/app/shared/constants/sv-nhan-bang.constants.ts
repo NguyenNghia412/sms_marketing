@@ -58,6 +58,9 @@ export class SubPlanStatuses {
 
 }
 
-export class TraoBangConst {
+export class TraoBangHubConst {
     static HUB = environment.baseUrl + '/hub/trao-bang'
+    static ReceiveSinhVienDangTrao = 'ReceiveSinhVienDangTrao'
+    static ReceiveChonKhoa = 'ReceiveChonKhoa'
+    static ReceiveCheckIn = 'ReceiveCheckIn'
 }
