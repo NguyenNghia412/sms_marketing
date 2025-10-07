@@ -6,13 +6,8 @@ using System.Threading.Tasks;
 
 namespace thongbao.be.application.TraoBang.Dtos
 {
-    public class GetListSubPlanDto
+    public class GetTienDoTraoBangResponseDto
     {
-        public int Id { get; set; }
-        public string Ten { get; set; } = String.Empty;
         public string TienDo { get; set; } = String.Empty;
-        public int Order { get; set; }
-        public int TrangThai { get; set; }
     }
-
 }

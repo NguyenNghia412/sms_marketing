@@ -16,5 +16,6 @@ namespace thongbao.be.application.TraoBang.Dtos
         public string XepHang { get; set; } = String.Empty;
         public string ThanhTich { get; set; } = String.Empty;
         public string CapBang { get; set; } = String.Empty;
+        public string Note { get; set; } = String.Empty;
     }
 }

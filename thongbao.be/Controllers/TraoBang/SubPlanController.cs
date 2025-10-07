@@ -352,5 +352,20 @@ namespace thongbao.be.Controllers.TraoBang
                 return OkException(ex);
             }
         }
+
+        [Permission(PermissionKeys.SubPlanView)]
+        [HttpGet("tien-do-trao-bang")]
+        public async Task<ApiResponse> GetTienDoTraoBang()
+        {
+            try
+            {
+                var data = await _subPlanService.GetTienDoTraoBang();
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

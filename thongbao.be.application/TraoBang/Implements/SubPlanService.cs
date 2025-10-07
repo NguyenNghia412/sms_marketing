@@ -633,7 +633,8 @@ namespace thongbao.be.application.TraoBang.Implements
                 TenNganhDaoTao = sinhVien.TenNganhDaoTao,
                 XepHang = sinhVien.XepHang,
                 ThanhTich = sinhVien.ThanhTich,
-                CapBang = sinhVien.CapBang
+                CapBang = sinhVien.CapBang,
+                Note = sinhVien.Note ?? "",
             };
         }
         public async Task UpdateTrangThaiSubPlan(int id)
@@ -662,7 +663,10 @@ namespace thongbao.be.application.TraoBang.Implements
         public async Task<List<ViewTienDoNhanBangResponseDto>> GetTienDoNhanBang(ViewTienDoNhanBangRequestDto dto)
         {
             _logger.LogInformation($"{nameof(GetTienDoNhanBang)}, dto= {JsonSerializer.Serialize(dto)} ");
-
+            var sinhVien = _smDbContext.DanhSachSinhVienNhanBangs
+                .AsNoTracking()
+                .FirstOrDefault(x => !x.Deleted && x.IdSubPlan == dto.IdSubPlan )
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
             var results = await _smDbContext.TienDoTraoBangs
                 .AsNoTracking()
                 .Where(x => !x.Deleted
@@ -683,7 +687,10 @@ namespace thongbao.be.application.TraoBang.Implements
                 Id = result.Id,
                 HoVaTen = result.HoVaTen,
                 MaSoSinhVien = result.MaSoSinhVien,
+                CapBang = sinhVien.CapBang,
+                TenNganhDaoTao = sinhVien.TenNganhDaoTao,
                 TrangThai = result.TrangThai,
+                Note = sinhVien.Note ?? "",
                 Order = result.Order,
                 IsShow = result.IsShow
             }).ToList();
@@ -754,6 +761,7 @@ namespace thongbao.be.application.TraoBang.Implements
                     Id = subPlan.Id,
                     Ten = subPlan.Ten,
                     TrangThai = subPlan.TrangThai,
+                    Order = subPlan.Order,
                     TienDo = tienDo
                 });
             }
@@ -795,7 +803,22 @@ namespace thongbao.be.application.TraoBang.Implements
             };
            
         }
+        
 
+        //Get số sinh viên đã trao/ tổng số sinh viên tham dự
+        public async Task<GetTienDoTraoBangResponseDto> GetTienDoTraoBang()
+        {
+            var sinhVienDaTrao = await _smDbContext.TienDoTraoBangs
+                .AsNoTracking()
+                .CountAsync(x => x.TrangThai == TraoBangConstants.DaTraoBang && !x.Deleted);
+            var tongSinhVienThamGiaTraoBang = await _smDbContext.DanhSachSinhVienNhanBangs
+                .AsNoTracking()
+                .CountAsync(x => x.TrangThai == TraoBangConstants.ThamGiaTraoBang && !x.Deleted);
+            return new GetTienDoTraoBangResponseDto
+            {
+                TienDo = $"{sinhVienDaTrao}/{tongSinhVienThamGiaTraoBang}"
+            };
+        }
         public async Task<ImportDanhSachSinhVienNhanBangResponseDto> ImportDanhSachNhanBang(ImportDanhSachSinhVienNhanBangDto dto)
         {
             _logger.LogInformation($"{nameof(ImportDanhSachNhanBang)}, dto= {JsonSerializer.Serialize(dto)} ");
