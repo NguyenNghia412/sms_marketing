@@ -11,6 +11,7 @@ import { TagModule } from 'primeng/tag';
 })
 export class LeftSidebar {
   data = input.required<IViewScanQrSubPlan[]>();
+  allowChangeSubPlan = input<boolean>();
   onChangeSubPlan = output<number | null | undefined>()
 
   subPlanStatuses = SubPlanStatuses

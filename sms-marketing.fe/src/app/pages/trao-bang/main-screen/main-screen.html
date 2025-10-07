@@ -1,39 +1,20 @@
-<div class="w-full mx-auto bg-white text-center flex flex-col justify-between h-[100vh] max-h-[100vh]: overflow-hidden">
-    <!-- header -->
-    <div class="flex flex-row justify-center items-center bg-gradient-to-b from-[#012c56] to-[#013775] space-x-4 py-5">
-        <img src="logo_trans.png" class="block w-[80px] h-[80px]" />
-        <div>
-            <p class="text-3xl uppercase !my-0 !text-white">bộ giáo dục và đào tạo</p>
-            <p class="text-3xl font-bold uppercase !my-0 !text-white">trường đại học xây dựng hà nội</p>
+<div
+    class="h-[100vh] max-h-[100vh] overflow-hidden relative">
+    <img src="/bg_trao-bang.jpg" class="w-full h-full block" />
+    <div class="font-avo mx-auto text-center top-[45%] left-1/2 -translate-x-1/2 absolute">
+        <div class="my-4">
+            <p class="uppercase text-4xl font-avo-bold text-[#0e2e47] !mb-0 leading-5">tân kỹ sư</p>
+            <p class="text-5xl font-avo-bold text-[#eb1d33] !mb-0 leading-5">{{ svDangTrao.hoVaTen }}</p>
+            <p class="font-avo font-semibold tracking-widest text-3xl text-[#0e2e47] !mb-0 leading-5">Ngành {{ svDangTrao.tenNganhDaoTao }}</p>
         </div>
-    </div>
-    <!-- main -->
-    <div class="py-5 mt-5 flex-1">
-        <p class="text-5xl uppercase text-[#d40e05] font-helvetins">lễ trao bằng tiến sĩ, thạc sĩ, kỹ sư,
-            kiến trúc sư, cử nhân</p>
-        <p class="text-6xl font-bold text-[#d40e05] font-snell">Chúc mừng</p>
-        <div class="font-avo">
-            <div class="my-5">
-                <p class="uppercase text-4xl font-avo-bold text-[#0e2e47] !mb-0 leading-5">tân kỹ sư</p>
-                <p class="uppercase text-5xl font-avo-bold text-[#d40e05] !mb-0 leading-5">{{ svDangTrao.hoVaTen }}</p>
-                <p class="font-avo text-4xl text-[#0e2e47] !mb-0 leading-5">Ngành {{ svDangTrao.tenNganhDaoTao }}</p>
-            </div>
-            <div class="my-5">
-                <!-- <p class="font-avo text-4xl text-[#0e2e47]">Xếp loại: <span class="font-avo-bold uppercase">{{svDangTrao.xepHang}}</span></p> -->
-                <p class="font-avo text-3xl text-[#0e2e47] !mb-0">Xếp loại: <span class="font-avo-bold uppercase">xuất
-                        sắc</span>
-                </p>
-                <p class="font-avo text-3xl text-[#0e2e47] !mb-0">Thành tích:</p>
-                <ul>
-                    <li class="mb-2 text-2xl">- Giải nhất NCKHSV</li>
-                    <li class="mb-2 text-2xl">- Học bổng ABC</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="bg-[url('/footer-trao-bang.png')] bg-cover bg-no-repeat bg-center h-96">
-        <div class="flex flex-col items-center justify-end pb-5 h-full">
-            <p class="text-white text-xl font-avo">Hà Nội, ngày 11 tháng 10 năm 2025</p>
+        <div class="my-5">
+            <p class="font-avo font-semibold text-3xl tracking-wider text-[#0e2e47] !mb-4s">Xếp loại: <span class="font-avo-bold uppercase">xuất sắc</span>
+            </p>
+            <p class="font-avo font-semibold tracking-wide text-3xl text-[#0e2e47] !mb-0">Thành tích:</p>
+            <ul class="font-semibold tracking-widest text-xl">
+                <li class="mb-2">- Giải nhất NCKHSV</li>
+                <li class="mb-2">- Học bổng ABC</li>
+            </ul>
         </div>
     </div>
 </div>

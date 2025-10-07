@@ -80,6 +80,7 @@ export interface IViewScanQrSubPlan {
     ten?: string;
     tienDo?: string;
     trangThai?: number;
+    order?: number;
 }
 
 export interface IViewSvDangTraoBang {
@@ -91,4 +92,5 @@ export interface IViewSvDangTraoBang {
     xepHang?: string;
     maSoSinhVien?: string;
     tenSubPlan?: string;
+    note?: string;
 }

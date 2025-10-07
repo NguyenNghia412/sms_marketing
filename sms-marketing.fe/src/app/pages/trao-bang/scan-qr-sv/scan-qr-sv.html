@@ -2,7 +2,7 @@
 
     <!-- LEFT SIDEBAR -->
     <div class="w-full lg:w-1/4 bg-white rounded-xl shadow p-3">
-        <app-left-sidebar [data]="listSubPlan" (onChangeSubPlan)="onChangeSubPlan($event)" />
+        <app-left-sidebar [allowChangeSubPlan]="true" [data]="listSubPlan" (onChangeSubPlan)="onChangeSubPlan($event)" />
     </div>
 
     <!-- MAIN CONTENT -->
