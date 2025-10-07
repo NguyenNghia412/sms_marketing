@@ -1,7 +1,7 @@
 import { IViewSvDangTraoBang } from '@/models/trao-bang/sv-nhan-bang.models';
 import { TraoBangSvService } from '@/services/trao-bang/sv-nhan-bang.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
-import { TraoBangConst } from '@/shared/constants/sv-nhan-bang.constants';
+import { TraoBangHubConst } from '@/shared/constants/sv-nhan-bang.constants';
 import { Component, inject } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 
@@ -32,8 +32,8 @@ export class MainScreen extends BaseComponent {
     })
   }
 
-   connectHub() {
-    const hubUrl = TraoBangConst.HUB;
+  connectHub() {
+    const hubUrl = TraoBangHubConst.HUB;
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(hubUrl, {
         skipNegotiation: true,
@@ -41,21 +41,13 @@ export class MainScreen extends BaseComponent {
       })
       .build();
 
-    this.hubConnection.on('PayBill', (...args) => {
-      // const data = args[0]; // Vì backend chỉ truyền 1 object
-      // if (!data) return;
+    this.hubConnection.on(TraoBangHubConst.ReceiveSinhVienDangTrao, (...args) => {
+      const idSubPlan = args[0];
 
-      // const { id, paymentId, trangThai } = data;
+      if (!idSubPlan) return;
 
-      // if (
-      //   id === this.data.item.idHoSo &&
-      //   paymentId === this.data.item.id &&
-      //   trangThai === CandidatePaymentStatus.Paid
-      // ) {
-      //   this.hubConnection.stop().then();
-      //   // this.messageSuccess('Thanh toán thành công');
-      //   this.closeDialog(true);
-      // }
+      this.getSvDangTrao();
+      // this.initData();
     });
 
     this.hubConnection.start().then();

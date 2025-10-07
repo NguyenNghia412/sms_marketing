@@ -2,7 +2,7 @@ import { Component, inject, OnDestroy } from '@angular/core';
 import { SharedImports } from '@/shared/import.shared';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { TraoBangSvService } from '@/services/trao-bang/sv-nhan-bang.service';
-import { SubPlanStatuses, TraoBangConst } from '@/shared/constants/sv-nhan-bang.constants';
+import { SubPlanStatuses, TraoBangHubConst } from '@/shared/constants/sv-nhan-bang.constants';
 import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IViewSvDangTraoBang } from '@/models/trao-bang/sv-nhan-bang.models';
 import * as signalR from '@microsoft/signalr';
 import { LeftSidebar } from '../scan-qr-sv/left-sidebar/left-sidebar';
@@ -75,7 +75,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
   }
 
   getHangDoi() {
-    this._svTraoBangService.getHangDoi({ IdSubPlan: this.idSubPlan, SoLuong: 10 }).subscribe({
+    this._svTraoBangService.getHangDoi({ IdSubPlan: this.idSubPlan, SoLuong: 7 }).subscribe({
       next: res => {
         if (this.isResponseSucceed(res)) {
           this.students = res.data
@@ -96,39 +96,51 @@ export class McScreen extends BaseComponent implements OnDestroy {
     })
   }
 
-   connectHub() {
-      const hubUrl = TraoBangConst.HUB;
-      console.log(hubUrl)
-      this.hubConnection = new signalR.HubConnectionBuilder()
-        .withUrl(hubUrl, {
-          skipNegotiation: true,
-          transport: signalR.HttpTransportType.WebSockets,
-        })
-        .build();
-  
-      this.hubConnection.on('ReceiveChonKhoa', (...args) => {
-        console.log(args)
-        const idSubPlan = args[0];
+  nextTraoBang() {
+    this._svTraoBangService.nextSvNhanBang(this.idSubPlan).subscribe({
+      next: res => {
+        if (this.isResponseSucceed(res)) {
+          // this.svDangTrao = res.data
+          this.getSvDangTrao();
+          this.getHangDoi();
+          const data = [...this.listSubPlan]
+          this.listSubPlan = data;
+        }
+      }
+    })
+  }
 
-        if (!idSubPlan) return;
-        
-        this.initData();
-      });
+  connectHub() {
+    const hubUrl = TraoBangHubConst.HUB;
+    console.log(hubUrl)
+    this.hubConnection = new signalR.HubConnectionBuilder()
+      .withUrl(hubUrl, {
+        skipNegotiation: true,
+        transport: signalR.HttpTransportType.WebSockets,
+      })
+      .build();
 
-      this.hubConnection.on('ReceiveCheckIn', (...args) => {
-        console.log(args)
-        const mssv = args[0];
+    this.hubConnection.on(TraoBangHubConst.ReceiveChonKhoa, (...args) => {
+      const idSubPlan = args[0];
 
-        if (!mssv) return;
-        
-        this.getHangDoi();
-      });
-  
-      this.hubConnection.start().then();
-    }
-  
-    ngOnDestroy(): void {
-      this.hubConnection?.stop().then();
-    }
+      if (!idSubPlan) return;
+
+      this.initData();
+    });
+
+    this.hubConnection.on(TraoBangHubConst.ReceiveCheckIn, (...args) => {
+      const mssv = args[0];
+
+      if (!mssv) return;
+
+      this.getHangDoi();
+    });
+
+    this.hubConnection.start().then();
+  }
+
+  ngOnDestroy(): void {
+    this.hubConnection?.stop().then();
+  }
 
 }

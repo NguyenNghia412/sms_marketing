@@ -1,5 +1,5 @@
 import { IViewRowConfigSubPlan } from '@/models/trao-bang/sub-plan.models';
-import { ICreateSvNhanBang, IFindPagingSvNhanBang, IGetTienDoHangDoi as IGetTienDoHangDoi, IUpdateSvNhanBang, IViewRowSvNhanBang, IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IViewSvDangTraoBang } from '@/models/trao-bang/sv-nhan-bang.models';
+import { ICreateSvNhanBang, IFindPagingSvNhanBang, IGetTienDoHangDoi as IGetTienDoHangDoi, IUpdateSvNhanBang, IViewRowSvNhanBang, IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IViewSvDangTraoBang, IViewTienDoTraoBang } from '@/models/trao-bang/sv-nhan-bang.models';
 import { IBaseResponse, IBaseResponsePaging, IBaseResponseWithData } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -68,6 +68,14 @@ export class TraoBangSvService {
 
     getSvDangTraoBang() {
         return this.http.get<IBaseResponseWithData<IViewSvDangTraoBang>>(`${this.api}/infor-sinh-vien-dang-trao`);
+    }
+
+    getTienDoTraoBang() {
+        return this.http.get<IBaseResponseWithData<IViewTienDoTraoBang>>(`${this.api}/tien-do-trao-bang`);
+    }
+
+    nextSvNhanBang(idSubPlan: number) {
+        return this.http.post<IBaseResponse>(`${this.api}/sinh-vien-nhan-bang/next-trao-bang?idSubPlan=${idSubPlan}`, null);
     }
 
 }
