@@ -1,12 +1,12 @@
 import { Component, inject, OnDestroy } from '@angular/core';
-import { LeftSidebar } from "./left-sidebar/left-sidebar";
-import { StudentList } from "./student-list/student-list";
 import { SharedImports } from '@/shared/import.shared';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { TraoBangSvService } from '@/services/trao-bang/sv-nhan-bang.service';
 import { SubPlanStatuses, TraoBangConst } from '@/shared/constants/sv-nhan-bang.constants';
 import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IViewSvDangTraoBang } from '@/models/trao-bang/sv-nhan-bang.models';
 import * as signalR from '@microsoft/signalr';
+import { LeftSidebar } from '../scan-qr-sv/left-sidebar/left-sidebar';
+import { StudentList } from '../scan-qr-sv/student-list/student-list';
 
 @Component({
   selector: 'app-mc-screen',
