@@ -13,6 +13,7 @@ using NLog.LayoutRenderers.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -606,6 +607,10 @@ namespace thongbao.be.application.TraoBang.Implements
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienTraoBangNotFound);
+            var subPlan = await _smDbContext.SubPlans
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == tienDo.IdSubPlan && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
 
             var sinhVien = await _smDbContext.DanhSachSinhVienNhanBangs
                 .AsNoTracking()
@@ -614,8 +619,10 @@ namespace thongbao.be.application.TraoBang.Implements
 
             return new GetSinhVienDangTraoBangInforDto
             {
+                TenSubPlan = subPlan.Ten,
                 Id = sinhVien.Id,
                 HoVaTen = sinhVien.HoVaTen,
+                MaSoSinhVien = sinhVien.MaSoSinhVien,
                 TenNganhDaoTao = sinhVien.TenNganhDaoTao,
                 XepHang = sinhVien.XepHang,
                 ThanhTich = sinhVien.ThanhTich,
