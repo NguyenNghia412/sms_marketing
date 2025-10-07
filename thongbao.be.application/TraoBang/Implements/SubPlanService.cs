@@ -665,17 +665,38 @@ namespace thongbao.be.application.TraoBang.Implements
             _logger.LogInformation($"{nameof(GetTienDoNhanBang)}, dto= {JsonSerializer.Serialize(dto)} ");
             var sinhVien = _smDbContext.DanhSachSinhVienNhanBangs
                 .AsNoTracking()
-                .FirstOrDefault(x => !x.Deleted && x.IdSubPlan == dto.IdSubPlan )
+                .FirstOrDefault(x => !x.Deleted && x.IdSubPlan == dto.IdSubPlan)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
-            var results = await _smDbContext.TienDoTraoBangs
+
+            var results = new List<TienDoTraoBang>();
+
+            var sinhVienDaTrao = await _smDbContext.TienDoTraoBangs
                 .AsNoTracking()
                 .Where(x => !x.Deleted
                             && x.IdSubPlan == dto.IdSubPlan
-                            && x.TrangThai == TraoBangConstants.ChuanBi)
-                .OrderBy(x => x.Order)
-                .Skip(0)
-                .Take(dto.SoLuong)
-                .ToListAsync();
+                            && x.TrangThai == TraoBangConstants.DaTraoBang)
+                .OrderByDescending(x => x.Order)
+                .FirstOrDefaultAsync();
+
+            if (sinhVienDaTrao != null)
+            {
+                results.Add(sinhVienDaTrao);
+            }
+
+            var soLuongConLai = dto.SoLuong - results.Count;
+            if (soLuongConLai > 0)
+            {
+                var sinhVienChuanBi = await _smDbContext.TienDoTraoBangs
+                    .AsNoTracking()
+                    .Where(x => !x.Deleted
+                                && x.IdSubPlan == dto.IdSubPlan
+                                && x.TrangThai != TraoBangConstants.DaTraoBang)
+                    .OrderBy(x => x.Order)
+                    .Take(soLuongConLai)
+                    .ToListAsync();
+
+                results.AddRange(sinhVienChuanBi);
+            }
 
             if (!results.Any())
             {
@@ -857,6 +878,7 @@ namespace thongbao.be.application.TraoBang.Implements
                     .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
 
                 await _traoBangService.NotifySinhVienDangTrao(idSubPlan, sinhVienDauTien.Id);
+                await _traoBangService.NotifyNextSinhVienTraoBang(idSubPlan);
 
                 return new GetSinhVienDangTraoBangInforDto
                 {
@@ -901,6 +923,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
 
             await _traoBangService.NotifySinhVienDangTrao(idSubPlan, sinhVienTiepTheo.Id);
+            await _traoBangService.NotifyNextSinhVienTraoBang(idSubPlan);
 
             return new GetSinhVienDangTraoBangInforDto
             {
