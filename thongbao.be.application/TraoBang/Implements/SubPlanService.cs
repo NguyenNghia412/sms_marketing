@@ -597,18 +597,14 @@ namespace thongbao.be.application.TraoBang.Implements
             _smDbContext.TienDoTraoBangs.Update(sinhVien);
             _smDbContext.SaveChanges();
         }
-        public async Task<GetSinhVienDangTraoBangInforDto> GetSinhVienDangTraoBang(int idSubPlan, int id)
+        public async Task<GetSinhVienDangTraoBangInforDto> GetSinhVienDangTraoBang()
         {
-            _logger.LogInformation($"{nameof(GetSinhVienDangTraoBang)} - IdSubPlan: {idSubPlan}, Id: {id}");
+            _logger.LogInformation($"{nameof(GetSinhVienDangTraoBang)} ");
 
-            var subPlan = await _smDbContext.SubPlans
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted)
-                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
-
+        
             var tienDo = await _smDbContext.TienDoTraoBangs
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id && x.IdSubPlan == idSubPlan && x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
+                .FirstOrDefaultAsync(x => x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienTraoBangNotFound);
 
             var sinhVien = await _smDbContext.DanhSachSinhVienNhanBangs

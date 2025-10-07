@@ -33,6 +33,6 @@ namespace thongbao.be.application.TraoBang.Interface
         public GetNextSubPlanResponseDto? NextSubPlan();
         public  Task<List<GetListSubPlanDto>> GetListSubPlanInfor(int idPlan);
         public void UpdateTrangThaiSinhVienNhanBang(int idSubPlan, int id);
-        public  Task<GetSinhVienDangTraoBangInforDto> GetSinhVienDangTraoBang(int idSubPlan, int id);
+        public  Task<GetSinhVienDangTraoBangInforDto> GetSinhVienDangTraoBang();
         }
 }
