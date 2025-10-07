@@ -20,17 +20,12 @@
                   'bg-gray-50': student.trangThai === 'Chuẩn bị'
                 }"> -->
         <tr>
-            <td>{{ student.order }}</td>
-            <td>{{ student.maSoSinhVien }}</td>
-            <td>{{ student.hoVaTen }}</td>
-            <td>{{ student.tenNganhDaoTao }}</td>
-            <td>
+            <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">{{ student.order }}</td>
+            <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">{{ student.maSoSinhVien }}</td>
+            <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">{{ student.hoVaTen }}</td>
+            <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">{{ student.tenNganhDaoTao }}</td>
+            <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">
                 <p-tag [severity]="constStatuses.getSeverity(student.trangThai)" [value]="constStatuses.getName(student.trangThai)" />
-                <!-- <span class="px-2 py-1 rounded text-xs" [ngClass]="{
-                    'bg-green-200 text-green-800': student.trangThai === 'Đã trao',
-                    'bg-yellow-200 text-yellow-800': student.trangThai === 'Đang trao',
-                    'bg-gray-200 text-gray-700': student.trangThai === 'Chuẩn bị'
-                  }">{{ student.trangThai }}</span> -->
             </td>
         </tr>
     </ng-template>
