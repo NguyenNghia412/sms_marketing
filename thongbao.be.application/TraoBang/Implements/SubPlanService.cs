@@ -938,6 +938,55 @@ namespace thongbao.be.application.TraoBang.Implements
                 Note = sinhVienInfoTiepTheo?.Note ?? string.Empty
             };
         }
+        //Prev sinh viên trao bằng 
+        public async Task<GetSinhVienDangTraoBangInforDto?> PrevSinhVienTraoBang(int idSubPlan)
+        {
+            _logger.LogInformation($"{nameof(PrevSinhVienTraoBang)}");
+            var sinhVienDangTrao = await _smDbContext.TienDoTraoBangs
+                .FirstOrDefaultAsync(x => x.IdSubPlan == idSubPlan
+                            && x.TrangThai == TraoBangConstants.DangTraoBang
+                            && !x.Deleted);
+            if (sinhVienDangTrao == null)
+            {
+                return null;
+            }
+            sinhVienDangTrao.TrangThai = TraoBangConstants.ChuanBi;
+            _smDbContext.TienDoTraoBangs.Update(sinhVienDangTrao);
+            await _smDbContext.SaveChangesAsync();
+            var sinhVienTruocDo = await _smDbContext.TienDoTraoBangs
+                .Where(x => x.IdSubPlan == idSubPlan
+                            && x.TrangThai == TraoBangConstants.DaTraoBang
+                            && !x.Deleted)
+                .OrderByDescending(x => x.Order)
+                .FirstOrDefaultAsync();
+            if (sinhVienTruocDo == null)
+            {
+                return null;
+            }
+            sinhVienTruocDo.TrangThai = TraoBangConstants.DangTraoBang;
+            _smDbContext.TienDoTraoBangs.Update(sinhVienTruocDo);
+            await _smDbContext.SaveChangesAsync();
+            var sinhVienInfoTiepTheo = await _smDbContext.DanhSachSinhVienNhanBangs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == sinhVienTruocDo.IdSinhVienNhanBang && !x.Deleted);
+            var subPlanInfo = await _smDbContext.SubPlans
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
+            await _traoBangService.NotifySinhVienDangTrao(idSubPlan, sinhVienTruocDo.Id);
+
+            return new GetSinhVienDangTraoBangInforDto
+            {
+                TenSubPlan = subPlanInfo?.Ten ?? string.Empty,
+                Id = sinhVienTruocDo.Id,
+                HoVaTen = sinhVienInfoTiepTheo?.HoVaTen ?? string.Empty,
+                MaSoSinhVien = sinhVienInfoTiepTheo?.MaSoSinhVien ?? string.Empty,
+                TenNganhDaoTao = sinhVienInfoTiepTheo?.TenNganhDaoTao ?? string.Empty,
+                XepHang = sinhVienInfoTiepTheo?.XepHang ?? string.Empty,
+                ThanhTich = sinhVienInfoTiepTheo?.ThanhTich ?? string.Empty,
+                CapBang = sinhVienInfoTiepTheo?.CapBang ?? string.Empty,
+                Note = sinhVienInfoTiepTheo?.Note ?? string.Empty
+            };
+        }
         // GetInFor sinh viên được trao bằng tiếp theo 
         public async Task<GetInforSinhVienChuanBiDuocTraoBangResponseDto?> GetInforSinhVienChuanBiDuocTraoBang(int idSubPlan)
         {

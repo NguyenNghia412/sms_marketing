@@ -369,12 +369,26 @@ namespace thongbao.be.Controllers.TraoBang
         }
 
         [AllowAnonymous]
-        [HttpPost("sinh-vien-nhan-bang/next-trao-bang")]
-        public async Task<ApiResponse> NextSinhVienTraoBang(int idSubPlan)
+        [HttpPost("{idSubPlan}/sinh-vien-nhan-bang/next-trao-bang")]
+        public async Task<ApiResponse> NextSinhVienTraoBang([FromRoute]int idSubPlan)
         {
             try
             {
                 var data = await _subPlanService.NextSinhVienTraoBang( idSubPlan);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [AllowAnonymous]
+        [HttpPost("{idSubPlan}/sinh-vien-nhan-bang/prev-trao-bang")]
+        public async Task<ApiResponse> PrevSinhVienTraoBang([FromRoute] int idSubPlan)
+        {
+            try
+            {
+                var data = await _subPlanService.PrevSinhVienTraoBang(idSubPlan);
                 return new(data);
             }
             catch (Exception ex)
