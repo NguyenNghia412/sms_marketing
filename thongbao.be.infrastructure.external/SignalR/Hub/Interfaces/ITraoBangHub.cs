@@ -8,6 +8,10 @@ namespace thongbao.be.infrastructure.external.SignalR.Hub.Interfaces
 {
     public interface ITraoBangHub
     {
-        Task ReceiveSinhVienDangTrao(int idSubPlan, int id);
+        public Task ReceiveSinhVienDangTrao(int idSubPlan, int id);
+        public Task ReceiveChonKhoa(int idSubPlan);
+        public Task ReceiveChuyenKhoa();
+        public Task ReceiveCheckIn(string mssv);
+
     }
 }

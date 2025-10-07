@@ -23,5 +23,17 @@ namespace thongbao.be.infrastructure.external.SignalR.Service.Implements
         {
             await _hubContext.Clients.All.ReceiveSinhVienDangTrao(idSubPlan, id);
         }
+        public async Task NotifyChonKhoa(int idSubPlan)
+        {
+            await _hubContext.Clients.All.ReceiveChonKhoa(idSubPlan);
+        }
+        public async Task NotifyChuyenKhoa()
+        {
+            await _hubContext.Clients.All.ReceiveChuyenKhoa();
+        }
+        public async Task NotifyCheckIn(string mssv)
+        {
+            await _hubContext.Clients.All.ReceiveCheckIn( mssv);
+        }
     }
 }
