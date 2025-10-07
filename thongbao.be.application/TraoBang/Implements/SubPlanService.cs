@@ -636,7 +636,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 CapBang = sinhVien.CapBang
             };
         }
-        public void UpdateTrangThaiSubPlan(int id)
+        public async Task UpdateTrangThaiSubPlan(int id)
         {
             _logger.LogInformation($"{nameof(UpdateTrangThaiSubPlan)}");
 
@@ -657,6 +657,7 @@ namespace thongbao.be.application.TraoBang.Implements
             _smDbContext.SubPlans.Update(subPlan);
 
             _smDbContext.SaveChanges();
+            await _traoBangService.NotifyChonKhoa(id);
         }
         public async Task<List<ViewTienDoNhanBangResponseDto>> GetTienDoNhanBang(ViewTienDoNhanBangRequestDto dto)
         {
@@ -782,8 +783,8 @@ namespace thongbao.be.application.TraoBang.Implements
             var soLuongConLai = await _smDbContext.TienDoTraoBangs
                 .AsNoTracking()
                 .CountAsync(x => x.IdSubPlan == idSubPlan && !x.Deleted && x.TrangThai == TraoBangConstants.ChuanBi);
-            await _traoBangService.NotifyChonKhoa(idSubPlan);
-            _logger.LogInformation($"Đã bắn SignalR chuyển khoa cho SubPlan Id: {idSubPlan}");
+           
+           
             return new GetInforSubPlanDto
             {
                 Ten = subPlan.Ten,
