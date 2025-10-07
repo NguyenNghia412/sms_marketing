@@ -240,6 +240,7 @@ builder.Services.ConfigureHangfire(hangfireConnectionString);
 #region signalr
 builder.Services.AddSignalR();
 builder.Services.AddScoped<IDemoSignalRService, DemoSignalRService>();
+builder.Services.AddScoped<ITraoBangService, TraoBangService>();
 #endregion
 
 // Add services to the container.
@@ -344,6 +345,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<DemoHub>("/hub/sms").RequireCors("SignalRPolicy");
+app.MapHub<TraoBangHub>("/hub/trao-bang").RequireCors("SignalRPolicy");
 app.UseHangfireDashboard();
 app.MapHealthChecks("/health");
 app.Run();

@@ -25,6 +25,7 @@ using thongbao.be.application.TraoBang.Interface;
 using thongbao.be.domain.TraoBang;
 using thongbao.be.infrastructure.data;
 using thongbao.be.infrastructure.data.Migrations;
+using thongbao.be.infrastructure.external.SignalR.Service.Interfaces;
 using thongbao.be.shared.Constants.TraoBang;
 using thongbao.be.shared.HttpRequest.BaseRequest;
 using thongbao.be.shared.HttpRequest.Error;
@@ -35,17 +36,20 @@ namespace thongbao.be.application.TraoBang.Implements
     public class SubPlanService:BaseService, ISubPlanService
     {
         private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        private readonly ITraoBangService _traoBangService;
         private readonly IConfiguration _configuration;
         public SubPlanService(
             SmDbContext smDbContext,
             ILogger<SubPlanService> logger,
             IHttpContextAccessor httpContextAccessor,
             IMapper mapper,
-            IConfiguration configuration
+            IConfiguration configuration,
+            ITraoBangService traoBangService
         )
             : base(smDbContext, logger, httpContextAccessor, mapper)
         {
             _configuration = configuration;
+            _traoBangService = traoBangService;
         }
         public void Create(int idPlan, CreateSubPlanDto dto)
         {
@@ -587,7 +591,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 IsShow = true
             };
         }
-        public void UpdateTrangThaiSinhVienNhanBang(int idSubPlan, int id)
+        public async Task UpdateTrangThaiSinhVienNhanBang(int idSubPlan, int id)
         {
             _logger.LogInformation($"{nameof(UpdateTrangThaiSinhVienNhanBang)} ");
             var subPlan = _smDbContext.SubPlans.FirstOrDefault(x => x.Id == idSubPlan && !x.Deleted)
@@ -597,6 +601,8 @@ namespace thongbao.be.application.TraoBang.Implements
             sinhVien.TrangThai = TraoBangConstants.DangTraoBang;
             _smDbContext.TienDoTraoBangs.Update(sinhVien);
             _smDbContext.SaveChanges();
+            await _traoBangService.NotifySinhVienDangTrao(idSubPlan, id);
+            _logger.LogInformation($"Đã bắn SignalR cho sinh viên Id: {id}, SubPlan: {idSubPlan}");
         }
         public async Task<GetSinhVienDangTraoBangInforDto> GetSinhVienDangTraoBang()
         {

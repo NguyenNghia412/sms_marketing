@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\thongbao.be.infrastructure.data\thongbao.be.infrastructure.data.csproj" />
+	<ProjectReference Include="..\thongbao.be.infrastructure.external\thongbao.be.infrastructure.external.csproj" />
   </ItemGroup>
 
 </Project>
