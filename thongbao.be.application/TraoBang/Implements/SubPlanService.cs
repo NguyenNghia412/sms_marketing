@@ -903,7 +903,7 @@ namespace thongbao.be.application.TraoBang.Implements
             var tienDo = tongSinhVienThamGiaTraoBang > 0 ? (double)sinhVienDaTrao / tongSinhVienThamGiaTraoBang * 100 : 0;
             return new GetTienDoTraoBangResponseDto
             {
-                TienDo = $"{sinhVienDaTrao}/{tongSinhVienThamGiaTraoBang}({tienDo:F2}%)"
+                TienDo = $"{sinhVienDaTrao}/{tongSinhVienThamGiaTraoBang} sinh viên ({tienDo:F2}%)"
             };
         }
 
