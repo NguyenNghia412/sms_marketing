@@ -1,8 +1,8 @@
-<h4 class="font-semibold mb-2 flex items-center gap-2">
+<h4 class="font-semibold mb-2 flex items-center gap-2 !text-3xl">
     DANH SÁCH HÀNG ĐỢI
 </h4>
 
-<p-table [value]="students() || []">
+<p-table [value]="students() || []" class="!text-xl">
     <ng-template pTemplate="header">
         <tr class="font-bold">
             <th class="!text-center">STT</th>
@@ -20,9 +20,15 @@
                   'bg-gray-50': student.trangThai === 'Chuẩn bị'
                 }"> -->
         <tr>
-            <td [class]="['!text-center ',student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : '']">{{
+            <td [class]="{
+                    '!text-center': true,
+                    'bg-orange-200': student.trangThai === constStatuses.DANG_TRAO_BANG
+            }">{{
                 student.order }}</td>
-            <td [class]="['!text-center ', student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : '']">
+            <td [class]="{
+                    '!text-center': true,
+                    'bg-orange-200': student.trangThai === constStatuses.DANG_TRAO_BANG
+            }">
                 {{
                 student.maSoSinhVien }}</td>
             <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">{{ student.hoVaTen
@@ -30,8 +36,11 @@
             <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">{{
                 student.tenNganhDaoTao }}</td>
             <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">
-                <p-tag [severity]="constStatuses.getSeverity(student.trangThai)"
-                    [value]="constStatuses.getName(student.trangThai)" />
+                <p-tag [severity]="constStatuses.getSeverity(student.trangThai)">
+                    <span class="text-xl">{{constStatuses.getName(student.trangThai)}}
+                    </span>
+                </p-tag>
+
             </td>
         </tr>
     </ng-template>

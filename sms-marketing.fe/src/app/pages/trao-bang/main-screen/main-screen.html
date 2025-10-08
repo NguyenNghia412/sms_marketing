@@ -1,8 +1,6 @@
 <div class="h-[100vh] max-h-[100vh] overflow-hidden relative">
     <img src="/bg_trao-bang_ko_chuc_mung.jpg" class="w-full h-full block" />
     <div class="font-avo mx-auto text-center top-[38%] left-1/2 -translate-x-1/2 absolute">
-
-
         @if (svDangTrao && svDangTrao.text) {
         <p class="uppercase text-6xl font-avo-bold text-[#0e2e47] !mb-0 leading-5">{{ svDangTrao.text }}</p>
         }
@@ -26,7 +24,7 @@
             <p class="font-avo font-semibold tracking-wide text-3xl text-[#0e2e47] !mb-0">Thành tích:</p>
 
             <div class="font-semibold tracking-widest text-xl">
-                <span style="white-space: pre-line">{{ svDangTrao.thanhTich }}</span>
+                <span class="whitespace-pre-line">{{ svDangTrao.thanhTich }}</span>
             </div>
             }
         </div>

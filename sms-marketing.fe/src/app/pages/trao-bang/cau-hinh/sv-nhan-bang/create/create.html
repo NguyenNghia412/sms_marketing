@@ -41,7 +41,8 @@
         </div>
         <div class="mb-3">
             <label for="ngaySinh" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Ngày sinh</label>
-            <input pInputText formControlName="ngaySinh" id="ngaySinh" type="text" class="w-full mb-2" />
+            <p-datepicker formControlName="ngaySinh" id="ngaySinh" class="w-full mb-2" [readonlyInput]="false"
+                [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" />
         </div>
         <div class="mb-3">
             <label for="capBang" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Cấp bằng</label>
@@ -56,11 +57,7 @@
             <label for="xepHang" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Xếp hạng</label>
             <input pInputText formControlName="xepHang" id="xepHang" type="text" class="w-full mb-2" />
         </div>
-        <div class="mb-3">
-            <label for="thanhTich" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Thành
-                tích</label>
-            <input pInputText formControlName="thanhTich" id="thanhTich" type="text" class="w-full mb-2" />
-        </div>
+
         <div class="mb-3">
             <label for="khoaQuanLy" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Khoa QL</label>
             <input pInputText formControlName="khoaQuanLy" id="khoaQuanLy" type="text" class="w-full mb-2" />
@@ -74,13 +71,19 @@
         <div class="mb-3">
             <label for="ngayQuyetDinh" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Ngày
                 QĐ</label>
-            <input pInputText formControlName="ngayQuyetDinh" id="ngayQuyetDinh" type="text" class="w-full mb-2" />
+            <p-datepicker formControlName="ngayQuyetDinh" id="ngayQuyetDinh" class="w-full mb-2" [readonlyInput]="false"
+                [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" />
         </div>
 
     </div>
     <div class="mb-3">
+        <label for="thanhTich" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Thành
+            tích</label>
+        <textarea pInputTextarea formControlName="thanhTich" id="thanhTich" class="w-full mb-2" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
         <label for="note" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Ghi chú</label>
-        <textarea pInputTextarea formControlName="note" id="note" type="text" class="w-full mb-2" rows="3"></textarea>
+        <textarea pInputTextarea formControlName="note" id="note" class="w-full mb-2" rows="3"></textarea>
     </div>
     <div class="mt-5 flex flex-row justify-end">
         <p-button label="Lưu" icon="pi pi-save" type="submit" [loading]="loading" />

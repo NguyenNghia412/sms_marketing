@@ -1,15 +1,15 @@
-<h4 class="font-semibold text-gray-800 mb-2">KẾ HOẠCH TRAO BẰNG</h4>
+<h4 class="font-semibold text-gray-800 mb-2 !text-3xl">KẾ HOẠCH TRAO BẰNG</h4>
 
-<ul class="space-y-1 text-base">
+<ul class="space-y-1 text-lg">
     @for (item of data(); track $index) {
     <div>
         <p-tag [severity]="subPlanStatuses.getSeverity(item.trangThai || 0)" class="w-full text-left">
-            <div [ngClass]="['w-full py-2 text-base ', (item.trangThai === subPlanStatuses.DA_TRAO_BANG && allowChangeSubPlan()) ? 'cursor-pointer' : '' ]"
+            <div [ngClass]="['w-full py-2 text-lg ', (item.trangThai === subPlanStatuses.DA_TRAO_BANG && allowChangeSubPlan()) ? 'cursor-pointer' : '' ]"
                 (click)="onClickSubPlan(item)">
                 @if (item.trangThai === subPlanStatuses.DA_TRAO_BANG) {<i class="pi pi-check mr-1"></i>}
                 @if (item.trangThai === subPlanStatuses.DANG_TRAO_BANG) {<i class="pi pi-arrow-right mr-1"></i>}
                 {{item.order}}.&nbsp;{{item.ten}} 
-                <span class="text-sm text-gray-500">({{item.tienDo}})</span>
+                <span class="text-lg text-gray-500">({{item.tienDo}})</span>
             </div>
         </p-tag>
     </div>
