@@ -87,53 +87,45 @@ namespace thongbao.be.application.TraoBang.Implements
             _logger.LogInformation($"{nameof(Update)}, dto = {JsonSerializer.Serialize(dto)}");
 
             var plan = await _smDbContext.Plans
-                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == dto.IdPlan && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorPlanNotFound);
-
-            var subplan = await _smDbContext.SubPlans
-                .FirstOrDefaultAsync(x => x.Id == dto.IdSubPlan && !x.Deleted)
-                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
 
             var subPlans = await _smDbContext.SubPlans
                 .Where(x => x.IdPlan == dto.IdPlan && !x.Deleted)
                 .OrderBy(x => x.Order)
                 .ToListAsync();
 
-            var movingSubPlan = subPlans.FirstOrDefault(x => x.Id == dto.IdSubPlan && !x.Deleted);
-            if (movingSubPlan == null)
-            {
-                throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
-            }
+            var subplan = subPlans.FirstOrDefault(x => x.Id == dto.IdSubPlan)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
 
-            var currentOrder = movingSubPlan.Order;
+            var currentOrder = subplan.Order;
             var newOrder = dto.NewOrder;
-            if( newOrder < 1 || newOrder > subPlans.Count)
+
+            if (newOrder < 1 || newOrder > subPlans.Count)
             {
                 throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanOrderInvalid);
             }
-            if (currentOrder == newOrder)
-            {
-                return;
-            }
 
-            if (newOrder < currentOrder)
+            if (currentOrder != newOrder)
             {
-                foreach (var sp in subPlans)
+                if (newOrder < currentOrder)
                 {
-                    if (sp.Order >= newOrder && sp.Order < currentOrder)
+                    foreach (var sp in subPlans)
                     {
-                        sp.Order++;
+                        if (sp.Order >= newOrder && sp.Order < currentOrder)
+                        {
+                            sp.Order++;
+                        }
                     }
                 }
-            }
-            else
-            {
-                foreach (var sp in subPlans)
+                else
                 {
-                    if (sp.Order <= newOrder && sp.Order > currentOrder)
+                    foreach (var sp in subPlans)
                     {
-                        sp.Order--;
+                        if (sp.Order <= newOrder && sp.Order > currentOrder)
+                        {
+                            sp.Order--;
+                        }
                     }
                 }
             }
@@ -144,12 +136,11 @@ namespace thongbao.be.application.TraoBang.Implements
             subplan.MoBai = dto.MoBai ?? "";
             subplan.KetBai = dto.KetBai ?? "";
             subplan.Note = dto.Note;
-            subplan.Order = dto.NewOrder;
+            subplan.Order = newOrder;
             subplan.IsShow = dto.IsShow;
             subplan.IsShowMoBai = dto.IsShowMoBai;
             subplan.IsShowKetBai = dto.IsShowKetBai;
 
-            _smDbContext.SubPlans.Update(subplan);
             await _smDbContext.SaveChangesAsync();
         }
         public BaseResponsePagingDto<ViewSubPlanDto> FindPaging (FindPagingSubPlanDto dto)
@@ -345,29 +336,27 @@ namespace thongbao.be.application.TraoBang.Implements
             _logger.LogInformation($"{nameof(UpdateSinhVienNhanBang)}, dto= {JsonSerializer.Serialize(dto)} ");
 
             var subPlan = await _smDbContext.SubPlans
-                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == dto.IdSubPlan && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
 
-            var sinhVien = await _smDbContext.DanhSachSinhVienNhanBangs
-                .FirstOrDefaultAsync(x => !x.Deleted && x.Id == dto.Id)
+            var danhSachSinhViens = await _smDbContext.DanhSachSinhVienNhanBangs
+                .Where(x => x.IdSubPlan == dto.IdSubPlan && !x.Deleted)
+                .OrderBy(x => x.Order)
+                .ToListAsync();
+
+            var sinhVien = danhSachSinhViens.FirstOrDefault(x => x.Id == dto.Id)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
 
             if (!string.Equals(sinhVien.MaSoSinhVien, dto.MaSoSinhVien, StringComparison.OrdinalIgnoreCase))
             {
-                var existingSinhVien = await _smDbContext.DanhSachSinhVienNhanBangs
-                    .FirstOrDefaultAsync(x => !x.Deleted && x.MaSoSinhVien.ToLower() == dto.MaSoSinhVien.ToLower());
+                var existingSinhVien = danhSachSinhViens
+                    .FirstOrDefault(x => string.Equals(x.MaSoSinhVien, dto.MaSoSinhVien, StringComparison.OrdinalIgnoreCase));
 
                 if (existingSinhVien != null)
                 {
                     throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienDaTonTai);
                 }
             }
-
-            var danhSachSinhViens = await _smDbContext.DanhSachSinhVienNhanBangs
-                .Where(x => x.IdSubPlan == dto.IdSubPlan && !x.Deleted)
-                .OrderBy(x => x.Order)
-                .ToListAsync();
 
             var currentOrder = sinhVien.Order;
             var newOrder = dto.Order;
@@ -419,8 +408,6 @@ namespace thongbao.be.application.TraoBang.Implements
             sinhVien.LinkQR = dto.LinkQR;
             sinhVien.IsShow = dto.IsShow;
             sinhVien.Order = newOrder;
-
-            _smDbContext.DanhSachSinhVienNhanBangs.Update(sinhVien);
             await _smDbContext.SaveChangesAsync();
         }
         public void DeleteSinhVienNhanBang (int idSubPlan, int id)
@@ -584,7 +571,7 @@ namespace thongbao.be.application.TraoBang.Implements
             };
             _smDbContext.TienDoTraoBangs.Add(tienDoTraoBang);
             _smDbContext.SaveChanges();
-            await _traoBangService.NotifyCheckIn();
+            await _traoBangService.NotifyCheckIn(mssv);
             return new DiemDanhNhanBangDto
             {
                 TenKhoa = subPlan?.Ten ?? String.Empty,

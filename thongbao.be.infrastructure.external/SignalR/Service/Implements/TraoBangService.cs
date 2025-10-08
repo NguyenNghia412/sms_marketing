@@ -31,9 +31,9 @@ namespace thongbao.be.infrastructure.external.SignalR.Service.Implements
         {
             await _hubContext.Clients.All.ReceiveChuyenKhoa();
         }
-        public async Task NotifyCheckIn()
+        public async Task NotifyCheckIn(string mssv)
         {
-            await _hubContext.Clients.All.ReceiveCheckIn( );
+            await _hubContext.Clients.All.ReceiveCheckIn(mssv);
         }
        
     }
