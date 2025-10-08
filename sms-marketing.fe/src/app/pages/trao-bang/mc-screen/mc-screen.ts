@@ -8,6 +8,7 @@ import * as signalR from '@microsoft/signalr';
 import { LeftSidebar } from '../scan-qr-sv/left-sidebar/left-sidebar';
 import { StudentList } from '../scan-qr-sv/student-list/student-list';
 import { concatMap } from 'rxjs';
+import { ScanQrService } from '@/services/scan-qr.service';
 
 @Component({
   selector: 'app-mc-screen',
@@ -19,6 +20,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
 
   hubConnection: signalR.HubConnection | undefined;
   _svTraoBangService = inject(TraoBangSvService);
+
   idSubPlan: number = 0;
   currentSubPlanInfo: IViewScanQrCurrentSubPlan = {};
   students: IViewScanQrTienDoSv[] = [];
@@ -48,6 +50,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
       }
     })
     this.getSvDangTrao();
+    
   }
 
   getListSubPlan() {

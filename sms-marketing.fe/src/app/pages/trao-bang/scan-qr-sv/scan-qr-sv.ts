@@ -11,6 +11,7 @@ import { DialogMssv } from './dialog-mssv/dialog-mssv';
 import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv } from '@/models/trao-bang/sv-nhan-bang.models';
 import { SubPlanStatuses, TraoBangHubConst } from '@/shared/constants/sv-nhan-bang.constants';
 import * as signalR from '@microsoft/signalr';
+import { ScanQrService } from '@/services/scan-qr.service';
 
 @Component({
   selector: 'app-scan-qr-sv',
@@ -21,8 +22,9 @@ import * as signalR from '@microsoft/signalr';
 export class ScanQrSv extends BaseComponent implements OnDestroy {
 
   hubConnection: signalR.HubConnection | undefined;
-
   _svTraoBangService = inject(TraoBangSvService);
+  _scanQrService = inject(ScanQrService);
+
   idSubPlan: number = 0;
   currentSubPlanInfo: IViewScanQrCurrentSubPlan = {};
   students: IViewScanQrTienDoSv[] = [];
@@ -32,6 +34,9 @@ export class ScanQrSv extends BaseComponent implements OnDestroy {
   override ngOnInit(): void {
     this.initData();
     this.connectHub();
+    this._scanQrService.addListener(mssv => {
+      this.pushHangDoi(mssv)
+    })
   }
 
   initData() {
@@ -168,6 +173,7 @@ export class ScanQrSv extends BaseComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.hubConnection?.stop().then();
+    this._scanQrService.clearListener();
   }
 
 }
