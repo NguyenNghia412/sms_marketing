@@ -87,7 +87,7 @@ export class TraoBangSvService {
     }
 
     getSvNhanBangKhoa() {
-        return this.http.get<IBaseResponseWithData<IViewSubPlanSideScreen>>(`${this.api}/danh-sach-sinh-vien-nhan-bang-khoa`);
+        return this.http.get<IBaseResponseWithData<IViewSubPlanSideScreen>>(`${this.api}/danh-sach-sinh-vien-nhan-bang-khoa?soLuong=50`);
     }
 
 }

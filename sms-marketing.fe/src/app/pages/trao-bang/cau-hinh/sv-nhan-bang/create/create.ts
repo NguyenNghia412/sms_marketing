@@ -22,6 +22,7 @@ export class Create extends BaseComponent {
     private _svNhanBangService = inject(TraoBangSvService);
     private _subPlanService = inject(TraoBangSubPlanService);
 
+    listSvTrangThai = SvNhanBangStatuses.List;
     listSubPlan: IViewRowConfigSubPlan[] = [];
 
     override form: FormGroup = new FormGroup({
@@ -41,7 +42,7 @@ export class Create extends BaseComponent {
         ngayQuyetDinh: new FormControl(new Date()),
         note: new FormControl(''),
         linkQR: new FormControl(''),
-        trangThai: new FormControl(''),
+        trangThai: new FormControl(SvNhanBangStatuses.THAM_GIA_TRAO_BANG),
     });
 
     override ValidationMessages: Record<string, Record<string, string>> = {
