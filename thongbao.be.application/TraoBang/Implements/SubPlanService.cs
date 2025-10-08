@@ -584,7 +584,7 @@ namespace thongbao.be.application.TraoBang.Implements
             };
             _smDbContext.TienDoTraoBangs.Add(tienDoTraoBang);
             _smDbContext.SaveChanges();
-            await _traoBangService.NotifyCheckIn(mssv);
+            await _traoBangService.NotifyCheckIn();
             return new DiemDanhNhanBangDto
             {
                 TenKhoa = subPlan?.Ten ?? String.Empty,

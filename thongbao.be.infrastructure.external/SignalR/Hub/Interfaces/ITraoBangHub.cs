@@ -11,7 +11,7 @@ namespace thongbao.be.infrastructure.external.SignalR.Hub.Interfaces
         public Task ReceiveSinhVienDangTrao(int idSubPlan, int id);
         public Task ReceiveChonKhoa(int idSubPlan);
         public Task ReceiveChuyenKhoa();
-        public Task ReceiveCheckIn(string mssv);
+        public Task ReceiveCheckIn();
      
 
     }
