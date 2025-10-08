@@ -2,7 +2,8 @@
 
     <!-- LEFT SIDEBAR -->
     <div class="w-full lg:w-1/4 bg-white rounded-xl shadow p-3">
-        <app-left-sidebar [allowChangeSubPlan]="true" [data]="listSubPlan" (onChangeSubPlan)="onChangeSubPlan($event)" />
+        <app-left-sidebar [allowChangeSubPlan]="true" [data]="listSubPlan"
+            (onChangeSubPlan)="onChangeSubPlan($event)" />
     </div>
 
     <!-- MAIN CONTENT -->
@@ -16,9 +17,18 @@
             <!-- QR + INPUT -->
             <div class="w-full lg:w-2/5 bg-white rounded-xl shadow p-4">
                 <div class="flex gap-2 mb-3">
-                    <button pButton label="QUÉT QR CODE" class="p-button-sm p-button-outlined"></button>
+                    <button pButton label="QUÉT QR CODE" class="p-button-sm p-button-outlined">
+
+                    </button>
                     <button pButton label="NHẬP MSSV" class="p-button-sm p-button-outlined"
                         (click)="onOpenDialogMssv()"></button>
+                </div>
+
+                <div class="flex flex-col justify-center items-center mt-3 border border-dashed w-full h-96">
+                    <div>
+                        <p class="!mb-0"><ng-icon [name]="'heroCamera'" class="mr-2"></ng-icon>Camera đang mở</p>
+                        <p>Đưa mã QR vào khung hình để quét</p>
+                    </div>
                 </div>
 
                 <!-- Added student -->

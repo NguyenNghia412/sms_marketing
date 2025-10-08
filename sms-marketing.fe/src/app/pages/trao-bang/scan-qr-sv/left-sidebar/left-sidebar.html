@@ -1,6 +1,4 @@
-<div class="flex justify-between items-center bg-blue-600 text-white rounded-xl px-4 py-3">
-<h4 class="font-semibold text-white-800 mb-2">🎓 KẾ HOẠCH TRAO BẰNG</h4>
-</div>
+<h4 class="font-semibold text-gray-800 mb-2">KẾ HOẠCH TRAO BẰNG</h4>
 
 <ul class="space-y-1 text-base">
     @for (item of data(); track $index) {
@@ -17,8 +15,8 @@
     </div>
     }
     <!-- Footer info -->
-    <div class="text-center text-sm text-gray-500 mt-4">
-        Đã trao: <span
+    <div class="text-center text-lg text-gray-500 mt-4">
+        Tổng đã trao: <span
             class="font-semibold">{{ tienDo.tienDo }}</span>
     </div>
 </ul>
