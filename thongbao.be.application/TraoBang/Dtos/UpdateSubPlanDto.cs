@@ -18,5 +18,7 @@ namespace thongbao.be.application.TraoBang.Dtos
         public string? KetBai { get; set; } = String.Empty;
         public int NewOrder { get; set; }
         public bool IsShow { get; set; }
-        }
+        public bool IsShowMoBai { get; set; }
+        public bool IsShowKetBai { get; set; }
+    }
 }

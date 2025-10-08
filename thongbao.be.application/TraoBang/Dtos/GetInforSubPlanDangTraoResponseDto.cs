@@ -21,5 +21,6 @@ namespace thongbao.be.application.TraoBang.Dtos
         public string MaSoSinhVien { get; set; } = String.Empty;
         public string TenNganhDaoTao { get; set; } = String.Empty;
         public int TrangThai { get; set; }
+        public int Order { get; set; }
     }
 }

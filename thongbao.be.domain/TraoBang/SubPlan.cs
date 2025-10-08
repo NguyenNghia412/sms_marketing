@@ -33,6 +33,8 @@ namespace thongbao.be.domain.TraoBang
         public int TrangThai { get; set; }
         public int Order { get; set; }
         public bool IsShow { get; set; }
+        public bool IsShowMoBai { get; set; }
+        public bool IsShowKetBai { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }

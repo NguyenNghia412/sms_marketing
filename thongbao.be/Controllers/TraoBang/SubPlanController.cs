@@ -412,11 +412,11 @@ namespace thongbao.be.Controllers.TraoBang
         }
         [AllowAnonymous]
         [HttpGet("danh-sach-sinh-vien-nhan-bang-khoa")]
-        public async Task<ApiResponse> GetInforSubPlanDangTrao()
+        public async Task<ApiResponse> GetInforSubPlanDangTrao([FromQuery] int soLuong)
         {
             try
             {
-                var data = await _subPlanService.GetInforSubPlanDangTrao();
+                var data = await _subPlanService.GetInforSubPlanDangTrao(soLuong);
                 return new(data);
             }
             catch (Exception ex)
