@@ -41,7 +41,7 @@ export class LeftSidebar extends BaseComponent {
   }
 
   onClickSubPlan(data: IViewScanQrSubPlan) {
-    if (data.trangThai !== this.subPlanStatuses.DANG_TRAO_BANG) {
+    if (data.trangThai === this.subPlanStatuses.DA_TRAO_BANG) {
       this.onChangeSubPlan.emit(data.id)
     }
   }
