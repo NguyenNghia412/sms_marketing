@@ -615,8 +615,11 @@ namespace thongbao.be.application.TraoBang.Implements
 
             var subPlan = await _smDbContext.SubPlans
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
-                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+                .FirstOrDefaultAsync(x => x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted);
+            if(subPlan == null)
+            {
+                return null;
+            }
 
             var coSinhVienDaTraoHoacDangTrao = await _smDbContext.TienDoTraoBangs
                 .AsNoTracking()
@@ -728,12 +731,18 @@ namespace thongbao.be.application.TraoBang.Implements
             _logger.LogInformation($"{nameof(GetTienDoNhanBang)}, dto= {JsonSerializer.Serialize(dto)} ");
             var khoaDangTrao = _smDbContext.SubPlans
                 .AsNoTracking()
-                .FirstOrDefault(x => x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
-                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+                .FirstOrDefault(x => x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted);
+            if (khoaDangTrao == null)
+            {
+                return null;
+            }
             var sinhVien = _smDbContext.DanhSachSinhVienNhanBangs
                 .AsNoTracking()
-                .FirstOrDefault(x => !x.Deleted && x.IdSubPlan == khoaDangTrao.Id)
-                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
+                .FirstOrDefault(x => !x.Deleted && x.IdSubPlan == khoaDangTrao.Id);
+            if (sinhVien == null)
+            {
+                return null;
+            }
 
             var results = new List<TienDoTraoBang>();
 
@@ -858,8 +867,11 @@ namespace thongbao.be.application.TraoBang.Implements
             _logger.LogInformation($"{nameof(GetInforSubPlan)}, idSubPlan= {idSubPlan} ");
             var subPlan = await _smDbContext.SubPlans
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted)
-                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+                .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
+            if (subPlan == null)
+            {
+                return null;
+            }
 
             var soLuongThamGia = await _smDbContext.DanhSachSinhVienNhanBangs
                 .AsNoTracking()
@@ -1083,8 +1095,11 @@ namespace thongbao.be.application.TraoBang.Implements
             _logger.LogInformation($"{nameof(GetInforSinhVienChuanBiDuocTraoBang)}, idSubPlan= {idSubPlan} ");
             var subPlan = await _smDbContext.SubPlans
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted)
-                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+                .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
+            if(subPlan == null)
+            {
+                return null;
+            }
 
             var sinhVienTiepTheo = await _smDbContext.TienDoTraoBangs
                 .Where(x => x.IdSubPlan == idSubPlan
