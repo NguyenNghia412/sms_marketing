@@ -298,11 +298,11 @@ namespace thongbao.be.Controllers.TraoBang
         }
         [Permission(PermissionKeys.SubPlanAdd)]
         [HttpPost("next-sub-plan")]
-        public ApiResponse NextSubPlan()
+        public async Task<ApiResponse> NextSubPlan()
         {
             try
             {
-                var data = _subPlanService.NextSubPlan();
+                var data =await _subPlanService.NextSubPlan();
                 return new(data);
             }
             catch (Exception ex)

@@ -797,8 +797,11 @@ namespace thongbao.be.application.TraoBang.Implements
             _logger.LogInformation($"{nameof(NextSubPlan)}");
 
             var currentSubPlan = _smDbContext.SubPlans
-                .FirstOrDefault(x => x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
-                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+                .FirstOrDefault(x => x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted);
+            if (currentSubPlan == null)
+            {
+                return null;
+            }
 
             currentSubPlan.TrangThai = TraoBangConstants.DaTraoBang;
             _smDbContext.SubPlans.Update(currentSubPlan);
