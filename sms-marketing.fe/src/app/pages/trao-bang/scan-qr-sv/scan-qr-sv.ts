@@ -12,10 +12,11 @@ import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv } fr
 import { SubPlanStatuses, TraoBangHubConst } from '@/shared/constants/sv-nhan-bang.constants';
 import * as signalR from '@microsoft/signalr';
 import { ScanQrService } from '@/services/scan-qr.service';
+import { NgIcon } from '@ng-icons/core';
 
 @Component({
   selector: 'app-scan-qr-sv',
-  imports: [SharedImports, TableModule, LeftSidebar, Header, StudentList, Footer],
+  imports: [SharedImports, TableModule, LeftSidebar, Header, StudentList, Footer, NgIcon],
   templateUrl: './scan-qr-sv.html',
   styleUrl: './scan-qr-sv.scss'
 })

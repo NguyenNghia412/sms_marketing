@@ -2,11 +2,11 @@
     <i class="pi pi-chart-bar text-blue-500"></i> DANH SÁCH HÀNG ĐỢI
 </h4>
 
-<p-table [value]="students() || []" >
+<p-table [value]="students() || []">
     <ng-template pTemplate="header">
         <tr class="font-bold">
-            <th>STT</th>
-            <th>MSSV</th>
+            <th class="!text-center">STT</th>
+            <th class="!text-center">MSSV</th>
             <th>Họ và Tên</th>
             <th>Ngành/Chuyên ngành</th>
             <th>Trạng thái</th>
@@ -20,12 +20,18 @@
                   'bg-gray-50': student.trangThai === 'Chuẩn bị'
                 }"> -->
         <tr>
-            <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">{{ student.order }}</td>
-            <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">{{ student.maSoSinhVien }}</td>
-            <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">{{ student.hoVaTen }}</td>
-            <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">{{ student.tenNganhDaoTao }}</td>
+            <td [class]="['!text-center ',student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : '']">{{
+                student.order }}</td>
+            <td [class]="['!text-center ', student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : '']">
+                {{
+                student.maSoSinhVien }}</td>
+            <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">{{ student.hoVaTen
+                }}</td>
+            <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">{{
+                student.tenNganhDaoTao }}</td>
             <td [class]="student.trangThai === constStatuses.DANG_TRAO_BANG ? 'bg-orange-200' : ''">
-                <p-tag [severity]="constStatuses.getSeverity(student.trangThai)" [value]="constStatuses.getName(student.trangThai)" />
+                <p-tag [severity]="constStatuses.getSeverity(student.trangThai)"
+                    [value]="constStatuses.getName(student.trangThai)" />
             </td>
         </tr>
     </ng-template>
