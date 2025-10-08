@@ -9,10 +9,11 @@ import { LeftSidebar } from '../scan-qr-sv/left-sidebar/left-sidebar';
 import { StudentList } from '../scan-qr-sv/student-list/student-list';
 import { concatMap } from 'rxjs';
 import { ScanQrService } from '@/services/scan-qr.service';
+import { SvInfo } from "./sv-info/sv-info";
 
 @Component({
   selector: 'app-mc-screen',
-  imports: [SharedImports, LeftSidebar, StudentList],
+  imports: [SharedImports, LeftSidebar, StudentList, SvInfo],
   templateUrl: './mc-screen.html',
   styleUrl: './mc-screen.scss'
 })

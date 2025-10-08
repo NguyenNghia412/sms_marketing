@@ -14,33 +14,13 @@
 
             <!-- Student Info Card -->
             <div class="border text-2xl rounded-lg bg-green-50 border-green-300 p-4 flex justify-between mb-3 w-full">
-                @if (svDangTrao && !svDangTrao.text) {
-                    <!-- Info -->
-                    <div class="space-y-1">
-                        <div class="font-bold">{{svDangTrao.capBang}} {{ svDangTrao.hoVaTen }}</div>
-                        <div><span class="font-semibold">Ngành:</span> {{ svDangTrao.tenNganhDaoTao }}</div>
-                        <div><span class="font-semibold">Xếp loại:</span> {{ svDangTrao.xepHang || 'Không xếp loại' }}</div>
-                        <div><span class="font-semibold">Thành tích:</span><span class="whitespace-pre-line">{{ svDangTrao.thanhTich }}</span></div>
-                    </div>
-                    @if (svDangTrao.note) {
-                        <div class="w-1/2"><span class="font-semibold">Ghi chú:</span> {{ svDangTrao.note || 'Không có ghi chú' }}</div>
-                    }
-                }
-                @if (svDangTrao && svDangTrao.text) {
-                    <div class="space-y-1">
-                        <div class="font-bold">{{svDangTrao.text}}</div>
-                    </div>
-                }
+                <app-sv-info [svDangTrao]="svDangTrao" />
             </div>
 
             <!-- Next student -->
             <div class="border border-yellow-400 bg-yellow-50 p-3 rounded-md mb-4 text-2xl">
-                <div class="font-semibold ">
-                    <span class="text-yellow-800 mb-1">CHUẨN BỊ:&nbsp;</span>
-                    @if (svChuanBi) {
-                        {{svChuanBi.capBang}} {{ svChuanBi.hoVaTen }} - Khoa: {{ svChuanBi.tenSubPlan }} - Ngành: {{ svChuanBi.tenNganhDaoTao }} @if(svChuanBi.xepHang) {- {{ svChuanBi.xepHang }}}
-                    }
-                </div>
+                <span class="text-yellow-800 mb-1">CHUẨN BỊ:&nbsp;</span>
+                <app-sv-info [svDangTrao]="svChuanBi" />
             </div>
 
             <!-- Buttons -->
