@@ -941,11 +941,10 @@ namespace thongbao.be.application.TraoBang.Implements
 
                 var subPlan = await _smDbContext.SubPlans
                     .AsNoTracking()
-
                     .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
 
                 await _traoBangService.NotifySinhVienDangTrao(idSubPlan, sinhVienDauTien.Id);
-              
+
                 return new GetSinhVienDangTraoBangInforDto
                 {
                     TenSubPlan = subPlan?.Ten ?? string.Empty,
@@ -973,6 +972,19 @@ namespace thongbao.be.application.TraoBang.Implements
 
             if (sinhVienTiepTheo == null)
             {
+                var subPlanForKetBai = await _smDbContext.SubPlans
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
+
+                if (subPlanForKetBai != null && subPlanForKetBai.IsShowKetBai)
+                {
+                    return new GetSinhVienDangTraoBangInforDto
+                    {
+                        TenSubPlan = subPlanForKetBai.Ten ?? string.Empty,
+                        Text = subPlanForKetBai.KetBai ?? string.Empty
+                    };
+                }
+
                 return null;
             }
 
@@ -989,7 +1001,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
 
             await _traoBangService.NotifySinhVienDangTrao(idSubPlan, sinhVienTiepTheo.Id);
-          
+
 
             return new GetSinhVienDangTraoBangInforDto
             {
@@ -1014,6 +1026,19 @@ namespace thongbao.be.application.TraoBang.Implements
                             && !x.Deleted);
             if (sinhVienDangTrao == null)
             {
+                var subPlanForMoBai = await _smDbContext.SubPlans
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
+
+                if (subPlanForMoBai != null && subPlanForMoBai.IsShowMoBai)
+                {
+                    return new GetSinhVienDangTraoBangInforDto
+                    {
+                        TenSubPlan = subPlanForMoBai.Ten ?? string.Empty,
+                        Text = subPlanForMoBai.MoBai ?? string.Empty
+                    };
+                }
+
                 return null;
             }
             sinhVienDangTrao.TrangThai = TraoBangConstants.ChuanBi;
@@ -1039,7 +1064,6 @@ namespace thongbao.be.application.TraoBang.Implements
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
             await _traoBangService.NotifySinhVienDangTrao(idSubPlan, sinhVienTruocDo.Id);
-
             return new GetSinhVienDangTraoBangInforDto
             {
                 TenSubPlan = subPlanInfo?.Ten ?? string.Empty,
