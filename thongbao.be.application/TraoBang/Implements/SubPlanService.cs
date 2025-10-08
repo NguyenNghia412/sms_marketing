@@ -816,10 +816,7 @@ namespace thongbao.be.application.TraoBang.Implements
             var subPlans = await _smDbContext.SubPlans
                 .AsNoTracking()
                 .Where(x => x.IdPlan == idPlan && !x.Deleted)
-                .OrderByDescending(x => x.TrangThai == TraoBangConstants.DaTraoBang)
-                .ThenByDescending(x => x.TrangThai == TraoBangConstants.DangTraoBang)
-                .ThenByDescending(x => x.TrangThai == TraoBangConstants.ChuanBi)
-                .ThenBy(x => x.Order)
+                .OrderBy(x => x.Order)
                 .ToListAsync();
 
             var items = new List<GetListSubPlanDto>();
@@ -894,9 +891,11 @@ namespace thongbao.be.application.TraoBang.Implements
             var tongSinhVienThamGiaTraoBang = await _smDbContext.DanhSachSinhVienNhanBangs
                 .AsNoTracking()
                 .CountAsync(x => x.TrangThai == TraoBangConstants.ThamGiaTraoBang && !x.Deleted);
+
+            var tienDo = tongSinhVienThamGiaTraoBang > 0 ? (double)sinhVienDaTrao / tongSinhVienThamGiaTraoBang * 100 : 0;
             return new GetTienDoTraoBangResponseDto
             {
-                TienDo = $"{sinhVienDaTrao}/{tongSinhVienThamGiaTraoBang}"
+                TienDo = $"{sinhVienDaTrao}/{tongSinhVienThamGiaTraoBang}({tienDo:F2}%)"
             };
         }
 

@@ -25,6 +25,12 @@ namespace thongbao.be.shared.Constants.Auth
         public const string MenuReport = Menu + "Report";
         public const string MenuTraoBang = Menu + "TraoBang";
 
+        public const string MenuTraoBangCauHinh = MenuTraoBang + "_CauHinh";
+        public const string MenuTraoBangCauHinhChuongTrinh = MenuTraoBangCauHinh + "_ChuongTrinh";
+        public const string MenuTraoBangCauHinhKhoa = MenuTraoBangCauHinh + "_Khoa";
+        public const string MenuTraoBangCauHinhSinhVienNhanBang = MenuTraoBangCauHinh + "_SinhVienNhanBang";
+        public const string MenuTraoBangQuetQr = MenuTraoBang + "_QuetQr";
+        public const string MenuTraoBangMc = MenuTraoBang + "_Mc";
         public const string CategoryUser = "QL User";
         public const string UserAdd = Function + "UserAdd";
         public const string UserUpdate = Function + "UserUpdate";
