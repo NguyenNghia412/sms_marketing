@@ -3,7 +3,9 @@ import { ICreateSvNhanBang, IUpdateSvNhanBang } from '@/models/trao-bang/sv-nhan
 import { TraoBangSubPlanService } from '@/services/trao-bang/sub-plan.service';
 import { TraoBangSvService } from '@/services/trao-bang/sv-nhan-bang.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
+import { SvNhanBangStatuses } from '@/shared/constants/sv-nhan-bang.constants';
 import { SharedImports } from '@/shared/import.shared';
+import { Utils } from '@/shared/utils';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -29,14 +31,14 @@ export class Create extends BaseComponent {
         email: new FormControl(''),
         emailSinhVien: new FormControl(''),
         lop: new FormControl(''),
-        ngaySinh: new FormControl(''),
+        ngaySinh: new FormControl(new Date()),
         capBang: new FormControl(''),
         tenNganhDaoTao: new FormControl(''),
         xepHang: new FormControl(''),
         thanhTich: new FormControl(''),
         khoaQuanLy: new FormControl(''),
         soQuyetDinhTotNghiep: new FormControl(''),
-        ngayQuyetDinh: new FormControl(''),
+        ngayQuyetDinh: new FormControl(new Date()),
         note: new FormControl(''),
         linkQR: new FormControl(''),
         trangThai: new FormControl(''),
@@ -57,8 +59,27 @@ export class Create extends BaseComponent {
     override ngOnInit(): void {
         this.getListSubPlan();
         if (this.isUpdate) {
+            console.log(this._config.data)
+            const tmp = {...this._config.data};
+            delete tmp.id;
             this.form.setValue({
-                ...this._config.data
+                idSubPlan: this._config.data.idSubPlan,
+                hoVaTen: this._config.data.hoVaTen,
+                maSoSinhVien: this._config.data.maSoSinhVien,
+                email: this._config.data.email,
+                emailSinhVien: this._config.data.emailSinhVien,
+                lop: this._config.data.lop,
+                ngaySinh: new Date(this._config.data.ngaySinh),
+                capBang: this._config.data.capBang,
+                tenNganhDaoTao: this._config.data.tenNganhDaoTao,
+                xepHang: this._config.data.xepHang,
+                thanhTich: this._config.data.thanhTich,
+                khoaQuanLy: this._config.data.khoaQuanLy,
+                soQuyetDinhTotNghiep: this._config.data.soQuyetDinhTotNghiep,
+                ngayQuyetDinh: new Date(this._config.data.ngayQuyetDinh),
+                note: this._config.data.note,
+                linkQR: this._config.data.linkQR,
+                trangThai: this._config.data.trangThai,
             });
         }
     }
@@ -92,6 +113,9 @@ export class Create extends BaseComponent {
     onSubmitCreate() {
         const body: ICreateSvNhanBang = {
             ...this.form.value,
+            ngaySinh: Utils.formatDateCallApi(this.form.value['ngaySinh']),
+            ngayQuyetDinh: Utils.formatDateCallApi(this.form.value['ngayQuyetDinh']),
+            trangThai: SvNhanBangStatuses.THAM_GIA_TRAO_BANG
         };
         this.loading = true;
         this._svNhanBangService.create(body).subscribe({
@@ -113,6 +137,8 @@ export class Create extends BaseComponent {
         const body: IUpdateSvNhanBang = {
             idSubPlan: this._config.data.id,
             ...this.form.value,
+            ngaySinh: Utils.formatDateCallApi(this.form.value['ngaySinh']),
+            ngayQuyetDinh: Utils.formatDateCallApi(this.form.value['ngayQuyetDinh']),
         };
         this.loading = true;
         this._svNhanBangService.update(body).subscribe({

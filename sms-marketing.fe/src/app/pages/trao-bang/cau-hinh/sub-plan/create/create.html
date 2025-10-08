@@ -35,9 +35,19 @@
             <input pInputText formControlName="truongKhoa" id="truongKhoa" type="text" class="w-full mb-2" />
         </div>
     </div>
-    <div class="flex items-center mb-3">
-        <p-checkbox inputId="isShow" name="isShow" formControlName="isShow" [binary]="true" />
-        <label for="isShow" class="ml-2 cursor-pointer">Có hiển thị</label>
+    <div class="grid grid-cols-3 gap-3">
+        <div class="flex items-center mb-3">
+            <p-checkbox inputId="isShow" name="isShow" formControlName="isShow" [binary]="true" />
+            <label for="isShow" class="ml-2 cursor-pointer">Hiển thị khoa</label>
+        </div>
+        <div class="flex items-center mb-3">
+            <p-checkbox inputId="isShowMoBai" name="isShowMoBai" formControlName="isShowMoBai" [binary]="true" />
+            <label for="isShowMoBai" class="ml-2 cursor-pointer">Hiển thị mở bài</label>
+        </div>
+        <div class="flex items-center mb-3">
+            <p-checkbox inputId="isShowKetBai" name="isShowKetBai" formControlName="isShowKetBai" [binary]="true" />
+            <label for="isShowKetBai" class="ml-2 cursor-pointer">Hiển thị kết bài</label>
+        </div>
     </div>
     <div class="mb-3">
         <label for="moBai" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Mở bài</label>

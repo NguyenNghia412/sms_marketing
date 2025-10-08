@@ -17,15 +17,18 @@ export interface IFindPagingConfigSubPlan extends IBaseRequestPaging {}
 
 export interface ICreateConfigSubPlan {
     idPlan: number;
-    ten?: string;
-    moTa?: string | null;
-    note?: string | null;
-    moBai?: string;
-    ketBai?: string;
-    order?: number;
+    ten: string;
+    moTa: string | null;
+    note: string | null;
+    moBai: string;
+    ketBai: string;
+    order: number;
     isShow: boolean;
+    isShowMoBai: boolean;
+    isShowKetBai: boolean;
 }
 
 export interface IUpdateConfigSubPlan extends ICreateConfigSubPlan {
     idSubPlan: number;
+    newOrder: number;
 }

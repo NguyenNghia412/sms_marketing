@@ -26,7 +26,7 @@ export class SubPlan extends BaseComponent {
 
   columns: IColumn[] = [
     { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
-    { header: 'Tên chương trình', field: 'ten', headerContainerStyle: 'min-width: 10rem' },
+    { header: 'Tên khoa', field: 'ten', headerContainerStyle: 'min-width: 10rem' },
     { header: 'Mô tả', field: 'moTa', headerContainerStyle: 'min-width: 10rem' },
     { header: 'Mở bài', field: 'moBai', headerContainerStyle: 'min-width: 10rem' },
     { header: 'Kết bài', field: 'ketBai', headerContainerStyle: 'min-width: 10rem' },
@@ -39,7 +39,7 @@ export class SubPlan extends BaseComponent {
   data: IViewRowConfigSubPlan[] = [];
   query: IFindPagingConfigSubPlan = {
     pageNumber: this.START_PAGE_NUMBER,
-    pageSize: this.MAX_PAGE_SIZE
+    pageSize: 20
   };
 
   override ngOnInit(): void {

@@ -32,6 +32,8 @@ export class Create extends BaseComponent {
         moBai: new FormControl(''),
         ketBai: new FormControl(''),
         isShow: new FormControl(true),
+        isShowMoBai: new FormControl(true),
+        isShowKetBai: new FormControl(true),
         order: new FormControl(1, [Validators.required])
     });
 
@@ -106,6 +108,7 @@ export class Create extends BaseComponent {
         const body: IUpdateConfigSubPlan = {
             idSubPlan: this._config.data.id,
             ...this.form.value,
+            newOrder: this.form.value['order'],
         };
         this.loading = true;
         this._subPlanService.update(body).subscribe({
