@@ -241,11 +241,11 @@ namespace thongbao.be.Controllers.TraoBang
         }
         [Permission(PermissionKeys.SubPlanAdd)]
         [HttpPost("sinh-vien-nhan-bang/hang-doi")]
-        public ApiResponse DiemDanhNhanBang([FromQuery] string mssv)
+        public async Task<ApiResponse> DiemDanhNhanBang([FromQuery] string mssv)
         {
             try
             {
-                var data = _subPlanService.DiemDanhNhanBang(mssv);
+                var data = await _subPlanService.DiemDanhNhanBang(mssv);
                 return new(data);
             }
             catch (Exception ex)
