@@ -17,9 +17,11 @@
             <!-- QR + INPUT -->
             <div class="w-full lg:w-2/5 bg-white rounded-xl shadow p-4">
                 <div class="flex gap-2 mb-3">
-                    <button pButton label="QUÉT QR CODE" class="p-button-sm p-button-outlined">
-
-                    </button>
+                    <!-- <p-tag severity="info" class="text-base">
+                        <div [ngClass]="['w-full py-2 text-base bor']">QUÉT QR
+                        </div>
+                    </p-tag> -->
+                    <button pButton label="QUÉT QR" class="p-button-sm p-button"></button>
                     <button pButton label="NHẬP MSSV" class="p-button-sm p-button-outlined"
                         (click)="onOpenDialogMssv()"></button>
                 </div>
