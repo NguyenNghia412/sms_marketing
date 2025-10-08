@@ -53,7 +53,7 @@ export interface IUpdateSvNhanBang extends ICreateSvNhanBang {
 }
 
 export interface IGetTienDoHangDoi {
-    IdSubPlan: number;
+    // IdSubPlan: number;
     SoLuong?: number;
 }
 
@@ -93,8 +93,16 @@ export interface IViewSvDangTraoBang {
     maSoSinhVien?: string;
     tenSubPlan?: string;
     note?: string;
+    text?: string;
 }
 
 export interface IViewTienDoTraoBang {
     tienDo: string
+}
+
+export interface IViewSubPlanSideScreen {
+    id?: number
+    ten?: string
+    tienDo?: string
+    items?: IViewScanQrTienDoSv[]
 }

@@ -33,7 +33,8 @@ export class ScanQrService {
       this.readString = '';
 
       if (value !== '') {
-        if (value.includes('http') && value.includes('huce.edu.vn') && value.includes('mssv')) {
+        if (value.includes('http') && value.includes('mssv')) {
+          console.log(value)
           const parsedUrl = new URL(value);
           const data = parsedUrl.searchParams.get('mssv');
 

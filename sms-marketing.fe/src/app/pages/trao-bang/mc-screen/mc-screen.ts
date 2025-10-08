@@ -80,7 +80,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
   }
 
   getHangDoi() {
-    this._svTraoBangService.getHangDoi({ IdSubPlan: this.idSubPlan, SoLuong: 7 })
+    this._svTraoBangService.getHangDoi({ SoLuong: 7 })
       .pipe(
         concatMap(res => {
           if (this.isResponseSucceed(res)) {
