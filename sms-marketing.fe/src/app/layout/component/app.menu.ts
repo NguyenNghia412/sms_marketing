@@ -88,24 +88,29 @@ export class AppMenu {
                         visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBang),
                         items: [
                             {
-                                label: 'Sân khấu',
-                                routerLink: ['/guest/trao-bang/main-screen'],
-                                visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangMc),
-                            },
-                            {
-                                label: 'Cánh gà',
-                                routerLink: ['/guest/trao-bang/side-screen'],
-                                visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangMc),
-                            },
-                            {
-                                label: 'Checkin',
-                                routerLink: ['/trao-bang/scan-qr-sv'],
-                                visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangQuetQr),
-                            },
-                            {
-                                label: 'Điều khiển',
-                                routerLink: ['/trao-bang/mc-screen'],
-                                visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangMc),
+                                label: 'Màn hình',
+                                items: [
+                                    {
+                                        label: 'Sân khấu',
+                                        routerLink: ['/guest/trao-bang/main-screen'],
+                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangMc),
+                                    },
+                                    {
+                                        label: 'Cánh gà',
+                                        routerLink: ['/guest/trao-bang/side-screen'],
+                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangMc),
+                                    },
+                                    {
+                                        label: 'Điều khiển',
+                                        routerLink: ['/trao-bang/mc-screen'],
+                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangMc),
+                                    },
+                                    {
+                                        label: 'Checkin',
+                                        routerLink: ['/trao-bang/scan-qr-sv'],
+                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangQuetQr),
+                                    },
+                                ]
                             },
                             {
                                 label: 'Cấu hình',
