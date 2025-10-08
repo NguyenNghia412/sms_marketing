@@ -620,7 +620,7 @@ namespace thongbao.be.application.TraoBang.Implements
 
             var coSinhVienDaTrao = await _smDbContext.TienDoTraoBangs
                 .AsNoTracking()
-                .AnyAsync(x => x.IdSubPlan == subPlan.Id && x.TrangThai == TraoBangConstants.DaTraoBang && subPlan.IsShowMoBai == true &&!x.Deleted);
+                .AnyAsync(x => x.IdSubPlan == subPlan.Id && x.TrangThai == TraoBangConstants.DaTraoBang && x.TrangThai == TraoBangConstants.DangTraoBang  && subPlan.IsShowMoBai == true &&!x.Deleted);
 
             if (!coSinhVienDaTrao)
             {
