@@ -171,11 +171,11 @@ namespace thongbao.be.Controllers.TraoBang
         }
         [Permission(PermissionKeys.SubPlanUpdate)]
         [HttpPut("sinh-vien-nhan-bang")]
-        public ApiResponse UpdateSinhVienNhanBang([FromBody] UpdateSinhVienNhanBangDto dto)
+        public async Task<ApiResponse> UpdateSinhVienNhanBang([FromBody] UpdateSinhVienNhanBangDto dto)
         {
             try
             {
-                _subPlanService.UpdateSinhVienNhanBang(dto);
+                await _subPlanService.UpdateSinhVienNhanBang(dto);
                 return new();
             }
             catch (Exception ex)
