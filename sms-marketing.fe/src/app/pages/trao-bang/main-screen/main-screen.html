@@ -1,6 +1,6 @@
 <div class="h-[100vh] max-h-[100vh] overflow-hidden relative">
     <img src="/bg_trao-bang_ko_chuc_mung.jpg" class="w-full h-full block" />
-    <div class="font-avo mx-auto text-center top-[45%] left-1/2 -translate-x-1/2 absolute">
+    <div class="font-avo mx-auto text-center top-[38%] left-1/2 -translate-x-1/2 absolute">
 
 
         @if (svDangTrao && svDangTrao.text) {
@@ -25,10 +25,9 @@
             @if (svDangTrao.thanhTich) {
             <p class="font-avo font-semibold tracking-wide text-3xl text-[#0e2e47] !mb-0">Thành tích:</p>
 
-            <ul class="font-semibold tracking-widest text-xl">
-                <li class="mb-2">- {{ svDangTrao.thanhTich }}</li>
-                <!-- <li class="mb-2">- Học bổng ABC</li> -->
-            </ul>
+            <div class="font-semibold tracking-widest text-xl">
+                <span style="white-space: pre-line">{{ svDangTrao.thanhTich }}</span>
+            </div>
             }
         </div>
         }
