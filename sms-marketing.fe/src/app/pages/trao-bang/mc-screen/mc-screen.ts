@@ -104,13 +104,26 @@ export class McScreen extends BaseComponent implements OnDestroy {
           if (this.isResponseSucceed(res)) {
             this.svDangTrao = res.data
           }
-          return this._svTraoBangService.getSvChuanBi(this.idSubPlan);
         }
       })
   }
 
   nextTraoBang() {
     this._svTraoBangService.nextSvNhanBang(this.idSubPlan).subscribe({
+      next: res => {
+        if (this.isResponseSucceed(res)) {
+          // this.svDangTrao = res.data
+          this.getSvDangTrao();
+          this.getHangDoi();
+          const data = [...this.listSubPlan]
+          this.listSubPlan = data;
+        }
+      }
+    })
+  }
+
+  prevTraoBang() {
+    this._svTraoBangService.prevSvNhanBang(this.idSubPlan).subscribe({
       next: res => {
         if (this.isResponseSucceed(res)) {
           // this.svDangTrao = res.data

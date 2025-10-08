@@ -75,7 +75,11 @@ export class TraoBangSvService {
     }
 
     nextSvNhanBang(idSubPlan: number) {
-        return this.http.post<IBaseResponse>(`${this.api}/sinh-vien-nhan-bang/next-trao-bang?idSubPlan=${idSubPlan}`, null);
+        return this.http.post<IBaseResponse>(`${this.api}/${idSubPlan}/sinh-vien-nhan-bang/next-trao-bang`, null);
+    }
+
+    prevSvNhanBang(idSubPlan: number) {
+        return this.http.post<IBaseResponse>(`${this.api}/${idSubPlan}/sinh-vien-nhan-bang/prev-trao-bang`, null);
     }
 
     getSvChuanBi(idSubPlan: number) {
