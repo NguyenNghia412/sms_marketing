@@ -593,7 +593,7 @@ namespace thongbao.be.application.TraoBang.Implements
             sinhVien.TrangThai = TraoBangConstants.DangTraoBang;
             _smDbContext.TienDoTraoBangs.Update(sinhVien);
             _smDbContext.SaveChanges();
-            await _traoBangService.NotifySinhVienDangTrao(idSubPlan, id);
+            await _traoBangService.NotifySinhVienDangTrao();
              _logger.LogInformation($"Đã bắn SignalR cho sinh viên Id: {id}, SubPlan: {idSubPlan}");
         }
         public async Task<GetSinhVienDangTraoBangInforDto> GetSinhVienDangTraoBang()
@@ -782,38 +782,40 @@ namespace thongbao.be.application.TraoBang.Implements
         public async Task<GetNextSubPlanResponseDto?> NextSubPlan()
         {
             _logger.LogInformation($"{nameof(NextSubPlan)}");
-
             var currentSubPlan = _smDbContext.SubPlans
                 .FirstOrDefault(x => x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted);
-            if (currentSubPlan == null)
+
+            if (currentSubPlan != null)
             {
-                return null;
+                currentSubPlan.TrangThai = TraoBangConstants.DaTraoBang;
+                _smDbContext.SubPlans.Update(currentSubPlan);
             }
 
-            currentSubPlan.TrangThai = TraoBangConstants.DaTraoBang;
-            _smDbContext.SubPlans.Update(currentSubPlan);
-
             var nextSubPlan = _smDbContext.SubPlans
-                .Where(x => x.TrangThai != TraoBangConstants.DaTraoBang && x.Id != currentSubPlan.Id && !x.Deleted)
+                .Where(x => x.TrangThai == TraoBangConstants.ChuanBi && !x.Deleted)
                 .OrderBy(x => x.Order)
                 .FirstOrDefault();
 
-            if (nextSubPlan != null)
+            if (nextSubPlan == null)
             {
-                nextSubPlan.TrangThai = TraoBangConstants.DangTraoBang;
-                _smDbContext.SubPlans.Update(nextSubPlan);
+                _smDbContext.SaveChanges();
+                return null;
             }
+
+            nextSubPlan.TrangThai = TraoBangConstants.DangTraoBang;
+            _smDbContext.SubPlans.Update(nextSubPlan);
 
             _smDbContext.SaveChanges();
             await _traoBangService.NotifyChuyenKhoa();
-            return nextSubPlan != null ? new GetNextSubPlanResponseDto
+
+            return new GetNextSubPlanResponseDto
             {
                 Id = nextSubPlan.Id,
                 TenSubPlan = nextSubPlan.Ten,
                 TruongKhoa = nextSubPlan.TruongKhoa,
                 Order = nextSubPlan.Order,
                 TrangThai = nextSubPlan.TrangThai
-            } : null;
+            };
         }
 
         public async Task<List<GetListSubPlanDto>> GetListSubPlanInfor(int idPlan)
@@ -892,7 +894,6 @@ namespace thongbao.be.application.TraoBang.Implements
         }
         
 
-        //Get số sinh viên đã trao/ tổng số sinh viên tham dự
         public async Task<GetTienDoTraoBangResponseDto> GetTienDoTraoBang()
         {
             var sinhVienDaTrao = await _smDbContext.TienDoTraoBangs
@@ -908,8 +909,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 TienDo = $"{sinhVienDaTrao}/{tongSinhVienThamGiaTraoBang} sinh viên ({tienDo:F2}%)"
             };
         }
-
-        //Next sinh viên trao bằng 
+        //next sinh viên đang trao
         public async Task<GetSinhVienDangTraoBangInforDto> NextSinhVienTraoBang(int idSubPlan)
         {
             _logger.LogInformation($"{nameof(NextSinhVienTraoBang)}");
@@ -930,6 +930,19 @@ namespace thongbao.be.application.TraoBang.Implements
 
                 if (sinhVienDauTien == null)
                 {
+                    var subPlanForKetBai = await _smDbContext.SubPlans
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
+
+                    if (subPlanForKetBai != null && subPlanForKetBai.IsShowKetBai)
+                    {
+                        return new GetSinhVienDangTraoBangInforDto
+                        {
+                            TenSubPlan = subPlanForKetBai.Ten ?? string.Empty,
+                            Text = subPlanForKetBai.KetBai ?? string.Empty
+                        };
+                    }
+
                     return null;
                 }
 
@@ -945,7 +958,7 @@ namespace thongbao.be.application.TraoBang.Implements
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
 
-                await _traoBangService.NotifySinhVienDangTrao(idSubPlan, sinhVienDauTien.Id);
+                await _traoBangService.NotifySinhVienDangTrao();
 
                 return new GetSinhVienDangTraoBangInforDto
                 {
@@ -961,6 +974,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 };
             }
 
+           
             sinhVienDangTrao.TrangThai = TraoBangConstants.DaTraoBang;
             _smDbContext.TienDoTraoBangs.Update(sinhVienDangTrao);
             await _smDbContext.SaveChangesAsync();
@@ -1002,8 +1016,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
 
-            await _traoBangService.NotifySinhVienDangTrao(idSubPlan, sinhVienTiepTheo.Id);
-
+            await _traoBangService.NotifySinhVienDangTrao();
 
             return new GetSinhVienDangTraoBangInforDto
             {
@@ -1022,11 +1035,78 @@ namespace thongbao.be.application.TraoBang.Implements
         public async Task<GetSinhVienDangTraoBangInforDto?> PrevSinhVienTraoBang(int idSubPlan)
         {
             _logger.LogInformation($"{nameof(PrevSinhVienTraoBang)}");
+
             var sinhVienDangTrao = await _smDbContext.TienDoTraoBangs
                 .FirstOrDefaultAsync(x => x.IdSubPlan == idSubPlan
                             && x.TrangThai == TraoBangConstants.DangTraoBang
                             && !x.Deleted);
             if (sinhVienDangTrao == null)
+            {
+                var sinhVienCuoiCung = await _smDbContext.TienDoTraoBangs
+                    .Where(x => x.IdSubPlan == idSubPlan
+                                && x.TrangThai == TraoBangConstants.DaTraoBang
+                                && !x.Deleted)
+                    .OrderByDescending(x => x.Order)
+                    .FirstOrDefaultAsync();
+
+                if (sinhVienCuoiCung == null)
+                {
+                    var subPlanForMoBai = await _smDbContext.SubPlans
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
+
+                    if (subPlanForMoBai != null && subPlanForMoBai.IsShowMoBai)
+                    {
+                        return new GetSinhVienDangTraoBangInforDto
+                        {
+                            TenSubPlan = subPlanForMoBai.Ten ?? string.Empty,
+                            Text = subPlanForMoBai.MoBai ?? string.Empty
+                        };
+                    }
+
+                    return null;
+                }
+
+                sinhVienCuoiCung.TrangThai = TraoBangConstants.DangTraoBang;
+                _smDbContext.TienDoTraoBangs.Update(sinhVienCuoiCung);
+                await _smDbContext.SaveChangesAsync();
+
+                var sinhVienInfo = await _smDbContext.DanhSachSinhVienNhanBangs
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.Id == sinhVienCuoiCung.IdSinhVienNhanBang && !x.Deleted);
+
+                var subPlan = await _smDbContext.SubPlans
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
+
+                await _traoBangService.NotifySinhVienDangTrao();
+
+                return new GetSinhVienDangTraoBangInforDto
+                {
+                    TenSubPlan = subPlan?.Ten ?? string.Empty,
+                    Id = sinhVienCuoiCung.Id,
+                    HoVaTen = sinhVienInfo?.HoVaTen ?? string.Empty,
+                    MaSoSinhVien = sinhVienInfo?.MaSoSinhVien ?? string.Empty,
+                    TenNganhDaoTao = sinhVienInfo?.TenNganhDaoTao ?? string.Empty,
+                    XepHang = sinhVienInfo?.XepHang ?? string.Empty,
+                    ThanhTich = sinhVienInfo?.ThanhTich ?? string.Empty,
+                    CapBang = sinhVienInfo?.CapBang ?? string.Empty,
+                    Note = sinhVienInfo?.Note ?? string.Empty
+                };
+            }
+
+            sinhVienDangTrao.TrangThai = TraoBangConstants.ChuanBi;
+            _smDbContext.TienDoTraoBangs.Update(sinhVienDangTrao);
+            await _smDbContext.SaveChangesAsync();
+
+            var sinhVienTruocDo = await _smDbContext.TienDoTraoBangs
+                .Where(x => x.IdSubPlan == idSubPlan
+                            && x.TrangThai == TraoBangConstants.DaTraoBang
+                            && !x.Deleted)
+                .OrderByDescending(x => x.Order)
+                .FirstOrDefaultAsync();
+
+            if (sinhVienTruocDo == null)
             {
                 var subPlanForMoBai = await _smDbContext.SubPlans
                     .AsNoTracking()
@@ -1043,40 +1123,32 @@ namespace thongbao.be.application.TraoBang.Implements
 
                 return null;
             }
-            sinhVienDangTrao.TrangThai = TraoBangConstants.ChuanBi;
-            _smDbContext.TienDoTraoBangs.Update(sinhVienDangTrao);
-            await _smDbContext.SaveChangesAsync();
-            var sinhVienTruocDo = await _smDbContext.TienDoTraoBangs
-                .Where(x => x.IdSubPlan == idSubPlan
-                            && x.TrangThai == TraoBangConstants.DaTraoBang
-                            && !x.Deleted)
-                .OrderByDescending(x => x.Order)
-                .FirstOrDefaultAsync();
-            if (sinhVienTruocDo == null)
-            {
-                return null;
-            }
+
             sinhVienTruocDo.TrangThai = TraoBangConstants.DangTraoBang;
             _smDbContext.TienDoTraoBangs.Update(sinhVienTruocDo);
             await _smDbContext.SaveChangesAsync();
-            var sinhVienInfoTiepTheo = await _smDbContext.DanhSachSinhVienNhanBangs
+
+            var sinhVienInfoTruocDo = await _smDbContext.DanhSachSinhVienNhanBangs
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == sinhVienTruocDo.IdSinhVienNhanBang && !x.Deleted);
+
             var subPlanInfo = await _smDbContext.SubPlans
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
-            await _traoBangService.NotifySinhVienDangTrao(idSubPlan, sinhVienTruocDo.Id);
+
+            await _traoBangService.NotifySinhVienDangTrao();
+
             return new GetSinhVienDangTraoBangInforDto
             {
                 TenSubPlan = subPlanInfo?.Ten ?? string.Empty,
                 Id = sinhVienTruocDo.Id,
-                HoVaTen = sinhVienInfoTiepTheo?.HoVaTen ?? string.Empty,
-                MaSoSinhVien = sinhVienInfoTiepTheo?.MaSoSinhVien ?? string.Empty,
-                TenNganhDaoTao = sinhVienInfoTiepTheo?.TenNganhDaoTao ?? string.Empty,
-                XepHang = sinhVienInfoTiepTheo?.XepHang ?? string.Empty,
-                ThanhTich = sinhVienInfoTiepTheo?.ThanhTich ?? string.Empty,
-                CapBang = sinhVienInfoTiepTheo?.CapBang ?? string.Empty,
-                Note = sinhVienInfoTiepTheo?.Note ?? string.Empty
+                HoVaTen = sinhVienInfoTruocDo?.HoVaTen ?? string.Empty,
+                MaSoSinhVien = sinhVienInfoTruocDo?.MaSoSinhVien ?? string.Empty,
+                TenNganhDaoTao = sinhVienInfoTruocDo?.TenNganhDaoTao ?? string.Empty,
+                XepHang = sinhVienInfoTruocDo?.XepHang ?? string.Empty,
+                ThanhTich = sinhVienInfoTruocDo?.ThanhTich ?? string.Empty,
+                CapBang = sinhVienInfoTruocDo?.CapBang ?? string.Empty,
+                Note = sinhVienInfoTruocDo?.Note ?? string.Empty
             };
         }
         // GetInFor sinh viên được trao bằng tiếp theo 

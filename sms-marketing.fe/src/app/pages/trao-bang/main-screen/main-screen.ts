@@ -42,9 +42,9 @@ export class MainScreen extends BaseComponent {
       .build();
 
     this.hubConnection.on(TraoBangHubConst.ReceiveSinhVienDangTrao, (...args) => {
-      const idSubPlan = args[0];
+      //const idSubPlan = args[0];
 
-      if (!idSubPlan) return;
+      //if (!idSubPlan) return;
 
       this.getSvDangTrao();
       // this.initData();
