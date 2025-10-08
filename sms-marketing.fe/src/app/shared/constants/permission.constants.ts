@@ -16,6 +16,13 @@ export class PermissionConstants {
     static MenuReport = this.Menu + "Report";
     static MenuTraoBang = this.Menu + "TraoBang";
 
+    static MenuTraoBangCauHinh = this.MenuTraoBang + "_CauHinh";
+    static MenuTraoBangCauHinhChuongTrinh = this.MenuTraoBangCauHinh + "_ChuongTrinh";
+    static MenuTraoBangCauHinhKhoa = this.MenuTraoBangCauHinh + "_Khoa";
+    static MenuTraoBangCauHinhSinhVienNhanBang = this.MenuTraoBangCauHinh + "_SinhVienNhanBang";
+    static MenuTraoBangQuetQr = this.MenuTraoBang + "_QuetQr";
+    static MenuTraoBangMc = this.MenuTraoBang + "_Mc";
+
     static CategoryUser = "QL User";
     static UserAdd = this.Function + "UserAdd";
     static UserUpdate = this.Function + "UserUpdate";

@@ -1,6 +1,14 @@
 <div class="h-[100vh] max-h-[100vh] overflow-hidden relative">
-    <img src="/bg_trao-bang.jpg" class="w-full h-full block" />
+    <img src="/bg_trao-bang_ko_chuc_mung.jpg" class="w-full h-full block" />
     <div class="font-avo mx-auto text-center top-[45%] left-1/2 -translate-x-1/2 absolute">
+
+
+        @if (svDangTrao && svDangTrao.text) {
+        <p class="uppercase text-6xl font-avo-bold text-[#0e2e47] !mb-0 leading-5">{{ svDangTrao.text }}</p>
+        }
+
+        @if (svDangTrao && !svDangTrao.text) {
+        <p class="font-snell font-bold text-6xl text-[#eb1d33] !mb-5">Chúc mừng</p>
         <div class="my-4">
             <p class="uppercase text-4xl font-avo-bold text-[#0e2e47] !mb-0 leading-5">tân {{ svDangTrao.capBang }}</p>
             <p class="text-5xl font-avo-bold text-[#eb1d33] !mb-0 leading-5">{{ svDangTrao.hoVaTen }}</p>
@@ -23,5 +31,6 @@
             </ul>
             }
         </div>
+        }
     </div>
 </div>

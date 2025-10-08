@@ -1,5 +1,5 @@
 import { IViewRowConfigSubPlan } from '@/models/trao-bang/sub-plan.models';
-import { ICreateSvNhanBang, IFindPagingSvNhanBang, IGetTienDoHangDoi as IGetTienDoHangDoi, IUpdateSvNhanBang, IViewRowSvNhanBang, IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IViewSvDangTraoBang, IViewTienDoTraoBang } from '@/models/trao-bang/sv-nhan-bang.models';
+import { ICreateSvNhanBang, IFindPagingSvNhanBang, IGetTienDoHangDoi as IGetTienDoHangDoi, IUpdateSvNhanBang, IViewRowSvNhanBang, IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IViewSubPlanSideScreen, IViewSvDangTraoBang, IViewTienDoTraoBang } from '@/models/trao-bang/sv-nhan-bang.models';
 import { IBaseResponse, IBaseResponsePaging, IBaseResponseWithData } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -84,6 +84,10 @@ export class TraoBangSvService {
 
     getSvChuanBi(idSubPlan: number) {
         return this.http.get<IBaseResponseWithData<IViewSvDangTraoBang>>(`${this.api}/${idSubPlan}/sinh-vien-nhan-bang/chuan-bi`);
+    }
+
+    getSvNhanBangKhoa() {
+        return this.http.get<IBaseResponseWithData<IViewSubPlanSideScreen>>(`${this.api}/danh-sach-sinh-vien-nhan-bang-khoa`);
     }
 
 }

@@ -85,25 +85,25 @@ export class AppMenu {
                 items: [
                     {
                         label: 'Trao bằng',
-                        visible: true,
+                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBang),
                         items: [
                             {
                                 label: 'Cấu hình',
-                                visible: true,
+                                visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangCauHinh),
                                 items: [
                                     {
                                         label: 'Chương trình',
-                                        visible: true,
+                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangCauHinhChuongTrinh),
                                         routerLink: ['/trao-bang/config/plan']
                                     },
                                     {
                                         label: 'Khoa',
-                                        visible: true,
+                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangCauHinhKhoa),
                                         routerLink: ['/trao-bang/config/sub-plan']
                                     },
                                     {
                                         label: 'SV nhận bằng',
-                                        visible: true,
+                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangCauHinhSinhVienNhanBang),
                                         routerLink: ['/trao-bang/config/sv']
                                     },
                                 ]
@@ -111,17 +111,17 @@ export class AppMenu {
                             {
                                 label: 'Quét QR',
                                 routerLink: ['/trao-bang/scan-qr-sv'],
-                                visible: true,
+                                visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangQuetQr),
                             },
                             {
                                 label: 'MC',
                                 routerLink: ['/trao-bang/mc-screen'],
-                                visible: true,
+                                visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangMc),
                             }
                         ]
                     }
                 ],
-                visible: true,
+                visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBang),
             },
             {
                 items: [

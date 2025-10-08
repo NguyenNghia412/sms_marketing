@@ -85,7 +85,7 @@ export class ScanQrSv extends BaseComponent implements OnDestroy {
   }
 
   getHangDoi() {
-    this._svTraoBangService.getHangDoi({ IdSubPlan: this.idSubPlan, SoLuong: 7 }).subscribe({
+    this._svTraoBangService.getHangDoi({ SoLuong: 7 }).subscribe({
       next: res => {
         if (this.isResponseSucceed(res)) {
           this.students = res.data
