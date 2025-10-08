@@ -410,5 +410,19 @@ namespace thongbao.be.Controllers.TraoBang
                 return OkException(ex);
             }
         }
+        [AllowAnonymous]
+        [HttpGet("danh-sach-sinh-vien-nhan-bang-khoa")]
+        public async Task<ApiResponse> GetInforSubPlanDangTrao()
+        {
+            try
+            {
+                var data = await _subPlanService.GetInforSubPlanDangTrao();
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

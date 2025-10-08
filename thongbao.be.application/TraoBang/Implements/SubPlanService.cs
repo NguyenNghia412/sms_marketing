@@ -1038,6 +1038,83 @@ namespace thongbao.be.application.TraoBang.Implements
                 Note = sinhVienInfor?.Note ?? string.Empty
             };
         }
+
+        //Get khoa tiến độ , list sinh viên đang trao màn cánh gà 
+        public async Task<GetInforSubPlanDangTraoResponseDto> GetInforSubPlanDangTrao()
+        {
+            _logger.LogInformation($"{nameof(GetInforSubPlanDangTrao)} ");
+
+            var subPlan = await _smDbContext.SubPlans
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+
+            var tienDoList = new List<TienDoTraoBang>();
+
+            var sinhVienDaTrao = await _smDbContext.TienDoTraoBangs
+                .AsNoTracking()
+                .Where(x => x.IdSubPlan == subPlan.Id && !x.Deleted && x.TrangThai == TraoBangConstants.DaTraoBang)
+                .OrderByDescending(x => x.Order)
+                .FirstOrDefaultAsync();
+
+            if (sinhVienDaTrao != null)
+            {
+                tienDoList.Add(sinhVienDaTrao);
+            }
+
+            var sinhVienDangTrao = await _smDbContext.TienDoTraoBangs
+                .AsNoTracking()
+                .Where(x => x.IdSubPlan == subPlan.Id && !x.Deleted && x.TrangThai == TraoBangConstants.DangTraoBang)
+                .FirstOrDefaultAsync();
+
+            if (sinhVienDangTrao != null)
+            {
+                tienDoList.Add(sinhVienDangTrao);
+            }
+
+            var sinhVienChuanBi = await _smDbContext.TienDoTraoBangs
+                .AsNoTracking()
+                .Where(x => x.IdSubPlan == subPlan.Id && !x.Deleted && x.TrangThai == TraoBangConstants.ChuanBi)
+                .OrderBy(x => x.Order)
+                .ToListAsync();
+
+            tienDoList.AddRange(sinhVienChuanBi);
+
+            var idsSinhVien = tienDoList.Select(x => x.IdSinhVienNhanBang).ToList();
+
+            var danhSachSinhViens = await _smDbContext.DanhSachSinhVienNhanBangs
+                .AsNoTracking()
+                .Where(x => idsSinhVien.Contains(x.Id) && !x.Deleted)
+                .ToListAsync();
+
+            var sinhVienDaTraoCount = await _smDbContext.TienDoTraoBangs
+                .AsNoTracking()
+                .CountAsync(x => x.IdSubPlan == subPlan.Id && !x.Deleted && x.TrangThai == TraoBangConstants.DaTraoBang);
+
+            var tongSinhVienThamGiaTraoBang = await _smDbContext.DanhSachSinhVienNhanBangs
+                .AsNoTracking()
+                .CountAsync(x => x.IdSubPlan == subPlan.Id && !x.Deleted && x.TrangThai == TraoBangConstants.ThamGiaTraoBang);
+
+            var items = (from tienDo in tienDoList
+                         join sv in danhSachSinhViens on tienDo.IdSinhVienNhanBang equals sv.Id
+                         select new ListSinhVienDto
+                         {
+                             TenSubPlan = subPlan.Ten,
+                             Id = sv.Id,
+                             HoVaTen = sv.HoVaTen,
+                             MaSoSinhVien = sv.MaSoSinhVien,
+                             TenNganhDaoTao = sv.TenNganhDaoTao,
+                             TrangThai = tienDo.TrangThai
+                         }).ToList();
+
+            return new GetInforSubPlanDangTraoResponseDto
+            {
+                Id = subPlan.Id,
+                Ten = subPlan.Ten,
+                TienDo = $"{sinhVienDaTraoCount}/{tongSinhVienThamGiaTraoBang}",
+                Items = items
+            };
+        }
         public async Task<ImportDanhSachSinhVienNhanBangResponseDto> ImportDanhSachNhanBang(ImportDanhSachSinhVienNhanBangDto dto)
         {
             _logger.LogInformation($"{nameof(ImportDanhSachNhanBang)}, dto= {JsonSerializer.Serialize(dto)} ");

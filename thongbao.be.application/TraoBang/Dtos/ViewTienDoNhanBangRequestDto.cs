@@ -8,7 +8,7 @@ namespace thongbao.be.application.TraoBang.Dtos
 {
     public class ViewTienDoNhanBangRequestDto
     {
-        public int IdSubPlan { get; set; }
+  
         public int SoLuong { get; set; }
     }
 }
