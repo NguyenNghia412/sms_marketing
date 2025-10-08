@@ -7,5 +7,5 @@ export const environment: IEnvironment = {
     authClientId: 'client-web',
     authClientSecret: 'mBSQUHmZ4be5bQYfhwS7hjJZ2zFOCU2e',
     authScope: 'openid offline_access',
-    appUrl: 'https://sms.huce.edu.vn',
+    appUrl: 'https://traobang.huce.edu.vn',
 };
