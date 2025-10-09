@@ -28,7 +28,7 @@ export class ScanQrSv extends BaseComponent implements OnDestroy {
   _scanQrService = inject(ScanQrService);
 
   idSubPlan: number = 0;
-  currentSubPlanInfo: IViewScanQrCurrentSubPlan = {};
+  currentSubPlanInfo: IViewScanQrCurrentSubPlan | null = {};
   students: IViewScanQrTienDoSv[] = [];
   listSubPlan: IViewScanQrSubPlan[] = [];
   pushedSuccessSv: IViewScanQrTienDoSv = {};

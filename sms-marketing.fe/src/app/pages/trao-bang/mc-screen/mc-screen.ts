@@ -8,12 +8,12 @@ import * as signalR from '@microsoft/signalr';
 import { LeftSidebar } from '../scan-qr-sv/left-sidebar/left-sidebar';
 import { StudentList } from '../scan-qr-sv/student-list/student-list';
 import { concatMap } from 'rxjs';
-import { ScanQrService } from '@/services/scan-qr.service';
 import { SvInfo } from "./sv-info/sv-info";
+import { EnterKeyDirective } from "@/shared/directives/enter-key.directive";
 
 @Component({
   selector: 'app-mc-screen',
-  imports: [SharedImports, LeftSidebar, StudentList, SvInfo],
+  imports: [SharedImports, LeftSidebar, StudentList, SvInfo, EnterKeyDirective],
   templateUrl: './mc-screen.html',
   styleUrl: './mc-screen.scss'
 })
@@ -23,7 +23,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
   _svTraoBangService = inject(TraoBangSvService);
 
   idSubPlan: number = 0;
-  currentSubPlanInfo: IViewScanQrCurrentSubPlan = {};
+  currentSubPlanInfo: IViewScanQrCurrentSubPlan | null = {};
   students: IViewScanQrTienDoSv[] = [];
   listSubPlan: IViewScanQrSubPlan[] = [];
   svDangTrao: IViewSvDangTraoBang | null = {};

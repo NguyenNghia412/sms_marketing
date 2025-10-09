@@ -23,6 +23,7 @@ import { MessageModule } from 'primeng/message';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DividerModule } from 'primeng/divider';
+import { TooltipModule } from 'primeng/tooltip';
 
 export const SharedImports = [
     // Angular
@@ -50,4 +51,5 @@ export const SharedImports = [
     DynamicDialogModule,
     MultiSelectModule,
     DividerModule, 
+    TooltipModule,
 ];

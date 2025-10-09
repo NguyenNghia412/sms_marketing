@@ -7,5 +7,5 @@ import { Component, input } from '@angular/core';
   templateUrl: './footer.html'
 })
 export class Footer {
-  data = input.required<IViewScanQrCurrentSubPlan>();
+  data = input.required<IViewScanQrCurrentSubPlan | null | undefined>();
 }
