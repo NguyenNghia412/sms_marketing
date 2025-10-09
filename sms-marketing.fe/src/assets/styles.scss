@@ -40,6 +40,21 @@
   src: url('../assets/fonts/UTM\ HELVETINS.TTF');
 }
 
+@font-face {
+  font-family: 'helvetins-bold';
+  src: url('../assets/fonts/UTM\ HelveBold.ttf');
+}
+
+@font-face {
+  font-family: 'myriadpro';
+  src: url('../assets/fonts/MYRIADPRO-LIGHT_0.OTF');
+}
+
+@font-face {
+  font-family: 'myriadpro-bold';
+  src: url('../assets/fonts/MYRIADPRO-BOLD.OTF');
+}
+
 .font-snell {
     font-family: 'svn-snell';
 }
@@ -48,10 +63,22 @@
     font-family: 'helvetins';
 }
 
+.font-helvetins-bold {
+    font-family: 'helvetins-bold';
+}
+
 .font-avo {
     font-family: 'avo';
 }
 
 .font-avo-bold {
     font-family: 'avo-bold';
+}
+
+.font-myriad {
+    font-family: 'myriadpro';
+}
+
+.font-myriad-bold {
+    font-family: 'myriadpro-bold';
 }
