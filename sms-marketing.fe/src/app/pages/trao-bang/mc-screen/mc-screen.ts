@@ -125,7 +125,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
 
   initNextTraoBang() {
     this.clickSubject$.pipe(
-      debounceTime(3 * 1000),
+      debounceTime(2 * 1000),
       switchMap(() => this._svTraoBangService.nextSvNhanBang(this.idSubPlan)),
       takeUntilDestroyed()
     ).subscribe({
