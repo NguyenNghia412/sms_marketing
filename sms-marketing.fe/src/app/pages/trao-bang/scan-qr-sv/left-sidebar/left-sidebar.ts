@@ -41,18 +41,18 @@ export class LeftSidebar extends BaseComponent {
   }
 
   onClickSubPlan(data: IViewScanQrSubPlan) {
-    this.confirmAction(
-      {
-        header: 'Thực hiện chuyển khoa',
-        message: `Chắc chắn muốn chuyển khoa?`
-      },
-      () => {
-        if (data.trangThai === this.subPlanStatuses.DA_TRAO_BANG) {
+    if (data.trangThai === this.subPlanStatuses.DA_TRAO_BANG) {
+      this.confirmAction(
+        {
+          header: 'Thực hiện chuyển khoa',
+          message: `Chắc chắn muốn chuyển khoa?`
+        },
+        () => {
           this.onChangeSubPlan.emit(data.id)
         }
-      }
-    );
+      );
 
+    }
   }
 
 }
