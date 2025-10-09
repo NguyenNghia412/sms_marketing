@@ -1221,10 +1221,10 @@ namespace thongbao.be.application.TraoBang.Implements
                 .OrderByDescending(x => x.Order)
                 .FirstOrDefaultAsync();
 
-            if (sinhVienDaTrao != null)
+            /*if (sinhVienDaTrao != null)
             {
                 tienDoList.Add(sinhVienDaTrao);
-            }
+            }*/
 
             var sinhVienDangTrao = await _smDbContext.TienDoTraoBangs
                 .AsNoTracking()
