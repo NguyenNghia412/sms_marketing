@@ -1,6 +1,6 @@
 <div class="h-[100vh] max-h-[100vh] overflow-hidden relative">
     <img src="/bg_trao-bang_ko_chuc_mung.jpg" class="w-full h-full block" />
-    <div class="font-avo mx-auto text-center top-[38%] left-1/2 -translate-x-1/2 absolute">
+    <div class="font-avo mx-auto text-center top-[36%] left-1/2 -translate-x-1/2 absolute">
         @if (svDangTrao && svDangTrao.text) {
         <p class="uppercase text-6xl font-avo-bold text-[#0e2e47] !mb-0 leading-5">{{ svDangTrao.text }}</p>
         }
@@ -8,24 +8,20 @@
         @if (svDangTrao && !svDangTrao.text) {
         <p class="font-snell font-bold text-6xl text-[#eb1d33] !mb-5">Chúc mừng</p>
         <div class="my-4">
-            <p class="uppercase text-4xl font-avo-bold text-[#0e2e47] !mb-0 leading-5">tân {{ svDangTrao.capBang }}</p>
+            <p class="uppercase text-4xl font-avo-bold text-[#0e2e47] !mb-0 leading-5">{{ svDangTrao.capBang }}</p>
             <p class="text-5xl font-avo-bold text-[#eb1d33] !mb-0 leading-5">{{ svDangTrao.hoVaTen }}</p>
             <p class="font-avo font-semibold tracking-widest text-3xl text-[#0e2e47] !mb-0 leading-5">Ngành {{
-                svDangTrao.tenNganhDaoTao }}</p>
+                svDangTrao.tenNganhDaoTao }}
+                @if (svDangTrao.xepHang) {
+                - Xếp loại: <span class="font-avo-bold uppercase">{{ svDangTrao.xepHang }}</span>
+                }
+            </p>
         </div>
         <div class="my-5">
-
-            @if (svDangTrao.xepHang) {
-            <p class="font-avo font-semibold text-3xl tracking-wider text-[#0e2e47] !mb-4s">Xếp loại: <span
-                    class="font-avo-bold uppercase">{{ svDangTrao.xepHang }}</span>
-            </p>
-            }
             @if (svDangTrao.thanhTich) {
-            <p class="font-avo font-semibold tracking-wide text-3xl text-[#0e2e47] !mb-0">Thành tích:</p>
-
-            <div class="font-semibold tracking-widest text-xl">
-                <span class="whitespace-pre-line">{{ svDangTrao.thanhTich }}</span>
-            </div>
+            <p class="font-avo font-semibold tracking-wide text-3xl text-[#0e2e47] !mb-0">Thành tích:
+                <span class="whitespace-pre-line font-semibold tracking-widest text-xl">{{ svDangTrao.thanhTich }}</span>
+            </p>
             }
         </div>
         }
