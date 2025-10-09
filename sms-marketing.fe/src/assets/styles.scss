@@ -55,6 +55,11 @@
   src: url('../assets/fonts/MYRIADPRO-BOLD.OTF');
 }
 
+@font-face {
+  font-family: 'montesrrat-extrabold';
+  src: url('../assets/fonts/Montserrat-ExtraBold.ttf');
+}
+
 .font-snell {
     font-family: 'svn-snell';
 }
@@ -81,4 +86,8 @@
 
 .font-myriad-bold {
     font-family: 'myriadpro-bold';
+}
+
+.font-montesrrat-extrabold {
+    font-family: 'montesrrat-extrabold';
 }
