@@ -571,7 +571,7 @@ namespace thongbao.be.application.TraoBang.Implements
             };
             _smDbContext.TienDoTraoBangs.Add(tienDoTraoBang);
             _smDbContext.SaveChanges();
-            await _traoBangService.NotifyCheckIn(mssv);
+            await _traoBangService.NotifyCheckIn();
             return new DiemDanhNhanBangDto
             {
                 TenKhoa = subPlan?.Ten ?? String.Empty,
@@ -711,7 +711,7 @@ namespace thongbao.be.application.TraoBang.Implements
             _smDbContext.SubPlans.Update(subPlan);
 
             _smDbContext.SaveChanges();
-            await _traoBangService.NotifyChonKhoa(id);
+            await _traoBangService.NotifyChonKhoa();
         }
         public async Task<List<ViewTienDoNhanBangResponseDto>> GetTienDoNhanBang(ViewTienDoNhanBangRequestDto dto)
         {
@@ -806,7 +806,7 @@ namespace thongbao.be.application.TraoBang.Implements
             _smDbContext.SubPlans.Update(nextSubPlan);
 
             _smDbContext.SaveChanges();
-            await _traoBangService.NotifyChuyenKhoa();
+            await _traoBangService.NotifyChonKhoa();
 
             return new GetNextSubPlanResponseDto
             {
@@ -936,6 +936,7 @@ namespace thongbao.be.application.TraoBang.Implements
 
                     if (subPlanForKetBai != null && subPlanForKetBai.IsShowKetBai)
                     {
+                        await _traoBangService.NotifySinhVienDangTrao();
                         return new GetSinhVienDangTraoBangInforDto
                         {
                             TenSubPlan = subPlanForKetBai.Ten ?? string.Empty,
@@ -994,6 +995,7 @@ namespace thongbao.be.application.TraoBang.Implements
 
                 if (subPlanForKetBai != null && subPlanForKetBai.IsShowKetBai)
                 {
+                    await _traoBangService.NotifySinhVienDangTrao();
                     return new GetSinhVienDangTraoBangInforDto
                     {
                         TenSubPlan = subPlanForKetBai.Ten ?? string.Empty,
@@ -1057,6 +1059,7 @@ namespace thongbao.be.application.TraoBang.Implements
 
                     if (subPlanForMoBai != null && subPlanForMoBai.IsShowMoBai)
                     {
+                        await _traoBangService.NotifySinhVienDangTrao();
                         return new GetSinhVienDangTraoBangInforDto
                         {
                             TenSubPlan = subPlanForMoBai.Ten ?? string.Empty,
@@ -1114,6 +1117,7 @@ namespace thongbao.be.application.TraoBang.Implements
 
                 if (subPlanForMoBai != null && subPlanForMoBai.IsShowMoBai)
                 {
+                    await _traoBangService.NotifySinhVienDangTrao();
                     return new GetSinhVienDangTraoBangInforDto
                     {
                         TenSubPlan = subPlanForMoBai.Ten ?? string.Empty,

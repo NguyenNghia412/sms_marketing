@@ -9,9 +9,9 @@ namespace thongbao.be.infrastructure.external.SignalR.Service.Interfaces
     public interface ITraoBangService
     {
        public Task NotifySinhVienDangTrao();
-       public Task NotifyChonKhoa(int idSubPlan);
-       public Task NotifyChuyenKhoa();
-       public Task NotifyCheckIn(string mssv);
+       public Task NotifyChonKhoa();
+       //public Task NotifyChuyenKhoa();
+       public Task NotifyCheckIn();
      
 
     }
