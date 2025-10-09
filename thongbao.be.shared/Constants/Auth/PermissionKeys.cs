@@ -31,6 +31,7 @@ namespace thongbao.be.shared.Constants.Auth
         public const string MenuTraoBangCauHinhSinhVienNhanBang = MenuTraoBangCauHinh + "_SinhVienNhanBang";
         public const string MenuTraoBangQuetQr = MenuTraoBang + "_QuetQr";
         public const string MenuTraoBangMc = MenuTraoBang + "_Mc";
+
         public const string CategoryUser = "QL User";
         public const string UserAdd = Function + "UserAdd";
         public const string UserUpdate = Function + "UserUpdate";
@@ -105,6 +106,13 @@ namespace thongbao.be.shared.Constants.Auth
             (MenuTemplate, "Menu Template", "Menu"),
             (MenuReport, "Menu Báo cáo", "Menu"),
             (MenuTraoBang, "Menu Trao Bằng", "Menu"),
+
+            (MenuTraoBangCauHinh, "Menu Trao Bằng Cấu hình", "Menu"),
+            (MenuTraoBangCauHinhChuongTrinh, "Menu Trao Bằng Cấu hình Chương trình", "Menu"),
+            (MenuTraoBangCauHinhKhoa, "Menu Trao Bằng Cấu hình Khoa", "Menu"),
+            (MenuTraoBangCauHinhSinhVienNhanBang, "Menu Trao Bằng Cấu hình Sinh viên", "Menu"),
+            (MenuTraoBangQuetQr, "Menu Trao Bằng Quét QR", "Menu"),
+            (MenuTraoBangMc, "Menu Trao Bằng Điều khiển", "Menu"),
 
             (UserAdd, "Thêm user", CategoryUser),
             (UserUpdate, "Cập nhật User" , CategoryUser),
