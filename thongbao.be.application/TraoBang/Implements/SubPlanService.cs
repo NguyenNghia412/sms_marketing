@@ -432,8 +432,8 @@ namespace thongbao.be.application.TraoBang.Implements
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
 
             var subPlan = await _smDbContext.SubPlans
-                .FirstOrDefaultAsync(x => x.Id == sinhVien.IdSubPlan && !x.Deleted)
-                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+                .FirstOrDefaultAsync(x => x.Id == sinhVien.IdSubPlan && x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienTraoBangKhongThuocKhoaDangTrao);
 
             var maxOrder = await _smDbContext.DanhSachSinhVienNhanBangs
                 .Where(x => x.IdSubPlan == sinhVien.IdSubPlan && !x.Deleted)
@@ -471,12 +471,13 @@ namespace thongbao.be.application.TraoBang.Implements
 
             if (nextSinhVien == null)
             {
-                throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
+                throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound); 
             }
 
             var subPlan = await _smDbContext.SubPlans
-                .FirstOrDefaultAsync(x => x.Id == nextSinhVien.IdSubPlan && !x.Deleted )
-                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
+                .FirstOrDefaultAsync(x => x.Id == nextSinhVien.IdSubPlan && x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienTraoBangKhongThuocKhoaDangTrao);
+
 
             var maxOrder = await _smDbContext.DanhSachSinhVienNhanBangs
                 .Where(x => x.IdSubPlan == nextSinhVien.IdSubPlan && !x.Deleted && x.TrangThai == TraoBangConstants.ThamGiaTraoBang)
@@ -516,11 +517,9 @@ namespace thongbao.be.application.TraoBang.Implements
             {
                 throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
             }
-
             var subPlan = await _smDbContext.SubPlans
-                .FirstOrDefaultAsync(x => x.Id == previousSinhVien.IdSubPlan && !x.Deleted )
-                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSubPlanNotFound);
-
+                         .FirstOrDefaultAsync(x => x.Id == previousSinhVien.IdSubPlan && x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
+                          ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienTraoBangKhongThuocKhoaDangTrao);
             var maxOrder = await _smDbContext.DanhSachSinhVienNhanBangs
                 .Where(x => x.IdSubPlan == previousSinhVien.IdSubPlan && !x.Deleted && x.TrangThai == TraoBangConstants.ThamGiaTraoBang)
                 .MaxAsync(x => (int?)x.Order) ?? 0;
@@ -547,6 +546,9 @@ namespace thongbao.be.application.TraoBang.Implements
             var sinhVien = _smDbContext.DanhSachSinhVienNhanBangs
                 .FirstOrDefault(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower())
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
+            var subPlan = _smDbContext.SubPlans
+               .FirstOrDefault(x => x.Id == sinhVien.IdSubPlan && x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
+               ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienTraoBangKhongThuocKhoaDangTrao);
             var maxOrder = _smDbContext.TienDoTraoBangs
                 .Where(x => x.IdSubPlan == sinhVien.IdSubPlan && !x.Deleted)
                 .Max(x => (int?)x.Order) ?? 0;
@@ -555,8 +557,7 @@ namespace thongbao.be.application.TraoBang.Implements
             {
                 throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienDaTonTaiTrongHangDoi);
             }
-            var subPlan = _smDbContext.SubPlans
-                .FirstOrDefault(x => x.Id == sinhVien.IdSubPlan && !x.Deleted);
+           
             var tienDoTraoBang = new TienDoTraoBang
             {
                 IdSubPlan = sinhVien.IdSubPlan,

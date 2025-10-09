@@ -30,6 +30,8 @@ namespace thongbao.be.domain.TraoBang
         public string? Note { get; set; } = String.Empty;
         public string MoBai { get; set; } = String.Empty;
         public string KetBai { get; set; } = String.Empty;
+        public string MoBaiNote { get; set; } = String.Empty;
+        public string KetBaiNote { get; set; } = String.Empty;
         public int TrangThai { get; set; }
         public int Order { get; set; }
         public bool IsShow { get; set; }
