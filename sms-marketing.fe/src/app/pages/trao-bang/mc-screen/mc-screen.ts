@@ -119,6 +119,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
           // this.svDangTrao = res.data
           this.getSvDangTrao();
           this.getHangDoi();
+          this.getCurrentSubPlan();
           const data = [...this.listSubPlan]
           this.listSubPlan = data;
         }
@@ -133,6 +134,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
           // this.svDangTrao = res.data
           this.getSvDangTrao();
           this.getHangDoi();
+          this.getCurrentSubPlan();
           const data = [...this.listSubPlan]
           this.listSubPlan = data;
         }

@@ -93,12 +93,12 @@ export class AppMenu {
                                     {
                                         label: 'Sân khấu',
                                         routerLink: ['/guest/trao-bang/main-screen'],
-                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangMc),
+                                        visible: true,
                                     },
                                     {
                                         label: 'Cánh gà',
                                         routerLink: ['/guest/trao-bang/side-screen'],
-                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangMc),
+                                        visible: true,
                                     },
                                     {
                                         label: 'Điều khiển',
