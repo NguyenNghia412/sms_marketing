@@ -741,10 +741,10 @@ namespace thongbao.be.application.TraoBang.Implements
                 .OrderByDescending(x => x.Order)
                 .FirstOrDefaultAsync();
 
-            if (sinhVienDaTrao != null)
+            /*if (sinhVienDaTrao != null)
             {
                 results.Add(sinhVienDaTrao);
-            }
+            }*/
 
             var soLuongConLai = dto.SoLuong - results.Count;
             if (soLuongConLai > 0)
