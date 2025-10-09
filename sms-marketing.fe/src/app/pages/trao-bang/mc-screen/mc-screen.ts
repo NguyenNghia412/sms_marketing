@@ -23,7 +23,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
   _svTraoBangService = inject(TraoBangSvService);
 
   idSubPlan: number = 0;
-  currentSubPlanInfo: IViewScanQrCurrentSubPlan = {};
+  currentSubPlanInfo: IViewScanQrCurrentSubPlan | null = {};
   students: IViewScanQrTienDoSv[] = [];
   listSubPlan: IViewScanQrSubPlan[] = [];
   svDangTrao: IViewSvDangTraoBang | null = {};

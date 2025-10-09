@@ -9,7 +9,7 @@
         <div class="p-4 bg-white rounded-xl shadow">
             <!-- Title -->
             <div class="text-gray-700 font-semibold mb-2">
-                <h4 class="!text-3xl"> ĐANG TRAO BẰNG: {{ currentSubPlanInfo.ten }}</h4>
+                <h4 class="!text-3xl"> ĐANG TRAO BẰNG: {{ currentSubPlanInfo?.ten }}</h4>
             </div>
 
             <!-- Student Info Card -->
@@ -35,8 +35,8 @@
 
             <!-- Footer info -->
             <div class="text-center text-lg text-gray-500 mt-4">
-                Đang chờ: <span class="font-semibold">{{ currentSubPlanInfo.soLuongConLai }}</span> | Đã trao: <span
-                    class="font-semibold">{{currentSubPlanInfo.soLuongDaTrao}}/{{currentSubPlanInfo.soLuongThamGia}}</span>
+                Đang chờ: <span class="font-semibold">{{ currentSubPlanInfo?.soLuongConLai }}</span> | Đã trao: <span
+                    class="font-semibold">{{currentSubPlanInfo?.soLuongDaTrao}}/{{currentSubPlanInfo?.soLuongThamGia}}</span>
             </div>
         </div>
 
