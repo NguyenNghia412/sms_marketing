@@ -165,7 +165,7 @@ export class ScanQrSv extends BaseComponent implements OnDestroy {
     this.hubConnection.on(TraoBangHubConst.ReceiveSinhVienDangTrao, (...args) => {
       const idSubPlan = args[0];
 
-      if (!idSubPlan) return;
+      // if (!idSubPlan) return;
 
       this.initData();
     });

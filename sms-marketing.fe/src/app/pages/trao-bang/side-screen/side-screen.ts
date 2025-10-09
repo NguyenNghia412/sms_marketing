@@ -29,7 +29,7 @@ export class SideScreen extends BaseComponent implements OnDestroy {
     this.getHangDoi();
     this.connectHub();
   }
-  
+
   getHangDoi() {
     this._svTraoBangService.getSvNhanBangKhoa().subscribe({
       next: res => {
@@ -44,46 +44,46 @@ export class SideScreen extends BaseComponent implements OnDestroy {
     })
   }
 
-    connectHub() {
-      const hubUrl = TraoBangHubConst.HUB;
-      this.hubConnection = new signalR.HubConnectionBuilder()
-        .withUrl(hubUrl, {
-          skipNegotiation: true,
-          transport: signalR.HttpTransportType.WebSockets,
-        })
-        .build();
-  
-      this.hubConnection.on(TraoBangHubConst.ReceiveSinhVienDangTrao, (...args) => {
-        const idSubPlan = args[0];
-  
-        if (!idSubPlan) return;
-  
-        this.getHangDoi();
-        // this.initData();
-      });
+  connectHub() {
+    const hubUrl = TraoBangHubConst.HUB;
+    this.hubConnection = new signalR.HubConnectionBuilder()
+      .withUrl(hubUrl, {
+        skipNegotiation: true,
+        transport: signalR.HttpTransportType.WebSockets,
+      })
+      .build();
 
-      this.hubConnection.on(TraoBangHubConst.ReceiveCheckIn, (...args) => {
-        const idSubPlan = args[0];
-  
-        if (!idSubPlan) return;
-  
-        this.getHangDoi();
-        // this.initData();
-      });
+    this.hubConnection.on(TraoBangHubConst.ReceiveSinhVienDangTrao, (...args) => {
+      const idSubPlan = args[0];
 
-      this.hubConnection.on(TraoBangHubConst.ReceiveChonKhoa, (...args) => {
-        const idSubPlan = args[0];
-  
-        if (!idSubPlan) return;
-  
-        this.getHangDoi();
-        // this.initData();
-      });
-  
-      this.hubConnection.start().then();
-    }
-  
-    ngOnDestroy(): void {
-      this.hubConnection?.stop().then();
-    }
+      // if (!idSubPlan) return;
+
+      this.getHangDoi();
+      // this.initData();
+    });
+
+    this.hubConnection.on(TraoBangHubConst.ReceiveCheckIn, (...args) => {
+      const idSubPlan = args[0];
+
+      // if (!idSubPlan) return;
+
+      this.getHangDoi();
+      // this.initData();
+    });
+
+    this.hubConnection.on(TraoBangHubConst.ReceiveChonKhoa, (...args) => {
+      const idSubPlan = args[0];
+
+      // if (!idSubPlan) return;
+
+      this.getHangDoi();
+      // this.initData();
+    });
+
+    this.hubConnection.start().then();
+  }
+
+  ngOnDestroy(): void {
+    this.hubConnection?.stop().then();
+  }
 }

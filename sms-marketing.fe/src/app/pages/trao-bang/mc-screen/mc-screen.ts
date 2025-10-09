@@ -153,7 +153,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
     this.hubConnection.on(TraoBangHubConst.ReceiveChonKhoa, (...args) => {
       const idSubPlan = args[0];
 
-      if (!idSubPlan) return;
+      // if (!idSubPlan) return;
 
       this.initData();
     });
@@ -161,7 +161,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
     this.hubConnection.on(TraoBangHubConst.ReceiveCheckIn, (...args) => {
       const mssv = args[0];
 
-      if (!mssv) return;
+      // if (!mssv) return;
 
       this.getHangDoi();
     });
