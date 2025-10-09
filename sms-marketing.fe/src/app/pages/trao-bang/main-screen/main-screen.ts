@@ -50,6 +50,15 @@ export class MainScreen extends BaseComponent {
       // this.initData();
     });
 
+    this.hubConnection.on(TraoBangHubConst.ReceiveChonKhoa, (...args) => {
+      //const idSubPlan = args[0];
+
+      //if (!idSubPlan) return;
+
+      this.getSvDangTrao();
+      // this.initData();
+    });
+
     this.hubConnection.start().then();
   }
 
