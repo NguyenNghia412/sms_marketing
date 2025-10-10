@@ -59,9 +59,9 @@ export class SideScreen extends BaseComponent implements OnDestroy {
             setTimeout(() => {
               this.removing = false
               this.newlyAdded = null;
+              this.data = res.data
             }, 600);
           }
-          this.data = res.data
         } else {
           this.data = {
             items: []
