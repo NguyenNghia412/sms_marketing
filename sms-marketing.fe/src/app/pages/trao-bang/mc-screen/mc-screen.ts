@@ -7,10 +7,9 @@ import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IVi
 import * as signalR from '@microsoft/signalr';
 import { LeftSidebar } from '../scan-qr-sv/left-sidebar/left-sidebar';
 import { StudentList } from '../scan-qr-sv/student-list/student-list';
-import { concatMap, debounceTime, Subject, switchMap, takeUntil } from 'rxjs';
+import { concatMap, delay } from 'rxjs';
 import { SvInfo } from "./sv-info/sv-info";
 import { EnterKeyDirective } from "@/shared/directives/enter-key.directive";
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-mc-screen',
@@ -22,7 +21,6 @@ export class McScreen extends BaseComponent implements OnDestroy {
 
   hubConnection: signalR.HubConnection | undefined;
   _svTraoBangService = inject(TraoBangSvService);
-  clickSubject$ = new Subject<void>();
 
   idSubPlan: number = 0;
   currentSubPlanInfo: IViewScanQrCurrentSubPlan | null = {};
@@ -31,10 +29,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
   svDangTrao: IViewSvDangTraoBang | null = {};
   svChuanBi: IViewSvDangTraoBang | null = {};
 
-  constructor() {
-    super();
-    this.initNextTraoBang();
-  }
+  isLockNextTraoBang: boolean = false;
 
   override ngOnInit(): void {
     this.initData();
@@ -58,7 +53,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
       }
     })
     this.getSvDangTrao();
-    
+
   }
 
   getListSubPlan() {
@@ -120,15 +115,14 @@ export class McScreen extends BaseComponent implements OnDestroy {
   }
 
   onClickNextTraoBang() {
-    this.clickSubject$.next();
-  }
 
-  initNextTraoBang() {
-    this.clickSubject$.pipe(
-      debounceTime(2 * 1000),
-      switchMap(() => this._svTraoBangService.nextSvNhanBang(this.idSubPlan)),
-      takeUntilDestroyed()
-    ).subscribe({
+    if (this.isLockNextTraoBang) {
+      return;
+    }
+
+    this.isLockNextTraoBang = true;
+
+    this._svTraoBangService.nextSvNhanBang(this.idSubPlan).subscribe({
       next: res => {
         if (this.isResponseSucceed(res)) {
           // this.svDangTrao = res.data
@@ -138,7 +132,11 @@ export class McScreen extends BaseComponent implements OnDestroy {
           const data = [...this.listSubPlan]
           this.listSubPlan = data;
         }
-      }
+      },
+    }).add(() => {
+      setTimeout(() => {
+        this.isLockNextTraoBang = false;
+      }, 5*1000);
     });
   }
 
