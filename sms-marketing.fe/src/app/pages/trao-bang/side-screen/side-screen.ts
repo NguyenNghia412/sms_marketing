@@ -28,25 +28,15 @@ export class SideScreen extends BaseComponent implements OnDestroy {
   newlyAdded: number | null = null;
 
   override ngOnInit(): void {
-    this.getHangDoi();
+    this.initData();
     this.connectHub();
   }
 
-  getHangDoi() {
-    const oldSvId = this.getFirstSvId(this.data);
+  initData() {
     this._svTraoBangService.getSvNhanBangKhoa().subscribe({
       next: res => {
         if (this.isResponseSucceed(res)) {
           this.data = res.data
-          const newSvId = this.getFirstSvId(res.data);
-          if (oldSvId !== newSvId) {
-            this.removing = true;
-            this.newlyAdded === newSvId;
-            setTimeout(() => {
-              this.removing = false
-              // this.newlyAdded = null;
-            }, 600);
-          }
         } else {
           this.data = {
             items: []
@@ -56,8 +46,35 @@ export class SideScreen extends BaseComponent implements OnDestroy {
     })
   }
 
-  getFirstSvId(data: IViewSubPlanSideScreen) {
-    return (data.items && data.items.length > 0) ? data.items[0].id : null;
+  getHangDoi() {
+    this._svTraoBangService.getSvNhanBangKhoa().subscribe({
+      next: res => {
+        if (this.isResponseSucceed(res)) {
+
+          if (this.firstSvIsDangTrao(this.data)) {
+
+            this.removing = true;
+            setTimeout(() => {
+              this.removing = false
+              this.data = res.data
+            }, 600);
+          } else {
+
+            this.data = res.data
+          }
+
+        } else {
+          this.data = {
+            items: []
+          }
+        }
+      }
+    })
+  }
+
+  firstSvIsDangTrao(data: IViewSubPlanSideScreen) {
+    const sv = (data.items && data.items.length > 0) ? data.items[0] : null;
+    return sv && sv.trangThai === SvNhanBangStatuses.DANG_TRAO_BANG;
   }
 
   connectHub() {

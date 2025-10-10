@@ -1,8 +1,6 @@
 /* Hiệu ứng dòng đầu biến mất sang trái */
 .removing-row {
     transform: translateX(-100%) !important;
-    opacity: 0 !important;
-    transition: all 0.5s ease-in-out !important;
 }
 
 /* Hiệu ứng các dòng phía sau THỰC SỰ đẩy lên từ dưới */
@@ -12,12 +10,10 @@
 
 @keyframes realSlideUp {
     from {
-        transform: translateY(72px);
-        /* Chiều cao của một dòng */
+    transform: translateY(72px); /* Chiều cao của một dòng */
     }
-
     to {
-        transform: translateY(0);
+    transform: translateY(0);
     }
 }
 
@@ -28,12 +24,16 @@
 
 @keyframes slideInFromBottom {
     from {
-        transform: translateY(100px);
-        opacity: 0;
+    transform: translateY(100px);
+    opacity: 0;
     }
-
     to {
-        transform: translateY(0);
-        opacity: 1;
+    transform: translateY(0);
+    opacity: 1;
     }
+}
+
+tbody tr {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
 }
