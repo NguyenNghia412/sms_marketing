@@ -28,8 +28,22 @@ export class SideScreen extends BaseComponent implements OnDestroy {
   newlyAdded: number | null = null;
 
   override ngOnInit(): void {
-    this.getHangDoi();
+    this.initData();
     this.connectHub();
+  }
+
+  initData() {
+    this._svTraoBangService.getSvNhanBangKhoa().subscribe({
+      next: res => {
+        if (this.isResponseSucceed(res)) {
+          this.data = res.data
+        } else {
+          this.data = {
+            items: []
+          }
+        }
+      }
+    })
   }
 
   getHangDoi() {
@@ -37,16 +51,17 @@ export class SideScreen extends BaseComponent implements OnDestroy {
     this._svTraoBangService.getSvNhanBangKhoa().subscribe({
       next: res => {
         if (this.isResponseSucceed(res)) {
-          this.data = res.data
+          
           const newSvId = this.getFirstSvId(res.data);
           if (oldSvId !== newSvId) {
             this.removing = true;
             this.newlyAdded === newSvId;
             setTimeout(() => {
               this.removing = false
-              // this.newlyAdded = null;
+              this.newlyAdded = null;
             }, 600);
           }
+          this.data = res.data
         } else {
           this.data = {
             items: []
