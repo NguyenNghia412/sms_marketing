@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, Renderer2 } from '@angular/core';
 import { SharedImports } from '@/shared/import.shared';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { TraoBangSvService } from '@/services/trao-bang/sv-nhan-bang.service';
@@ -20,8 +20,10 @@ import { ShiftEnterKeyDirective } from '@/shared/directives/shift-enter-key.dire
 })
 export class McScreen extends BaseComponent implements OnDestroy {
 
+  private removeListener?: () => void;
   hubConnection: signalR.HubConnection | undefined;
   _svTraoBangService = inject(TraoBangSvService);
+  renderer = inject(Renderer2)
 
   idSubPlan: number = 0;
   currentSubPlanInfo: IViewScanQrCurrentSubPlan | null = {};
@@ -32,9 +34,23 @@ export class McScreen extends BaseComponent implements OnDestroy {
 
   isLockNextTraoBang: boolean = false;
 
+  countDown = 5;
+  timeLeft = 0;
+
   override ngOnInit(): void {
     this.initData();
     this.connectHub();
+    this.removeListener = this.renderer.listen('document', 'keydown', (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        this.onClickNextTraoBang();
+        console.log('enter')
+      }
+      if (event.key === 'Enter' && event.shiftKey) {
+        this.prevTraoBang();
+        console.log('shift enter')
+      }
+    });
+
   }
 
   initData() {
@@ -135,9 +151,16 @@ export class McScreen extends BaseComponent implements OnDestroy {
         }
       },
     }).add(() => {
+      this.timeLeft = this.countDown;
+      const x = setInterval(() => {
+        this.timeLeft -=1
+        if (this.timeLeft === 0) {
+          clearInterval(x);
+        }
+      }, 1000);
       setTimeout(() => {
         this.isLockNextTraoBang = false;
-      }, 5*1000);
+      }, this.countDown * 1000);
     });
   }
 
@@ -187,6 +210,9 @@ export class McScreen extends BaseComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.hubConnection?.stop().then();
+    if (this.removeListener) {
+      this.removeListener();
+    }
   }
 
 }

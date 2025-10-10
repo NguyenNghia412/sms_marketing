@@ -38,7 +38,7 @@ export const appRoutes: Routes = [
     {
         path: 'guest',
         children: [
-            { path: 'trao-bang/main-screen', component: MainScreen, title: 'Màn led G3' }
+            { path: 'trao-bang/main-screen', component: MainScreen, title: 'Sân khấu' }
         ]
     },
     {
