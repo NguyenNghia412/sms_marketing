@@ -32,19 +32,19 @@ export const appRoutes: Routes = [
     {
         path: 'guest',
         children: [
-            { path: 'trao-bang/profile', component: GuestProfile }
+            { path: 'trao-bang/profile', component: GuestProfile, title: 'Thông tin sinh viên nhận bằng' }
         ]
     },
     {
         path: 'guest',
         children: [
-            { path: 'trao-bang/main-screen', component: MainScreen }
+            { path: 'trao-bang/main-screen', component: MainScreen, title: 'Màn led G3' }
         ]
     },
     {
         path: 'guest',
         children: [
-            { path: 'trao-bang/side-screen', component: SideScreen }
+            { path: 'trao-bang/side-screen', component: SideScreen, title: 'Cánh gà' }
         ]
     },
     { path: 'diem-danh', canActivate: [diemDanhGuard], loadChildren: () => import('./app/pages/diem-danh/diem-danh.routes') },
