@@ -544,7 +544,7 @@ namespace thongbao.be.application.TraoBang.Implements
         {
             _logger.LogInformation($"{nameof(DiemDanhNhanBang)}, mssv= {mssv} ");
             var sinhVien = _smDbContext.DanhSachSinhVienNhanBangs
-                .FirstOrDefault(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower())
+                .FirstOrDefault(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower()  && x.TrangThai == TraoBangConstants.ThamGiaTraoBang)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
             var subPlan = _smDbContext.SubPlans
                .FirstOrDefault(x => x.Id == sinhVien.IdSubPlan && x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
@@ -558,6 +558,50 @@ namespace thongbao.be.application.TraoBang.Implements
                 throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienDaTonTaiTrongHangDoi);
             }
            
+            var tienDoTraoBang = new TienDoTraoBang
+            {
+                IdSubPlan = sinhVien.IdSubPlan,
+                IdSinhVienNhanBang = sinhVien.Id,
+                HoVaTen = sinhVien.HoVaTen,
+                MaSoSinhVien = sinhVien.MaSoSinhVien,
+                TrangThai = TraoBangConstants.ChuanBi,
+                Order = maxOrder + 1,
+                IsShow = true,
+                CreatedDate = DateTime.Now,
+                Deleted = false
+            };
+            _smDbContext.TienDoTraoBangs.Add(tienDoTraoBang);
+            _smDbContext.SaveChanges();
+            await _traoBangService.NotifyCheckIn();
+            return new DiemDanhNhanBangDto
+            {
+                TenKhoa = subPlan?.Ten ?? String.Empty,
+                Id = sinhVien.Id,
+                HoVaTen = sinhVien.HoVaTen,
+                MaSoSinhVien = sinhVien.MaSoSinhVien,
+                TrangThai = TraoBangConstants.ChuanBi,
+                Order = maxOrder + 1,
+                IsShow = true
+            };
+        }
+        public async Task<DiemDanhNhanBangDto> DiemDanhNhanBangTruongHopDacBiet(string mssv)
+        {
+            _logger.LogInformation($"{nameof(DiemDanhNhanBangTruongHopDacBiet)}, mssv= {mssv} ");
+            var sinhVien = _smDbContext.DanhSachSinhVienNhanBangs
+                .FirstOrDefault(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower())
+                ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
+            var subPlan = _smDbContext.SubPlans
+               .FirstOrDefault(x => x.Id == sinhVien.IdSubPlan && x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
+               ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienTraoBangKhongThuocKhoaDangTrao);
+            var maxOrder = _smDbContext.TienDoTraoBangs
+                .Where(x => x.IdSubPlan == sinhVien.IdSubPlan && !x.Deleted)
+                .Max(x => (int?)x.Order) ?? 0;
+            var mssvexisting = _smDbContext.TienDoTraoBangs.Any(x => !x.Deleted && x.MaSoSinhVien.ToLower() == mssv.ToLower());
+            if (mssvexisting)
+            {
+                throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienDaTonTaiTrongHangDoi);
+            }
+
             var tienDoTraoBang = new TienDoTraoBang
             {
                 IdSubPlan = sinhVien.IdSubPlan,

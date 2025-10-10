@@ -424,5 +424,19 @@ namespace thongbao.be.Controllers.TraoBang
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.SubPlanAdd)]
+        [HttpPost("sinh-vien-nhan-bang/hang-doi/truong-hop-dac-biet")]
+        public async Task<ApiResponse> DiemDanhNhanBangTruongHopDacBiet([FromQuery] string mssv)
+        {
+            try
+            {
+                var data = await _subPlanService.DiemDanhNhanBangTruongHopDacBiet(mssv);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }
