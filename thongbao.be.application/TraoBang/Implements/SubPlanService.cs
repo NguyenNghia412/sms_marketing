@@ -432,7 +432,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienNotFound);
 
             var subPlan = await _smDbContext.SubPlans
-                .FirstOrDefaultAsync(x => x.Id == sinhVien.IdSubPlan && x.TrangThai == TraoBangConstants.DangTraoBang && !x.Deleted)
+                .FirstOrDefaultAsync(x => x.Id == sinhVien.IdSubPlan && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.TraoBangErrorSinhVienTraoBangKhongThuocKhoaDangTrao);
 
             var maxOrder = await _smDbContext.DanhSachSinhVienNhanBangs
