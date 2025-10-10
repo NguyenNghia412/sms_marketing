@@ -438,5 +438,19 @@ namespace thongbao.be.Controllers.TraoBang
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.SubPlanDelete)]
+        [HttpPost("restart")]
+        public async Task<ApiResponse> Restart()
+        {
+            try
+            {
+                await _subPlanService.Restart();
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

@@ -1027,7 +1027,6 @@ namespace thongbao.be.application.TraoBang.Implements
                 };
             }
 
-           
             sinhVienDangTrao.TrangThai = TraoBangConstants.DaTraoBang;
             _smDbContext.TienDoTraoBangs.Update(sinhVienDangTrao);
             await _smDbContext.SaveChangesAsync();
@@ -1058,7 +1057,32 @@ namespace thongbao.be.application.TraoBang.Implements
 
                 return null;
             }
+            var sinhVienDangTraoInfo = await _smDbContext.DanhSachSinhVienNhanBangs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == sinhVienDangTrao.IdSinhVienNhanBang && !x.Deleted);
 
+            var subPlanDangTrao = await _smDbContext.SubPlans
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == idSubPlan && !x.Deleted);
+            var vietnamNow = GetVietnamTime();
+            var existingLog = await _smDbContext.TraoBangLogs
+                .FirstOrDefaultAsync(x => x.IdSinhVien == sinhVienDangTrao.IdSinhVienNhanBang
+                                          && x.IdSubPlan == idSubPlan
+                                          && !x.Deleted);
+            if (existingLog == null)
+            {
+                var traoBangLog = new domain.TraoBang.TraoBangLog
+                {
+                    IdSubPlan = idSubPlan,
+                    IdSinhVien = sinhVienDangTrao.IdSinhVienNhanBang,
+                    NoiDung = $"Sinh viên {sinhVienDangTraoInfo?.MaSoSinhVien ?? string.Empty}, {sinhVienDangTraoInfo?.HoVaTen ?? string.Empty}, Khoa {subPlanDangTrao?.Ten ?? string.Empty} đã được trao bằng thành công!",
+                    CreatedDate = vietnamNow,
+                    Deleted = false
+                };
+
+                _smDbContext.TraoBangLogs.Add(traoBangLog);
+                await _smDbContext.SaveChangesAsync();
+            }
             sinhVienTiepTheo.TrangThai = TraoBangConstants.DangTraoBang;
             _smDbContext.TienDoTraoBangs.Update(sinhVienTiepTheo);
             await _smDbContext.SaveChangesAsync();
@@ -1095,6 +1119,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 .FirstOrDefaultAsync(x => x.IdSubPlan == idSubPlan
                             && x.TrangThai == TraoBangConstants.DangTraoBang
                             && !x.Deleted);
+
             if (sinhVienDangTrao == null)
             {
                 var sinhVienCuoiCung = await _smDbContext.TienDoTraoBangs
@@ -1156,6 +1181,17 @@ namespace thongbao.be.application.TraoBang.Implements
             _smDbContext.TienDoTraoBangs.Update(sinhVienDangTrao);
             await _smDbContext.SaveChangesAsync();
 
+            var existingLogDangTrao = await _smDbContext.TraoBangLogs
+                .FirstOrDefaultAsync(x => x.IdSinhVien == sinhVienDangTrao.IdSinhVienNhanBang
+                                          && x.IdSubPlan == idSubPlan
+                                          && !x.Deleted);
+
+            if (existingLogDangTrao != null)
+            {
+                _smDbContext.TraoBangLogs.Remove(existingLogDangTrao);
+                await _smDbContext.SaveChangesAsync();
+            }
+
             var sinhVienTruocDo = await _smDbContext.TienDoTraoBangs
                 .Where(x => x.IdSubPlan == idSubPlan
                             && x.TrangThai == TraoBangConstants.DaTraoBang
@@ -1181,6 +1217,17 @@ namespace thongbao.be.application.TraoBang.Implements
                 }
 
                 return null;
+            }
+
+            var existingLogTruocDo = await _smDbContext.TraoBangLogs
+                .FirstOrDefaultAsync(x => x.IdSinhVien == sinhVienTruocDo.IdSinhVienNhanBang
+                                          && x.IdSubPlan == idSubPlan
+                                          && !x.Deleted);
+
+            if (existingLogTruocDo != null)
+            {
+                _smDbContext.TraoBangLogs.Remove(existingLogTruocDo);
+                await _smDbContext.SaveChangesAsync();
             }
 
             sinhVienTruocDo.TrangThai = TraoBangConstants.DangTraoBang;
@@ -1366,6 +1413,20 @@ namespace thongbao.be.application.TraoBang.Implements
                 TienDo = $"{sinhVienDaTraoCount}/{tongSinhVienThamGiaTraoBang}",
                 Items = items
             };
+        }
+        public async Task Restart()
+        {
+            _logger.LogInformation($"{nameof(Restart)}");
+
+            await _smDbContext.Database.ExecuteSqlRawAsync("DELETE FROM tb.TienDoTraoBang");
+            await _smDbContext.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('tb.TienDoTraoBang', RESEED, 0)");
+
+            await _smDbContext.Database.ExecuteSqlRawAsync("UPDATE [SMS_MARKETING_DEV].[tb].[SubPlan] SET [TrangThai] = 2");
+
+            await _smDbContext.Database.ExecuteSqlRawAsync("DELETE FROM tb.TraoBangLog");
+            await _smDbContext.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('tb.TraoBangLog', RESEED, 0)");
+
+            await _smDbContext.SaveChangesAsync();
         }
         public async Task<ImportDanhSachSinhVienNhanBangResponseDto> ImportDanhSachNhanBang(ImportDanhSachSinhVienNhanBangDto dto)
         {
@@ -1626,6 +1687,7 @@ namespace thongbao.be.application.TraoBang.Implements
 
             return responseData;
         }
+
         private string _extractSpreadsheetId(string sheetUrl)
         {
             var match = System.Text.RegularExpressions.Regex.Match(sheetUrl, @"/spreadsheets/d/([a-zA-Z0-9-_]+)");
