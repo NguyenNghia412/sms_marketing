@@ -51,7 +51,7 @@ export class SideScreen extends BaseComponent implements OnDestroy {
       next: res => {
         if (this.isResponseSucceed(res)) {
 
-          if (this.firstSvIsDangTrao(this.data)) {
+          if (this.isUseAnimation(this.data)) {
 
             this.removing = true;
             setTimeout(() => {
@@ -72,9 +72,10 @@ export class SideScreen extends BaseComponent implements OnDestroy {
     })
   }
 
-  firstSvIsDangTrao(data: IViewSubPlanSideScreen) {
-    const sv = (data.items && data.items.length > 0) ? data.items[0] : null;
-    return sv && sv.trangThai === SvNhanBangStatuses.DANG_TRAO_BANG;
+  isUseAnimation(data: IViewSubPlanSideScreen) {
+    const sv1 = (data.items && data.items.length > 0) ? data.items[0] : null;
+    const sv2 = (data.items && data.items.length > 1) ? data.items[1] : null;
+    return sv1 && sv1.trangThai === SvNhanBangStatuses.DANG_TRAO_BANG && sv2 &&  sv2.trangThai === SvNhanBangStatuses.CHUAN_BI;
   }
 
   connectHub() {
