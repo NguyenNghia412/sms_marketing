@@ -47,21 +47,22 @@ export class SideScreen extends BaseComponent implements OnDestroy {
   }
 
   getHangDoi() {
-    const oldSvId = this.getFirstSvId(this.data);
     this._svTraoBangService.getSvNhanBangKhoa().subscribe({
       next: res => {
         if (this.isResponseSucceed(res)) {
-          
-          const newSvId = this.getFirstSvId(res.data);
-          if (oldSvId !== newSvId) {
+
+          if (this.firstSvIsDangTrao(this.data)) {
+
             this.removing = true;
-            this.newlyAdded === newSvId;
             setTimeout(() => {
               this.removing = false
-              this.newlyAdded = null;
               this.data = res.data
             }, 600);
+          } else {
+
+            this.data = res.data
           }
+
         } else {
           this.data = {
             items: []
@@ -71,8 +72,9 @@ export class SideScreen extends BaseComponent implements OnDestroy {
     })
   }
 
-  getFirstSvId(data: IViewSubPlanSideScreen) {
-    return (data.items && data.items.length > 0) ? data.items[0].id : null;
+  firstSvIsDangTrao(data: IViewSubPlanSideScreen) {
+    const sv = (data.items && data.items.length > 0) ? data.items[0] : null;
+    return sv && sv.trangThai === SvNhanBangStatuses.DANG_TRAO_BANG;
   }
 
   connectHub() {

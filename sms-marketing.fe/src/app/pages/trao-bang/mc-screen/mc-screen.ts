@@ -162,6 +162,11 @@ export class McScreen extends BaseComponent implements OnDestroy {
     });
   }
 
+  onClickPrevTraoBang(event: any) {
+    event?.target?.blur();
+    this.prevTraoBang();
+  }
+
   prevTraoBang() {
     this._svTraoBangService.prevSvNhanBang(this.idSubPlan).subscribe({
       next: res => {
