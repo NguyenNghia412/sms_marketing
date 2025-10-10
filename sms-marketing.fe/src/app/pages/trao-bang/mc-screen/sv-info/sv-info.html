@@ -13,13 +13,19 @@
     <div class="w-1/2">
         <span class="font-semibold">Ghi chú:</span><br>
         @if (svDangTrao()?.note) {
-        <span class="whitespace-pre-line">{{ svDangTrao()?.note || 'Không có ghi chú' }}</span>
+        <span class="whitespace-pre-line">{{ svDangTrao()?.note }}</span>
         }
     </div>
     }
     @if (svDangTrao() && svDangTrao()?.text) {
     <div class="space-y-1">
         <div class="font-bold">{{svDangTrao()?.text}}</div>
+    </div>
+    <div class="w-1/2">
+        <span class="font-semibold">Ghi chú:</span><br>
+        @if (svDangTrao()?.textNote) {
+            <div [innerHTML]="svDangTrao()?.textNote" class="whitespace-pre-line"></div>
+        }
     </div>
     }
 </div>

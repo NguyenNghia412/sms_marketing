@@ -94,6 +94,7 @@ export interface IViewSvDangTraoBang {
     tenSubPlan?: string;
     note?: string;
     text?: string;
+    textNote?: string;
 }
 
 export interface IViewTienDoTraoBang {

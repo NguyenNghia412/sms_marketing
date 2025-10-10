@@ -24,6 +24,8 @@ export class SideScreen extends BaseComponent implements OnDestroy {
     items: []
   };
   hubConnection: signalR.HubConnection | undefined;
+  removing: boolean = false;
+  newlyAdded: number | null = null;
 
   override ngOnInit(): void {
     this.getHangDoi();
@@ -31,10 +33,20 @@ export class SideScreen extends BaseComponent implements OnDestroy {
   }
 
   getHangDoi() {
+    const oldSvId = this.getFirstSvId(this.data);
     this._svTraoBangService.getSvNhanBangKhoa().subscribe({
       next: res => {
         if (this.isResponseSucceed(res)) {
           this.data = res.data
+          const newSvId = this.getFirstSvId(res.data);
+          if (oldSvId !== newSvId) {
+            this.removing = true;
+            this.newlyAdded === newSvId;
+            setTimeout(() => {
+              this.removing = false
+              // this.newlyAdded = null;
+            }, 600);
+          }
         } else {
           this.data = {
             items: []
@@ -42,6 +54,10 @@ export class SideScreen extends BaseComponent implements OnDestroy {
         }
       }
     })
+  }
+
+  getFirstSvId(data: IViewSubPlanSideScreen) {
+    return (data.items && data.items.length > 0) ? data.items[0].id : null;
   }
 
   connectHub() {

@@ -18,5 +18,7 @@ namespace thongbao.be.application.TraoBang.Dtos
         public string CapBang { get; set; } = String.Empty;
         public string Note { get; set; } = String.Empty;
         public string? Text { get; set; }
+        public string? TextNote { get; set; }
+
     }
 }

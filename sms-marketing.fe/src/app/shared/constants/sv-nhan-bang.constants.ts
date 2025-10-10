@@ -9,7 +9,7 @@ export class SvNhanBangStatuses {
     static VANG_MAT = 6;
 
     static List = [
-        { name: 'Xếp hàng', code: this.XEP_HANG, severity: 'contrast' },
+        { name: 'Xếp hàng', code: this.XEP_HANG, severity: 'secondary' },
         { name: 'Chuẩn bị', code: this.CHUAN_BI, severity: 'info' },
         { name: 'Đang trao bằng', code: this.DANG_TRAO_BANG, severity: 'warn' },
         { name: 'Đã trao bằng', code: this.DA_TRAO_BANG, severity: 'success' },

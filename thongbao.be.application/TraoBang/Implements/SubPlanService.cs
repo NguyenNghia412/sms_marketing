@@ -673,6 +673,8 @@ namespace thongbao.be.application.TraoBang.Implements
                     CapBang = string.Empty,
                     Note = string.Empty,
                     Text = subPlan.MoBai,
+                    TextNote= subPlan.MoBaiNote,
+
                 };
             }
 
@@ -705,6 +707,7 @@ namespace thongbao.be.application.TraoBang.Implements
                         CapBang = sinhVien.CapBang,
                         Note = sinhVien.Note ?? string.Empty,
                         Text = null,
+                        TextNote = null,
                     };
                 }
             }
@@ -730,6 +733,7 @@ namespace thongbao.be.application.TraoBang.Implements
                     CapBang = string.Empty,
                     Note = string.Empty,
                     Text = subPlan.KetBai,
+                    TextNote = subPlan.KetBaiNote,
                 };
             }
 
@@ -985,7 +989,8 @@ namespace thongbao.be.application.TraoBang.Implements
                         return new GetSinhVienDangTraoBangInforDto
                         {
                             TenSubPlan = subPlanForKetBai.Ten ?? string.Empty,
-                            Text = subPlanForKetBai.KetBai ?? string.Empty
+                            Text = subPlanForKetBai.KetBai ?? string.Empty,
+                            TextNote = subPlanForKetBai.KetBaiNote ?? string.Empty
                         };
                     }
 
@@ -1044,7 +1049,8 @@ namespace thongbao.be.application.TraoBang.Implements
                     return new GetSinhVienDangTraoBangInforDto
                     {
                         TenSubPlan = subPlanForKetBai.Ten ?? string.Empty,
-                        Text = subPlanForKetBai.KetBai ?? string.Empty
+                        Text = subPlanForKetBai.KetBai ?? string.Empty,
+                        TextNote = subPlanForKetBai.KetBaiNote ?? string.Empty
                     };
                 }
 
@@ -1108,7 +1114,8 @@ namespace thongbao.be.application.TraoBang.Implements
                         return new GetSinhVienDangTraoBangInforDto
                         {
                             TenSubPlan = subPlanForMoBai.Ten ?? string.Empty,
-                            Text = subPlanForMoBai.MoBai ?? string.Empty
+                            Text = subPlanForMoBai.MoBai ?? string.Empty,
+                            TextNote = subPlanForMoBai.MoBaiNote ?? string.Empty
                         };
                     }
 
@@ -1166,7 +1173,8 @@ namespace thongbao.be.application.TraoBang.Implements
                     return new GetSinhVienDangTraoBangInforDto
                     {
                         TenSubPlan = subPlanForMoBai.Ten ?? string.Empty,
-                        Text = subPlanForMoBai.MoBai ?? string.Empty
+                        Text = subPlanForMoBai.MoBai ?? string.Empty,
+                        TextNote = subPlanForMoBai.MoBaiNote ?? string.Empty
                     };
                 }
 
