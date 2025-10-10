@@ -5,10 +5,14 @@
     <div class="space-y-1">
         <div class="font-bold">{{svDangTrao()?.capBang}} {{ svDangTrao()?.hoVaTen }}</div>
         <div><span class="font-semibold">Ngành:</span> {{ svDangTrao()?.tenNganhDaoTao }}</div>
-        <div><span class="font-semibold">Xếp loại:</span> {{ svDangTrao()?.xepHang || '' }}</div>
+        @if (svDangTrao()?.xepHang) {
+            <div><span class="font-semibold">Xếp loại:</span> {{ svDangTrao()?.xepHang || '' }}</div>
+        }
+        @if (svDangTrao()?.thanhTich) {
         <div><span class="font-semibold">Thành tích:</span><br><span class="whitespace-pre-line">{{
                 svDangTrao()?.thanhTich
                 }}</span></div>
+        }
     </div>
     <div class="w-1/2">
         <span class="font-semibold">Ghi chú:</span><br>
