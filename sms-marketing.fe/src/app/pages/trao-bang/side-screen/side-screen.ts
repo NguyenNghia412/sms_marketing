@@ -44,7 +44,7 @@ export class SideScreen extends BaseComponent implements OnDestroy {
             this.newlyAdded === newSvId;
             setTimeout(() => {
               this.removing = false
-              this.newlyAdded = null;
+              // this.newlyAdded = null;
             }, 600);
           }
         } else {
