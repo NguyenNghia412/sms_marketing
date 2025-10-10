@@ -14,6 +14,7 @@ import * as signalR from '@microsoft/signalr';
 import { ScanQrService } from '@/services/scan-qr.service';
 import { NgIcon } from '@ng-icons/core';
 import { TagModule } from 'primeng/tag';
+import { SystemTraoBangService } from '@/services/trao-bang/system-trao-bang';
 
 @Component({
   selector: 'app-scan-qr-sv',
@@ -26,6 +27,7 @@ export class ScanQrSv extends BaseComponent implements OnDestroy {
   hubConnection: signalR.HubConnection | undefined;
   _svTraoBangService = inject(TraoBangSvService);
   _scanQrService = inject(ScanQrService);
+  _systemService = inject(SystemTraoBangService);
 
   idSubPlan: number = 0;
   currentSubPlanInfo: IViewScanQrCurrentSubPlan | null = {};
@@ -136,6 +138,13 @@ export class ScanQrSv extends BaseComponent implements OnDestroy {
       },
       () => {
         // this.callApiImport();
+        this._systemService.restart().subscribe({
+          next: (res) => {
+            if (this.isResponseSucceed(res, true, 'Đã clear data')) {
+              this.initData();
+            }
+          }
+        })
       }
     );
   }
