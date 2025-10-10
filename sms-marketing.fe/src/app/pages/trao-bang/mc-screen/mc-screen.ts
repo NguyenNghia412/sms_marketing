@@ -7,13 +7,14 @@ import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IVi
 import * as signalR from '@microsoft/signalr';
 import { LeftSidebar } from '../scan-qr-sv/left-sidebar/left-sidebar';
 import { StudentList } from '../scan-qr-sv/student-list/student-list';
-import { concatMap, delay } from 'rxjs';
+import { concatMap } from 'rxjs';
 import { SvInfo } from "./sv-info/sv-info";
 import { EnterKeyDirective } from "@/shared/directives/enter-key.directive";
+import { ShiftEnterKeyDirective } from '@/shared/directives/shift-enter-key.directive';
 
 @Component({
   selector: 'app-mc-screen',
-  imports: [SharedImports, LeftSidebar, StudentList, SvInfo, EnterKeyDirective],
+  imports: [SharedImports, LeftSidebar, StudentList, SvInfo, EnterKeyDirective, ShiftEnterKeyDirective],
   templateUrl: './mc-screen.html',
   styleUrl: './mc-screen.scss'
 })

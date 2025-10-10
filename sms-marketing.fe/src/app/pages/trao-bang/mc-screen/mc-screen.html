@@ -1,5 +1,7 @@
 <div class="flex flex-col lg:flex-row gap-3 focus:outline-none focus:ring-0" tabindex="0"
-    (appEnterKey)="onClickNextTraoBang()">
+    (appEnterKey)="onClickNextTraoBang()"
+    (appShiftEnterKey)="prevTraoBang()"
+    >
     <!-- LEFT SIDEBAR -->
     <div class="w-full lg:w-1/4 bg-white rounded-xl shadow p-3">
         <app-left-sidebar [allowChangeSubPlan]="false" [data]="listSubPlan" />
@@ -31,6 +33,7 @@
             <div class="flex justify-between items-center space-x-2">
                 <div class="w-1/2">
                     <p-button label="VỀ TRƯỚC" icon="pi pi-angle-left" styleClass="p-button-secondary w-full"
+                    pTooltip="Phím tắt: Shift + Enter"
                         size="large" (onClick)="prevTraoBang()"></p-button>
                 </div>
                 <div class="w-1/2">
