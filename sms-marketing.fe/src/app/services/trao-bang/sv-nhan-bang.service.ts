@@ -42,6 +42,10 @@ export class TraoBangSvService {
         return this.http.post<IBaseResponseWithData<IViewScanQrTienDoSv>>(`${this.api}/sinh-vien-nhan-bang/hang-doi?mssv=${mssv}`, null);
     }
 
+    pushHangDoiTruongHopDacBiet(mssv: string) {
+        return this.http.post<IBaseResponseWithData<IViewScanQrTienDoSv>>(`${this.api}/sinh-vien-nhan-bang/hang-doi/truong-hop-dac-biet?mssv=${mssv}`, null);
+    }
+
     getHangDoi(query: IGetTienDoHangDoi) {
         if (!query.SoLuong) {
             query.SoLuong = 5;
