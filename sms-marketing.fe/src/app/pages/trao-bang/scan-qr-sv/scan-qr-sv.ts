@@ -128,6 +128,18 @@ export class ScanQrSv extends BaseComponent implements OnDestroy {
     })
   }
 
+  onResetData() {
+    this.confirmAction(
+      {
+        header: 'Xóa hết dữ liệu',
+        message: `Xóa hết dữ liệu?`
+      },
+      () => {
+        // this.callApiImport();
+      }
+    );
+  }
+
   onOpenDialogMssv() {
     const ref = this._dialogService.open(DialogMssv, { header: 'Chuyển SV vào hàng đợi', closable: true, modal: true, styleClass: 'w-[500px]', focusOnShow: false });
     ref.onClose.subscribe((mssv) => {

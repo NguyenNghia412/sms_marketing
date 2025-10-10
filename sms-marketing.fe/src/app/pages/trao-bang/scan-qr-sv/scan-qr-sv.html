@@ -16,15 +16,17 @@
 
             <!-- QR + INPUT -->
             <div class="w-full lg:w-2/5 bg-white rounded-xl shadow p-4">
-                <div class="flex gap-2 mb-3">
-                    <!-- <p-tag severity="info" class="text-base">
-                        <div [ngClass]="['w-full py-2 text-base bor']">QUÉT QR
-                        </div>
-                    </p-tag> -->
-                    <button pButton label="QUÉT QR" class="p-button-sm p-button"></button>
-                    <button pButton label="NHẬP MSSV" class="p-button-sm p-button-outlined"
-                        (click)="onOpenDialogMssv()"></button>
+                <div class="flex flex-row justify-between mb-3">
+                    <div class="flex gap-2 ">
+                        <button pButton label="QUÉT QR" class="p-button-sm p-button"></button>
+                        <button pButton label="NHẬP MSSV" class="p-button-sm p-button-outlined"
+                            (click)="onOpenDialogMssv()"></button>
+                    </div>
+                    <div>
+                        <button pButton icon="pi pi-power-off" class="p-button-sm p-button-danger" (click)="onResetData()"></button>
+                    </div>
                 </div>
+
 
                 <div class="flex flex-col justify-center items-center mt-3 border border-dashed w-full h-96">
                     <div>
