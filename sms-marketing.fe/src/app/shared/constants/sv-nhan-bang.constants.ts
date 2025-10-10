@@ -29,6 +29,12 @@ export class SvNhanBangStatuses {
 
 }
 
+export class ViewSvTypeConstants {
+    static SV = 1;
+    static MO_BAI = 2;
+    static KET_BAI = 3;
+}
+
 export class SubPlanStatuses {
     static XEP_HANG = 1;
     static CHUAN_BI = 2;

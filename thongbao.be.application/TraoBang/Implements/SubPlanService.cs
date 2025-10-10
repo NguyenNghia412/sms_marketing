@@ -674,7 +674,7 @@ namespace thongbao.be.application.TraoBang.Implements
                     Note = string.Empty,
                     Text = subPlan.MoBai,
                     TextNote= subPlan.MoBaiNote,
-
+                    InfoType = ViewSvTypeConstants.MO_BAI,
                 };
             }
 
@@ -708,6 +708,7 @@ namespace thongbao.be.application.TraoBang.Implements
                         Note = sinhVien.Note ?? string.Empty,
                         Text = null,
                         TextNote = null,
+                        InfoType = ViewSvTypeConstants.SV,
                     };
                 }
             }
@@ -734,6 +735,7 @@ namespace thongbao.be.application.TraoBang.Implements
                     Note = string.Empty,
                     Text = subPlan.KetBai,
                     TextNote = subPlan.KetBaiNote,
+                    InfoType = ViewSvTypeConstants.KET_BAI,
                 };
             }
 

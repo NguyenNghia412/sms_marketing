@@ -28,7 +28,11 @@
     <div class="w-1/2">
         <span class="font-semibold">Ghi chú:</span><br>
         @if (svDangTrao()?.textNote) {
-            <div [innerHTML]="svDangTrao()?.textNote" class="whitespace-pre-line"></div>
+            <div [innerHTML]="svDangTrao()?.textNote" [ngClass]="{
+                'whitespace-pre-line': true,
+                `text-[#eb1d33]`: svDangTrao()?.infoType === type.KET_BAI,
+                `text-[#012a86]`: svDangTrao()?.infoType === type.MO_BAI,
+            }"></div>
         }
     </div>
     }

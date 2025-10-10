@@ -95,6 +95,7 @@ export interface IViewSvDangTraoBang {
     note?: string;
     text?: string;
     textNote?: string;
+    infoType?: number; 
 }
 
 export interface IViewTienDoTraoBang {

@@ -15,4 +15,11 @@ namespace thongbao.be.shared.Constants.TraoBang
         public const int ThamGiaTraoBang = 5;
         public const int VangMat = 6;
     }
+
+    public static class ViewSvTypeConstants
+    {
+        public const int SV = 1;
+        public const int MO_BAI = 2;
+        public const int KET_BAI = 3;
+    }
 }
