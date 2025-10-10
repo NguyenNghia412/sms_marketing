@@ -1194,6 +1194,7 @@ namespace thongbao.be.application.TraoBang.Implements
 
             var sinhVienTruocDo = await _smDbContext.TienDoTraoBangs
                 .Where(x => x.IdSubPlan == idSubPlan
+                            && x.Order < sinhVienDangTrao.Order  
                             && x.TrangThai == TraoBangConstants.DaTraoBang
                             && !x.Deleted)
                 .OrderByDescending(x => x.Order)
