@@ -113,11 +113,26 @@ export class ScanQrSv extends BaseComponent implements OnDestroy {
     })
   }
 
+  pushHangDoiDacBiet(mssv: string) {
+    this.loading = true;
+    this._svTraoBangService.pushHangDoiTruongHopDacBiet(mssv).subscribe({
+      next: res => {
+        if (this.isResponseSucceed(res)) {
+          this.pushedSuccessSv = res.data;
+          this.getHangDoi();
+          this.getCurrentSubPlan();
+        }
+      }
+    }).add(() => {
+      this.loading = false;
+    })
+  }
+
   onOpenDialogMssv() {
     const ref = this._dialogService.open(DialogMssv, { header: 'Chuyển SV vào hàng đợi', closable: true, modal: true, styleClass: 'w-[500px]', focusOnShow: false });
     ref.onClose.subscribe((mssv) => {
       if (mssv) {
-        this.pushHangDoi(mssv);
+        this.pushHangDoiDacBiet(mssv);
       }
     });
   }
