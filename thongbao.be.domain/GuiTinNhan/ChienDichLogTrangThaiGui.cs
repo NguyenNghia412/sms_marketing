@@ -21,12 +21,14 @@ namespace thongbao.be.domain.GuiTinNhan
     {
         public int Id { get; set; }
         public int IdChienDich {  get; set; }
-        public int IdDanhBa {  get; set; }
+        public int? IdDanhBa {  get; set; }
         public int IdBrandName { get; set; }
         public int SmsSendSuccess { get; set; }
         public int SmsSendFailed { get; set; }
+        public int TongSoSms { get; set; }
         public string TrangThai {  get; set; } = String.Empty;
         public int TongChiPhi { get; set; }
+        public string NoiDung { get; set; } = String.Empty;
         public int? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }

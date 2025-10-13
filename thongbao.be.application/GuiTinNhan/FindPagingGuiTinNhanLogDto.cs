@@ -9,5 +9,6 @@ namespace thongbao.be.application.GuiTinNhan
 {
     public class FindPagingGuiTinNhanLogDto : BaseRequestPagingDto
     {
+        public int? idDanhBa { get; set; }
     }
 }

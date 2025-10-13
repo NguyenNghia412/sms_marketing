@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.application.GuiTinNhan.Interfaces;
 using thongbao.be.Attributes;
@@ -71,20 +72,34 @@ namespace thongbao.be.Controllers.GuiTinNhan
 
                 var result = await _sendSmsService.SendSmsAsync(smsMessages);
 
-                // Chỉ log khi có IdDanhBa
+                // Mode:Danh bạ
                 if (dto.IdDanhBa.HasValue)
                 {
                     await _guiTinNhanJobService.SendSmsLog(
                         result,
                         dto.IdChienDich,
                         dto.IdDanhBa.Value,
+                        dto.DanhSachSoDienThoai,
+                        dto.IdBrandName,
+                        dto.IsAccented,
+                        dto.NoiDung
+                    );
+                }
+                // Mode:List số điện thoại
+                else
+                {
+                    await _guiTinNhanJobService.SendSmsLog(
+                        result,
+                        dto.IdChienDich,
+                        null,
+                        dto.DanhSachSoDienThoai,
                         dto.IdBrandName,
                         dto.IsAccented,
                         dto.NoiDung
                     );
                 }
 
-                return new(result);
+                    return new(result);
             }
             catch (Exception ex)
             {

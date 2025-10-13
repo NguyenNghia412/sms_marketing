@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using thongbao.be.infrastructure.data;
 
@@ -11,9 +12,11 @@ using thongbao.be.infrastructure.data;
 namespace thongbao.be.infrastructure.data.Migrations
 {
     [DbContext(typeof(SmDbContext))]
-    partial class SmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251013170113_Update_SmsLog")]
+    partial class Update_SmsLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1210,9 +1213,6 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.Property<int>("TongChiPhi")
                         .HasColumnType("int");
 
-                    b.Property<int>("TongSoSms")
-                        .HasColumnType("int");
-
                     b.Property<string>("TrangThai")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1263,7 +1263,7 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.Property<int?>("IdDanhBa")
                         .HasColumnType("int");
 
-                    b.Property<int?>("IdDanhBaSms")
+                    b.Property<int>("IdDanhBaSms")
                         .HasColumnType("int");
 
                     b.Property<string>("Message")
@@ -1276,10 +1276,6 @@ namespace thongbao.be.infrastructure.data.Migrations
 
                     b.Property<int>("Price")
                         .HasColumnType("int");
-
-                    b.Property<string>("SoDienThoai")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TrangThai")
                         .IsRequired()

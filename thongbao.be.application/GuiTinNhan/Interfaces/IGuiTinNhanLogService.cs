@@ -11,7 +11,8 @@ namespace thongbao.be.application.GuiTinNhan.Interfaces
     public interface IGuiTinNhanLogService
     {
         public BaseResponsePagingDto<ViewChienDichLogDto> PagingChienDichLog(FindPagingChienDichLogDto dto);
-        public BaseResponsePagingDto<ViewDanhBaSmsLogDto> PagingGuiTinNhanLog(int idChienDich, int idDanhBa, FindPagingGuiTinNhanLogDto dto);
+        public BaseResponsePagingDto<ViewDanhBaSmsLogDto> PagingGuiTinNhanLog(int idChienDich, FindPagingGuiTinNhanLogDto dto);
+        public  Task<byte[]> ExportThongKeTheoChienDich(ExportSmsLogTheoChienDichDto dto);
 
     }
 }

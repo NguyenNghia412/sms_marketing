@@ -44,17 +44,37 @@ namespace thongbao.be.Controllers.GuiTinNhan
             }
         }
         [Permission(PermissionKeys.GuiTinNhanAdd)]
-        [HttpGet("chien-dich/{idChienDich}/danh-ba/{idDanhBa}")]
-        public ApiResponse FindGuiTinNhanLog([FromRoute] int idChienDich, [FromRoute] int idDanhBa,[FromQuery] FindPagingGuiTinNhanLogDto dto)
+        [HttpGet("chien-dich/{idChienDich}")]
+        public ApiResponse FindGuiTinNhanLog([FromRoute] int idChienDich,[FromQuery] FindPagingGuiTinNhanLogDto dto)
         {
             try
             {
-                var data = _guiTinNhanLogService.PagingGuiTinNhanLog(idChienDich,idDanhBa,dto);
+                var data = _guiTinNhanLogService.PagingGuiTinNhanLog(idChienDich,dto);
                 return new(data);
             }
             catch (Exception ex)
             {
                 return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.GuiTinNhanAdd)]
+        [HttpPost("export-thong-ke-theo-chien-dich-excel")]
+        public async Task<IActionResult> ExportThongKeTheoChienDich([FromBody] ExportSmsLogTheoChienDichDto dto)
+        {
+            try
+            {
+                var excelTemplate = await _guiTinNhanLogService.ExportThongKeTheoChienDich(dto);
+                var fileName = $"Thong_Ke_Gui_Tin_Nhan_Theo_Chien_Dich.xlsx";
+                return File(
+                   excelTemplate,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    fileName
+                 );
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse(ex.Message));
             }
         }
     }
