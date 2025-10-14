@@ -60,6 +60,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         join mnd in _smDbContext.MauNoiDungs on cd.IdMauNoiDung equals mnd.Id into mauNoiDungJoin
                         from mauNoiDung in mauNoiDungJoin.DefaultIfEmpty()
                         where !cd.Deleted
+                              && (string.IsNullOrEmpty(dto.Keyword)
+                                  || cd.TenChienDich.Contains(dto.Keyword)
+                                  || cd.NoiDung.Contains(dto.Keyword)
+                                  || cd.MoTa.Contains(dto.Keyword))
                         orderby cd.CreatedDate descending
                         select new ViewChienDichDto
                         {
@@ -71,7 +75,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             NgayKetThuc = cd.NgayKetThuc,
                             IdMauNoiDung = cd.IdMauNoiDung,
                             TenMauNoiDung = mauNoiDung != null && !mauNoiDung.Deleted ? mauNoiDung.TenMauNoiDung : null,
-                            NoiDungMauNoiDung  = mauNoiDung != null && !mauNoiDung.Deleted ? mauNoiDung.NoiDung : null,
+                            NoiDungMauNoiDung = mauNoiDung != null && !mauNoiDung.Deleted ? mauNoiDung.NoiDung : null,
                             IdBrandName = cd.IdBrandName,
                             TenBrandName = brand != null ? brand.TenBrandName : string.Empty,
                             IsFlashSms = cd.IsFlashSms,

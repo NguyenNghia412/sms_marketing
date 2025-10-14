@@ -26,13 +26,13 @@
                 {{ get(row, col.field || '') | currency: 'USD' : 'symbol' }}
                 }
                 @else if (col.cellViewType === cellViewTypes.CHECKBOX) {
-                <input type="checkbox" [checked]="get(row, col.field || '')" readonly disabled />
+                <input type="checkbox" [checked]="get(row, col.field || '')" (click)="$event.stopPropagation()" (change)="onCellClick(col, row)" />
                 }
                 @else if (col.cellViewType === cellViewTypes.LINK_BLANK) {
                     <a [href]="get(row, col.field || '')" target="_blank" class="!underline cursor-pointer text-blue-600">{{get(row, col.field || '')}}</a>
                 }
                 @else if ('field' in col) {
-                {{ get(row, col.field || '') }}
+                <span [class.cursor-pointer]="isCellClickable(col)" (click)="onCellClick(col, row)">{{ get(row, col.field || '') }}</span>
                 }
             </td>
             }

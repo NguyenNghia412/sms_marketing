@@ -61,7 +61,7 @@ export class DataTable implements OnInit {
     }
     
      onCellClick(col: IColumn, row: any) {
-        if (col.clickable) {
+        if (col.clickable || col.cellViewType === CellViewTypes.CHECKBOX) {
             this.onCustomComp.emit({
                 type: 'cellClick',
                 field: col.field,

@@ -146,7 +146,11 @@ namespace thongbao.be.application.DanhBa.Implements
         {
             _logger.LogInformation($"{nameof(FindDanhBaChiTiet)} dto={JsonSerializer.Serialize(dto)}");
             var query = from dbct in _smDbContext.DanhBaSms
-                        where dbct.IdDanhBa == idDanhBa && !dbct.Deleted
+                        where dbct.IdDanhBa == idDanhBa
+                              && !dbct.Deleted
+                              && (string.IsNullOrEmpty(dto.Keyword)
+                                  || dbct.HoVaTen.Contains(dto.Keyword)
+                                  || dbct.SoDienThoai.Contains(dto.Keyword))
                         orderby dbct.Id ascending
                         select dbct;
             var data = query.Paging(dto).ToList();
@@ -173,33 +177,30 @@ namespace thongbao.be.application.DanhBa.Implements
         public BaseResponsePagingDto<ViewDanhBaDto> Find(FindPagingDanhBaDto dto)
         {
             _logger.LogInformation($"{nameof(Find)} dto={System.Text.Json.JsonSerializer.Serialize(dto)}");
-
             var query = from db in _smDbContext.DanhBas
                         where !db.Deleted
+                              && (string.IsNullOrEmpty(dto.Keyword)
+                                  || db.TenDanhBa.Contains(dto.Keyword)
+                                  || db.Mota.Contains(dto.Keyword))
                         orderby db.CreatedDate descending
                         select db;
-
             var data = query.Paging(dto).ToList();
             var items = _mapper.Map<List<ViewDanhBaDto>>(data);
-
             var danhBaIds = items.Select(x => x.Id).ToList();
             var soLuongDict = _smDbContext.DanhBaSms
                 .Where(x => danhBaIds.Contains(x.IdDanhBa) && !x.Deleted)
                 .GroupBy(x => x.IdDanhBa)
                 .Select(g => new { IdDanhBa = g.Key, Count = g.Count() })
                 .ToDictionary(x => x.IdDanhBa, x => x.Count);
-
             foreach (var item in items)
             {
                 item.SoLuongNguoiNhan = soLuongDict.ContainsKey(item.Id) ? soLuongDict[item.Id] : 0;
             }
-
             var response = new BaseResponsePagingDto<ViewDanhBaDto>
             {
                 Items = items,
                 TotalItems = query.Count()
             };
-
             return response;
         }
         public async Task<GetTruongDataDanhBaSmsResponseDto> GetTruongData( int idDanhBa)

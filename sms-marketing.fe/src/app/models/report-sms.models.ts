@@ -11,8 +11,10 @@ export interface IViewChienDichReport{
         idDanhBa?: number;
         tenDanhBa?: string;
     };
+    tongSoSms?: number
     smsSentSuccess?: number
     smsSentFailed?: number
+    noiDung?: string
     trangThai?: string
     tongChiPhi?: number
     ngayGui?: string
@@ -24,6 +26,8 @@ export interface IBrandName {
 }
 
 export interface ILogReport {
+    soDienThoai?: string;
+    noiDungChiTiet?: string;
     price?: number;
     code?: number;
     message?: string;
@@ -33,12 +37,21 @@ export interface ILogReport {
 export interface IViewChiTietChienDichReport {
     id?: number;
     hoVaTen?: string;
-    maSoNguoiDung?: string;
+    //maSoNguoiDung?: string;
     soDienThoai?: string;
     brandName?: IBrandName;
     log?: ILogReport;
 }
-
+export interface IExportThongKeTheoChienDich{
+    idChienDichs?: number[];
+}
+export interface IExportThongKeTheoThang{
+    thang?: number;
+    nam?: number;
+}
 export interface IFindPagingChienDichReport extends IBaseRequestPaging {}
 
-export interface IFindPagingChiTietChienDichReport extends IBaseRequestPaging{}
+export interface IFindPagingChiTietChienDichReport extends IBaseRequestPaging{
+    idDanhBa?: number;
+}
+

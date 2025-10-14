@@ -13,6 +13,7 @@ namespace thongbao.be.application.GuiTinNhan.Interfaces
         public BaseResponsePagingDto<ViewChienDichLogDto> PagingChienDichLog(FindPagingChienDichLogDto dto);
         public BaseResponsePagingDto<ViewDanhBaSmsLogDto> PagingGuiTinNhanLog(int idChienDich, FindPagingGuiTinNhanLogDto dto);
         public  Task<byte[]> ExportThongKeTheoChienDich(ExportSmsLogTheoChienDichDto dto);
+        public  Task<byte[]> ExportThongKeTheoThang(ExportSmsLogTheoThangDto dto);
 
     }
 }

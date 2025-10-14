@@ -40,9 +40,10 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
         { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
         
         { header: 'Họ và tên', field: 'hoVaTen', headerContainerStyle: 'min-width: 8rem' },
-        { header: 'Mã số người dùng', field: 'maSoNguoiDung', headerContainerStyle: 'min-width: 8rem' },
-        { header: 'Số điện thoại', field: 'soDienThoai', headerContainerStyle: 'min-width: 8rem' },
+        //{ header: 'Mã số người dùng', field: 'maSoNguoiDung', headerContainerStyle: 'min-width: 8rem' },
+        { header: 'Số điện thoại', field: 'log.soDienThoai', headerContainerStyle: 'min-width: 8rem' },
         { header: 'Brand Name', field: 'tenBrandName', headerContainerStyle: 'min-width: 6rem' },
+        { header: 'Nội dung chi tiết', field: 'log.noiDungChiTiet', headerContainerStyle: 'min-width: 20rem' },
         { header: 'Chi Phí', field: 'gia', headerContainerStyle: 'min-width: 6rem' },
         { header: 'Message', field: 'messageText', headerContainerStyle: 'min-width: 8rem' },
         { header: 'Thời gian gửi', field: 'ngayGui', headerContainerStyle: 'width: 20rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },

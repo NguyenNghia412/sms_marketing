@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using thongbao.be.application.GuiTinNhan;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.application.GuiTinNhan.Implements;
 using thongbao.be.application.GuiTinNhan.Interfaces;
@@ -65,6 +64,26 @@ namespace thongbao.be.Controllers.GuiTinNhan
             {
                 var excelTemplate = await _guiTinNhanLogService.ExportThongKeTheoChienDich(dto);
                 var fileName = $"Thong_Ke_Gui_Tin_Nhan_Theo_Chien_Dich.xlsx";
+                return File(
+                   excelTemplate,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    fileName
+                 );
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse(ex.Message));
+            }
+        }
+        [Permission(PermissionKeys.GuiTinNhanAdd)]
+        [HttpPost("export-thong-ke-theo-thang-excel")]
+        public async Task<IActionResult> ExportThongKeTheoThang([FromBody] ExportSmsLogTheoThangDto dto)
+        {
+            try
+            {
+                var excelTemplate = await _guiTinNhanLogService.ExportThongKeTheoThang(dto);
+                var fileName = $"Thong_Ke_Gui_Tin_Nhan_Theo_Thang.xlsx";
                 return File(
                    excelTemplate,
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

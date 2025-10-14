@@ -12,7 +12,7 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public int Id { get; set; }
         public string HoVaTen { get; set; } = String.Empty;
         //public string MaSoNguoiDung { get; set; } = String.Empty;
-        public string SoDienThoai { get; set; } = String.Empty;
+        //public string SoDienThoai { get; set; } = String.Empty;
 
         public BrandNameDto BrandName { get; set; } = new BrandNameDto();
         public ViewGuiTinNhanLogDto Log { get; set; } = new ViewGuiTinNhanLogDto();
