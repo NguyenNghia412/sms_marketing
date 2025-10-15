@@ -37,10 +37,10 @@ namespace thongbao.be.domain.TraoBang
         public bool IsShow { get; set; }
         public bool IsShowMoBai { get; set; }
         public bool IsShowKetBai { get; set; }
-        public int? CreatedBy { get; set; }
+        public string? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
         public bool Deleted { get; set; }
-        public int? DeletedBy { get; set; }
+        public string? DeletedBy { get; set; }
     }
 }

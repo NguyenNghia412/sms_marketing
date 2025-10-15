@@ -17,6 +17,7 @@ using thongbao.be.infrastructure.data;
 using thongbao.be.shared.HttpRequest.BaseRequest;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
+using Volo.Abp.Users;
 
 namespace thongbao.be.application.GuiTinNhan.Implements
 {
@@ -24,20 +25,20 @@ namespace thongbao.be.application.GuiTinNhan.Implements
     {
         private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
         public ChienDichService(
-            SmDbContext smDbContext, 
-            ILogger<ChienDichService> logger, 
+            SmDbContext smDbContext,
+            ILogger<ChienDichService> logger,
             IHttpContextAccessor httpContextAccessor,
             IMapper mapper
-        ) 
+        )
             : base(smDbContext, logger, httpContextAccessor, mapper)
         {
         }
 
-        public void Create( CreateChienDichDto dto)
+        public void Create(CreateChienDichDto dto)
         {
             _logger.LogInformation($"{nameof(Create)}, dto={JsonSerializer.Serialize(dto)}");
             var vietnamNow = GetVietnamTime();
-          
+            var currentUserId = getCurrentUserId();
 
             var chienDich = new domain.GuiTinNhan.ChienDich
             {
@@ -45,6 +46,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 NgayBatDau = dto.NgayBatDau ?? vietnamNow,
                 NgayKetThuc = dto.NgayKetThuc,
                 CreatedDate = vietnamNow,
+                CreatedBy = currentUserId,
                 TrangThai = false,
             };
 
@@ -54,7 +56,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         public BaseResponsePagingDto<ViewChienDichDto> Find(FindPagingChienDichDto dto)
         {
             _logger.LogInformation($"{nameof(Find)} dto={JsonSerializer.Serialize(dto)}");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+
             var query = from cd in _smDbContext.ChienDiches
+                        where isSuperAdmin || cd.CreatedBy == currentUserId
                         join bn in _smDbContext.BrandName on cd.IdBrandName equals bn.Id into brandJoin
                         from brand in brandJoin.DefaultIfEmpty()
                         join mnd in _smDbContext.MauNoiDungs on cd.IdMauNoiDung equals mnd.Id into mauNoiDungJoin
@@ -80,7 +86,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             TenBrandName = brand != null ? brand.TenBrandName : string.Empty,
                             IsFlashSms = cd.IsFlashSms,
                             TrangThai = cd.TrangThai,
-                            CreatedBy = cd.CreatedBy,
+                            //CreatedBy = cd.CreatedBy,
                             CreatedDate = cd.CreatedDate,
                             DanhBas = (from cddb in _smDbContext.ChienDichDanhBa
                                        join db in _smDbContext.DanhBas on cddb.IdDanhBa equals db.Id
@@ -105,13 +111,16 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         public void Update(int idChienDich, UpdateChienDichDto dto)
         {
             _logger.LogInformation($"{nameof(Update)} idChienDich={idChienDich}, dto={JsonSerializer.Serialize(dto)}");
-            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+
+            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
             if (chienDich == null)
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
             }
             chienDich.TenChienDich = dto.TenChienDich;
-   
+
             chienDich.NgayKetThuc = dto.NgayKetThuc;
             chienDich.MoTa = dto.MoTa;
             //chienDich.NoiDung = dto.NoiDung;
@@ -124,7 +133,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         {
             _logger.LogInformation($"{nameof(Delete)} idChienDich={idChienDich}");
             var vietnamNow = GetVietnamTime();
-            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+
+            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
             if (chienDich == null)
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
@@ -142,6 +154,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 logTrangThaiGui.Deleted = true;
                 logTrangThaiGui.DeletedDate = vietnamNow;
+                logTrangThaiGui.DeletedBy = currentUserId;
             }
 
             var chienDichDanhBaList = _smDbContext.ChienDichDanhBa
@@ -152,20 +165,23 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 chienDichDanhBa.Deleted = true;
                 chienDichDanhBa.DeletedDate = vietnamNow;
+                chienDichDanhBa.DeletedBy = currentUserId;
             }
 
-      
+
 
             chienDich.Deleted = true;
             chienDich.DeletedDate = vietnamNow;
+            chienDich.DeletedBy = currentUserId;
 
             _smDbContext.SaveChanges();
         }
         public ViewChienDichByIdDto GetChienDichById(int idChienDich)
         {
             _logger.LogInformation($"{nameof(GetChienDichById)}");
-
-            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
             if (chienDich == null)
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
@@ -173,11 +189,13 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             var brandName = _smDbContext.BrandName.FirstOrDefault(x => x.Id == chienDich.IdBrandName && !x.Deleted);
 
+
             var danhBas = (from cddb in _smDbContext.ChienDichDanhBa
                            join db in _smDbContext.DanhBas on cddb.IdDanhBa equals db.Id
                            where cddb.IdChienDich == idChienDich
                                  && !cddb.Deleted
                                  && !db.Deleted
+                                 && (isSuperAdmin || db.CreatedBy == currentUserId)
                            orderby cddb.CreatedDate
                            select new ViewDanhBaChienDichDto
                            {
@@ -198,16 +216,18 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             };
         }
 
-        public void AddDanhBaChienDich (int idChienDich, int idDanhBa)
+        public void AddDanhBaChienDich(int idChienDich, int idDanhBa)
         {
             _logger.LogInformation($"{nameof(AddDanhBaChienDich)} ");
             var vietnam = GetVietnamTime();
-            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) &&!x.Deleted);
             if (chienDich == null)
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
             }
-            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && !x.Deleted);
+            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa&& (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
             if (danhBa == null)
             {
                 throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
@@ -216,18 +236,21 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 IdChienDich = idChienDich,
                 IdDanhBa = idDanhBa,
+                CreatedBy = currentUserId,
             };
             _smDbContext.ChienDichDanhBa.Add(chienDichDanhBa);
             _smDbContext.SaveChanges();
-            
+
         }
 
         public List<GetListBrandNameResponseDto> GetListBrandName()
         {
             _logger.LogInformation($"{nameof(GetListBrandName)}");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
 
             var query = from bn in _smDbContext.BrandName
-                        where !bn.Deleted
+                        where !bn.Deleted && (isSuperAdmin || bn.CreatedBy == currentUserId)
                         orderby bn.CreatedDate descending
                         select bn;
 
@@ -240,8 +263,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         {
             _logger.LogInformation($"{nameof(DuplicateChienDich)}, idChienDich={idChienDich}");
             var vietnamNow = GetVietnamTime();
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
 
-            var chienDichGoc = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
+            var chienDichGoc = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
             if (chienDichGoc == null)
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
@@ -260,6 +285,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 IsAccented = chienDichGoc.IsAccented,
                 TrangThai = false,
                 CreatedDate = vietnamNow,
+                CreatedBy = currentUserId,
                 Deleted = false
             };
 

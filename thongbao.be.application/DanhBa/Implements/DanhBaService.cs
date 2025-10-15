@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.VariantTypes;
 using EFCore.BulkExtensions;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
@@ -31,6 +32,7 @@ using thongbao.be.shared.Constants.DanhBa;
 using thongbao.be.shared.HttpRequest.BaseRequest;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
+using Volo.Abp.Users;
 using static QRCoder.PayloadGenerator;
 
 namespace thongbao.be.application.DanhBa.Implements
@@ -59,8 +61,9 @@ namespace thongbao.be.application.DanhBa.Implements
 
         public void Create(CreateDanhBaDto dto)
         {
-            _logger.LogInformation($"{nameof(Create)} dto={System.Text.Json.JsonSerializer.Serialize(dto)}");
+            _logger.LogInformation($"{nameof(Create)} dto={JsonSerializer.Serialize(dto)}");
             var vietnamNow = GetVietnamTime();
+            var currentUserId = getCurrentUserId();
             if (dto.Type != TypeDanhBa.Sms && dto.Type != TypeDanhBa.Email)
             {
                 throw new UserFriendlyException(ErrorCodes.InternalServerError);
@@ -72,6 +75,7 @@ namespace thongbao.be.application.DanhBa.Implements
                 GhiChu = dto.GhiChu,
                 Type = dto.Type,
                 CreatedDate = vietnamNow,
+                CreatedBy = currentUserId,
             };
             _smDbContext.DanhBas.Add(danhBa);
             _smDbContext.SaveChanges();
@@ -81,7 +85,9 @@ namespace thongbao.be.application.DanhBa.Implements
         {
             _logger.LogInformation($"{nameof(Update)} idDanhBa={idDanhBa}, dto={System.Text.Json.JsonSerializer.Serialize(dto)}");
             var vietnamNow = GetVietnamTime();
-            var existingDanhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && !x.Deleted)
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var existingDanhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
             existingDanhBa.TenDanhBa = dto.TenDanhBa;
             existingDanhBa.Mota = dto.Mota;
@@ -94,12 +100,13 @@ namespace thongbao.be.application.DanhBa.Implements
         {
             _logger.LogInformation($"{nameof(Delete)} - Deleting DanhBa with ID: {idDanhBa}");
             var vietNamNow = GetVietnamTime();
-
-            var existingDanhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && !x.Deleted)
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var existingDanhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
 
             var danhBaChiTietIds = _smDbContext.DanhBaSms
-                .Where(dbct => dbct.IdDanhBa == idDanhBa && !dbct.Deleted)
+                .Where(dbct => dbct.IdDanhBa == idDanhBa  && (isSuperAdmin || dbct.CreatedBy == currentUserId) && !dbct.Deleted)
                 .Select(dbct => dbct.Id)
                 .ToList();
 
@@ -113,6 +120,7 @@ namespace thongbao.be.application.DanhBa.Implements
                 {
                     danhBaData.Deleted = true;
                     danhBaData.DeletedDate = vietNamNow;
+                    danhBaData.DeletedBy = currentUserId;
                 }
 
             }
@@ -125,6 +133,7 @@ namespace thongbao.be.application.DanhBa.Implements
             {
                 danhBaTruongData.Deleted = true;
                 danhBaTruongData.DeletedDate = vietNamNow;
+                danhBaTruongData.DeletedBy = currentUserId;
             }
 
             var danhBaChiTietList = _smDbContext.DanhBaSms
@@ -135,16 +144,22 @@ namespace thongbao.be.application.DanhBa.Implements
             {
                 danhBaChiTiet.Deleted = true;
                 danhBaChiTiet.DeletedDate = vietNamNow;
+                danhBaChiTiet.DeletedBy = currentUserId;
             }
 
             existingDanhBa.Deleted = true;
             existingDanhBa.DeletedDate = vietNamNow;
+            existingDanhBa.DeletedBy = currentUserId;
 
             _smDbContext.SaveChanges();
         }
         public BaseResponsePagingDto<ViewDanhBaChiTietDto> FindDanhBaChiTiet(int idDanhBa, FindPagingDanhBaChiTietDto dto)
         {
             _logger.LogInformation($"{nameof(FindDanhBaChiTiet)} dto={JsonSerializer.Serialize(dto)}");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
+                 ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
             var query = from dbct in _smDbContext.DanhBaSms
                         where dbct.IdDanhBa == idDanhBa
                               && !dbct.Deleted
@@ -166,19 +181,24 @@ namespace thongbao.be.application.DanhBa.Implements
         {
             _logger.LogInformation($"{nameof(DeleteDanhBaChiTiet)}");
             var vietnamNow = GetVietnamTime();
-            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && !x.Deleted)
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
                  ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
-            var danhBaChiTiet = _smDbContext.DanhBaSms.FirstOrDefault(x => x.Id == idDanhBaChiTiet && x.IdDanhBa == idDanhBa && !x.Deleted)
+            var danhBaChiTiet = _smDbContext.DanhBaSms.FirstOrDefault(x => x.Id == idDanhBaChiTiet && x.IdDanhBa == idDanhBa  && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorDanhBaChiTietNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorDanhBaChiTietNotFound));
             danhBaChiTiet.Deleted = true;
             danhBaChiTiet.DeletedDate = vietnamNow;
+            danhBaChiTiet.DeletedBy = currentUserId;
             _smDbContext.SaveChanges();
         }
         public BaseResponsePagingDto<ViewDanhBaDto> Find(FindPagingDanhBaDto dto)
         {
             _logger.LogInformation($"{nameof(Find)} dto={System.Text.Json.JsonSerializer.Serialize(dto)}");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
             var query = from db in _smDbContext.DanhBas
-                        where !db.Deleted
+                        where !db.Deleted && (isSuperAdmin || db.CreatedBy == currentUserId)
                               && (string.IsNullOrEmpty(dto.Keyword)
                                   || db.TenDanhBa.Contains(dto.Keyword)
                                   || db.Mota.Contains(dto.Keyword))
@@ -206,7 +226,9 @@ namespace thongbao.be.application.DanhBa.Implements
         public async Task<GetTruongDataDanhBaSmsResponseDto> GetTruongData( int idDanhBa)
         {
             _logger.LogInformation($"{nameof(GetTruongData)} idDanhBa={idDanhBa}");
-            var danhBa = await _smDbContext.DanhBas.FirstOrDefaultAsync(x => x.Id == idDanhBa && !x.Deleted)
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var danhBa = await _smDbContext.DanhBas.FirstOrDefaultAsync(x => x.Id == idDanhBa && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
             var truongDataList = await _smDbContext.DanhBaTruongDatas
                  .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
@@ -229,6 +251,10 @@ namespace thongbao.be.application.DanhBa.Implements
         public void CreateNguoiNhan(CreateNguoiNhanDto dto)
         {
             _logger.LogInformation($"{nameof(CreateNguoiNhan)} dto={JsonSerializer.Serialize(dto)}");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == dto.IdDanhBa && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
             if (string.IsNullOrWhiteSpace(dto.HoVaTen))
             {
                 throw new UserFriendlyException(ErrorCodes.DanhBaErrorRequired, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorRequired));
@@ -285,6 +311,7 @@ namespace thongbao.be.application.DanhBa.Implements
                 SoDienThoai = dto.SoDienThoai,
                 //EmailHuce = dto.EmailHuce,
                 CreatedDate = vietnamNow,
+                CreatedBy = currentUserId,
             };
             _smDbContext.DanhBaSms.Add(nguoiNhan);
             _smDbContext.SaveChanges();
@@ -292,8 +319,10 @@ namespace thongbao.be.application.DanhBa.Implements
         public List<GetListDanhBaResponseDto> GetListDanhBa()
         {
             _logger.LogInformation($"{nameof(GetListDanhBa)}");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
             var query = from db in _smDbContext.DanhBas
-                        where !db.Deleted && db.Type == 1
+                        where !db.Deleted && db.Type == 1 && (isSuperAdmin || db.CreatedBy == currentUserId)
                         orderby db.CreatedDate descending
                         select new GetListDanhBaResponseDto
                         {
@@ -1017,7 +1046,11 @@ namespace thongbao.be.application.DanhBa.Implements
         public async Task<VerifyImportDanhBaChienDichResponseDto> VerifyImportDanhBaChienDich(ImportAppendDanhBaChienDichDto dto)
         {
             _logger.LogInformation($"{nameof(VerifyImportDanhBaChienDich)} dto={JsonSerializer.Serialize(new { dto.IndexRowStartImport, dto.IndexRowHeader, dto.SheetName, dto.IdDanhBa, dto.IndexColumnHoTen, dto.IndexColumnSoDienThoai })}");
-
+            
+            var vietNamNow = GetVietnamTime();
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+           
             if (dto.File == null || dto.File.Length == 0)
             {
                 throw new UserFriendlyException(ErrorCodes.ImportExcelFileErrorEmpty, ErrorMessages.GetMessage(ErrorCodes.ImportExcelFileErrorEmpty));
@@ -1029,7 +1062,7 @@ namespace thongbao.be.application.DanhBa.Implements
             }
 
             var danhBaExists = await _smDbContext.DanhBas
-                .AnyAsync(x => x.Id == dto.IdDanhBa && !x.Deleted);
+                .AnyAsync(x => x.Id == dto.IdDanhBa && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
 
             if (!danhBaExists)
             {
@@ -1140,7 +1173,9 @@ namespace thongbao.be.application.DanhBa.Implements
         public async Task<ImportDanhBaChienDichResponseDto> ImportAppendDanhBaChienDich(ImportAppendDanhBaChienDichDto dto)
         {
             _logger.LogInformation($"{nameof(ImportAppendDanhBaChienDich)} dto={JsonSerializer.Serialize(new { dto.IndexRowStartImport, dto.IndexRowHeader, dto.SheetName, dto.IdDanhBa, dto.IndexColumnHoTen, dto.IndexColumnSoDienThoai })}");
-
+            var vietNamNow = GetVietnamTime();
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             const int BATCH_SIZE = 5000;
 
@@ -1152,7 +1187,7 @@ namespace thongbao.be.application.DanhBa.Implements
                 }
 
                 var danhBaExists = await _smDbContext.DanhBas
-                    .AnyAsync(x => x.Id == dto.IdDanhBa && !x.Deleted);
+                    .AnyAsync(x => x.Id == dto.IdDanhBa && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
 
                 if (!danhBaExists)
                 {
@@ -1228,6 +1263,7 @@ namespace thongbao.be.application.DanhBa.Implements
                         TenTruong = header,
                         Type = "string",
                         CreatedDate = vietnamNow,
+                        CreatedBy = currentUserId,
                         Deleted = false
                     });
                 }
@@ -1302,6 +1338,8 @@ namespace thongbao.be.application.DanhBa.Implements
                             IdDanhBa = dto.IdDanhBa,
                             HoVaTen = hoVaTen,
                             SoDienThoai = soDienThoai,
+                            CreatedBy = currentUserId,
+
                         };
                     }
                     else
@@ -1312,6 +1350,7 @@ namespace thongbao.be.application.DanhBa.Implements
                             HoVaTen = hoVaTen,
                             SoDienThoai = soDienThoai,
                             CreatedDate = vietnamNow,
+                            CreatedBy = currentUserId,
                             Deleted = false
                         };
                         newDanhBaChiTiets.Add(newRecord);
@@ -1365,7 +1404,8 @@ namespace thongbao.be.application.DanhBa.Implements
                                 .BatchUpdateAsync(x => new domain.DanhBa.DanhBaData
                                 {
                                     Deleted = true,
-                                    DeletedDate = vietnamNow
+                                    DeletedDate = vietnamNow,
+                                    DeletedBy = currentUserId
                                 });
                         }
                     }
@@ -1385,6 +1425,7 @@ namespace thongbao.be.application.DanhBa.Implements
                                 IdDanhBaChiTiet = danhBaChiTietId,
                                 IdDanhBaChienDich = dto.IdDanhBa,
                                 CreatedDate = vietnamNow,
+                                CreatedBy = currentUserId,
                                 Deleted = false
                             });
                         }
@@ -1429,7 +1470,9 @@ namespace thongbao.be.application.DanhBa.Implements
         public async Task<VerifyImportDanhBaChienDichResponseDto> VerifyImportCreateDanhBaSms(ImportDanhBaSmsDto dto)
         {
             _logger.LogInformation($"{nameof(VerifyImportCreateDanhBaSms)} dto={JsonSerializer.Serialize(new { dto.IndexRowStartImport, dto.IndexRowHeader, dto.SheetName, dto.TenDanhBa, dto.Type, dto.IndexColumnHoTen, dto.InDexColumnSoDienThoai })}");
-
+            var vietNamNow = GetVietnamTime();
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
             if (dto.Type != TypeDanhBa.Sms && dto.Type != TypeDanhBa.Email)
             {
                 throw new UserFriendlyException(ErrorCodes.InternalServerError);
@@ -1536,7 +1579,9 @@ namespace thongbao.be.application.DanhBa.Implements
         public async Task<ImportDanhBaChienDichResponseDto> ImportCreateDanhBaChienDich(ImportDanhBaSmsDto dto)
         {
             _logger.LogInformation($"{nameof(ImportCreateDanhBaChienDich)} dto={JsonSerializer.Serialize(new { dto.IndexRowStartImport, dto.IndexRowHeader, dto.SheetName, dto.TenDanhBa, dto.Type, dto.IndexColumnHoTen, dto.InDexColumnSoDienThoai })}");
-
+            var vietnamNow = GetVietnamTime();
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             const int BATCH_SIZE = 5000;
 
@@ -1626,7 +1671,7 @@ namespace thongbao.be.application.DanhBa.Implements
 
                     newSoDienThoaiSetVerify.Add(phoneNumber);
                 }
-                var vietnamNow = GetVietnamTime();
+                //var vietnamNow = GetVietnamTime();
 
                 var danhBa = new domain.DanhBa.DanhBa
                 {
@@ -1635,6 +1680,7 @@ namespace thongbao.be.application.DanhBa.Implements
                     GhiChu = "",
                     Type = dto.Type,
                     CreatedDate = vietnamNow,
+                    CreatedBy = currentUserId,
                 };
                 _smDbContext.DanhBas.Add(danhBa);
                 await _smDbContext.SaveChangesAsync();
@@ -1664,6 +1710,7 @@ namespace thongbao.be.application.DanhBa.Implements
                         TenTruong = header,
                         Type = "string",
                         CreatedDate = vietnamNow,
+                        CreatedBy = currentUserId,
                         Deleted = false
                     });
                 }
@@ -1746,6 +1793,7 @@ namespace thongbao.be.application.DanhBa.Implements
                         HoVaTen = hoVaTen,
                         SoDienThoai = soDienThoai,
                         CreatedDate = vietnamNow,
+                        CreatedBy = currentUserId,
                         Deleted = false
                     };
                     newDanhBaChiTiets.Add(newRecord);
@@ -1800,6 +1848,7 @@ namespace thongbao.be.application.DanhBa.Implements
                                 IdDanhBaChiTiet = danhBaChiTietId,
                                 IdDanhBaChienDich = idDanhBa,
                                 CreatedDate = vietnamNow,
+                                CreatedBy = currentUserId,
                                 Deleted = false
                             });
                         }
@@ -1846,9 +1895,11 @@ namespace thongbao.be.application.DanhBa.Implements
             _logger.LogInformation($"{nameof(CreateDanhBaSmsQuick)} idDanhBa={idDanhBa}, dataCount={dto?.Data?.Count ?? 0}");
 
             var vietnamNow = GetVietnamTime();
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
 
             var danhBaExists = await _smDbContext.DanhBas
-                .AnyAsync(x => x.Id == idDanhBa && !x.Deleted);
+                .AnyAsync(x => x.Id == idDanhBa && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
 
             if (!danhBaExists)
             {
@@ -1931,6 +1982,7 @@ namespace thongbao.be.application.DanhBa.Implements
                     HoVaTen = hoVaTen,
                     SoDienThoai = soDienThoai,
                     CreatedDate = vietnamNow,
+                    CreatedBy = currentUserId,
                     Deleted = false
                 };
 
@@ -1978,6 +2030,7 @@ namespace thongbao.be.application.DanhBa.Implements
                                 IdDanhBaChiTiet = danhBaChiTietId,
                                 IdDanhBaChienDich = idDanhBa,
                                 CreatedDate = vietnamNow,
+                                CreatedBy = currentUserId,
                                 Deleted = false
                             };
 
@@ -2069,6 +2122,8 @@ namespace thongbao.be.application.DanhBa.Implements
                 }
 
                 var vietnamNow = GetVietnamTime();
+                var isSuperAdmin = IsSuperAdmin();
+                var currentUserId = getCurrentUserId();
                 var phoneRegex = new System.Text.RegularExpressions.Regex(@"^\d{10}$", System.Text.RegularExpressions.RegexOptions.Compiled);
                 var existingSoDienThoaiSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 for (int rowIndex = 0; rowIndex < dto.Data.Count; rowIndex++)
@@ -2131,6 +2186,7 @@ namespace thongbao.be.application.DanhBa.Implements
                             GhiChu = "",
                             Type = dto.Type,
                             CreatedDate = vietnamNow,
+                            CreatedBy = currentUserId,
                             Deleted = false
                         };
                         _smDbContext.DanhBas.Add(danhBa);
@@ -2158,6 +2214,7 @@ namespace thongbao.be.application.DanhBa.Implements
                             TenTruong = tenTruong,
                             Type = "string",
                             CreatedDate = vietnamNow,
+                            CreatedBy = currentUserId,
                             Deleted = false
                         }).ToList();
 
@@ -2208,6 +2265,7 @@ namespace thongbao.be.application.DanhBa.Implements
                                 SoDienThoai = soDienThoai ?? "",
                                // MaSoNguoiDung = maSoNguoiDung ?? "",
                                 CreatedDate = vietnamNow,
+                                CreatedBy = currentUserId,
                                 Deleted = false
                             });
                         }
@@ -2250,6 +2308,7 @@ namespace thongbao.be.application.DanhBa.Implements
                                             IdDanhBaChiTiet = danhBaChiTietId,
                                             IdDanhBaChienDich = idDanhBa,
                                             CreatedDate = vietnamNow,
+                                            CreatedBy = currentUserId,
                                             Deleted = false
                                         });
                                     }

@@ -111,6 +111,11 @@ namespace thongbao.be.Controllers.Auth
                     identity.SetClaim(Claims.Name, user.FullName);
                     identity.SetClaim(Claims.Username, user.UserName);
                     identity.SetClaim(CustomClaimTypes.UserType, "SV");
+                    var roles = await userManager.GetRolesAsync(user);
+                    foreach (var role in roles)
+                    {
+                        identity.AddClaim(new Claim(ClaimTypes.Role, role));
+                    }
                     identity.SetScopes(
                             new[]
                             {
@@ -121,13 +126,13 @@ namespace thongbao.be.Controllers.Auth
                             Scopes.OfflineAccess
                             }.Intersect(request.GetScopes())
                         );
-                    identity.SetDestinations(static claim => claim.Type switch
+                    identity.SetDestinations(claim => claim.Type switch
                     {
                         // Allow the "name" claim to be stored in both the access and identity tokens
                         // when the "profile" scope was granted (by calling principal.SetScopes(...)).
                         Claims.Name when claim.Subject.HasScope(Scopes.Profile)
                             => [Destinations.AccessToken, Destinations.IdentityToken],
-
+                        ClaimTypes.Role => [Destinations.AccessToken, Destinations.IdentityToken],
                         // Otherwise, only store the claim in the access tokens.
                         _ => [Destinations.AccessToken]
                     });
@@ -148,7 +153,7 @@ namespace thongbao.be.Controllers.Auth
 
                     //if (isGuestTraoBang)
                     //{
-                        
+
                     //}
 
                     // Tạo token bình thường
@@ -171,6 +176,11 @@ namespace thongbao.be.Controllers.Auth
                     identity.SetClaim(Claims.Subject, user.Id);
                     identity.SetClaim(Claims.Name, user.FullName);
                     identity.SetClaim(Claims.Username, user.UserName);
+                    var roles = await userManager.GetRolesAsync(user);
+                    foreach (var role in roles)
+                    {
+                        identity.AddClaim(new Claim(ClaimTypes.Role, role));
+                    }
                     identity.SetScopes(
                             new[]
                             {
@@ -181,13 +191,13 @@ namespace thongbao.be.Controllers.Auth
                             Scopes.OfflineAccess
                             }.Intersect(request.GetScopes())
                         );
-                    identity.SetDestinations(static claim => claim.Type switch
+                    identity.SetDestinations(claim => claim.Type switch
                     {
                         // Allow the "name" claim to be stored in both the access and identity tokens
                         // when the "profile" scope was granted (by calling principal.SetScopes(...)).
                         Claims.Name when claim.Subject.HasScope(Scopes.Profile)
                             => [Destinations.AccessToken, Destinations.IdentityToken],
-
+                        ClaimTypes.Role => [Destinations.AccessToken, Destinations.IdentityToken],
                         // Otherwise, only store the claim in the access tokens.
                         _ => [Destinations.AccessToken]
                     });
@@ -218,7 +228,11 @@ namespace thongbao.be.Controllers.Auth
                     identity.SetClaim(Claims.Subject, user.Id);
                     identity.SetClaim(Claims.Name, user.FullName);
                     identity.SetClaim(Claims.Username, user.UserName);
-
+                    var roles = await userManager.GetRolesAsync(user);
+                    foreach (var role in roles)
+                    {
+                        identity.AddClaim(new Claim(ClaimTypes.Role, role));
+                    }
                     identity.SetScopes(
                             new[]
                             {
@@ -229,13 +243,13 @@ namespace thongbao.be.Controllers.Auth
                             Scopes.OfflineAccess
                             }.Intersect(request.GetScopes())
                         );
-                    identity.SetDestinations(static claim => claim.Type switch
+                    identity.SetDestinations(claim => claim.Type switch
                     {
                         // Allow the "name" claim to be stored in both the access and identity tokens
                         // when the "profile" scope was granted (by calling principal.SetScopes(...)).
                         Claims.Name when claim.Subject.HasScope(Scopes.Profile)
                             => [Destinations.AccessToken, Destinations.IdentityToken],
-
+                        ClaimTypes.Role => [Destinations.AccessToken, Destinations.IdentityToken],
                         // Otherwise, only store the claim in the access tokens.
                         _ => [Destinations.AccessToken]
                     });
@@ -323,7 +337,7 @@ namespace thongbao.be.Controllers.Auth
             //identity.SetClaim(Claims.Subject, "test");
             //identity.SetClaim(Claims.Name, "nghia test");
 
-            identity.SetDestinations(static claim => claim.Type switch
+            identity.SetDestinations(claim => claim.Type switch
             {
                 // Allow the "name" claim to be stored in both the access and identity tokens
                 // when the "profile" scope was granted (by calling principal.SetScopes(...)).
@@ -331,6 +345,7 @@ namespace thongbao.be.Controllers.Auth
                     => [Destinations.AccessToken, Destinations.IdentityToken],
                 CustomClaimTypes.UserType when true
                 => [Destinations.AccessToken, Destinations.IdentityToken],
+                ClaimTypes.Role => [Destinations.AccessToken, Destinations.IdentityToken],
                 // Otherwise, only store the claim in the access tokens.
                 _ => [Destinations.AccessToken]
             });
@@ -398,8 +413,12 @@ namespace thongbao.be.Controllers.Auth
             identity.SetClaim(Claims.Name, user.FullName);
             identity.SetClaim(Claims.Username, user.UserName);
             identity.SetClaim(CustomClaimTypes.UserType, "SV");
-
-            identity.SetDestinations(static claim => claim.Type switch
+            var roles = await userManager.GetRolesAsync(user);
+            foreach (var role in roles)
+            {
+                identity.AddClaim(new Claim(ClaimTypes.Role, role));
+            }
+            identity.SetDestinations(claim => claim.Type switch
             {
                 // Allow the "name" claim to be stored in both the access and identity tokens
                 // when the "profile" scope was granted (by calling principal.SetScopes(...)).
@@ -408,6 +427,8 @@ namespace thongbao.be.Controllers.Auth
 
                 CustomClaimTypes.UserType when true
                     => [Destinations.AccessToken, Destinations.IdentityToken],
+
+                ClaimTypes.Role => [Destinations.AccessToken, Destinations.IdentityToken],
 
                 // Otherwise, only store the claim in the access tokens.
                 _ => [Destinations.AccessToken]

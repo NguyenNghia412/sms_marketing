@@ -38,9 +38,13 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
         public BaseResponsePagingDto<ViewChienDichLogDto> PagingChienDichLog(FindPagingChienDichLogDto dto)
         {
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
             _logger.LogInformation($"{nameof(PagingChienDichLog)} dto={JsonSerializer.Serialize(dto)}");
             var query = from clog in _smDbContext.ChienDichLogTrangThaiGuis
+                        where !clog.Deleted && (isSuperAdmin || clog.CreatedBy == currentUserId)
                         join cd in _smDbContext.ChienDiches on clog.IdChienDich equals cd.Id
+                        where !cd.Deleted && (isSuperAdmin || cd.CreatedBy == currentUserId)
                         join db in _smDbContext.DanhBas on clog.IdDanhBa equals db.Id into dbGroup
                         from db in dbGroup.DefaultIfEmpty()
                         where !cd.Deleted && !clog.Deleted && (db == null || !db.Deleted)
@@ -77,7 +81,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         public BaseResponsePagingDto<ViewDanhBaSmsLogDto> PagingGuiTinNhanLog(int idChienDich, FindPagingGuiTinNhanLogDto dto)
         {
             _logger.LogInformation($"{nameof(PagingGuiTinNhanLog)} dto={JsonSerializer.Serialize(dto)}");
-            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich &&(isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
             if (chienDich == null)
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
@@ -168,6 +174,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         public async Task<byte[]> ExportThongKeTheoChienDich(ExportSmsLogTheoChienDichDto dto)
         {
             _logger.LogInformation($"{nameof(ExportThongKeTheoChienDich)} dto={JsonSerializer.Serialize(dto)}");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("Thống Kê");
@@ -186,8 +194,13 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                 foreach (var idChienDich in dto.idChienDichs)
                 {
+                    var chienDich = await _smDbContext.ChienDiches
+                        .FirstOrDefaultAsync(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
+
+                    if (chienDich == null)
+                        continue;
                     var chienDichLogs = await _smDbContext.ChienDichLogTrangThaiGuis
-                        .Where(x => x.IdChienDich == idChienDich && !x.Deleted)
+                        .Where(x => x.IdChienDich == idChienDich   && !x.Deleted)
                         .ToListAsync();
 
                     if (!chienDichLogs.Any())
@@ -198,11 +211,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         .Join(_smDbContext.BrandName, log => log.IdBrandName, bn => bn.Id, (log, bn) => new { log, bn })
                         .ToListAsync();
 
-                    var chienDich = await _smDbContext.ChienDiches
-                        .FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
-
-                    if (chienDich == null)
-                        continue;
+                    
 
                     var headerRow = currentRow;
                     worksheet.Cell(currentRow, 1).Value = "Stt";
@@ -305,6 +314,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         public async Task<byte[]> ExportThongKeTheoThang(ExportSmsLogTheoThangDto dto)
         {
             _logger.LogInformation($"{nameof(ExportThongKeTheoThang)} dto={JsonSerializer.Serialize(dto)}");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("Thống Kê");
@@ -341,7 +352,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 {
                     var idChienDich = chienDichGroup.Key;
                     var chienDich = await _smDbContext.ChienDiches
-                        .FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
+                        .FirstOrDefaultAsync(x => x.Id == idChienDich&& (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
 
                     if (chienDich == null)
                         continue;

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.VariantTypes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
@@ -16,6 +17,7 @@ using thongbao.be.infrastructure.data;
 using thongbao.be.shared.HttpRequest.BaseRequest;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
+using Volo.Abp.Users;
 
 namespace thongbao.be.application.MauNoiDung.Implements
 {
@@ -36,11 +38,15 @@ namespace thongbao.be.application.MauNoiDung.Implements
         {
             _logger.LogInformation($"{nameof(Create)}, dto = {JsonSerializer.Serialize(dto)}");
             var vietnamNow = GetVietnamTime();
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
             var mauNoiDung = new domain.MauNoiDung.MauNoiDung
             {
                 TenMauNoiDung = dto.TenMauNoiDung,
                 NoiDung = dto.MauNoiDung,
                 CreatedDate = vietnamNow,
+                CreatedBy = currentUserId,
+                Deleted = false
 
             };
             _smDbContext.MauNoiDungs.Add( mauNoiDung );
@@ -51,7 +57,9 @@ namespace thongbao.be.application.MauNoiDung.Implements
         {
             _logger.LogInformation($"{nameof(Update)}, dto = {JsonSerializer.Serialize(dto)}");
             var vietnamNow = GetVietnamTime();
-            var mauNoiDung = _smDbContext.MauNoiDungs.FirstOrDefault(x => x.Id == id && !x.Deleted)
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var mauNoiDung = _smDbContext.MauNoiDungs.FirstOrDefault(x => x.Id == id &&( isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.MauNoiDungErrorNotFound);
             mauNoiDung.TenMauNoiDung = dto.TenMauNoiDung;
             mauNoiDung.NoiDung = dto.NoiDung;
@@ -61,8 +69,10 @@ namespace thongbao.be.application.MauNoiDung.Implements
         public BaseResponsePagingDto<ViewMauNoiDungDto> Find (FindPagingMauNoiDungDto dto)
         {
             _logger.LogInformation($"{nameof(Find)}, dto = {JsonSerializer.Serialize(dto)}");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
             var query = from mnd in _smDbContext.MauNoiDungs
-                        where !mnd.Deleted
+                        where !mnd.Deleted && (isSuperAdmin || mnd.CreatedBy == currentUserId)
                         orderby mnd.CreatedDate descending
                         select mnd;
             var data = query.Paging(dto).ToList();
@@ -77,8 +87,10 @@ namespace thongbao.be.application.MauNoiDung.Implements
         public List<GetListMauNoiDungResponseDto> GetListMauNoiDung()
         {
             _logger.LogInformation($"{nameof(GetListMauNoiDung)}");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
             var query = from mnd in _smDbContext.MauNoiDungs
-                        where !mnd.Deleted
+                        where !mnd.Deleted && (isSuperAdmin || mnd.CreatedBy == currentUserId)
                         orderby mnd.CreatedDate descending
                         select mnd;
             var data = query.ToList();
@@ -90,11 +102,14 @@ namespace thongbao.be.application.MauNoiDung.Implements
         {
             _logger.LogInformation($"{nameof(Delete)}");
             var vietnamNow = GetVietnamTime();
-            var mauNoiDung = _smDbContext.MauNoiDungs.FirstOrDefault(x => x.Id == id && !x.Deleted)
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var mauNoiDung = _smDbContext.MauNoiDungs.FirstOrDefault(x => x.Id == id && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.MauNoiDungErrorNotFound);
             mauNoiDung.Deleted = true;
             mauNoiDung.DeletedDate = vietnamNow;
-            var chienDichs = _smDbContext.ChienDiches.Where(x => x.IdMauNoiDung == id && !x.Deleted).ToList();
+            mauNoiDung.DeletedBy = currentUserId;
+            var chienDichs = _smDbContext.ChienDiches.Where(x => x.IdMauNoiDung == id && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted).ToList();
             foreach (var chienDich in chienDichs)
             {
                 chienDich.IdMauNoiDung = null;
@@ -105,7 +120,9 @@ namespace thongbao.be.application.MauNoiDung.Implements
         {
             _logger.LogInformation($"{nameof(CreateChienDichByMauNoiDung)}, id = {id}, dto = {JsonSerializer.Serialize(dto)}");
             var vietnamNow = GetVietnamTime();
-            var mauNoiDung = _smDbContext.MauNoiDungs.FirstOrDefault(x => x.Id == id && !x.Deleted)
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var mauNoiDung = _smDbContext.MauNoiDungs.FirstOrDefault(x => x.Id == id && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.MauNoiDungErrorNotFound);
 
             var chienDich = new domain.GuiTinNhan.ChienDich
@@ -117,7 +134,8 @@ namespace thongbao.be.application.MauNoiDung.Implements
                 NgayKetThuc = dto.NgayKetThuc,
                 NoiDung = dto.MauNoiDung,
                 IsFlashSms = dto.IsFlashSms,
-                CreatedDate = vietnamNow
+                CreatedDate = vietnamNow,
+                CreatedBy = currentUserId,
             };
 
             _smDbContext.ChienDiches.Add(chienDich);

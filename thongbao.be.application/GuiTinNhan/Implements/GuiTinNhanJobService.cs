@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.VariantTypes;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -215,7 +216,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         public async Task SendSmsLog(object smsResponse, int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool isAccented, string noiDung)
         {
             _logger.LogInformation($"{nameof(SendSmsLog)} - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
-
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
             var responseJson = JObject.Parse(smsResponse.ToString());
             var smsSent = responseJson["smsSent"].Value<int>();
             var resultArray = responseJson["result"].ToArray();
@@ -331,7 +333,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         Code = code,
                         Message = message,
                         TrangThai = trangThaiChiTiet,
-                        CreatedDate = vietnamNow
+                        CreatedDate = vietnamNow,
+                        CreatedBy = currentUserId
                     };
 
                     _smDbContext.GuiTinNhanLogChiTiets.Add(logChiTiet);
@@ -347,14 +350,15 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     TrangThai = trangThaiChienDich,
                     NoiDung = noiDung,
                     TongChiPhi = tongChiPhi,
-                    CreatedDate = vietnamNow
+                    CreatedDate = vietnamNow,
+                    CreatedBy = currentUserId
                 };
 
                 _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
                 if (smsSuccess > 0)
                 {
                     var chienDich = await _smDbContext.ChienDiches
-                        .FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
+                        .FirstOrDefaultAsync(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
 
                     if (chienDich != null)
                     {
@@ -447,7 +451,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             Code = code,
                             Message = message,
                             TrangThai = trangThaiChiTiet,
-                            CreatedDate = vietnamNow
+                            CreatedDate = vietnamNow,
+                            CreatedBy = currentUserId
                         };
 
                         _smDbContext.GuiTinNhanLogChiTiets.Add(logChiTiet);
@@ -463,14 +468,15 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         TrangThai = trangThaiChienDich,
                         NoiDung = noiDung,
                         TongChiPhi = tongChiPhi,
-                        CreatedDate = vietnamNow
+                        CreatedDate = vietnamNow,
+                        CreatedBy = currentUserId
                     };
 
                     _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
                     if (smsSuccess > 0)
                     {
                         var chienDich = await _smDbContext.ChienDiches
-                            .FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
+                            .FirstOrDefaultAsync(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
 
                         if (chienDich != null)
                         {
@@ -730,6 +736,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
         private async Task ValidateInput(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, string noiDung)
         {
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
             if (string.IsNullOrWhiteSpace(noiDung))
             {
                 throw new UserFriendlyException(ErrorCodes.BadRequest);
@@ -751,7 +759,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             if (idDanhBa.HasValue)
             {
                 var danhBaExists = await _smDbContext.DanhBas
-                    .AnyAsync(x => x.Id == idDanhBa.Value && !x.Deleted);
+                    .AnyAsync(x => x.Id == idDanhBa.Value &&(isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
 
                 if (!danhBaExists)
                 {

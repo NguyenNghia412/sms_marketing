@@ -26,11 +26,11 @@ namespace thongbao.be.domain.DanhBa
         public int IdTruongData { get; set; }
         public int IdDanhBaChiTiet {  get; set; }
         public int IdDanhBaChienDich { get; set; }
-        public int? CreatedBy { get; set; }
+        public string? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
         public bool Deleted { get; set; }
-        public int? DeletedBy { get; set; }
+        public string? DeletedBy { get; set; }
     
     }
 }

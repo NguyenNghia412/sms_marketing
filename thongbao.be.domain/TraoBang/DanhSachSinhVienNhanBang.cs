@@ -44,10 +44,10 @@ namespace thongbao.be.domain.TraoBang
         public int Order { get; set; }
         public int TrangThai { get; set; } 
         public string LinkQR { get; set; } = String.Empty;
-        public int? CreatedBy { get; set; }
+        public string? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
         public bool Deleted { get; set; }
-        public int? DeletedBy { get; set; }
+        public string? DeletedBy { get; set; }
     }
 }

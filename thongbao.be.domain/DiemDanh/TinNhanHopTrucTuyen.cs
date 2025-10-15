@@ -27,10 +27,10 @@ namespace thongbao.be.domain.DiemDanh
         public int ThongTinDiemDanhId { get; set; }
         public string NoiDung { get; set; } = string.Empty;
         public DateTime ThoiGianGui { get; set; }
-        public int? CreatedBy { get; set; }
+        public string? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
         public bool Deleted { get; set; }
-        public int? DeletedBy { get; set; }
+        public string? DeletedBy { get; set; }
     }
 }
