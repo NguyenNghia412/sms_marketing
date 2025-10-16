@@ -28,7 +28,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
             _logger = logger;
         }
 
-        [Permission(PermissionKeys.GuiTinNhanAdd)]
+        [Permission(PermissionKeys.GuiTinNhanReportView)]
         [HttpGet("chien-dich")]
         public ApiResponse FindChienDichLog([FromQuery] FindPagingChienDichLogDto dto)
         {
@@ -42,7 +42,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                 return OkException(ex);
             }
         }
-        [Permission(PermissionKeys.GuiTinNhanAdd)]
+        [Permission(PermissionKeys.GuiTinNhanReportView)]
         [HttpGet("chien-dich/{idChienDich}")]
         public ApiResponse FindGuiTinNhanLog([FromRoute] int idChienDich,[FromQuery] FindPagingGuiTinNhanLogDto dto)
         {
@@ -56,7 +56,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                 return OkException(ex);
             }
         }
-        [Permission(PermissionKeys.GuiTinNhanAdd)]
+        [Permission(PermissionKeys.GuiTinNhanReportView)]
         [HttpPost("export-thong-ke-theo-chien-dich-excel")]
         public async Task<IActionResult> ExportThongKeTheoChienDich([FromBody] ExportSmsLogTheoChienDichDto dto)
         {
@@ -76,7 +76,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                 return BadRequest(new ApiResponse(ex.Message));
             }
         }
-        [Permission(PermissionKeys.GuiTinNhanAdd)]
+        [Permission(PermissionKeys.GuiTinNhanReportView)]
         [HttpPost("export-thong-ke-theo-thang-excel")]
         public async Task<IActionResult> ExportThongKeTheoThang([FromBody] ExportSmsLogTheoThangDto dto)
         {

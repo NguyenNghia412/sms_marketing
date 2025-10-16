@@ -105,6 +105,14 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
                         ngayGui : item.log?.ngayGui || ''
                     }));
                     this.totalRecords = res.data.totalItems;
+                    
+                    const hasChiPhi = res.data.items.some(item => item.log?.price != null);
+                    if (!hasChiPhi) {
+                        this.columns = this.columns.filter(c => c.field !== 'gia');
+                    } else if (!this.columns.some(c => c.field === 'gia')) {
+                        const messageIndex = this.columns.findIndex(c => c.field === 'messageText');
+                        this.columns.splice(messageIndex, 0, { header: 'Chi Phí', field: 'gia', headerContainerStyle: 'min-width: 6rem' });
+                    }
                 }
             },
             complete: () => {

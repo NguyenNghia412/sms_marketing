@@ -26,7 +26,7 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
     {
         public string SoDienThoai { get; set; } = String.Empty;
         public string NoiDungChiTiet { get; set; } = String.Empty;
-        public int Price { get; set; }
+        public int? Price { get; set; }
         public int Code { get; set; }
         public string Message { get; set; } = String.Empty;
         public DateTime? NgayGui { get; set; }

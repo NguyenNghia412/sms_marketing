@@ -237,6 +237,14 @@ export class ChienDichReport extends BaseComponent {
                         checked: false
                     }));
                     this.totalRecords = res.data.totalItems;
+                    
+                    const hasTongChiPhi = res.data.items.some(item => item.tongChiPhi != null);
+                    if (!hasTongChiPhi) {
+                        this.columns = this.columns.filter(c => c.field !== 'tongChiPhi');
+                    } else if (!this.columns.some(c => c.field === 'tongChiPhi')) {
+                        const trangThaiIndex = this.columns.findIndex(c => c.field === 'trangThaiText');
+                        this.columns.splice(trangThaiIndex, 0, { header: 'Tổng chi phí', field: 'tongChiPhi', headerContainerStyle: 'min-width: 6rem' });
+                    }
                 }
             },
             complete: () => {

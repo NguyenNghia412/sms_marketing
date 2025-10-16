@@ -62,7 +62,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             SmsSentFailed = clog.SmsSendFailed,
                             NoiDung = clog.NoiDung,
                             TrangThai = clog.TrangThai,
-                            TongChiPhi = clog.TongChiPhi,
+                            TongChiPhi = isSuperAdmin ? clog.TongChiPhi : null,
                             NgayGui = clog.CreatedDate,
                             danhBa = db != null ? new ViewDanhBaLogDto
                             {
@@ -83,7 +83,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _logger.LogInformation($"{nameof(PagingGuiTinNhanLog)} dto={JsonSerializer.Serialize(dto)}");
             var isSuperAdmin = IsSuperAdmin();
             var currentUserId = getCurrentUserId();
-            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich &&(isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
+            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
             if (chienDich == null)
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
@@ -117,7 +117,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                 {
                                     SoDienThoai = log.SoDienThoai,
                                     NoiDungChiTiet = log.NoiDungChiTiet,
-                                    Price = log.Price,
+                                    Price = isSuperAdmin ? log.Price : null,
                                     Code = log.Code,
                                     Message = log.Message,
                                     NgayGui = log.CreatedDate,
@@ -157,7 +157,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                 {
                                     SoDienThoai = log.SoDienThoai,
                                     NoiDungChiTiet = log.NoiDungChiTiet,
-                                    Price = log.Price,
+                                    Price = isSuperAdmin ? log.Price : null,
                                     Code = log.Code,
                                     Message = log.Message,
                                     NgayGui = log.CreatedDate,

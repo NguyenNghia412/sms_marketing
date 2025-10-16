@@ -16,7 +16,7 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public int SmsSentFailed { get; set; }
         public string NoiDung { get; set; } = String.Empty;
         public string TrangThai { get; set; } = String.Empty;
-        public int TongChiPhi { get; set; }
+        public int? TongChiPhi { get; set; }
         public DateTime? NgayGui { get; set; } 
 
     }

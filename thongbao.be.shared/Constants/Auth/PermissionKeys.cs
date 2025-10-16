@@ -50,6 +50,7 @@ namespace thongbao.be.shared.Constants.Auth
         public const string ChienDichUpdate = Function + "ChienDichUpdate";
         public const string ChienDichDelete = Function + "ChienDichDelete";
         public const string ChienDichView = Function + "ChienDichView";
+        public const string GuiTinNhanReportView = Function + "GuiTinNhanReportView";
 
         public const string CategoryHopTrucTuyen = "QL Họp trực tuyến";
         public const string HopTrucTuyenAdd = Function + "HopTrucTuyenAdd";
@@ -76,7 +77,10 @@ namespace thongbao.be.shared.Constants.Auth
         public const string MauNoiDungDelete = Function + "MauNoiDungDelete";
         public const string MauNoiDungView = Function + "MauNoiDungView";
 
+
+        public const string CategoryGuiTinNhan = "QL Gửi tin nhắn";
         public const string GuiTinNhanAdd = Function + "GuiTinNhanAdd";
+        
 
         public const string CategoryPlan = "QL Plan";
         public const string PlanAdd = Function + "PlanAdd";
@@ -129,6 +133,7 @@ namespace thongbao.be.shared.Constants.Auth
             (ChienDichUpdate, "Cập nhật Chiến dịch", CategoryChienDich),
             (ChienDichDelete, "Xoá Chiến dịch", CategoryChienDich),
             (ChienDichView, "Xem Chiến dịch", CategoryChienDich),
+            (GuiTinNhanReportView,"Xem báo cáo chiến dịch gửi Sms", CategoryChienDich),
 
             (HopTrucTuyenAdd, "Thêm Cuộc họp trực tuyến ", CategoryHopTrucTuyen),
             (HopTrucTuyenUpdate, "Cập nhật Cuộc họp trực tuyến", CategoryHopTrucTuyen),
@@ -160,6 +165,9 @@ namespace thongbao.be.shared.Constants.Auth
             (SubPlanUpdate, "Cập nhật SubPlan", CategorySubPlan),
             (SubPlanDelete, "Xoá SubPlan", CategorySubPlan),
             (SubPlanView, "Xem SubPlan", CategorySubPlan),
+
+            (GuiTinNhanAdd,"Gửi tin nhắn", CategoryGuiTinNhan),
+            
 
         };
     }
