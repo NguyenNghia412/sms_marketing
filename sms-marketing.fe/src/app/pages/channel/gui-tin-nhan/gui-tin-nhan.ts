@@ -28,7 +28,7 @@ export class GuiTinNhan extends BaseComponent {
     private _chienDichService = inject(ChienDichService);
     private _guiTinNhanService = inject(GuiTinNhanService);
 
-    items: MenuItem[] = [{ label: 'Danh sách chiến dịch', routerLink: '/channel/sms' }, { label: 'Gửi tin nhắn sms' }];
+    items: MenuItem[] = [];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
     idChienDich: number = 0;
     listDanhBa: IViewRowDanhBa[] = [];
@@ -93,6 +93,7 @@ export class GuiTinNhan extends BaseComponent {
                             noiDung: res.data.noiDung,
                             isAccented: res.data.isAccented ?? true
                         });
+                        this.items = [{ label: 'Danh sách chiến dịch', routerLink: '/channel/sms' }, { label: `Chiến dịch: ${res.data.tenChienDich}` }, { label: 'Gửi tin nhắn sms' }]
                     }
                 }
             });
@@ -184,23 +185,6 @@ export class GuiTinNhan extends BaseComponent {
         }
 
         this.previewSendSms();
-
-        
-
-        // this.loading = true;
-        // this._guiTinNhanService.sendSms(body).subscribe({
-        //     next: (res) => {
-        //         if (this.isResponseSucceed(res, true, 'Đã đặt lệnh gửi')) {
-        //             this.router.navigate(['/channel/sms']);
-        //         }
-        //     },
-        //     error: (err) => {
-        //         this.messageError(err?.message);
-        //     },
-        //     complete: () => {
-        //         this.loading = false;
-        //     }
-        // });
     }
 
     onClickSave() {
