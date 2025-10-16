@@ -206,6 +206,7 @@ export class GuiTinNhan extends BaseComponent {
         this._guiTinNhanService.sendSms(body).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, true, 'Đã đặt lệnh gửi')) {
+                    this.router.navigate(['/channel/sms']);
                 }
             },
             error: (err) => {
