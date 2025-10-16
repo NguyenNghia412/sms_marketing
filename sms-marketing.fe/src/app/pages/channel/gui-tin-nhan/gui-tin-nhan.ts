@@ -92,7 +92,7 @@ export class GuiTinNhan extends BaseComponent {
                             ngayBatDau: res.data.ngayBatDau,
                             ngayKetThuc: res.data.ngayKetThuc,
                             noiDung: res.data.noiDung,
-                            isAccented: res.data.isAccented
+                            isAccented: res.data.isAccented ?? true
                         });
                     }
                 }
@@ -187,7 +187,7 @@ export class GuiTinNhan extends BaseComponent {
         const body: ISendSms = {
             idChienDich: this.idChienDich,
             idBrandName: this.form.value.idBrandName,
-            isAccented: this.form.value.isAccented,
+            isAccented: true,
             noiDung: this.form.value.noiDung
         };
         if (this.nguoiNhanType === 'danhBa') {
@@ -218,14 +218,10 @@ export class GuiTinNhan extends BaseComponent {
     }
 
     onClickSave() {
-        if (this.isFormInvalid()) {
-            return;
-        }
-
         const body: ISaveConfigChienDich = {
             idChienDich: this.idChienDich,
             idBrandName: this.form.value.idBrandName,
-            isAccented: this.form.value.isAccented,
+            isAccented: true,
             noiDung: this.form.value.noiDung
         };
 

@@ -39,11 +39,11 @@ namespace thongbao.be.Controllers.GuiTinNhan
             {
                 await _guiTinNhanJobService.SaveThongTinChienDich(
                     dto.IdChienDich,
-                    dto.IdDanhBa,
-                    dto.IdBrandName,
+                    dto.IdDanhBa ?? 0,
+                    dto.IdBrandName ?? 0,
                     dto.IsFlashSms,
                     dto.IsAccented,
-                    dto.NoiDung
+                    dto.NoiDung ?? ""
                 );
 
                 return new();
@@ -65,7 +65,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IdDanhBa,
                     dto.DanhSachSoDienThoai,
                     dto.IsFlashSms,
-                    dto.IdBrandName,
+                    dto.IdBrandName ?? 0,
                     dto.IsAccented,
                     dto.NoiDung
                 );
@@ -80,7 +80,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                         dto.IdChienDich,
                         dto.IdDanhBa.Value,
                         dto.DanhSachSoDienThoai,
-                        dto.IdBrandName,
+                        dto.IdBrandName ?? 0,
                         dto.IsAccented,
                         dto.NoiDung
                     );
@@ -93,7 +93,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                         dto.IdChienDich,
                         null,
                         dto.DanhSachSoDienThoai,
-                        dto.IdBrandName,
+                        dto.IdBrandName ?? 0,
                         dto.IsAccented,
                         dto.NoiDung
                     );
@@ -142,7 +142,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IdChienDich,
                     dto.IdDanhBa,
                     dto.DanhSachSoDienThoai,
-                    dto.IdBrandName,
+                    dto.IdBrandName ?? 0    ,
                     dto.IsFlashSms,
                     dto.IsAccented,
                     dto.NoiDung
@@ -166,7 +166,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IdChienDich,
                     dto.IdDanhBa,
                     dto.DanhSachSoDienThoai,
-                    dto.IdBrandName,
+                    dto.IdBrandName ?? 0,
                     dto.IsFlashSms,
                     dto.IsAccented,
                     dto.NoiDung

@@ -82,7 +82,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             IdMauNoiDung = cd.IdMauNoiDung,
                             TenMauNoiDung = mauNoiDung != null && !mauNoiDung.Deleted ? mauNoiDung.TenMauNoiDung : null,
                             NoiDungMauNoiDung = mauNoiDung != null && !mauNoiDung.Deleted ? mauNoiDung.NoiDung : null,
-                            IdBrandName = cd.IdBrandName,
+                            IdBrandName = cd.IdBrandName ?? 0,
                             TenBrandName = brand != null ? brand.TenBrandName : string.Empty,
                             IsFlashSms = cd.IsFlashSms,
                             TrangThai = cd.TrangThai,
@@ -205,7 +205,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             return new ViewChienDichByIdDto
             {
                 TenChienDich = chienDich.TenChienDich,
-                IdBrandName = chienDich.IdBrandName,
+                IdBrandName = chienDich.IdBrandName ?? 0,
                 TenBrandName = brandName?.TenBrandName ?? string.Empty,
                 IsFlashSms = chienDich.IsFlashSms,
                 IsAccented = chienDich.IsAccented,
@@ -250,7 +250,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var currentUserId = getCurrentUserId();
 
             var query = from bn in _smDbContext.BrandName
-                        where !bn.Deleted && (isSuperAdmin || bn.CreatedBy == currentUserId)
+                        where !bn.Deleted 
                         orderby bn.CreatedDate descending
                         select bn;
 

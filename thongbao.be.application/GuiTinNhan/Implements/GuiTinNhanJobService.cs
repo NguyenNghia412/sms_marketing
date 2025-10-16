@@ -53,15 +53,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
             return result;
         }
-        public async Task SaveThongTinChienDich(int idChienDich, int? idDanhBa, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung)
+        public async Task SaveThongTinChienDich(int idChienDich, int? idDanhBa, int? idBrandName, bool IsFlashSms, bool IsAccented, string? noiDung)
         {
             _logger.LogInformation($"{nameof(SaveThongTinChienDich)}");
             var vietnamNow = GetVietnamTime();
-
-            if (!idDanhBa.HasValue)
-            {
-                throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound);
-            }
 
             await ValidateInput(idChienDich, idDanhBa, null, idBrandName, noiDung);
             await ValidateChienDichChuaGui(idChienDich);
@@ -69,7 +64,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var chienDichExisting = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound);
 
-            chienDichExisting.IdBrandName = idBrandName;
+            if (idBrandName.HasValue)
+            {
+                chienDichExisting.IdBrandName = idBrandName.Value;
+            }
+
             chienDichExisting.IsFlashSms = IsFlashSms;
             chienDichExisting.NoiDung = noiDung;
             chienDichExisting.IsAccented = IsAccented;
@@ -78,18 +77,21 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _smDbContext.ChienDiches.Update(chienDichExisting);
             _smDbContext.SaveChanges();
 
-            var chienDichDanhBa = await _smDbContext.ChienDichDanhBa.FirstOrDefaultAsync(x => x.IdChienDich == idChienDich && x.IdDanhBa == idDanhBa.Value && !x.Deleted);
-            if (chienDichDanhBa == null)
+            if (idDanhBa.HasValue)
             {
-                chienDichDanhBa = new domain.GuiTinNhan.ChienDichDanhBa
+                var chienDichDanhBa = await _smDbContext.ChienDichDanhBa.FirstOrDefaultAsync(x => x.IdChienDich == idChienDich && x.IdDanhBa == idDanhBa.Value && !x.Deleted);
+                if (chienDichDanhBa == null)
                 {
-                    IdChienDich = idChienDich,
-                    IdDanhBa = idDanhBa.Value,
-                };
-                _smDbContext.ChienDichDanhBa.Add(chienDichDanhBa);
-            }
+                    chienDichDanhBa = new domain.GuiTinNhan.ChienDichDanhBa
+                    {
+                        IdChienDich = idChienDich,
+                        IdDanhBa = idDanhBa.Value,
+                    };
+                    _smDbContext.ChienDichDanhBa.Add(chienDichDanhBa);
+                }
 
-            _smDbContext.SaveChanges();
+                _smDbContext.SaveChanges();
+            }
         }
         public async Task<object> GetPreviewMessage(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung, int currentIndex)
         {
@@ -734,15 +736,15 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             return cleanedNumber;
         }
 
-        private async Task ValidateInput(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, string noiDung)
+        private async Task ValidateInput(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int? idBrandName, string noiDung)
         {
             var isSuperAdmin = IsSuperAdmin();
             var currentUserId = getCurrentUserId();
-            if (string.IsNullOrWhiteSpace(noiDung))
+            /*if (string.IsNullOrWhiteSpace(noiDung))
             {
                 throw new UserFriendlyException(ErrorCodes.BadRequest);
-            }
-
+            }*/
+            int? validIdDanhBa = (idDanhBa.HasValue && idDanhBa.Value > 0) ? idDanhBa : null;
             if (!idDanhBa.HasValue && (danhSachSoDienThoai == null || !danhSachSoDienThoai.Any()))
             {
                 throw new UserFriendlyException(ErrorCodes.DanhBaErrorDanhSachSoDienThoaiRequired);
@@ -756,11 +758,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound);
             }
 
-            if (idDanhBa.HasValue)
+            if (validIdDanhBa.HasValue)
             {
                 var danhBaExists = await _smDbContext.DanhBas
-                    .AnyAsync(x => x.Id == idDanhBa.Value &&(isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
-
+                    .AnyAsync(x => x.Id == validIdDanhBa.Value && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
                 if (!danhBaExists)
                 {
                     throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound);
@@ -782,10 +783,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             var brandNameExists = await _smDbContext.BrandName
                 .AnyAsync(x => x.Id == idBrandName && !x.Deleted);
-            if (!brandNameExists)
+            /*if (!brandNameExists)
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorBrandNameNotFound);
-            }
+            }*/
         }
         private async Task<string> GetBrandNameByChienDich(int idBrandName)
         {

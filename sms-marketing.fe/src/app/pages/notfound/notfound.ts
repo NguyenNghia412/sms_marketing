@@ -31,7 +31,7 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
                     <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20 flex flex-col items-center" style="border-radius: 53px">
                         <span class="text-primary font-bold text-3xl">404</span>
                         <h1 class="text-surface-900 dark:text-surface-0 font-bold text-3xl lg:text-5xl mb-2">Not Found</h1>
-                        <div class="text-surface-600 dark:text-surface-200 mb-8">Requested resource is not available.</div>
+                        <div class="text-surface-600 dark:text-surface-200 mb-8">Tính năng đang được nâng cấp. Vui lòng liên hệ Admin để nhận thêm thông tin chi tiết.</div>
                         <a routerLink="/" class="w-full flex items-center py-8 border-surface-300 dark:border-surface-500 border-b">
                             <span class="flex justify-center items-center border-2 border-primary text-primary rounded-border" style="height: 3.5rem; width: 3.5rem">
                                 <i class="pi pi-fw pi-table text-2xl!"></i>

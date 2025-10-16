@@ -17,7 +17,7 @@ namespace thongbao.be.domain.GuiTinNhan
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public int IdBrandName { get; set; }
+        public int? IdBrandName { get; set; }
         public int? IdMauNoiDung { get; set; }
 
         [Required]

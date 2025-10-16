@@ -11,10 +11,10 @@ export interface ISendSms {
     idChienDich: number;
     idDanhBa?: number | null;
     danhSachSoDienThoai?: IListSoDienThoai[];
-    idBrandName: number;
+    idBrandName?: number;
     isFlashSms?: boolean;
     isAccented: boolean;
-    noiDung: string;
+    noiDung?: string;
 }
 
 export interface IPreviewSendSms {
