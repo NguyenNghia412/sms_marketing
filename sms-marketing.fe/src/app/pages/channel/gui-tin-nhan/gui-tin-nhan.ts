@@ -1,5 +1,5 @@
 import { IViewRowDanhBa } from '@/models/danh-ba.models';
-import { IPreviewSendSms, ISaveConfigChienDich, ISendSms, IViewPreviewSendSms } from '@/models/gui-tin-nhan.models';
+import { IPreviewSendSms, ISaveConfigChienDich, ISendSms, IVerifySendSms, IViewPreviewSendSms, IViewVerifySendSms } from '@/models/gui-tin-nhan.models';
 import { IViewBrandname } from '@/models/sms.models';
 import { ChienDichService } from '@/services/chien-dich.service';
 import { DanhBaService } from '@/services/danh-ba.service';
@@ -185,23 +185,7 @@ export class GuiTinNhan extends BaseComponent {
 
         this.previewSendSms();
 
-        // const body: ISendSms = {
-        //     idChienDich: this.idChienDich,
-        //     idBrandName: this.form.value.idBrandName,
-        //     isAccented: true,
-        //     noiDung: this.form.value.noiDung
-        // };
-        // if (this.nguoiNhanType === 'danhBa') {
-        //     body.idDanhBa = this.form.value.idDanhBa;
-        // } else {
-        //     const soDienThoaiText = this.form.value.soDienThoai || '';
-        //     const phoneNumbers = soDienThoaiText
-        //         .split(/[\n,;\s]+/)
-        //         .map((s: string) => s.trim())
-        //         .filter((s: string) => s.length > 0);
-
-        //     body.danhSachSoDienThoai = phoneNumbers.map((sdt: string) => ({ soDienThoai: sdt }));
-        // }
+        
 
         // this.loading = true;
         // this._guiTinNhanService.sendSms(body).subscribe({
@@ -249,10 +233,9 @@ export class GuiTinNhan extends BaseComponent {
     }
 
     previewSendSms() {
-        const body: IPreviewSendSms = {
+        const body: IVerifySendSms = {
             idChienDich: this.idChienDich,
             idBrandName: this.form.value['idBrandName'],
-            currentIndex: 0,
             isAccented: this.form.value['isAccented'],
             noiDung: this.form.value['noiDung']
         };
@@ -269,10 +252,10 @@ export class GuiTinNhan extends BaseComponent {
             body.danhSachSoDienThoai = phoneNumbers.map((sdt: string) => ({ soDienThoai: sdt }));
         }
         this.loading = true;
-        this._guiTinNhanService.previewSendSms(body).subscribe({
+        this._guiTinNhanService.verifySendSms(body).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res)) {
-                    this.openDialogPreview(res.data);
+                    this.openDialogPreview(res.data, body);
                 }
             },
             error: (err) => {
@@ -283,14 +266,17 @@ export class GuiTinNhan extends BaseComponent {
         });
     }
 
-    openDialogPreview(data: IViewPreviewSendSms) {
+    openDialogPreview(verifyData: IViewVerifySendSms, bodySendSms: ISendSms) {
         const ref = this._dialogService.open(DialogPreview, {
             header: 'Xác nhận gửi tin nhắn',
             closable: true,
             modal: true,
             // styleClass: 'w-[600px]',
             focusOnShow: false,
-            data 
+            data: {
+                verifyData,
+                bodySendSms,
+            }
         });
         ref.onClose.subscribe((result) => {
             if (result) {

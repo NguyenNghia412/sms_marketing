@@ -1,4 +1,4 @@
-import { IPreviewSendSms, ISaveConfigChienDich, ISendSms, IViewPreviewSendSms } from '@/models/gui-tin-nhan.models';
+import { IPreviewSendSms, ISaveConfigChienDich, ISendSms, IVerifySendSms, IViewPreviewSendSms, IViewVerifySendSms } from '@/models/gui-tin-nhan.models';
 import { IBaseResponse, IBaseResponseWithData } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -20,6 +20,10 @@ export class GuiTinNhanService {
 
     previewSendSms(body: IPreviewSendSms) {
         return this.http.post<IBaseResponseWithData<IViewPreviewSendSms>>(`${this.api}/preview-send-sms`, body);
+    }
+
+    verifySendSms(body: IVerifySendSms) {
+        return this.http.post<IBaseResponseWithData<IViewVerifySendSms>>(`${this.api}/verify-send-sms`, body);
     }
 
 }

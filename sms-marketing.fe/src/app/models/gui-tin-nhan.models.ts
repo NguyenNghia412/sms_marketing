@@ -28,6 +28,16 @@ export interface IPreviewSendSms {
     currentIndex: number;
 }
 
+export interface IVerifySendSms {
+    idChienDich: number;
+    idDanhBa?: number | null;
+    danhSachSoDienThoai?: IListSoDienThoai[];
+    idBrandName: number;
+    isFlashSms?: boolean;
+    isAccented: boolean;
+    noiDung: string;
+}
+
 export interface IListSoDienThoai {
     soDienThoai: string;
 }
@@ -38,4 +48,9 @@ export interface IViewPreviewSendSms {
     soDienThoai?: string;
     personalizedText?: string;
     smsCount?: number;
+}
+
+export interface IViewVerifySendSms {
+    soLuongNguoiNhan?: number
+    tongSoLuongTinNhan?: number
 }
