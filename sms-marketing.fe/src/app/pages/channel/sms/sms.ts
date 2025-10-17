@@ -38,8 +38,9 @@ export class Sms extends BaseComponent {
         { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
         { header: 'Tên chiến dịch', field: 'tenChienDich', headerContainerStyle: 'min-width: 12rem', cellClass: 'cursor-pointer text-blue-600 hover:text-blue-800 hover:underline', clickable: true },
         { header: 'Nội dung', field: 'noiDung', headerContainerStyle: 'min-width: 12rem' },
+        { header: 'Người tạo', field: 'users.fullName', headerContainerStyle: 'min-width:10rem'},
         { header: 'Trạng Thái', field: 'trangThaiText', headerContainerStyle: 'width: 8rem', cellRender: 'html', cellClass: 'status-cell', cellStyle: 'position: relative; padding: 0;' },
-        { header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
+        //{ header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
         { header: 'Thời gian gửi', field: 'ngayBatDau', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
         { header: 'Thao tác', headerContainerStyle: 'width: 5rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
@@ -66,8 +67,8 @@ export class Sms extends BaseComponent {
                     this.data = res.data.items.map(item => ({
                         ...item,
                         trangThaiText: item.trangThai 
-                            ? '<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center;" class="bg-green-100 font-medium text-green-800">Đã gửi</div>'
-                            : '<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center;" class="bg-gray-100 font-medium text-gray-800">Nháp</div>'
+                            ? '<span style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center;font-weight:bold;" class=" text-green-800">Đã gửi</span>'
+                            : '<span style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center;" class=" font-black text-gray-800">Nháp</span>'
                     }));
                     this.totalRecords = res.data.totalItems;
                 }

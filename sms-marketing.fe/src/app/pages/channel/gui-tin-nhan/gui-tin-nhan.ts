@@ -1,5 +1,5 @@
 import { IViewRowDanhBa } from '@/models/danh-ba.models';
-import { IPreviewSendSms, ISaveConfigChienDich, ISendSms, IVerifySendSms, IViewPreviewSendSms, IViewVerifySendSms } from '@/models/gui-tin-nhan.models';
+import { IListSoDienThoai, IPreviewSendSms, ISaveConfigChienDich, ISendSms } from '@/models/gui-tin-nhan.models';
 import { IViewBrandname } from '@/models/sms.models';
 import { ChienDichService } from '@/services/chien-dich.service';
 import { DanhBaService } from '@/services/danh-ba.service';
@@ -7,19 +7,20 @@ import { GuiTinNhanService } from '@/services/gui-tin-nhan.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { Breadcrumb } from '@/shared/components/breadcrumb/breadcrumb';
 import { SharedImports } from '@/shared/import.shared';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { MobilePreview } from './mobile-preview/mobile-preview';
 import { ChipModule } from 'primeng/chip';
+import { DialogService } from 'primeng/dynamicdialog';
 import { Import } from './import/import';
 import { CreateQuick } from './create-quick/create-quick';
+import { Menu } from 'primeng/menu';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { DialogPreview } from './dialog-preview/dialog-preview';
 
 @Component({
     selector: 'app-gui-tin-nhan',
-    imports: [SharedImports, Breadcrumb, MobilePreview, ChipModule, RadioButtonModule, FormsModule, DialogPreview],
+    imports: [SharedImports, Breadcrumb, MobilePreview, ChipModule, RadioButtonModule, FormsModule],
     templateUrl: './gui-tin-nhan.html',
     styleUrl: './gui-tin-nhan.scss',
 })
@@ -28,13 +29,13 @@ export class GuiTinNhan extends BaseComponent {
     private _chienDichService = inject(ChienDichService);
     private _guiTinNhanService = inject(GuiTinNhanService);
 
-    items: MenuItem[] = [];
+    items: MenuItem[] = [{ label: 'Danh sách chiến dịch', routerLink: '/channel/sms' }, { label: 'Gửi tin nhắn sms' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
     idChienDich: number = 0;
     listDanhBa: IViewRowDanhBa[] = [];
     listBrandname: IViewBrandname[] = [];
     nguoiNhanType: 'danhBa' | 'soDienThoai' = 'danhBa';
-
+    
 
     override form: FormGroup = new FormGroup({
         idBrandName: new FormControl(null, [Validators.required]),
@@ -93,7 +94,6 @@ export class GuiTinNhan extends BaseComponent {
                             noiDung: res.data.noiDung,
                             isAccented: res.data.isAccented ?? true
                         });
-                        this.items = [{ label: 'Danh sách chiến dịch', routerLink: '/channel/sms' }, { label: `Chiến dịch: ${res.data.tenChienDich}` }, { label: 'Gửi tin nhắn sms' }]
                     }
                 }
             });
@@ -184,7 +184,38 @@ export class GuiTinNhan extends BaseComponent {
             return;
         }
 
-        this.previewSendSms();
+        const body: ISendSms = {
+            idChienDich: this.idChienDich,
+            idBrandName: this.form.value.idBrandName,
+            isAccented: true,
+            noiDung: this.form.value.noiDung
+        };
+        if (this.nguoiNhanType === 'danhBa') {
+            body.idDanhBa = this.form.value.idDanhBa;
+        } else {
+            const soDienThoaiText = this.form.value.soDienThoai || '';
+            const phoneNumbers = soDienThoaiText
+                .split(/[\n,;\s]+/) 
+                .map((s: string) => s.trim())
+                .filter((s: string) => s.length > 0);
+            
+            body.danhSachSoDienThoai = phoneNumbers.map((sdt: string) => ({ soDienThoai: sdt }));
+        }
+
+        this.loading = true;
+        this._guiTinNhanService.sendSms(body).subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, true, 'Đã đặt lệnh gửi')) {
+                    this.router.navigate(['/channel/sms']);
+                }
+            }, 
+            error: (err) => {
+                this.messageError(err?.message);
+            },
+            complete: () => {
+                this.loading = false;
+            }
+        });
     }
 
     onClickSave() {
@@ -212,59 +243,6 @@ export class GuiTinNhan extends BaseComponent {
             },
             complete: () => {
                 this.loading = false;
-            }
-        });
-    }
-
-    previewSendSms() {
-        const body: IVerifySendSms = {
-            idChienDich: this.idChienDich,
-            idBrandName: this.form.value['idBrandName'],
-            isAccented: this.form.value['isAccented'],
-            noiDung: this.form.value['noiDung']
-        };
-
-        if (this.nguoiNhanType === 'danhBa') {
-            body.idDanhBa = this.form.value['idDanhBa'];
-        } else {
-            const soDienThoaiText = this.form.value.soDienThoai || '';
-            const phoneNumbers = soDienThoaiText
-                .split(/[\n,;\s]+/)
-                .map((s: string) => s.trim())
-                .filter((s: string) => s.length > 0);
-
-            body.danhSachSoDienThoai = phoneNumbers.map((sdt: string) => ({ soDienThoai: sdt }));
-        }
-        this.loading = true;
-        this._guiTinNhanService.verifySendSms(body).subscribe({
-            next: (res) => {
-                if (this.isResponseSucceed(res)) {
-                    this.openDialogPreview(res.data, body);
-                }
-            },
-            error: (err) => {
-                this.messageError(err?.message);
-            }
-        }).add(() => {
-            this.loading = false
-        });
-    }
-
-    openDialogPreview(verifyData: IViewVerifySendSms, bodySendSms: ISendSms) {
-        const ref = this._dialogService.open(DialogPreview, {
-            header: 'Xác nhận gửi tin nhắn',
-            closable: true,
-            modal: true,
-            // styleClass: 'w-[600px]',
-            focusOnShow: false,
-            data: {
-                verifyData,
-                bodySendSms,
-            }
-        });
-        ref.onClose.subscribe((result) => {
-            if (result) {
-                location.reload();
             }
         });
     }

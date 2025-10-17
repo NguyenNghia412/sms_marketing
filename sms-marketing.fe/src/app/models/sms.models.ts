@@ -18,7 +18,10 @@ export type IViewRowChienDich = {
   trangThai?: boolean
   createdDate?: string
 }
-
+export type IViewChienDichCreatedBy ={
+  id?: number
+  fullName?: string
+}
 export type IViewChienDich = {
   id?: number
   tenChienDich?: string
@@ -29,6 +32,7 @@ export type IViewChienDich = {
   idBrandName?: number
   idDanhBa?: number
   danhBas?: IViewDanhBa[]
+  users?: IViewChienDichCreatedBy
   isFlashSms?: boolean
   isAccented?: boolean
   createdDate?: string

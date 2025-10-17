@@ -39,7 +39,7 @@ namespace thongbao.be.application.Base
             {
                 data = _httpContextAccessor.HttpContext?.User.FindFirstValue(Claims.Subject);
             }
-            _logger.LogInformation($"getCurrentUserId: {data}");
+            //_logger.LogInformation($"getCurrentUserId: {data}");
             return data!;
         }
         protected string getCurrentName()

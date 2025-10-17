@@ -57,7 +57,7 @@ export class ChienDichReport extends BaseComponent {
         { header: 'Gửi thành công', field: 'smsSentSuccess', headerContainerStyle: 'min-width: 6rem' },
         { header: 'Gửi thất bại', field: 'smsSentFailed', headerContainerStyle: 'min-width: 6rem' },
         { header: 'Tổng chi phí', field: 'tongChiPhi', headerContainerStyle: 'min-width: 6rem' },
-        { header: 'Trạng Thái', field: 'trangThaiText', headerContainerStyle: 'width: 10rem' },
+        //{ header: 'Trạng Thái', field: 'trangThaiText', headerContainerStyle: 'width: 10rem' },
         { header: 'Thời gian gửi', field: 'ngayGui', headerContainerStyle: 'width: 20rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' }
     ];
     

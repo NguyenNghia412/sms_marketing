@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 using thongbao.be.application.Base;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.application.GuiTinNhan.Interfaces;
+using thongbao.be.domain.Auth;
 using thongbao.be.domain.GuiTinNhan;
 using thongbao.be.infrastructure.data;
 using thongbao.be.shared.HttpRequest.BaseRequest;
@@ -23,15 +25,18 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 {
     public class ChienDichService : BaseService, IChienDichService
     {
+        private readonly UserManager<AppUser> _userManager;
         private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
         public ChienDichService(
             SmDbContext smDbContext,
             ILogger<ChienDichService> logger,
             IHttpContextAccessor httpContextAccessor,
+            UserManager<AppUser> userManager,
             IMapper mapper
         )
             : base(smDbContext, logger, httpContextAccessor, mapper)
         {
+            _userManager = userManager;
         }
 
         public void Create(CreateChienDichDto dto)
@@ -65,12 +70,16 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         from brand in brandJoin.DefaultIfEmpty()
                         join mnd in _smDbContext.MauNoiDungs on cd.IdMauNoiDung equals mnd.Id into mauNoiDungJoin
                         from mauNoiDung in mauNoiDungJoin.DefaultIfEmpty()
+                        join u in _userManager.Users on cd.CreatedBy equals u.Id 
+                          
                         where !cd.Deleted
                               && (string.IsNullOrEmpty(dto.Keyword)
                                   || cd.TenChienDich.Contains(dto.Keyword)
                                   || cd.NoiDung.Contains(dto.Keyword)
-                                  || cd.MoTa.Contains(dto.Keyword))
+                                  || cd.MoTa.Contains(dto.Keyword)
+                                  || u.FullName.Contains(dto.Keyword))
                         orderby cd.CreatedDate descending
+
                         select new ViewChienDichDto
                         {
                             Id = cd.Id,
@@ -86,8 +95,16 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             TenBrandName = brand != null ? brand.TenBrandName : string.Empty,
                             IsFlashSms = cd.IsFlashSms,
                             TrangThai = cd.TrangThai,
-                            //CreatedBy = cd.CreatedBy,
+                            CreatedBy = cd.CreatedBy,
                             CreatedDate = cd.CreatedDate,
+                            Users =  new ChienDichCreatedByDto
+                            {
+                                Id = u.Id,
+                                //UserName = u.UserName ?? "",
+                                FullName = u.FullName,
+                                //SoDienThoai = u.PhoneNumber ?? "",
+                                //Email = u.Email ?? "",
+                            },   
                             DanhBas = (from cddb in _smDbContext.ChienDichDanhBa
                                        join db in _smDbContext.DanhBas on cddb.IdDanhBa equals db.Id
                                        where cddb.IdChienDich == cd.Id
