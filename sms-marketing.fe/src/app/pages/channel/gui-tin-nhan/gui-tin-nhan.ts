@@ -229,7 +229,13 @@ export class GuiTinNhan extends BaseComponent {
         if (this.nguoiNhanType === 'danhBa') {
             body.idDanhBa = this.form.value.idDanhBa;
         } else {
-            body.idDanhBa = null;
+            const soDienThoaiText = this.form.value.soDienThoai || '';
+            const phoneNumbers = soDienThoaiText
+                .split(/[\n,;\s]+/) 
+                .map((s: string) => s.trim())
+                .filter((s: string) => s.length > 0);
+            
+            body.danhSachSoDienThoai = phoneNumbers.map((sdt: string) => ({ soDienThoai: sdt }));
         }
 
         this.loading = true;

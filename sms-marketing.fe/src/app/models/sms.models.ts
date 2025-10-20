@@ -16,6 +16,9 @@ export type IViewRowChienDich = {
   danhBas?: IViewDanhBa[]
   isFlashSms?: boolean
   trangThai?: boolean
+  soLuongThueBao?: number
+  soLuongSmsDaGuiThanhCong?: number
+  soLuongSmsDaGuiThatBai?: number
   createdDate?: string
 }
 export type IViewChienDichCreatedBy ={

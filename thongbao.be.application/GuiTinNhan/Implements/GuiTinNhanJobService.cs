@@ -47,13 +47,13 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             if (idDanhBa.HasValue)
             {
-                await SaveThongTinChienDich(idChienDich, idDanhBa.Value, idBrandName, IsFlashSms, IsAccented, noiDung);
+                await SaveThongTinChienDich(idChienDich, idDanhBa.Value,  danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
             }
 
             var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
             return result;
         }
-        public async Task SaveThongTinChienDich(int idChienDich, int? idDanhBa, int? idBrandName, bool IsFlashSms, bool IsAccented, string? noiDung)
+        public async Task SaveThongTinChienDich(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int? idBrandName, bool IsFlashSms, bool IsAccented, string? noiDung)
         {
             _logger.LogInformation($"{nameof(SaveThongTinChienDich)}");
             var vietnamNow = GetVietnamTime();
@@ -74,12 +74,14 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             chienDichExisting.IsAccented = IsAccented;
             chienDichExisting.TrangThai = false;
 
-            _smDbContext.ChienDiches.Update(chienDichExisting);
-            _smDbContext.SaveChanges();
-
-            if (idDanhBa.HasValue)
+      
+            //Mode: Danh bạ
+            if (idDanhBa.HasValue && idDanhBa.Value > 0)
             {
                 var chienDichDanhBa = await _smDbContext.ChienDichDanhBa.FirstOrDefaultAsync(x => x.IdChienDich == idChienDich && x.IdDanhBa == idDanhBa.Value && !x.Deleted);
+                var countDanhBa = await _smDbContext.DanhBaSms.Where(x => x.IdDanhBa == idDanhBa.Value && !x.Deleted).CountAsync();
+                chienDichExisting.SoLuongThueBao = countDanhBa;
+                _smDbContext.ChienDiches.Update(chienDichExisting);
                 if (chienDichDanhBa == null)
                 {
                     chienDichDanhBa = new domain.GuiTinNhan.ChienDichDanhBa
@@ -89,9 +91,15 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     };
                     _smDbContext.ChienDichDanhBa.Add(chienDichDanhBa);
                 }
-
-                _smDbContext.SaveChanges();
             }
+            //Mode: List số điện thoại
+            else if(danhSachSoDienThoai != null && danhSachSoDienThoai.Count > 0)
+            {
+                var countSoDienThoai = danhSachSoDienThoai.Count;
+                chienDichExisting.SoLuongThueBao = countSoDienThoai;
+            }
+            _smDbContext.ChienDiches.Update(chienDichExisting);
+            await _smDbContext.SaveChangesAsync();
         }
         public async Task<object> GetPreviewMessage(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung, int currentIndex)
         {

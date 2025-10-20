@@ -40,6 +40,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                 await _guiTinNhanJobService.SaveThongTinChienDich(
                     dto.IdChienDich,
                     dto.IdDanhBa ?? 0,
+                    dto.DanhSachSoDienThoai ?? [],
                     dto.IdBrandName ?? 0,
                     dto.IsFlashSms,
                     dto.IsAccented,

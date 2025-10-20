@@ -20,7 +20,7 @@
     </div>
     <div class="mb-3">
         <label for="File" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">File upload <span class="text-red-500">*</span></label>
-        <p-fileupload id="File" mode="basic" (onSelect)="onSelect($event)" chooseLabel="Choose" chooseIcon="pi pi-upload" name="demo[]" url="https://www.primefaces.org/cdn/api/upload.php" maxFileSize="1000000" />
+        <p-fileupload id="File" mode="basic" (onSelect)="onSelect($event)" chooseLabel="Choose" chooseIcon="pi pi-upload" name="demo[]" url="https://www.primefaces.org/cdn/api/upload.php" maxFileSize="10000000" />
         @if (form.get('File')?.hasError('required') && form.get('File')?.touched) {
         <p-message severity="error" variant="simple" size="small">{{ getError('File') }} </p-message>
         }

@@ -4,7 +4,7 @@
         <tr>
             @for (col of (columns()); track $index) {
             <th [style]="col.headerContainerStyle">
-                <div class="flex justify-between cols-center">{{ col.header }}</div>
+                <div class="flex justify-center cols-center">{{ col.header }}</div>
             </th>
             }
         </tr>
@@ -39,7 +39,7 @@
         </tr>
     </ng-template>
     <ng-template #emptymessage>
-        <tr>
+        <tr>    
             <td [attr.colspan]="columns().length">Không có dữ liệu</td>
         </tr>
     </ng-template>

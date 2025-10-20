@@ -3,16 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-namespace thongbao.be.lib.Stringee.Implements
-{
-    using global::thongbao.be.lib.Stringee.Interfaces;
-    using global::thongbao.be.shared.HttpRequest.Error;
-    using global::thongbao.be.shared.HttpRequest.Exception;
-    using Microsoft.Extensions.Configuration;
-    using System.Text;
-    using System.Text.Json;
-
+using thongbao.be.lib.Stringee.Interfaces;
+using thongbao.be.shared.HttpRequest.Error;
+using thongbao.be.shared.HttpRequest.Exception;
+using Microsoft.Extensions.Configuration;
+using System.Text.Json;
 
     namespace thongbao.be.lib.Stringee.Implements
     {
@@ -31,7 +26,7 @@ namespace thongbao.be.lib.Stringee.Implements
                 _configuration = configuration;
                 _authService = authService;
                 _httpClient = httpClient;
-                _baseUrl = _configuration["Stringee:BaseUrl"];
+                _baseUrl = _configuration["Stringee:BaseUrl"] ?? "";
             }
 
             public async Task<object> SendSmsAsync(List<object> smsMessages)
@@ -64,8 +59,7 @@ namespace thongbao.be.lib.Stringee.Implements
                 var responseContent = await response.Content.ReadAsStringAsync();
                 var responseObject = JsonSerializer.Deserialize<object>(responseContent);
 
-                return responseObject;
+                return responseObject ?? "";
             }
         }
     }
-}

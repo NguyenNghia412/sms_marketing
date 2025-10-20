@@ -70,8 +70,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         from brand in brandJoin.DefaultIfEmpty()
                         join mnd in _smDbContext.MauNoiDungs on cd.IdMauNoiDung equals mnd.Id into mauNoiDungJoin
                         from mauNoiDung in mauNoiDungJoin.DefaultIfEmpty()
-                        join u in _userManager.Users on cd.CreatedBy equals u.Id 
-                          
+                        join u in _userManager.Users on cd.CreatedBy equals u.Id
+                        join logTrangThai in _smDbContext.ChienDichLogTrangThaiGuis on cd.Id equals logTrangThai.IdChienDich into logTrangThaiJoin
+                        from log in logTrangThaiJoin.Where(x => !x.Deleted).DefaultIfEmpty()
                         where !cd.Deleted
                               && (string.IsNullOrEmpty(dto.Keyword)
                                   || cd.TenChienDich.Contains(dto.Keyword)
@@ -95,6 +96,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             TenBrandName = brand != null ? brand.TenBrandName : string.Empty,
                             IsFlashSms = cd.IsFlashSms,
                             TrangThai = cd.TrangThai,
+                            SoLuongThueBao = cd.SoLuongThueBao,
+                            SoLuongSmsDaGuiThanhCong = cd.TrangThai ? (log != null ? log.SmsSendSuccess : 0) : 0,
+                            SoLuongSmsGuiThatBai = cd.TrangThai ? (log != null ? log.SmsSendFailed : 0) : 0,
                             CreatedBy = cd.CreatedBy,
                             CreatedDate = cd.CreatedDate,
                             Users =  new ChienDichCreatedByDto

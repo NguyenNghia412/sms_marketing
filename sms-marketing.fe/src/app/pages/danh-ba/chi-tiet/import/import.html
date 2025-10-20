@@ -6,7 +6,7 @@
 
     <div>
         <label for="File" class="block text-sm font-semibold text-surface-900 dark:text-surface-0 mb-2">File Excel <span class="text-red-500">*</span></label>
-        <p-fileupload id="File" mode="basic" (onSelect)="onSelect($event)" chooseLabel="Chọn file" chooseIcon="pi pi-upload" accept=".xlsx,.xls" styleClass="w-full" [auto]="true" />
+        <p-fileupload id="File" mode="basic" (onSelect)="onSelect($event)" chooseLabel="Choose" chooseIcon="pi pi-upload" name="demo[]" url="https://www.primefaces.org/cdn/api/upload.php" maxFileSize="10000000" />
         @if (form.get('File')?.hasError('required') && form.get('File')?.touched) {
         <small class="text-red-500 mt-1 block">{{ getError('File') }}</small>
         }

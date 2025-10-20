@@ -1,6 +1,7 @@
 export interface ISaveConfigChienDich {
     idChienDich: number;
     idDanhBa?: number | null;
+    danhSachSoDienThoai?: IListSoDienThoai[];
     idBrandName: number;
     isFlashSms?: boolean;
     isAccented: boolean;

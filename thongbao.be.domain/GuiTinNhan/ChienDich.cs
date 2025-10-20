@@ -36,6 +36,7 @@ namespace thongbao.be.domain.GuiTinNhan
 
         public bool IsFlashSms { get; set; }
         public bool TrangThai { get; set; }
+        public int? SoLuongThueBao { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
