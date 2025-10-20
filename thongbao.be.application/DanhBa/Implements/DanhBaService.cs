@@ -1067,6 +1067,7 @@ namespace thongbao.be.application.DanhBa.Implements
             if (!danhBaExists)
             {
                 throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.DanhBaErrorNotFound));
+
             }
 
             var excelData = await _readExcelFile(dto.File, dto.SheetName);
