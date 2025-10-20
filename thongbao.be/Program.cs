@@ -41,7 +41,6 @@ using thongbao.be.infrastructure.external.SignalR.Hub.Implements;
 using thongbao.be.infrastructure.external.SignalR.Service.Implements;
 using thongbao.be.infrastructure.external.SignalR.Service.Interfaces;
 using thongbao.be.lib.Stringee.Implements;
-using thongbao.be.lib.Stringee.Implements.thongbao.be.lib.Stringee.Implements;
 using thongbao.be.lib.Stringee.Interfaces;
 using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.Settings;
@@ -259,6 +258,7 @@ builder.Services.AddScoped<ISendSmsService, SendSmsService>();
 builder.Services.AddScoped<IGuiTinNhanLogService, GuiTinNhanLogService>();
 builder.Services.AddScoped<IPlanService, PlanService>();
 builder.Services.AddScoped<ISubPlanService, SubPlanService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
 #endregion
 
 builder.Services.AddHttpClient();

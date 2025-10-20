@@ -29,7 +29,7 @@ export class Sms extends BaseComponent {
 
     searchForm: FormGroup = new FormGroup({
         search: new FormControl(''),
-        createdTime: new FormControl(''),
+        createdBy: new FormControl(''),
         sendTime: new FormControl(''),
         status: new FormControl('')
     });
@@ -38,7 +38,7 @@ export class Sms extends BaseComponent {
         { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
         { header: 'Tên chiến dịch', field: 'tenChienDich', headerContainerStyle: 'min-width: 12rem', cellClass: 'cursor-pointer text-blue-600 hover:text-blue-800 hover:underline', clickable: true },
         { header: 'Nội dung', field: 'noiDung', headerContainerStyle: 'min-width: 12rem' },
-        { header: 'Người tạo', field: 'users.fullName', headerContainerStyle: 'min-width:10rem'},
+        { header: 'Người tạo', field: 'users.fullName', headerContainerStyle: 'min-width:10rem'}, 
         { header: 'Trạng Thái', field: 'trangThaiText', headerContainerStyle: 'width: 8rem', cellRender: 'html', cellClass: 'status-cell', cellStyle: 'position: relative; padding: 0;' },
         //{ header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
         { header: 'Thời gian gửi', field: 'ngayBatDau', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
@@ -61,7 +61,7 @@ export class Sms extends BaseComponent {
 
     getData() {
         this.loading = true;
-        this._chienDichService.findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value }).subscribe({
+        this._chienDichService.findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value  }).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, false)) {
                     this.data = res.data.items.map(item => ({

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace thongbao.be.application.GuiTinNhan.Dtos
 {
+
     public class ChienDichCreatedByDto{
         public string Id { get; set; } = String.Empty;
         //public string UserName { get; set; } = String.Empty;
@@ -35,11 +36,15 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public string TenBrandName { get; set; } = String.Empty;
         public bool IsFlashSms { get; set; }
         public bool TrangThai { get; set; }
+        public int? SoLuongThueBao { get; set; }
+        public int? SoLuongSmsDaGuiThanhCong { get; set; }
+        public int? SoLuongSmsGuiThatBai { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public List<ChienDichDanhBaDto> DanhBas { get; set; } = new List<ChienDichDanhBaDto> { };
         public ChienDichCreatedByDto Users { get ; set; } = new ChienDichCreatedByDto();
+       
 
-        
+
     }
 }

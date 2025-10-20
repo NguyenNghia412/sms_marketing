@@ -8,6 +8,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\thongbao.be.shared\thongbao.be.shared.csproj" />
+		<ProjectReference Include="..\thongbao.be.application\thongbao.be.application.csproj" />
 	</ItemGroup>
 
 
