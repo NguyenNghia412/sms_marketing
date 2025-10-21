@@ -56,6 +56,10 @@ export interface IGetTienDoHangDoi {
     // IdSubPlan: number;
     SoLuong?: number;
 }
+export interface IGetTienDoHangDoiSinhVienBatDauLui {
+    Mssv: string;
+    SoLuong?: number;
+}
 
 export interface IViewScanQrCurrentSubPlan {
     soLuongConLai?: number
@@ -107,4 +111,8 @@ export interface IViewSubPlanSideScreen {
     ten?: string
     tienDo?: string
     items?: IViewScanQrTienDoSv[]
+}
+export interface IViewSvBatDauLuiResponse {
+    svBatDauLui?: IViewSvDangTraoBang;
+    svChuanBiTiepTheo?: IViewSvDangTraoBang;
 }

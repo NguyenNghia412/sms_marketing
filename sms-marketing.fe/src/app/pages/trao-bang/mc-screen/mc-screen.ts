@@ -3,7 +3,7 @@ import { SharedImports } from '@/shared/import.shared';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { TraoBangSvService } from '@/services/trao-bang/sv-nhan-bang.service';
 import { SubPlanStatuses, TraoBangHubConst } from '@/shared/constants/sv-nhan-bang.constants';
-import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IViewSvDangTraoBang } from '@/models/trao-bang/sv-nhan-bang.models';
+import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IViewSvBatDauLuiResponse, IViewSvDangTraoBang } from '@/models/trao-bang/sv-nhan-bang.models';
 import * as signalR from '@microsoft/signalr';
 import { LeftSidebar } from '../scan-qr-sv/left-sidebar/left-sidebar';
 import { StudentList } from '../scan-qr-sv/student-list/student-list';
@@ -29,10 +29,13 @@ export class McScreen extends BaseComponent implements OnDestroy {
   listSubPlan: IViewScanQrSubPlan[] = [];
   svDangTrao: IViewSvDangTraoBang | null = {};
   svChuanBi: IViewSvDangTraoBang | null = {};
+  svBatDauLui: IViewSvBatDauLuiResponse | null = {};
+  svChuanBiTiếpTheo: IViewSvDangTraoBang | null = {};
 
   //isLockNextTraoBang: boolean = false;
   isLoadingNext: boolean = false;
   isLoadingPrev: boolean = false;
+  isViewingSvBatDauLui: boolean = false;
   
 
   countDown = 0;
@@ -141,6 +144,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
     if (this.isLoadingNext || this.isLoadingPrev) {
       return;
     }
+    this.isViewingSvBatDauLui = false;
 
     this.isLoadingNext = true;
 
@@ -172,6 +176,35 @@ export class McScreen extends BaseComponent implements OnDestroy {
             });
   }
 
+  onClickViewSinhVienBatDauLui() {
+  this._svTraoBangService.getSvBatDauLui(this.idSubPlan)
+    .subscribe({
+      next: res => {
+        if (this.isResponseSucceed(res)) {
+          this.svBatDauLui = res.data;
+          this.svDangTrao = res.data?.svBatDauLui || null;
+
+          this.svChuanBi = res.data?.svChuanBiTiepTheo || null;
+
+          const mssv = res.data?.svBatDauLui?.maSoSinhVien || '';
+
+          if (mssv) {
+            this._svTraoBangService.getHangDoiSinhVienBatDauLui({ Mssv: mssv, SoLuong: 7 })
+              .subscribe({
+                next: resHangDoi => {
+                  if (this.isResponseSucceed(resHangDoi)) {
+                    this.students = resHangDoi.data;
+                  }
+                  this.isViewingSvBatDauLui = true;
+                }
+              });
+          } else {
+            this.isViewingSvBatDauLui = true;
+          }
+        }
+      }
+    });
+}
   onClickPrevTraoBang(event: any) {
     event?.target?.blur();
     this.prevTraoBang();

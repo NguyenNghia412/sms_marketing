@@ -302,7 +302,7 @@ namespace thongbao.be.Controllers.TraoBang
         {
             try
             {
-                var data =await _subPlanService.NextSubPlan();
+                var data = await _subPlanService.NextSubPlan();
                 return new(data);
             }
             catch (Exception ex)
@@ -326,11 +326,11 @@ namespace thongbao.be.Controllers.TraoBang
         }
         [Permission(PermissionKeys.SubPlanAdd)]
         [HttpPut("{idSubPlan}/sinh-vien-nhan-bang/{id}/trang-thai")]
-        public ApiResponse UpdateTrangThaiSinhVienNhanBang([FromRoute] int idSubPlan,[FromRoute] int id)
+        public ApiResponse UpdateTrangThaiSinhVienNhanBang([FromRoute] int idSubPlan, [FromRoute] int id)
         {
             try
             {
-                _subPlanService.UpdateTrangThaiSinhVienNhanBang(idSubPlan,id);
+                _subPlanService.UpdateTrangThaiSinhVienNhanBang(idSubPlan, id);
                 return new();
             }
             catch (Exception ex)
@@ -370,11 +370,11 @@ namespace thongbao.be.Controllers.TraoBang
 
         [AllowAnonymous]
         [HttpPost("{idSubPlan}/sinh-vien-nhan-bang/next-trao-bang")]
-        public async Task<ApiResponse> NextSinhVienTraoBang([FromRoute]int idSubPlan)
+        public async Task<ApiResponse> NextSinhVienTraoBang([FromRoute] int idSubPlan)
         {
             try
             {
-                var data = await _subPlanService.NextSinhVienTraoBang( idSubPlan);
+                var data = await _subPlanService.NextSinhVienTraoBang(idSubPlan);
                 return new(data);
             }
             catch (Exception ex)
@@ -446,6 +446,35 @@ namespace thongbao.be.Controllers.TraoBang
             {
                 await _subPlanService.Restart();
                 return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        [Permission(PermissionKeys.SubPlanView)]
+        [HttpGet("{idSubPlan}/infor-sinh-vien-prev")]
+        public async Task<ApiResponse> GetInforSinhVienPrev([FromRoute] int idSubPlan)
+        {
+            try
+            {
+                var data = await _subPlanService.GetInforSinhVienBatDauDuocPrev(idSubPlan);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+        [Permission(PermissionKeys.SubPlanView)]
+        [HttpGet("sinh-vien-prev/tien-do")]
+        public async Task<ApiResponse> GetTienDoNhanBangSinhVienBatDauPrev([FromQuery] ViewTienDoNhanBangSinhVienBatDauLuiRequestDto dto)
+        {
+            try
+            {
+                var data = await _subPlanService.GetTienDoNhanBangSinhVienBatDauPrev(dto);
+                return new(data);
             }
             catch (Exception ex)
             {

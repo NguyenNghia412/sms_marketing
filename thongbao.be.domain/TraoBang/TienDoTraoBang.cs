@@ -31,6 +31,7 @@ namespace thongbao.be.domain.TraoBang
         public string? Note { get; set; }
         public int Order { get; set; }
         public bool IsShow { get; set; }
+        public bool TrackingDangTrao { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }

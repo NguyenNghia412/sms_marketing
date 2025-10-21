@@ -45,7 +45,8 @@
             <!-- Footer info -->
             <div class="text-center text-lg text-gray-500 mt-4">
                 Chuẩn bị: <span class="font-semibold">{{ currentSubPlanInfo?.soLuongConLai }}</span> | Đã trao: <span
-                    class="font-semibold">{{currentSubPlanInfo?.soLuongDaTrao}}/{{currentSubPlanInfo?.soLuongThamGia}}</span> 
+                    class="font-semibold">{{currentSubPlanInfo?.soLuongDaTrao}}/{{currentSubPlanInfo?.soLuongThamGia}}</span> | 
+                <button (click)="onClickViewSinhVienBatDauLui()" class="text-blue-600 hover:text-blue-800 underline font-semibold cursor-pointer">SV bắt đầu lùi</button>
             </div>
         </div>
 
