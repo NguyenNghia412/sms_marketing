@@ -10,10 +10,10 @@
 
 @keyframes realSlideUp {
     from {
-    transform: translateY(72px); /* Chiều cao của một dòng */
+        transform: translateY(72px);
     }
     to {
-    transform: translateY(0);
+        transform: translateY(0);
     }
 }
 
@@ -24,16 +24,60 @@
 
 @keyframes slideInFromBottom {
     from {
-    transform: translateY(100px);
-    opacity: 0;
+        transform: translateY(100px);
+        opacity: 0;
     }
     to {
-    transform: translateY(0);
-    opacity: 1;
+        transform: translateY(0);
+        opacity: 1;
     }
 }
 
 tbody tr {
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+}
+
+/* Animation blink viền - KHÔNG thay đổi layout */
+.star-blink-effect {
+    animation: blinkBorder 1.5s ease-in-out infinite;
+}
+
+@keyframes blinkBorder {
+    0%, 100% {
+        outline: 4px solid rgba(255, 215, 0, 0.7);
+        outline-offset: -4px;
+    }
+    50% {
+        outline: 5px solid rgba(255, 215, 0, 1);
+        outline-offset: -5px;
+    }
+}
+
+/* Cố định width cho cột trạng thái */
+.status-column {
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+}
+
+/* Ngôi sao CHỈ hiện khi có animation */
+.star-blink-effect td.status-column::after {
+    content: '⭐';
+    margin-left: 20px;
+    display: inline-block;
+    font-size: 1.5em;
+    animation: blinkStar 1s ease-in-out infinite;
+    vertical-align: middle;
+}
+
+@keyframes blinkStar {
+    0%, 100% {
+        opacity: 0.4;
+        transform: scale(0.9);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
 }

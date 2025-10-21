@@ -26,6 +26,7 @@ export class SideScreen extends BaseComponent implements OnDestroy {
   hubConnection: signalR.HubConnection | undefined;
   removing: boolean = false;
   newlyAdded: number | null = null;
+  recentlyCheckedInId: number | null = null;
 
   override ngOnInit(): void {
     this.initData();
@@ -45,33 +46,40 @@ export class SideScreen extends BaseComponent implements OnDestroy {
       }
     })
   }
+getHangDoi() {
+  this._svTraoBangService.getSvNhanBangKhoa().subscribe({
+    next: res => {
+      if (this.isResponseSucceed(res)) {
+        if (res.data.items && this.data.items) {
+          res.data.items.forEach(newSv => {
+            const oldSv = this.data.items?.find(x => x.id === newSv.id);
+            if (oldSv && oldSv.trangThai === 1 && newSv.trangThai === 2 && newSv.id) {
+              this.recentlyCheckedInId = newSv.id;
+              setTimeout(() => {
+                this.recentlyCheckedInId = null;
+              }, 3000);
+            }
+          });
+        }
 
-  getHangDoi() {
-    this._svTraoBangService.getSvNhanBangKhoa().subscribe({
-      next: res => {
-        if (this.isResponseSucceed(res)) {
-
-          if (this.isUseAnimation(this.data, res.data)) {
-
-            this.removing = true;
-            setTimeout(() => {
-              this.removing = false
-              this.data = res.data
-            }, 600);
-          } else {
-
+        if (this.isUseAnimation(this.data, res.data)) {
+          this.removing = true;
+          setTimeout(() => {
+            this.removing = false
             this.data = res.data
-          }
-
+          }, 600);
         } else {
-          this.data = {
-            items: []
-          }
+          this.data = res.data
+        }
+
+      } else {
+        this.data = {
+          items: []
         }
       }
-    })
-  }
-
+    }
+  })
+}
   isUseAnimation(data: IViewSubPlanSideScreen, newData: IViewSubPlanSideScreen) {
     const newSv1 = (newData.items && newData.items.length > 0) ? newData.items[0] : null;
     const oldSv2 = (data.items && data.items.length > 1) ? data.items[1] : null;
