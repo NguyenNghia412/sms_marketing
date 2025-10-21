@@ -1482,7 +1482,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 IsShow = result.IsShow
             }).ToList();
         }
-        //Get khoa tiến độ , list sinh viên đang trao màn cánh gà 
+        ///Get khoa tiến độ , list sinh viên đang trao màn cánh gà 
         public async Task<GetInforSubPlanDangTraoResponseDto> GetInforSubPlanDangTrao(int SoLuong)
         {
             int chuanBiTrao = 5;
@@ -1531,6 +1531,23 @@ namespace thongbao.be.application.TraoBang.Implements
                 .Select(x => x.IdSinhVienNhanBang)
                 .ToListAsync();
 
+
+            var orderDanhSachChuanBi = new List<int>();
+            if (sinhVienChuanBi.Any())
+            {
+                var idsChuanBi = sinhVienChuanBi.Select(x => x.IdSinhVienNhanBang).ToList();
+                orderDanhSachChuanBi = await _smDbContext.DanhSachSinhVienNhanBangs
+                    .AsNoTracking()
+                    .Where(x => idsChuanBi.Contains(x.Id) && !x.Deleted)
+                    .Select(x => x.Order)
+                    .ToListAsync();
+            }
+
+
+            var maxOrderDanhSachChuanBi = orderDanhSachChuanBi.Any()
+                ? orderDanhSachChuanBi.Max()
+                : 0;
+
             var sinhVienXepHang = await _smDbContext.DanhSachSinhVienNhanBangs
                 .AsNoTracking()
                 .Where(x => x.IdSubPlan == subPlan.Id
@@ -1541,8 +1558,18 @@ namespace thongbao.be.application.TraoBang.Implements
                 .Take(SoLuong)
                 .ToListAsync();
 
+
+            var sinhVienXepHangHopLe = sinhVienXepHang
+                .Where(x => x.Order >= maxOrderDanhSachChuanBi || maxOrderDanhSachChuanBi == 0)
+                .ToList();
+
+            var sinhVienBiBoQua = sinhVienXepHang
+                .Where(x => x.Order < maxOrderDanhSachChuanBi && maxOrderDanhSachChuanBi > 0)
+                .ToList();
+
             var idsSinhVien = tienDoList.Select(x => x.IdSinhVienNhanBang)
-                .Concat(sinhVienXepHang.Select(x => x.Id))
+                .Concat(sinhVienXepHangHopLe.Select(x => x.Id))
+                .Concat(sinhVienBiBoQua.Select(x => x.Id))
                 .ToList();
 
             var danhSachSinhViens = await _smDbContext.DanhSachSinhVienNhanBangs
@@ -1560,6 +1587,7 @@ namespace thongbao.be.application.TraoBang.Implements
 
             var itemsFromTienDo = (from tienDo in tienDoList
                                    join sv in danhSachSinhViens on tienDo.IdSinhVienNhanBang equals sv.Id
+
                                    select new ListSinhVienDto
                                    {
                                        TenSubPlan = subPlan.Ten,
@@ -1568,10 +1596,12 @@ namespace thongbao.be.application.TraoBang.Implements
                                        MaSoSinhVien = sv.MaSoSinhVien,
                                        TenNganhDaoTao = sv.TenNganhDaoTao,
                                        TrangThai = tienDo.TrangThai,
-                                       Order = tienDo.Order,
+                                       CapBang = sv.CapBang,
+                                       OrderTienDo = tienDo.Order,
+                                       OrderDanhSachNhanBang = sv.Order,
                                    }).ToList();
 
-            var itemsFromXepHang = sinhVienXepHang.Select(sv => new ListSinhVienDto
+            var itemsFromXepHangHopLe = sinhVienXepHangHopLe.Select(sv => new ListSinhVienDto
             {
                 TenSubPlan = subPlan.Ten,
                 Id = sv.Id,
@@ -1579,10 +1609,27 @@ namespace thongbao.be.application.TraoBang.Implements
                 MaSoSinhVien = sv.MaSoSinhVien,
                 TenNganhDaoTao = sv.TenNganhDaoTao,
                 TrangThai = TraoBangConstants.XepHang,
-                Order = sv.Order,
+                CapBang = sv.CapBang,
+                OrderDanhSachNhanBang = sv.Order,
             }).ToList();
 
-            var items = itemsFromTienDo.Concat(itemsFromXepHang).ToList();
+      
+            var itemsFromSinhVienBiBoQua = sinhVienBiBoQua.Select(sv => new ListSinhVienDto
+            {
+                TenSubPlan = subPlan.Ten,
+                Id = sv.Id,
+                HoVaTen = sv.HoVaTen,
+                MaSoSinhVien = sv.MaSoSinhVien,
+                TenNganhDaoTao = sv.TenNganhDaoTao,
+                TrangThai = TraoBangConstants.XepHang,
+                CapBang = sv.CapBang,
+                OrderDanhSachNhanBang = sv.Order,
+            }).ToList();
+
+            var items = itemsFromTienDo
+                .Concat(itemsFromXepHangHopLe)
+                .Concat(itemsFromSinhVienBiBoQua)
+                .ToList();
 
             return new GetInforSubPlanDangTraoResponseDto
             {

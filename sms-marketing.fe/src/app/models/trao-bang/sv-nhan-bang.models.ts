@@ -74,8 +74,10 @@ export interface IViewScanQrTienDoSv {
     hoVaTen?: string;
     maSoSinhVien?: string;
     isShow?: boolean;
-    order?: number;
+    orderTienDo?: number;
+    orderDanhSachNhanBang?: number;
     trangThai?: number;
+    capBang?: string;
     tenKhoa?: string;
 }
 
