@@ -1328,11 +1328,31 @@ namespace thongbao.be.application.TraoBang.Implements
                             && !x.Deleted)
                 .OrderByDescending(x => x.Order)
                 .FirstOrDefaultAsync();
-
-            if (sinhVienBatDauDuocPrev == null)
+            var sinhVienDuocPrevDen = await _smDbContext.TienDoTraoBangs
+                .Where(x => x.IdSubPlan == idSubPlan
+                            && x.TrangThai == TraoBangConstants.DangTraoBang
+                            && !x.Deleted)
+                .OrderByDescending(x => x.Order)
+                .FirstOrDefaultAsync();
+            var listSinhVienPrev = await _smDbContext.TienDoTraoBangs
+                .Where(x => x.IdSubPlan == idSubPlan
+                            && x.Order >= sinhVienDuocPrevDen.Order && x.Order < sinhVienBatDauDuocPrev.Order
+                            && !x.Deleted)
+                .OrderByDescending(x => x.Order)
+                .ToListAsync();
+            foreach (var sv in listSinhVienPrev)
+            {
+                sv.TrangThai = TraoBangConstants.DaTraoBang;
+                _smDbContext.TienDoTraoBangs.Update(sv);
+            }
+                if (sinhVienBatDauDuocPrev == null)
             {
                 return null;
             }
+            sinhVienBatDauDuocPrev.TrangThai = TraoBangConstants.DangTraoBang;
+            _smDbContext.TienDoTraoBangs.Update(sinhVienBatDauDuocPrev);
+            await _smDbContext.SaveChangesAsync();
+
 
             var sinhVienInfor = await _smDbContext.DanhSachSinhVienNhanBangs
                 .AsNoTracking()
@@ -1343,7 +1363,7 @@ namespace thongbao.be.application.TraoBang.Implements
                 return null;
             }
 
-            // Lấy sinh viên chuẩn bị tiếp theo (có Order nhỏ nhất trong các sinh viên "Chuẩn bị" có Order > Order của sinh viên bắt đầu được PREV)
+           
             var sinhVienChuanBiTiepTheo = await _smDbContext.TienDoTraoBangs
                 .Where(x => x.IdSubPlan == idSubPlan
                             && x.TrangThai == TraoBangConstants.ChuanBi
@@ -1376,7 +1396,7 @@ namespace thongbao.be.application.TraoBang.Implements
                     };
                 }
             }
-
+            await _traoBangService.NotifySinhVienDangTrao();
             return new GetInforSinhVienBatDauDuocPrevResponseDto
             {
                 SvBatDauLui = new GetInforSinhVienChuanBiDuocTraoBangResponseDto

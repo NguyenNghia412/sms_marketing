@@ -3,7 +3,7 @@ import { SharedImports } from '@/shared/import.shared';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { TraoBangSvService } from '@/services/trao-bang/sv-nhan-bang.service';
 import { SubPlanStatuses, TraoBangHubConst } from '@/shared/constants/sv-nhan-bang.constants';
-import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IViewSvBatDauLuiResponse, IViewSvDangTraoBang } from '@/models/trao-bang/sv-nhan-bang.models';
+import { IViewScanQrCurrentSubPlan, IViewScanQrSubPlan, IViewScanQrTienDoSv, IViewSvBatDauLuiResponse, IViewSvDangTraoBang, IViewTienDoTraoBang } from '@/models/trao-bang/sv-nhan-bang.models';
 import * as signalR from '@microsoft/signalr';
 import { LeftSidebar } from '../scan-qr-sv/left-sidebar/left-sidebar';
 import { StudentList } from '../scan-qr-sv/student-list/student-list';
@@ -31,6 +31,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
   svChuanBi: IViewSvDangTraoBang | null = {};
   svBatDauLui: IViewSvBatDauLuiResponse | null = {};
   svChuanBiTiếpTheo: IViewSvDangTraoBang | null = {};
+  tienDo: IViewTienDoTraoBang = { tienDo: '' };
 
   //isLockNextTraoBang: boolean = false;
   isLoadingNext: boolean = false;
@@ -201,9 +202,26 @@ export class McScreen extends BaseComponent implements OnDestroy {
           } else {
             this.isViewingSvBatDauLui = true;
           }
-        }
+            this._svTraoBangService.getCurrentSubPlanById(this.idSubPlan).subscribe({
+              next: res => {
+                if (this.isResponseSucceed(res)) {
+            this.currentSubPlanInfo = res.data
+          }
+            
       }
-    });
+    })
+             this._svTraoBangService.getTienDoTraoBang().subscribe({
+              next: (res) => {
+                if (this.isResponseSucceed(res)) {
+            this.tienDo = res.data;
+            const data = [...this.listSubPlan]
+            this.listSubPlan = data;
+          }
+          }
+        })
+  }
+  }
+  });
 }
   onClickPrevTraoBang(event: any) {
     event?.target?.blur();

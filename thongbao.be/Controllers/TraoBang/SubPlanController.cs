@@ -454,7 +454,7 @@ namespace thongbao.be.Controllers.TraoBang
         }
 
         [Permission(PermissionKeys.SubPlanView)]
-        [HttpGet("{idSubPlan}/infor-sinh-vien-prev")]
+        [HttpPost("{idSubPlan}/infor-sinh-vien-prev")]
         public async Task<ApiResponse> GetInforSinhVienPrev([FromRoute] int idSubPlan)
         {
             try
