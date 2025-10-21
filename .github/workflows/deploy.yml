@@ -16,4 +16,7 @@ jobs:
 
       - name: Deploy code
         run: |
-          pwd
+          git pull origin dev
+          cp -R ./* ~/smsdev/code
+          cd ~/smsdev/code
+          sudo docker compose up -d --build
