@@ -195,16 +195,28 @@ namespace thongbao.be.Controllers.DanhBa
 
         [Permission(PermissionKeys.DanhBaImport)]
         [HttpPost("verify-import-danh-ba-chien-dich")]
-        public async Task<ApiResponse> VerifyImportDanhBaChienDich([FromForm] ImportAppendDanhBaChienDichDto dto)
+        public async Task<IActionResult> VerifyImportDanhBaChienDich([FromForm] ImportAppendDanhBaChienDichDto dto)
         {
             try
             {
                 var data = await _danhBaService.VerifyImportDanhBaChienDich(dto);
-                return new(data);
+
+                if (data.FileFailed != null)
+                {
+                    var memoryStream = new MemoryStream();
+                    await data.FileFailed.CopyToAsync(memoryStream);
+                    memoryStream.Position = 0;
+
+                    return File(memoryStream,
+                               data.FileFailed.ContentType,
+                               data.FileFailed.FileName);
+                }
+
+                return Ok(new ApiResponse(data));
             }
             catch (Exception ex)
             {
-                return OkException(ex);
+                return Ok(OkException(ex));
             }
         }
 
