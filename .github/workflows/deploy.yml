@@ -1,0 +1,19 @@
+name: Deploy doc5s Staging
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, x64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          clean: false  # Prevents deletion of untracked files
+
+      - name: Deploy code
+        run: |
+          pwd
