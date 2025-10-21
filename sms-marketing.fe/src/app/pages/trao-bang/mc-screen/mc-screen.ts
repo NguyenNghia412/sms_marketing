@@ -30,23 +30,27 @@ export class McScreen extends BaseComponent implements OnDestroy {
   svDangTrao: IViewSvDangTraoBang | null = {};
   svChuanBi: IViewSvDangTraoBang | null = {};
 
-  isLockNextTraoBang: boolean = false;
+  //isLockNextTraoBang: boolean = false;
+  isLoadingNext: boolean = false;
+  isLoadingPrev: boolean = false;
+  
 
-  countDown = 5;
+  countDown = 0;
   timeLeft = 0;
 
   override ngOnInit(): void {
     this.initData();
     this.connectHub();
     this.removeListener = this.renderer.listen('document', 'keydown', (event: KeyboardEvent) => {
-      if (event.key === 'Enter') {
-        this.onClickNextTraoBang();
-        console.log('enter')
-      }
       if (event.key === 'Enter' && event.shiftKey) {
         this.prevTraoBang();
         console.log('shift enter')
       }
+      if (event.key === 'Enter') {
+        this.onClickNextTraoBang();
+        console.log('enter')
+      }
+      
     });
 
   }
@@ -131,11 +135,14 @@ export class McScreen extends BaseComponent implements OnDestroy {
 
   onClickNextTraoBang() {
 
-    if (this.isLockNextTraoBang) {
+    //if (this.isLockNextTraoBang) {
+      //return;
+    //}
+    if (this.isLoadingNext || this.isLoadingPrev) {
       return;
     }
 
-    this.isLockNextTraoBang = true;
+    this.isLoadingNext = true;
 
     this._svTraoBangService.nextSvNhanBang(this.idSubPlan).subscribe({
       next: res => {
@@ -148,7 +155,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
           this.listSubPlan = data;
         }
       },
-    }).add(() => {
+    })/*.add(() => {
       this.timeLeft = this.countDown;
       const x = setInterval(() => {
         this.timeLeft -=1
@@ -159,7 +166,10 @@ export class McScreen extends BaseComponent implements OnDestroy {
       setTimeout(() => {
         this.isLockNextTraoBang = false;
       }, this.countDown * 1000);
-    });
+    });*/
+                .add(() => {
+                this.isLoadingNext = false;
+            });
   }
 
   onClickPrevTraoBang(event: any) {
@@ -168,6 +178,10 @@ export class McScreen extends BaseComponent implements OnDestroy {
   }
 
   prevTraoBang() {
+    if (this.isLoadingPrev || this.isLoadingNext) {
+      return;
+    }
+    this.isLoadingPrev = true;
     this._svTraoBangService.prevSvNhanBang(this.idSubPlan).subscribe({
       next: res => {
         if (this.isResponseSucceed(res)) {
@@ -179,7 +193,9 @@ export class McScreen extends BaseComponent implements OnDestroy {
           this.listSubPlan = data;
         }
       }
-    })
+    }).add(() => {
+      this.isLoadingPrev = false;
+    });
   }
 
   connectHub() {

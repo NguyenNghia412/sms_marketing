@@ -18,10 +18,10 @@ export type IViewRowChienDich = {
   trangThai?: boolean
   soLuongThueBao?: number
   soLuongSmsDaGuiThanhCong?: number
-  soLuongSmsDaGuiThatBai?: number
+  soLuongSmsDaGuiThatBai ?: number
   createdDate?: string
 }
-export type IViewChienDichCreatedBy ={
+export type IViewChienDichCreatedBy = {
   id?: number
   fullName?: string
 }
