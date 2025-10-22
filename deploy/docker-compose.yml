@@ -22,4 +22,4 @@ services:
       - "8100:8080"
     restart: unless-stopped
     environment:
-      - DOTNET_ENVIRONMENT=${APP_API_ENV}
+      - DOTNET_ENVIRONMENT=${APP_BE_ENV}
