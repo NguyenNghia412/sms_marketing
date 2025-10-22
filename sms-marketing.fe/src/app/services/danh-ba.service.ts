@@ -1,7 +1,8 @@
 import { GetFileExcelInforResponseDto, GetTruongDataDanhBaSmsResponse, ICreateDanhBa, ICreateDanhBaChienDichQuick, ICreateDanhBaSmsQuick, IFindPagingDanhBa, IFindPagingNguoiNhan, IGetExcelInfor, IImportCreateDanhBa, IUpdateDanhBa, IUploadFileImportDanhBa, IVerifyImportCreateDanhBa, IVerifyImportDanhBa, IViewRowDanhBa, IViewRowNguoiNhan, IViewVerifyImportDanhBa } from '@/models/danh-ba.models';
 import { IBaseResponse, IBaseResponseWithData, IBaseResponsePaging } from '@/shared/models/request-paging.base.models';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -65,7 +66,7 @@ export class DanhBaService {
             });
     }
 
-    verifyFileImport(body: IVerifyImportDanhBa) {
+    verifyFileImport(body: IVerifyImportDanhBa): Observable<HttpResponse<Blob>> {
         const uri = `${this.api}/verify-import-danh-ba-chien-dich`;
 
         const formData = new FormData();
@@ -77,7 +78,10 @@ export class DanhBaService {
         formData.append('SheetName', body.SheetName);
         formData.append('IdDanhBa', body.IdDanhBa.toString());
 
-        return this.http.post<IBaseResponseWithData<IViewVerifyImportDanhBa>>(uri, formData);
+        return this.http.post(uri, formData, {
+            observe: 'response',
+            responseType: 'blob'
+        });
     }
 
     uploadFileImport(body: IUploadFileImportDanhBa) {

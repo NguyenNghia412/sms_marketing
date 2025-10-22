@@ -47,6 +47,7 @@ export interface IVerifyImportDanhBa {
   IndexColumnHoTen : number,
   IndexColumnSoDienThoai: number,
 }
+
 export interface IVerifyImportCreateDanhBa {
   TenDanhBa: string,
   Mota: string,
@@ -62,8 +63,15 @@ export interface IImportCreateDanhBa extends IVerifyImportCreateDanhBa {}
 export interface IUploadFileImportDanhBa extends IVerifyImportDanhBa {}
 
 export interface IViewVerifyImportDanhBa {
+  fileFailed?: File,
   totalRowsImported: number,
   totalDataImported: number,
+}
+export interface IVerifyImportResponse {
+    isFile: boolean;
+    data?: IViewVerifyImportDanhBa;
+    file?: Blob;
+    fileName?: string;
 }
 
 export interface IFindPagingNguoiNhan extends IBaseRequestPaging {
