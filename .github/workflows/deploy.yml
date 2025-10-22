@@ -13,13 +13,13 @@ jobs:
         with:
           fetch-depth: 0
           clean: false  # Prevents deletion of untracked files
-
-      - name: Who am i
-        run: |
-          whoami
           
       - name: Deploy code
         run: |
           cp -R ./* ~/smsdev/code
           cd ~/smsdev/code
           docker compose -f ./deploy/docker-compose.yml up -d --build
+      
+      - name: Clean docker dangling data
+        run:
+          docker system prune -f
