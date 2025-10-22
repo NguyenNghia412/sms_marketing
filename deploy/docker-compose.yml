@@ -1,0 +1,25 @@
+version: '3.4'
+
+services:
+  sms.fe:
+    image: sms.fe.${APP_ENV}
+    container_name: sms.fe_c.${APP_ENV}
+    build:
+      context: ../sms-marketing.fe
+      dockerfile: Dockerfile
+      args:
+        APP_ENV: ${APP_FE_ENV}
+    ports:
+      - "4200:80"
+    restart: unless-stopped
+  sms.be:
+    image: sms.be.${APP_ENV}
+    container_name: sms.be_c.${APP_ENV}
+    build:
+      context: ../thongbao.be
+      dockerfile: Dockerfile
+    ports:
+      - "8100:8080"
+    restart: unless-stopped
+    environment:
+      - DOTNET_ENVIRONMENT=${APP_API_ENV}

@@ -1,3 +1,6 @@
+# Accept build-time variable
+ARG APP_ENV=development
+
 # Stage 1: Build Angular app
 FROM node:20-alpine AS build
 
@@ -6,8 +9,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
+ENV APP_ENV=$APP_ENV
 COPY . .
-RUN npm run build -- --configuration production
+RUN npm run build -- --configuration APP_ENV
 
 # Stage 2: Serve with Nginx
 FROM nginx:stable-alpine
