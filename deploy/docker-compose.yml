@@ -16,8 +16,8 @@ services:
     image: sms.be.${APP_ENV}
     container_name: sms.be_c.${APP_ENV}
     build:
-      context: ../thongbao.be
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: ./thongbao.be/Dockerfile
     ports:
       - "8100:8080"
     restart: unless-stopped
