@@ -9,9 +9,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
-ENV APP_ENV=$APP_ENV
+ARG APP_ENV
 COPY . .
-RUN npm run build -- --configuration APP_ENV
+RUN npm run build -- --configuration $APP_ENV
 
 # Stage 2: Serve with Nginx
 FROM nginx:stable-alpine
