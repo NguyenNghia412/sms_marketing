@@ -37,6 +37,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
   isLoadingNext: boolean = false;
   isLoadingPrev: boolean = false;
   isViewingSvBatDauLui: boolean = false;
+ isHiddenSvBatDauLuiButton: boolean = true;
   
 
   countDown = 0;
@@ -178,6 +179,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
   }
 
   onClickViewSinhVienBatDauLui() {
+  this.isHiddenSvBatDauLuiButton = true;
   this._svTraoBangService.getSvBatDauLui(this.idSubPlan)
     .subscribe({
       next: res => {
@@ -232,6 +234,7 @@ export class McScreen extends BaseComponent implements OnDestroy {
     if (this.isLoadingPrev || this.isLoadingNext) {
       return;
     }
+    this.isHiddenSvBatDauLuiButton = false;
     this.isLoadingPrev = true;
     this._svTraoBangService.prevSvNhanBang(this.idSubPlan).subscribe({
       next: res => {
