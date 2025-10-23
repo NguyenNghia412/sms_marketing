@@ -66,7 +66,7 @@ export class DanhBaService {
             });
     }
 
-    verifyFileImport(body: IVerifyImportDanhBa): Observable<HttpResponse<Blob>> {
+    verifyFileImport(body: IVerifyImportDanhBa){
         const uri = `${this.api}/verify-import-danh-ba-chien-dich`;
 
         const formData = new FormData();
@@ -78,10 +78,7 @@ export class DanhBaService {
         formData.append('SheetName', body.SheetName);
         formData.append('IdDanhBa', body.IdDanhBa.toString());
 
-        return this.http.post(uri, formData, {
-            observe: 'response',
-            responseType: 'blob'
-        });
+        return this.http.post<IBaseResponseWithData<IViewVerifyImportDanhBa>>(uri, formData);
     }
 
     uploadFileImport(body: IUploadFileImportDanhBa) {
@@ -114,6 +111,11 @@ export class DanhBaService {
 
         return this.http.post<IBaseResponseWithData<IViewVerifyImportDanhBa>>(uri, formData);
     }
+    downloadFileFailedCache(fileKey: string): Observable<HttpResponse<Blob>> {
+        const uri = `${this.api}/download-file-import-failed/${fileKey}`;
+        return this.http.get(uri, { observe: 'response', responseType: 'blob' });
+    }
+
     uploadFileImportGuiTinNhan(body: IImportCreateDanhBa) {
         const uri = `${this.api}/import-create-danh-ba-chien-dich`;
 

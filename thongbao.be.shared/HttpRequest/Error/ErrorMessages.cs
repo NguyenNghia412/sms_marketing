@@ -80,7 +80,8 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.TraoBangErrorSinhVienOrderInvalid, "Số thự tự của sinh viên không hợp lệ" },
             { ErrorCodes.TraoBangErrorSinhVienDaTonTaiTrongHangDoi,"Sinh viên nhận bằng đã tồn tại trong hàng đợi" },
             { ErrorCodes.TraoBangErrorSinhVienTraoBangNotFound,"Sinh viên đang trao bằng không tồn tại" },
-            { ErrorCodes.TraoBangErrorSinhVienTraoBangKhongThuocKhoaDangTrao,"Sinh viên đang quét không thuộc khoa đang trao bằng" }
+            { ErrorCodes.TraoBangErrorSinhVienTraoBangKhongThuocKhoaDangTrao,"Sinh viên đang quét không thuộc khoa đang trao bằng" },
+            { ErrorCodes.GuiTinNhanErrorNotEnoughBalance ,"Chi phí dự trù của chiến dịch đang vượt mức kinh phí cho phép.Xin vui lòng liên hệ với Admin System để biết thêm thông tin chi tiết " }
         };
 
         public static string GetMessage(int code)

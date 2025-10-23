@@ -63,17 +63,28 @@ export interface IImportCreateDanhBa extends IVerifyImportCreateDanhBa {}
 export interface IUploadFileImportDanhBa extends IVerifyImportDanhBa {}
 
 export interface IViewVerifyImportDanhBa {
-  fileFailed?: File,
+  //fileFailed?: File,
+  hasError?: boolean,
+  fileKey?: string,
+  data: ISoLuongLoi[],
   totalRowsImported: number,
   totalDataImported: number,
 }
 export interface IVerifyImportResponse {
-    isFile: boolean;
+    //isFile: boolean;
     data?: IViewVerifyImportDanhBa;
-    file?: Blob;
+    //file?: Blob;
     fileName?: string;
 }
-
+export interface ISoLuongLoi{
+  soLuongLoi?: number,
+  nguyenNhanLoi?: string,
+}
+export interface IFileFailedImportCache{
+  stream?: Blob,
+  fileName?: string,
+  contentType?: string,
+}
 export interface IFindPagingNguoiNhan extends IBaseRequestPaging {
   idDanhBa: number,
 }

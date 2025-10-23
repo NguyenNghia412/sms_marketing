@@ -14,6 +14,7 @@ using Google.Apis.Util.Store;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -45,17 +46,20 @@ namespace thongbao.be.application.DanhBa.Implements
                "https://www.googleapis.com/auth/drive.file",
                "https://www.googleapis.com/auth/spreadsheets"
         };*/
+        private readonly IMemoryCache _memoryCache;
         private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
         public DanhBaService(
             SmDbContext smDbContext,
             ILogger<DanhBaService> logger,
             IHttpContextAccessor httpContextAccessor,
             IMapper mapper,
-            IConfiguration configuration
+            IConfiguration configuration,
+            IMemoryCache memoryCache
         )
             : base(smDbContext, logger, httpContextAccessor, mapper)
         {
             _configuration = configuration;
+            _memoryCache = memoryCache; 
         }
 
 
@@ -1106,6 +1110,7 @@ namespace thongbao.be.application.DanhBa.Implements
             var existingMaSoSet = new HashSet<string>(existingSoDienThoai, StringComparer.OrdinalIgnoreCase);
             var newMaSoSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var errorRowIndices = new Dictionary<int, string>();
+            var errorCount = new Dictionary<string, int>();
 
             int totalRowsImported = 0;
             int totalDataImported = 0;
@@ -1124,13 +1129,17 @@ namespace thongbao.be.application.DanhBa.Implements
 
                 if (row.Count <= hoTenColumnIndex || string.IsNullOrWhiteSpace(row[hoTenColumnIndex]))
                 {
-                    errorRowIndices[rowIndex] = "Thiếu họ tên";
+                    var errorMsg = "Thiếu họ tên";
+                    errorRowIndices[rowIndex] = errorMsg;
+                    errorCount[errorMsg] = errorCount.GetValueOrDefault(errorMsg, 0) + 1;
                     continue;
                 }
 
                 if (row.Count <= soDienThoaiColumnIndex || string.IsNullOrWhiteSpace(row[soDienThoaiColumnIndex]))
                 {
-                    errorRowIndices[rowIndex] = "Thiếu số điện thoại";
+                    var errorMsg = "Thiếu số điện thoại";
+                    errorRowIndices[rowIndex] = errorMsg;
+                    errorCount[errorMsg] = errorCount.GetValueOrDefault(errorMsg, 0) + 1;
                     continue;
                 }
 
@@ -1144,13 +1153,17 @@ namespace thongbao.be.application.DanhBa.Implements
                     }
                     else
                     {
-                        errorRowIndices[rowIndex] = "Sai định dạng số điện thoại";
+                        var errorMsg = "Sai định dạng số điện thoại";
+                        errorRowIndices[rowIndex] = errorMsg;
+                        errorCount[errorMsg] = errorCount.GetValueOrDefault(errorMsg, 0) + 1;
                         continue;
                     }
                 }
                 if (!System.Text.RegularExpressions.Regex.IsMatch(phoneNumber, @"^\d{10}$"))
                 {
-                    errorRowIndices[rowIndex] = "Sai định dạng số điện thoại";
+                    var errorMsg = "Sai định dạng số điện thoại";
+                    errorRowIndices[rowIndex] = errorMsg;
+                    errorCount[errorMsg] = errorCount.GetValueOrDefault(errorMsg, 0) + 1;
                     continue;
                 }
 
@@ -1158,12 +1171,17 @@ namespace thongbao.be.application.DanhBa.Implements
 
                 if (existingMaSoSet.Contains(soDienThoai))
                 {
-                    errorRowIndices[rowIndex] = "Số điện thoại đã tồn tại trong danh bạ";
+                    var errorMsg = "Số điện thoại đã tồn tại trong danh bạ";
+                    errorRowIndices[rowIndex] = errorMsg;
+                    errorCount[errorMsg] = errorCount.GetValueOrDefault(errorMsg, 0) + 1;
                     continue;
                 }
                 if (newMaSoSet.Contains(soDienThoai))
                 {
-                    errorRowIndices[rowIndex] = "Trùng lặp số điện thoại";
+                    var errorMsg = "Trùng lặp số điện thoại";
+                    errorRowIndices[rowIndex] = errorMsg;
+                    errorCount[errorMsg] = errorCount.GetValueOrDefault(errorMsg, 0) + 1;
+                    continue;
                 }
                 else
                 {
@@ -1181,19 +1199,60 @@ namespace thongbao.be.application.DanhBa.Implements
                     }
                 }
             }
-            IFormFile fileFailed = null;
+
+            var loiList = errorCount.Select(x => new SoLuongLoiDto
+            {
+                NguyenNhanLoi = x.Key,
+                SoLuongLoi = x.Value
+            }).ToList();
+            string fileKey = null;
+
             if (errorRowIndices.Count > 0)
             {
-                fileFailed = await _createExcelFileImportChienDichFailedBySoDienThoaiDuplicate(dto.File, dto.SheetName, excelData, errorRowIndices);
+                var fileFailed = await _createExcelFileImportChienDichFailedBySoDienThoaiDuplicate(dto.File, dto.SheetName, excelData, errorRowIndices);
+
+                fileKey = $"import_failed_{currentUserId}_{Guid.NewGuid()}";
+
+                var memoryStream = new MemoryStream();
+                await fileFailed.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+
+                var cacheOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(30)); 
+
+                _memoryCache.Set(fileKey, new FileImportFailedCache
+                {
+                    Stream = memoryStream,
+                    FileName = fileFailed.FileName,
+                    ContentType = fileFailed.ContentType
+                }, cacheOptions);
             }
+
             return new VerifyImportDanhBaChienDichResponseDto
             {
-                FileFailed = fileFailed,
+                HasError = errorRowIndices.Count > 0,
+                FileKey = fileKey,
+                Data = loiList,
                 TotalRowsImported = totalRowsImported,
                 TotalDataImported = totalDataImported
             };
-        }
+        }                 
 
+        public async Task<FileImportFailedCache> GetFileImportFailed(string fileKey)
+        {
+            if (string.IsNullOrWhiteSpace(fileKey))
+            {
+                return null;
+            }
+
+            if (_memoryCache.TryGetValue(fileKey, out FileImportFailedCache cachedFile))
+            {
+                cachedFile.Stream.Position = 0; 
+                return cachedFile;
+            }
+
+            return null;
+        }
         private async Task<IFormFile> _createExcelFileImportChienDichFailedBySoDienThoaiDuplicate(IFormFile originalFile, string sheetName, List<List<string>> excelData, Dictionary<int, string> errorRowIndices)
         {
             using var originalStream = originalFile.OpenReadStream();

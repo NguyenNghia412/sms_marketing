@@ -21,12 +21,15 @@ using thongbao.be.infrastructure.data;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
 
+using thongbao.be.lib.Stringee.Interfaces;
+
 namespace thongbao.be.application.GuiTinNhan.Implements
 {
     public class GuiTinNhanJobService : BaseService, IGuiTinNhanJobService
     {
 
         private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IProfileService _profileService;
         private const int BATCH_SIZE = 1000;
         private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
@@ -35,9 +38,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             ILogger<GuiTinNhanJobService> logger,
             IHttpContextAccessor httpContextAccessor,
             IMapper mapper,
-            IBackgroundJobClient backgroundJobClient) : base(smDbContext, logger, httpContextAccessor, mapper)
+            IBackgroundJobClient backgroundJobClient,
+            IProfileService profileService) : base(smDbContext, logger, httpContextAccessor, mapper)
         {
             _backgroundJobClient = backgroundJobClient;
+            _profileService = profileService;
         }
 
         public async Task<List<object>> StartGuiTinNhanJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung)
@@ -49,7 +54,13 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 await SaveThongTinChienDich(idChienDich, idDanhBa.Value,  danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
             }
-
+            var estimatedAmount = await GetChiPhiDuTruChienDich(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
+            var profileInfo = await _profileService.GetProfileStringeeInfor();
+            var amount = Convert.ToInt32(profileInfo?.Data?.Amount ?? 0);
+            if(estimatedAmount > amount)
+            {
+               throw new UserFriendlyException(ErrorCodes.GuiTinNhanErrorNotEnoughBalance);
+            }
             var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
             return result;
         }
@@ -161,18 +172,19 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 };
             }
         }
-        public async Task<object> GetChiPhiDuTruChienDich(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool isFlashSms, bool isAccented, string noiDung)
+        public async Task<int> GetChiPhiDuTruChienDich(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung)
         {
             await ValidateInput(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, noiDung);
 
             var networkCosts = new Dictionary<string, decimal>
             {
-                ["Viettel"] = 800,
-                ["Mobifone"] = 800,
-                ["Vinaphone"] = 800,
-                ["Vietnamobile"] = 800,
-                ["Gmobile"] = 800
+                ["Viettel"] = 420,
+                ["Mobifone"] = 420,
+                ["Vinaphone"] = 4200,
+                ["Vietnamobile"] = 700,
+                ["Gmobile"] = 300
             };
+
 
             decimal totalCost = 0;
 
@@ -191,10 +203,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 foreach (var record in allRecords)
                 {
                     var userData = allUserData.Where(x => x.IdDanhBaChiTiet == record.Id).ToList();
-                    var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, isAccented);
+                    var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, IsAccented);
                     var formattedNumber = FormatPhoneNumber(record.SoDienThoai);
                     var network = GetNetworkByPhoneNumber(formattedNumber);
-                    var smsCount = CalculateSmsCount(personalizedText.Length, isAccented);
+                    var smsCount = CalculateSmsCount(personalizedText.Length, IsAccented);
 
                     if (networkCosts.ContainsKey(network))
                     {
@@ -205,14 +217,14 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             // Mode: List số điện thoại
             else
             {
-                var personalizedText = isAccented ? noiDung : RemoveAccents(noiDung);
+                var personalizedText = IsAccented ? noiDung : RemoveAccents(noiDung);
                 var length = personalizedText.Length;
 
                 foreach (var item in danhSachSoDienThoai)
                 {
                     var formattedNumber = FormatPhoneNumber(item.SoDienThoai);
                     var network = GetNetworkByPhoneNumber(formattedNumber);
-                    var smsCount = CalculateSmsCount(length, isAccented);
+                    var smsCount = CalculateSmsCount(length, IsAccented);
 
                     if (networkCosts.ContainsKey(network))
                     {
@@ -221,7 +233,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 }
             }
 
-            return new { TotalCost = totalCost };
+            return Convert.ToInt32(totalCost);
         }
         public async Task SendSmsLog(object smsResponse, int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool isAccented, string noiDung)
         {

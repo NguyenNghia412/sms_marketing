@@ -5,18 +5,18 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace thongbao.be.lib.CdsConnect.Dtos.Base
+namespace thongbao.be.lib.Stringee.Dtos.Base
 {
     public class Account
     {
         public int Id { get; set; }
         //public string AccountSid { get; set; } = String.Empty;
         //public string AccountKey { get; set; } = String.Empty;
-        public string FirstName { get; set; } = String.Empty;
-        public string LastName { get; set; } = String.Empty;
-        public string Email { get; set; } = String.Empty;
-        public string CountryNumber { get; set; } = String.Empty;
-        public string PhoneNumber { get; set; } = String.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string CountryNumber { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
 
         public decimal Amount { get; set; } 
     }

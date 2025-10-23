@@ -200,19 +200,26 @@ namespace thongbao.be.Controllers.DanhBa
             try
             {
                 var data = await _danhBaService.VerifyImportDanhBaChienDich(dto);
-
-                if (data.FileFailed != null)
-                {
-                    var memoryStream = new MemoryStream();
-                    await data.FileFailed.CopyToAsync(memoryStream);
-                    memoryStream.Position = 0;
-
-                    return File(memoryStream,
-                               data.FileFailed.ContentType,
-                               data.FileFailed.FileName);
-                }
-
                 return Ok(new ApiResponse(data));
+            }
+            catch (Exception ex)
+            {
+                return Ok(OkException(ex));
+            }
+        }
+
+        [Permission(PermissionKeys.DanhBaImport)]
+        [HttpGet("download-file-import-failed/{fileKey}")]
+        public async Task<IActionResult> DownloadFileImportFailed([FromRoute] string fileKey)
+        {
+            try
+            {
+                var fileResult = await _danhBaService.GetFileImportFailed(fileKey);
+
+
+                return File(fileResult.Stream,
+                           fileResult.ContentType,
+                           fileResult.FileName);
             }
             catch (Exception ex)
             {

@@ -9,8 +9,6 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
 import { Popover } from 'primeng/popover';
 import { ConfirmationService } from 'primeng/api';
-import { HttpResponse } from '@angular/common/http';
-
 
 @Component({
     selector: 'app-import',
@@ -35,7 +33,6 @@ export class Import extends BaseComponent {
         IndexColumnHoTen: new FormControl(null, [Validators.required]),
         IndexColumnSoDienThoai: new FormControl(null, [Validators.required])
     });
-    
 
     override ValidationMessages: Record<string, Record<string, string>> = {
         IndexRowStartImport: {
@@ -138,73 +135,138 @@ export class Import extends BaseComponent {
 
         this.loading = true;
         this._danhBaService.verifyFileImport(body).subscribe({
-            next: async (response: HttpResponse<Blob>) => {
-                const contentType = response.headers.get('content-type');
-                
-                if (contentType?.includes('application/json')) {
-                    const text = await response.body!.text();
-                    const jsonData = JSON.parse(text) as IBaseResponseWithData<IViewVerifyImportDanhBa>;
-                    
-                    if (this.isResponseSucceed(jsonData)) {
-                        this.confirmAction(
-                            {
-                                header: 'Tiếp tục import?',
-                                message: `Số dòng import: ${jsonData.data.totalRowsImported}; Số trường dữ liệu: ${jsonData.data.totalDataImported}`
-                            },
-                            () => {
-                                this.callApiImport();
-                            }
-                        );
-                    }
-                } else {
-                    const contentDisposition = response.headers.get('content-disposition');
-                    let fileName = 'file_loi.xlsx';
-                    
-                    if (contentDisposition) {
-                        const matches = /filename\*?=(?:UTF-8''|)([^;]+)/i.exec(contentDisposition);
-                        if (matches?.[1]) {
-                            fileName = decodeURIComponent(matches[1].trim().replace(/['"]/g, ''));
+            next: (value) => {
+                if (this.isResponseSucceed(value)) {
+                    if (value.data.fileKey) {
+                        this.showErrorFileDialog(value.data);
+                    } else {
+
+                        this.confirmService.confirm({
+                        header: 'Tiếp tục import?',
+                        message: `Số dòng import: ${value.data.totalRowsImported}; Số trường dữ liệu: ${value.data.totalDataImported}`,
+                        acceptLabel: 'Import',
+                        rejectLabel: 'Hủy',
+                        acceptIcon: 'pi pi-check',
+                        rejectIcon: 'pi pi-times',
+                        accept: () => {
+                          this.callApiImport();
                         }
-                    }
-                    
-                    this.showErrorFileDialog(response.body!, fileName);
+                    });
                 }
-            }
-        }).add(() => {
-            this.loading = false;
-        });
-    }
-
-    showErrorFileDialog(fileBlob: Blob, fileName: string) {
-        this.confirmService.confirm({
-            header: 'File import xuất hiện lỗi',
-            message: 'File import xuất hiện lỗi. Vui lòng tải về file và điều chỉnh lại.\n\nVẫn có thể tiếp tục import nhưng chúng tôi sẽ không chịu trách nhiệm nếu xảy ra bất kì lỗi ngoài ý muốn nào.',
-            acceptLabel: 'Import',
-            rejectLabel: 'Tải về file',
-            acceptIcon: 'pi pi-check',
-            rejectIcon: 'pi pi-download',
-            reject: () => {
-                this.downloadErrorFile(fileBlob, fileName);
+                }
             },
-            accept: () => {
-                this.callApiImport();
+            error: (err) => {
+                this.messageError(err?.message);
+            },
+            complete: () => {
+                this.loading = false;
             }
         });
-
-        setTimeout(() => {
-            this.disableDialogDrag();
-        }, 0);
     }
 
-    downloadErrorFile(fileBlob: Blob, fileName: string) {
-        const url = window.URL.createObjectURL(fileBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+  showErrorFileDialog(verifyData: IViewVerifyImportDanhBa) {
+    const errorList = verifyData.data.map(item => 
+        `• <strong>${item.nguyenNhanLoi}</strong>: ${item.soLuongLoi} bản ghi`
+    ).join('<br>');
+    
+    let shouldDownload = false;
+
+    const styleId = 'dialog-center-fix';
+    if (!document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+            .p-dialog {
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                margin: 0 !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    this.confirmService.confirm({
+        header: 'WARNING',
+        message: `File import xuất hiện lỗi:<br><br>${errorList}<br><br>Vui lòng tải về file và điều chỉnh lại.<br><br>Vẫn có thể tiếp tục import nhưng chúng tôi sẽ không chịu trách nhiệm nếu xảy ra bất kì lỗi ngoài ý muốn nào.`,
+        acceptLabel: 'Import',
+        rejectLabel: 'Tải về file',
+        acceptIcon: 'pi pi-check',
+        rejectIcon: 'pi pi-download',
+        reject: () => {
+            if (shouldDownload && verifyData.fileKey) {
+                this.downloadErrorFile(verifyData.fileKey);
+            }
+        },
+        accept: () => {
+            this.callApiImport();
+        }
+    });
+
+    setTimeout(() => {
+        const allDialogs = document.querySelectorAll('.p-dialog');
+        const confirmDialog = allDialogs[allDialogs.length - 1] as HTMLElement;
+        
+        if (!confirmDialog) return;
+        
+        const header = confirmDialog.querySelector('.p-dialog-header');
+        if (header?.textContent?.trim() !== 'WARNING') return;
+
+        const headerElement = confirmDialog.querySelector('.p-dialog-header') as HTMLElement;
+        if (headerElement) {
+            headerElement.style.cursor = 'default';
+            headerElement.onmousedown = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            };
+        }
+
+        const buttons = confirmDialog.querySelectorAll('button');
+        buttons.forEach(button => {
+            const buttonText = button.textContent?.trim();
+            if (buttonText === 'Tải về file') {
+                button.addEventListener('click', () => { shouldDownload = true; }, true);
+            }
+            if (button.classList.contains('p-dialog-header-close') || button.querySelector('.pi-times')) {
+                button.addEventListener('click', () => { shouldDownload = false; }, true);
+            }
+        });
+    }, 0);
+}
+    downloadErrorFile(fileKey: string) {
+        this.loading = true;
+        this._danhBaService.downloadFileFailedCache(fileKey).subscribe({
+            next: (response) => {
+                const contentDisposition = response.headers.get('content-disposition');
+                let fileName = 'file_loi.xlsx';
+
+                if (contentDisposition) {
+                    const matches = /filename\*?=(?:UTF-8''|)([^;]+)/i.exec(contentDisposition);
+                    if (matches?.[1]) {
+                        fileName = decodeURIComponent(matches[1].trim().replace(/['"]/g, ''));
+                    }
+                }
+
+                const blob = response.body!;
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                
+            },
+            error: (err) => {
+                this.messageError(err?.message || 'Không thể tải file');
+            },
+            complete: () => {
+                this.loading = false;
+            }
+        });
     }
 
     callApiImport() {
@@ -213,7 +275,7 @@ export class Import extends BaseComponent {
         this.loading = true;
         this._danhBaService.uploadFileImport(body).subscribe({
             next: (value) => {
-                if (this.isResponseSucceed(value)) {
+                if (this.isResponseSucceed(value, true, 'Import thành công')) {
                     this._ref.close(true);
                 }
             },

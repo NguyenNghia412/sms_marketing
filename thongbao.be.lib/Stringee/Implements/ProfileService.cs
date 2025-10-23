@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -9,10 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using thongbao.be.application.Base;
 using thongbao.be.infrastructure.data;
-using thongbao.be.lib.CdsConnect.Dtos.Base;
 using thongbao.be.lib.CdsConnect.Dtos.SvValidate;
+using thongbao.be.lib.Stringee.Dtos.Base;
 using thongbao.be.lib.Stringee.Interfaces;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
@@ -31,10 +30,9 @@ namespace thongbao.be.lib.Stringee.Implements
             SmDbContext smDbContext, 
             ILogger<BaseService> logger,
             IHttpContextAccessor httpContextAccessor,
-            IMapper mapper,
             IConfiguration configuration,
             IAuthService authService,
-            HttpClient httpClient): base(smDbContext, logger, httpContextAccessor, mapper)
+            HttpClient httpClient): base(smDbContext, logger, httpContextAccessor)
         {
             _configuration = configuration;
             _authService = authService;
