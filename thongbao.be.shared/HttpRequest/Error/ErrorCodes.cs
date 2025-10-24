@@ -39,6 +39,7 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int ChienDichErrorTrangThaiTrue = 304;
         public const int ChienDichErrorTrangThaiTrueCannotDelete = 305;
         public const int GuiTinNhanErrorNotEnoughBalance = 306;
+        public const int GuiTinNhanErrorSmsCountExceeded = 307;
 
 
 

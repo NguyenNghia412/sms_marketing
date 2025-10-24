@@ -37,10 +37,12 @@ export class DialogPreview extends BaseComponent {
 
     this.sendStatus = this.sendStatusList.sending;
     this._guiTinNhanService.sendSms(body).subscribe({
-      next: (res) => {
+     next: (res) => {
         if (this.isResponseSucceed(res, true, 'Đã đặt lệnh gửi')) {
           this.sendStatus = this.sendStatusList.success;
-          // this.router.navigate(['/channel/sms']);
+          setTimeout(() => {
+            this._ref.close('success');
+          }, 2000);
         } else {
           this.sendStatus = this.sendStatusList.error;
         }
@@ -51,6 +53,7 @@ export class DialogPreview extends BaseComponent {
       }
     });
   }
+
 
   onSubmit() {
     this.onSendSms();

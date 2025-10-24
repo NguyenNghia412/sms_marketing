@@ -29,8 +29,8 @@ using System.Text.Json;
                 _baseUrl = _configuration["Stringee:BaseUrl"] ?? "";
             }
 
-            public async Task<object> SendSmsAsync(List<object> smsMessages)
-            {
+        public async Task<object> SendSmsAsync(List<object> smsMessages)
+        {
                 if (smsMessages == null || !smsMessages.Any())
                 {
                     throw new UserFriendlyException(ErrorCodes.BadRequest);
@@ -61,5 +61,7 @@ using System.Text.Json;
 
                 return responseObject ?? "";
             }
-        }
+     
     }
+
+}

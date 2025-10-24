@@ -53,6 +53,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 CreatedDate = vietnamNow,
                 CreatedBy = currentUserId,
                 TrangThai = false,
+                IsAccented = true,
             };
 
             _smDbContext.ChienDiches.Add(chienDich);

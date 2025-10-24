@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.VariantTypes;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -16,12 +18,12 @@ using System.Threading.Tasks;
 using thongbao.be.application.Base;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.application.GuiTinNhan.Interfaces;
+using thongbao.be.domain.Auth;
 using thongbao.be.domain.GuiTinNhan;
 using thongbao.be.infrastructure.data;
+using thongbao.be.lib.Stringee.Interfaces;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
-
-using thongbao.be.lib.Stringee.Interfaces;
 
 namespace thongbao.be.application.GuiTinNhan.Implements
 {
@@ -30,6 +32,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IProfileService _profileService;
+        private readonly ISendSmsService _sendSmsService;
+        private readonly UserManager<AppUser> _userManager;
         private const int BATCH_SIZE = 1000;
         private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
@@ -39,17 +43,21 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             IHttpContextAccessor httpContextAccessor,
             IMapper mapper,
             IBackgroundJobClient backgroundJobClient,
+            ISendSmsService sendSmsService,
+            UserManager<AppUser> userManager,
             IProfileService profileService) : base(smDbContext, logger, httpContextAccessor, mapper)
         {
             _backgroundJobClient = backgroundJobClient;
             _profileService = profileService;
+            _userManager = userManager;
+            _sendSmsService = sendSmsService;
         }
 
         public async Task<List<object>> StartGuiTinNhanJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung)
         {
             await ValidateInput(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, noiDung);
             await ValidateChienDichChuaGui(idChienDich);
-
+            await ValidateSoLuongTinNhan(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
             if (idDanhBa.HasValue)
             {
                 await SaveThongTinChienDich(idChienDich, idDanhBa.Value,  danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
@@ -57,12 +65,47 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var estimatedAmount = await GetChiPhiDuTruChienDich(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
             var profileInfo = await _profileService.GetProfileStringeeInfor();
             var amount = Convert.ToInt32(profileInfo?.Data?.Amount ?? 0);
-            if(estimatedAmount > amount)
+            if (estimatedAmount > amount)
             {
-               throw new UserFriendlyException(ErrorCodes.GuiTinNhanErrorNotEnoughBalance);
+                await SendWarningToAdmin(idChienDich, estimatedAmount, amount);
+                throw new UserFriendlyException(ErrorCodes.GuiTinNhanErrorNotEnoughBalance);
             }
             var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
             return result;
+        }
+        private async Task SendWarningToAdmin(int idChienDich,int estimatedAmount,int amount)
+        {
+            _logger.LogInformation($"{nameof(SendWarningToAdmin)}");
+            var admins = await _userManager.GetUsersInRoleAsync("SuperAdmin");
+            var chienDich =  _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
+            var brandName = _smDbContext.BrandName.FirstOrDefault(x => x.TenBrandName == "HUCE" && !x.Deleted);
+            var idBrandName = brandName.Id;
+            var IsAccented = true;
+            var amountNeeded = estimatedAmount - amount;
+            var noiDung = $"Chiến dịch \"{chienDich.TenChienDich}\" yêu cầu vượt mức chi phí hiện có từ Stringee. Xin vui lòng chuyển khoản thêm vào tài khoản Stringee số tiền là {amountNeeded}VND để khách hàng thực hiện tiếp dịch vụ. Xin cảm ơn!";
+            var smsMessages = new List<object>();
+            foreach (var admin in admins)
+            {
+                if (!string.IsNullOrEmpty(admin.PhoneNumber))
+                {
+                    var formattedPhoneNumber = FormatPhoneNumber(admin.PhoneNumber);
+                    var smsObject = new
+                    {
+                        from = brandName.TenBrandName,
+                        to = formattedPhoneNumber,
+                        text = noiDung,
+                    };
+                    smsMessages.Add(smsObject);
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            if(smsMessages.Any())
+            {
+                await _sendSmsService.SendSmsAsync(smsMessages);
+            }
         }
         public async Task SaveThongTinChienDich(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int? idBrandName, bool IsFlashSms, bool IsAccented, string? noiDung)
         {
@@ -180,7 +223,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 ["Viettel"] = 420,
                 ["Mobifone"] = 420,
-                ["Vinaphone"] = 4200,
+                ["Vinaphone"] = 420,
                 ["Vietnamobile"] = 700,
                 ["Gmobile"] = 300
             };
@@ -211,6 +254,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     if (networkCosts.ContainsKey(network))
                     {
                         totalCost += networkCosts[network] * smsCount;
+                       
                     }
                 }
             }
@@ -229,11 +273,13 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     if (networkCosts.ContainsKey(network))
                     {
                         totalCost += networkCosts[network] * smsCount;
+                       
                     }
                 }
             }
 
             return Convert.ToInt32(totalCost);
+            
         }
         public async Task SendSmsLog(object smsResponse, int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool isAccented, string noiDung)
         {
@@ -555,6 +601,44 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 SoLuongNguoiNhan = soLuongNguoiNhan,
                 TongSoLuongTinNhan = tongSoLuongTinNhan
             };
+        }
+        private async Task ValidateSoLuongTinNhan(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung)
+        {
+            int maxSmsCount = IsAccented ? 402 : 612;
+
+            // Mode: Danh bạ
+            if (idDanhBa.HasValue)
+            {
+                var truongDataMapping = await GetTruongDataMapping(idDanhBa.Value);
+                var allRecords = await _smDbContext.DanhBaSms
+                    .Where(x => x.IdDanhBa == idDanhBa.Value && !x.Deleted)
+                    .Select(x => new { x.Id, x.SoDienThoai })
+                    .ToListAsync();
+
+                var recordIds = allRecords.Select(x => x.Id).ToList();
+                var allUserData = await GetDanhBaDataForBatch(recordIds, idChienDich);
+
+                foreach (var record in allRecords)
+                {
+                    var userData = allUserData.Where(x => x.IdDanhBaChiTiet == record.Id).ToList();
+                    var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, IsAccented);
+
+                    if (personalizedText.Length > maxSmsCount)
+                    {
+                        throw new UserFriendlyException(ErrorCodes.GuiTinNhanErrorSmsCountExceeded);
+                    }
+                }
+            }
+            // Mode: List số điện thoại
+            else
+            {
+                var personalizedText = IsAccented ? noiDung : RemoveAccents(noiDung);
+
+                if (personalizedText.Length > maxSmsCount)
+                {
+                    throw new UserFriendlyException(ErrorCodes.GuiTinNhanErrorSmsCountExceeded);
+                }
+            }
         }
         private async Task ValidateChienDichChuaGui(int idChienDich)
         {

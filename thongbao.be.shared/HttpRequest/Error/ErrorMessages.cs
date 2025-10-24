@@ -81,7 +81,8 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.TraoBangErrorSinhVienDaTonTaiTrongHangDoi,"Sinh viên nhận bằng đã tồn tại trong hàng đợi" },
             { ErrorCodes.TraoBangErrorSinhVienTraoBangNotFound,"Sinh viên đang trao bằng không tồn tại" },
             { ErrorCodes.TraoBangErrorSinhVienTraoBangKhongThuocKhoaDangTrao,"Sinh viên đang quét không thuộc khoa đang trao bằng" },
-            { ErrorCodes.GuiTinNhanErrorNotEnoughBalance ,"Chi phí dự trù của chiến dịch đang vượt mức kinh phí cho phép.Xin vui lòng liên hệ với Admin System để biết thêm thông tin chi tiết " }
+            { ErrorCodes.GuiTinNhanErrorNotEnoughBalance ,"Chi phí dự trù của chiến dịch đang vượt mức kinh phí cho phép.Xin vui lòng liên hệ với Admin System để biết thêm thông tin chi tiết " },
+            { ErrorCodes.GuiTinNhanErrorSmsCountExceeded, "Tin nhắn quá dài.Yêu cầu xóa bớt nội dung để quá trình gửi được hoàn tất.Xin cảm ơn!" }
         };
 
         public static string GetMessage(int code)

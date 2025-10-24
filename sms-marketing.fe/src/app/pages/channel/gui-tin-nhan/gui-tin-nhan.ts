@@ -1,5 +1,5 @@
 import { IViewRowDanhBa } from '@/models/danh-ba.models';
-import { IListSoDienThoai, IPreviewSendSms, ISaveConfigChienDich, ISendSms } from '@/models/gui-tin-nhan.models';
+import { IListSoDienThoai, IPreviewSendSms, ISaveConfigChienDich, ISendSms, IVerifySendSms } from '@/models/gui-tin-nhan.models';
 import { IViewBrandname } from '@/models/sms.models';
 import { ChienDichService } from '@/services/chien-dich.service';
 import { DanhBaService } from '@/services/danh-ba.service';
@@ -17,6 +17,7 @@ import { Import } from './import/import';
 import { CreateQuick } from './create-quick/create-quick';
 import { Menu } from 'primeng/menu';
 import { RadioButtonModule } from 'primeng/radiobutton';
+import { DialogPreview } from './dialog-preview/dialog-preview';
 
 @Component({
     selector: 'app-gui-tin-nhan',
@@ -184,10 +185,10 @@ export class GuiTinNhan extends BaseComponent {
             return;
         }
 
-        const body: ISendSms = {
+        const body: IVerifySendSms = {
             idChienDich: this.idChienDich,
             idBrandName: this.form.value.idBrandName,
-            isAccented: true,
+            isAccented: this.form.value.isAccented ?? true,
             noiDung: this.form.value.noiDung
         };
         if (this.nguoiNhanType === 'danhBa') {
@@ -203,26 +204,41 @@ export class GuiTinNhan extends BaseComponent {
         }
 
         this.loading = true;
-        this._guiTinNhanService.sendSms(body).subscribe({
+        this._guiTinNhanService.verifySendSms(body  ).subscribe({
             next: (res) => {
-                if (this.isResponseSucceed(res, true, 'Đã đặt lệnh gửi')) {
-                    this.router.navigate(['/channel/sms']);
-                }
-            }, 
-            error: (err) => {
-                this.messageError(err?.message);
-            },
-            complete: () => {
                 this.loading = false;
+                if (this.isResponseSucceed(res)) {
+                    const ref = this._dialogService.open(DialogPreview, {
+                        header: 'Xác nhận gửi tin nhắn',
+                        closable: true,
+                        modal: true,
+                        styleClass: 'w-[500px]',
+                        data: {
+                            verifyData: res.data,
+                            bodySendSms: body
+                        }
+                    });
+
+                    ref.onClose.subscribe((result) => {
+                        if (result === 'success') {
+                            this.router.navigate(['/channel/sms']);
+                        }
+                    });
+                }
+            },
+            error: (err) => {
+                this.loading = false;
+                this.messageError(err?.message);
             }
         });
     }
+
 
     onClickSave() {
         const body: ISaveConfigChienDich = {
             idChienDich: this.idChienDich,
             idBrandName: this.form.value.idBrandName,
-            isAccented: true,
+            isAccented: this.form.value.isAccented ?? true,
             noiDung: this.form.value.noiDung
         };
 
