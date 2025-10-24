@@ -26,6 +26,7 @@ export class DialogPreview extends BaseComponent {
   verifyData: IViewVerifySendSms = {};
   showMsg = true;
   sendStatus: string = this.sendStatusList.idle;
+  errorMessage: string = '';
 
   override ngOnInit(): void {
     this.sendStatus = this.sendStatusList.idle;
@@ -45,10 +46,12 @@ export class DialogPreview extends BaseComponent {
           }, 2000);
         } else {
           this.sendStatus = this.sendStatusList.error;
+          this.errorMessage = res?.message || 'Có lỗi xảy ra';
         }
       },
       error: (err) => {
-        this.messageError(err?.message);
+        this.errorMessage = err?.message || 'Có lỗi xảy ra';
+        this.messageError(this.errorMessage);
         this.sendStatus = this.sendStatusList.error;
       }
     });
@@ -57,5 +60,8 @@ export class DialogPreview extends BaseComponent {
 
   onSubmit() {
     this.onSendSms();
+  }
+  onClose() {
+    this._ref.close();
   }
 }

@@ -64,7 +64,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             }
             var estimatedAmount = await GetChiPhiDuTruChienDich(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
             var profileInfo = await _profileService.GetProfileStringeeInfor();
-            var amount = Convert.ToInt32(profileInfo?.Data?.Amount ?? 0);
+            var amount = Convert.ToInt32(profileInfo?.Data?.Amount ?? 0); 
             if (estimatedAmount > amount)
             {
                 await SendWarningToAdmin(idChienDich, estimatedAmount, amount);
@@ -82,7 +82,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var idBrandName = brandName.Id;
             var IsAccented = true;
             var amountNeeded = estimatedAmount - amount;
-            var noiDung = $"Chiến dịch \"{chienDich.TenChienDich}\" yêu cầu vượt mức chi phí hiện có từ Stringee. Xin vui lòng chuyển khoản thêm vào tài khoản Stringee số tiền là {amountNeeded}VND để khách hàng thực hiện tiếp dịch vụ. Xin cảm ơn!";
+            var noiDung = $"Chiến dịch \"{chienDich.TenChienDich}\" yêu cầu vượt mức chi phí hiện có từ Stringee. Xin vui lòng chuyển khoản thêm vào tài khoản Stringee số tiền là {amountNeeded:N0}VND để khách hàng thực hiện tiếp dịch vụ. Xin cảm ơn!";
             var smsMessages = new List<object>();
             foreach (var admin in admins)
             {
