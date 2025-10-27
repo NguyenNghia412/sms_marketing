@@ -8,7 +8,8 @@ namespace thongbao.be.shared.Constants.ToChuc
 {
     public static class ToChucConstants
     {
-        public const int NhanVien = 1;
-        public const int SinhVien = 2;
+        public const int DaiHocCongLap = 1;
+        public const int KhoaDaoTao = 2;
+        public const int PhongBan = 3;
     }
 }
