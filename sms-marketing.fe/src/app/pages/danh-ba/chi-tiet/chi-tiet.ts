@@ -49,10 +49,10 @@ export class ChiTiet extends BaseComponent {
     });
 
     columns: IColumn[] = [
-        { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
+        { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem', cellStyle: 'text-align:center' },
         //{ header: 'Mã số', field: 'maSoNguoiDung', headerContainerStyle: 'min-width: 10rem' },
-        { header: 'Họ tên', field: 'hoVaTen', headerContainerStyle: 'min-width: 10rem' },
-        { header: 'SĐT', field: 'soDienThoai', headerContainerStyle: 'min-width: 10rem' },
+        { header: 'Họ tên', field: 'hoVaTen', headerContainerStyle: 'min-width: 10rem', cellStyle: 'text-align:center' },
+        { header: 'SĐT', field: 'soDienThoai', headerContainerStyle: 'min-width: 10rem', cellStyle: 'text-align:center' },
         //{ header: 'Email', field: 'emailHuce', headerContainerStyle: 'min-width: 10rem' },
         { header: 'Thao tác', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
