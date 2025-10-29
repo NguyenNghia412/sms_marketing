@@ -1,117 +1,148 @@
-﻿using Microsoft.Extensions.Configuration;
-using System.Security.Cryptography;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
+using thongbao.be.infrastructure.data;
+using thongbao.be.lib.CdsConnect.Dtos.SvValidate;
+using thongbao.be.lib.Stringee.Dtos.Base;
 using thongbao.be.lib.Stringee.Interfaces;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
 
 namespace thongbao.be.lib.Stringee.Implements
 {
-    public class AuthService : IAuthService
+    public class ProfileService : BaseService, IProfileService
     {
         private readonly IConfiguration _configuration;
-        private readonly string? _apiSidKey;
-        private readonly string? _apiSecretKey;
-        private readonly string? _accountSidKey;
-        private readonly string? _accountSecretKey;
+        private readonly IAuthService _authService;
+        private readonly HttpClient _httpClient;
+        private readonly string _baseUrl;
+        private readonly string _exchangeApiUrl;
 
-        public AuthService(IConfiguration configuration)
+        public ProfileService(
+            SmDbContext smDbContext,
+            ILogger<BaseService> logger,
+            IHttpContextAccessor httpContextAccessor,
+            IConfiguration configuration,
+            IAuthService authService,
+            HttpClient httpClient) : base(smDbContext, logger, httpContextAccessor)
         {
             _configuration = configuration;
-            _apiSidKey = _configuration["Stringee:ApiSIDKey"];
-            _apiSecretKey = _configuration["Stringee:ApiSecretKey"];
-            _accountSidKey = _configuration["Stringee:AccountSIDKey"];
-            _accountSecretKey = _configuration["Stringee:AccountSecretKey"];
+            _authService = authService;
+            _httpClient = httpClient;
+            _baseUrl = _configuration["Stringee:ProfileBaseUrl"] ?? "";
+            _exchangeApiUrl = _configuration["ExchangeApi:Url"] ?? "";
+        }
 
+        public async Task<BaseResponseProfile?> GetProfileStringeeInfor()
+        {
+            var isSuperAdmin = IsSuperAdmin();
+            var jwtToken = await _authService.GenerateAccountJwtTokenAsync();
 
-            if (string.IsNullOrEmpty(_apiSidKey) || string.IsNullOrEmpty(_apiSecretKey) || string.IsNullOrEmpty(_accountSidKey) || string.IsNullOrEmpty(_accountSecretKey))
+            _logger.LogInformation($"[GetProfileStringeeInfor] START - IsSuperAdmin={isSuperAdmin}, URL={_baseUrl}");
+            _logger.LogInformation($"[GetProfileStringeeInfor] Token Generated: {jwtToken}");
+
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("X-STRINGEE-AUTH", jwtToken);
+
+            _logger.LogInformation($"[GetProfileStringeeInfor] Sending request to Stringee API...");
+
+            var response = await httpClient.GetAsync(_baseUrl);
+
+            _logger.LogInformation($"[GetProfileStringeeInfor] Response received: StatusCode={response.StatusCode}");
+
+            if (!response.IsSuccessStatusCode)
             {
-                throw new UserFriendlyException(ErrorCodes.System);
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError($"[GetProfileStringeeInfor] FAILED - StatusCode={response.StatusCode}, ErrorResponse={errorContent}");
+                throw new UserFriendlyException(ErrorCodes.InternalServerError);
+            }
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            _logger.LogInformation($"[GetProfileStringeeInfor] Success Response: {responseContent}");
+
+            var jsonResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
+            var account = jsonResponse.GetProperty("account");
+            var amountUsd = decimal.Parse(account.GetProperty("amount").GetString() ?? "0",
+                           CultureInfo.InvariantCulture);
+
+            if (isSuperAdmin)
+            {
+                var vndRate = await GetExchangeRate();
+                var amount = amountUsd * Convert.ToDecimal(vndRate.ExchangeRate);
+
+                _logger.LogInformation($"[GetProfileStringeeInfor] Calculated Amount: USD={amountUsd}, VND={amount}, Rate={vndRate.ExchangeRate}");
+
+                return new BaseResponseProfile
+                {
+                    Code = jsonResponse.GetProperty("r").GetInt32(),
+                    Data = new Account
+                    {
+                        Id = account.GetProperty("id").GetInt32(),
+                        FirstName = account.GetProperty("firstname").GetString() ?? "",
+                        LastName = account.GetProperty("lastname").GetString() ?? "",
+                        Email = account.GetProperty("email").GetString() ?? "",
+                        PhoneNumber = account.GetProperty("phone_number").GetString() ?? "",
+                        CountryNumber = account.GetProperty("country_number").GetString() ?? "",
+                        Amount = amount,
+                    }
+                };
+            }
+            else
+            {
+                _logger.LogWarning($"[GetProfileStringeeInfor] User is not SuperAdmin, returning null");
+                return null;
             }
         }
 
-        public async Task<string> GenerateJwtTokenAsync(int expirationInMinutes = 60)
+        public async Task<ResponseGetExchangeApiDto?> GetExchangeRate()
         {
-            var now = DateTimeOffset.UtcNow;
-            var expiration = now.AddMinutes(expirationInMinutes).ToUnixTimeSeconds();
-            var timestamp = now.ToUnixTimeSeconds();
-            var jti = $"{_apiSidKey}_{timestamp}";
+            var isSuperAdmin = IsSuperAdmin();
 
-            var header = new
+            _logger.LogInformation($"[GetExchangeRate] START - IsSuperAdmin={isSuperAdmin}, URL={_exchangeApiUrl}");
+
+            using var httpClient = new HttpClient();
+
+            var response = await httpClient.GetAsync(_exchangeApiUrl);
+
+            _logger.LogInformation($"[GetExchangeRate] Response received: StatusCode={response.StatusCode}");
+
+            if (!response.IsSuccessStatusCode)
             {
-                typ = "JWT",
-                alg = "HS256",
-                cty = "stringee-api;v=1"
-            };
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError($"[GetExchangeRate] FAILED - StatusCode={response.StatusCode}, ErrorResponse={errorContent}");
+                throw new UserFriendlyException(ErrorCodes.InternalServerError);
+            }
 
-            var payload = new
+            var responseContent = await response.Content.ReadAsStringAsync();
+            _logger.LogInformation($"[GetExchangeRate] Success Response: {responseContent}");
+
+            var jsonResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
+            var date = jsonResponse.GetProperty("date").GetDateTime();
+            var exchangeRate = jsonResponse.GetProperty("usd");
+            var vndRate = exchangeRate.GetProperty("vnd").GetDouble();
+
+            if (isSuperAdmin)
             {
-                jti = jti,
-                iss = _apiSidKey,
-                exp = expiration,
-                rest_api = true
-            };
+                _logger.LogInformation($"[GetExchangeRate] SUCCESS - Date={date}, VNDRate={vndRate}");
 
-            var headerJson = JsonSerializer.Serialize(header);
-            var payloadJson = JsonSerializer.Serialize(payload);
-
-            var headerEncoded = Base64UrlEncode(Encoding.UTF8.GetBytes(headerJson));
-            var payloadEncoded = Base64UrlEncode(Encoding.UTF8.GetBytes(payloadJson));
-
-            var message = $"{headerEncoded}.{payloadEncoded}";
-            var signature = CreateHmacSha256Signature(message, _apiSecretKey ?? "");
-            var signatureEncoded = Base64UrlEncode(signature);
-
-            var jwt = $"{headerEncoded}.{payloadEncoded}.{signatureEncoded}";
-
-            return await Task.FromResult(jwt);
-        }
-        public async Task<string> GenerateAccountJwtTokenAsync(int expirationInMinutes = 60)
-        {
-            var now = DateTimeOffset.UtcNow;
-            var expiration = now.AddMinutes(expirationInMinutes).ToUnixTimeSeconds();
-            var timestamp = now.ToUnixTimeSeconds();
-            var jti = $"{_accountSidKey}_{timestamp}";
-            var header = new
+                return new ResponseGetExchangeApiDto
+                {
+                    Date = date,
+                    ExchangeRate = vndRate
+                };
+            }
+            else
             {
-                typ = "JWT",
-                alg = "HS256",
-                cty = "stringee-api;v=1"
-            };
-            var payload = new
-            {
-                jti = jti,
-                iss = _accountSidKey,
-                exp = expiration,
-                rest_api = true
-            };
-            var headerJson = JsonSerializer.Serialize(header);
-            var payloadJson = JsonSerializer.Serialize(payload);
-            var headerEncoded = Base64UrlEncode(Encoding.UTF8.GetBytes(headerJson));
-            var payloadEncoded = Base64UrlEncode(Encoding.UTF8.GetBytes(payloadJson));
-            var message = $"{headerEncoded}.{payloadEncoded}";
-            var signature = CreateHmacSha256Signature(message, _accountSecretKey ?? "");
-            var signatureEncoded = Base64UrlEncode(signature);
-            var jwt = $"{headerEncoded}.{payloadEncoded}.{signatureEncoded}";
-            return await Task.FromResult(jwt);
-        }
-
-        private byte[] CreateHmacSha256Signature(string message, string secret)
-        {
-            var keyBytes = Encoding.UTF8.GetBytes(secret);
-            var messageBytes = Encoding.UTF8.GetBytes(message);
-
-            using var hmac = new HMACSHA256(keyBytes);
-            return hmac.ComputeHash(messageBytes);
-        }
-
-        private string Base64UrlEncode(byte[] input)
-        {
-            var base64 = Convert.ToBase64String(input);
-            return base64.Replace('+', '-')
-                        .Replace('/', '_')
-                        .Replace("=", "");
+                _logger.LogWarning($"[GetExchangeRate] User is not SuperAdmin, returning null");
+                return null;
+            }
         }
     }
 }
