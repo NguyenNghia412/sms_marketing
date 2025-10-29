@@ -26,11 +26,11 @@ export class DsDanhBa extends BaseComponent {
     });
 
     columns: IColumn[] = [
-        { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
+        { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem', cellStyle: 'text-align:center' },
         { header: 'Tên danh bạ', field: 'tenDanhBa', headerContainerStyle: 'min-width: 10rem',cellClass: 'cursor-pointer text-blue-600 hover:text-blue-800 hover:underline',clickable: true  },
         { header: 'Mô tả', field: 'mota', headerContainerStyle: 'min-width: 20rem' },
-        { header: 'Số người nhận', field: 'soLuongNguoiNhan', headerContainerStyle: 'min-width: 5rem' },
-        { header: 'Thời gian tạo', field: 'createdDate',headerContainerStyle: 'width: 15rem' , cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
+        { header: 'Số người nhận', field: 'soLuongNguoiNhan', headerContainerStyle: 'min-width: 5rem', cellStyle: 'text-align:center' },
+        { header: 'Thời gian tạo', field: 'createdDate',headerContainerStyle: 'width: 15rem' , cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss', cellStyle: 'text-align:center' },
         { header: 'Thao tác', headerContainerStyle: 'width: 5rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 

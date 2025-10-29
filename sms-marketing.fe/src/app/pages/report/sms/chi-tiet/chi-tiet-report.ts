@@ -46,7 +46,7 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
         { header: 'Nội dung chi tiết', field: 'log.noiDungChiTiet', headerContainerStyle: 'min-width: 20rem' },
         { header: 'Chi Phí', field: 'gia', headerContainerStyle: 'min-width: 6rem' },
         { header: 'Message', field: 'messageText', headerContainerStyle: 'min-width: 8rem' },
-        { header: 'Thời gian gửi', field: 'ngayGui', headerContainerStyle: 'width: 20rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
+        { header: 'Thời gian gửi', field: 'ngayGui', headerContainerStyle: 'width: 20rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss' },
     ];
 
     data: IViewChiTietChienDichReport[] = [];
