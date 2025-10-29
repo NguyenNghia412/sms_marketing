@@ -42,7 +42,6 @@ namespace thongbao.be.lib.Stringee.Implements
         public async Task<BaseResponseProfile?> GetProfileStringeeInfor()
         {
 
-            var isSuperAdmin = IsSuperAdmin();
             var jwtToken = await _authService.GenerateAccountJwtTokenAsync();
 
             _logger.LogInformation($"[TOKEN_ACCOUNT_DEBUG] {jwtToken}");
@@ -64,12 +63,11 @@ namespace thongbao.be.lib.Stringee.Implements
                            CultureInfo.InvariantCulture);
 
 
-            if (isSuperAdmin)
+         
+            var vndRate = await GetExchangeRate();
+            var amount = amountUsd * Convert.ToDecimal(vndRate.ExchangeRate);
+            return new BaseResponseProfile
             {
-                var vndRate = await GetExchangeRate();
-                var amount = amountUsd * Convert.ToDecimal(vndRate.ExchangeRate);
-                return new BaseResponseProfile
-                {
                     Code = jsonResponse.GetProperty("r").GetInt32(),
                     Data = new Account
                     {
@@ -81,16 +79,13 @@ namespace thongbao.be.lib.Stringee.Implements
                         CountryNumber = account.GetProperty("country_number").GetString() ?? "",
                         Amount = amount,
                     }
-                };
-            }
-            else
-            {
-                return null;
-            }
+            };
         }
+          
+        
         public async Task<ResponseGetExchangeApiDto?> GetExchangeRate()
         {
-            var isSuperAdmin = IsSuperAdmin();
+           
             using var httpClient = new HttpClient();
             var response = await httpClient.GetAsync(_exchangeApiUrl);
             if (!response.IsSuccessStatusCode)
@@ -104,19 +99,14 @@ namespace thongbao.be.lib.Stringee.Implements
             var date = jsonResponse.GetProperty("date").GetDateTime();
             var exchangeRate = jsonResponse.GetProperty("usd");
             var vndRate = exchangeRate.GetProperty("vnd").GetDouble();
-            if (isSuperAdmin)
+            
+            return new ResponseGetExchangeApiDto
             {
-                return new ResponseGetExchangeApiDto
-                {
                     Date = date,
                     ExchangeRate = vndRate
-                };
-            }
-            else
-            {
-                return null;
-            }
-
+            };
         }
+    
+
     }
 }
