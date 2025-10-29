@@ -75,7 +75,7 @@
                     <label for="noiDung" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Nội dung
                         tin nhắn <span class="text-red-500">*</span></label>
                     <textarea pTextarea #messageInput formControlName="noiDung" id="noiDung" type="text"
-                        class="w-full mb-2" rows="8"></textarea>
+                        class="w-full mb-2 leading-relaxed" rows="8"></textarea>
                     @if (form.get('noiDung')?.hasError('required') && form.get('noiDung')?.touched) {
                     <p-message severity="error" variant="simple" size="small">{{ getError('noiDung') }} </p-message>
                     }
