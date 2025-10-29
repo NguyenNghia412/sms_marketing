@@ -298,7 +298,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 TenChienDich = chienDichGoc.TenChienDich,
                 MoTa = chienDichGoc.MoTa,
-                NgayBatDau = chienDichGoc.NgayBatDau,
+                NgayBatDau = vietnamNow,
                 NgayKetThuc = chienDichGoc.NgayKetThuc,
                 IsFlashSms = chienDichGoc.IsFlashSms,
                 IdBrandName = chienDichGoc.IdBrandName,
