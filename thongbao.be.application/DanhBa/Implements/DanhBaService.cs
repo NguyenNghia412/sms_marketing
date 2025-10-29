@@ -1530,7 +1530,7 @@ namespace thongbao.be.application.DanhBa.Implements
                         var headerName = headerRow[colIndex]?.Trim();
                         if (string.IsNullOrWhiteSpace(headerName)) continue;
 
-                        var cellValue = row[colIndex]?.Trim() ?? "";
+                        var cellValue = row[colIndex] ?? "";
                         pendingDanhBaDataMappings.Add((key, headerName, cellValue));
                     }
                 }
@@ -1978,7 +1978,7 @@ namespace thongbao.be.application.DanhBa.Implements
                         var headerName = headerRow[colIndex]?.Trim();
                         if (string.IsNullOrWhiteSpace(headerName)) continue;
 
-                        var cellValue = row[colIndex]?.Trim() ?? "";
+                        var cellValue = row[colIndex] ?? "";
                         pendingDanhBaDataMappings.Add((soDienThoai, headerName, cellValue));
                     }
                 }
@@ -2618,7 +2618,6 @@ namespace thongbao.be.application.DanhBa.Implements
         private async Task<List<List<string>>> _readExcelFile(IFormFile file, string sheetName)
         {
             var result = new List<List<string>>();
-
             using var stream = new MemoryStream();
             await file.CopyToAsync(stream);
             stream.Position = 0;
@@ -2648,15 +2647,12 @@ namespace thongbao.be.application.DanhBa.Implements
                     var cellValue = string.Empty;
                     if (!cell.IsEmpty())
                     {
-                        cellValue = cell.GetValue<string>();
+                        cellValue = cell.GetFormattedString();
                     }
-
                     rowData.Add(cellValue);
                 }
-
                 result.Add(rowData);
             }
-
             return result;
         }
 
