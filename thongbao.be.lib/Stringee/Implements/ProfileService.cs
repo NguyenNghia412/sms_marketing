@@ -44,7 +44,9 @@ namespace thongbao.be.lib.Stringee.Implements
 
             var isSuperAdmin = IsSuperAdmin();
             var jwtToken = await _authService.GenerateAccountJwtTokenAsync();
-            // var httpContent = new StringContent("application/json");
+
+            _logger.LogInformation($"[TOKEN_DEBUG] {jwtToken}");
+
             using var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("X-STRINGEE-AUTH", jwtToken);
             var response = await httpClient.GetAsync(_baseUrl);
@@ -68,7 +70,6 @@ namespace thongbao.be.lib.Stringee.Implements
                 return new BaseResponseProfile
                 {
                     Code = jsonResponse.GetProperty("r").GetInt32(),
-                    //Message = response.Message,
                     Data = new Account
                     {
                         Id = account.GetProperty("id").GetInt32(),
