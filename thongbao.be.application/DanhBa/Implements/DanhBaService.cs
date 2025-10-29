@@ -174,6 +174,23 @@ namespace thongbao.be.application.DanhBa.Implements
                         select dbct;
             var data = query.Paging(dto).ToList();
             var items = _mapper.Map<List<ViewDanhBaChiTietDto>>(data);
+
+            var idDanhBaChiTiets = items.Select(x => x.Id).ToList();
+            var danhBaTruongDatas = _smDbContext.DanhBaTruongDatas.Where(x => x.IdDanhBa == idDanhBa && !x.Deleted).ToList();
+            var danhBaDatas = _smDbContext.DanhBaDatas.Where(x => idDanhBaChiTiets.Contains(x.IdDanhBaChiTiet) && !x.Deleted).ToList();
+
+            foreach (var item in items)
+            {
+                item.Items = danhBaTruongDatas.Select(truong => new ViewDanhBaChiTietTruongDto
+                {
+                    Id = truong.Id,
+                    TenTruong = truong.TenTruong,
+                    Data = danhBaDatas.Where(d => d.IdTruongData == truong.Id && d.IdDanhBaChiTiet == item.Id)
+                                      .Select(d => new ViewDanhBaChiTietDataDto { Id = d.Id, Data = d.Data })
+                                      .FirstOrDefault()
+                }).ToList();
+            }
+
             var response = new BaseResponsePagingDto<ViewDanhBaChiTietDto>
             {
                 Items = items,
