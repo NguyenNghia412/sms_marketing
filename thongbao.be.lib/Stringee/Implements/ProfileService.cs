@@ -45,7 +45,8 @@ namespace thongbao.be.lib.Stringee.Implements
             var isSuperAdmin = IsSuperAdmin();
             var jwtToken = await _authService.GenerateAccountJwtTokenAsync();
 
-            _logger.LogInformation($"[TOKEN_DEBUG] {jwtToken}");
+            _logger.LogInformation($"[TOKEN_ACCOUNT_DEBUG] {jwtToken}");
+            
 
             using var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("X-STRINGEE-AUTH", jwtToken);
