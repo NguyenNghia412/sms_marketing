@@ -1,5 +1,5 @@
 import { IViewRowDanhBa } from '@/models/danh-ba.models';
-import { IListSoDienThoai, IPreviewSendSms, ISaveConfigChienDich, ISendSms, IVerifySendSms } from '@/models/gui-tin-nhan.models';
+import { ISaveConfigChienDich, IVerifySendSms } from '@/models/gui-tin-nhan.models';
 import { IViewBrandname } from '@/models/sms.models';
 import { ChienDichService } from '@/services/chien-dich.service';
 import { DanhBaService } from '@/services/danh-ba.service';
@@ -7,15 +7,13 @@ import { GuiTinNhanService } from '@/services/gui-tin-nhan.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { Breadcrumb } from '@/shared/components/breadcrumb/breadcrumb';
 import { SharedImports } from '@/shared/import.shared';
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { MobilePreview } from './mobile-preview/mobile-preview';
 import { ChipModule } from 'primeng/chip';
-import { DialogService } from 'primeng/dynamicdialog';
 import { Import } from './import/import';
 import { CreateQuick } from './create-quick/create-quick';
-import { Menu } from 'primeng/menu';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { DialogPreview } from './dialog-preview/dialog-preview';
 

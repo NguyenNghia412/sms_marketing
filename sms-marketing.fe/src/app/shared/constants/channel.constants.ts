@@ -2,9 +2,14 @@ export class CampaginStatuses {
     static CHUA_GUI = 1;
     static DA_GUI = 2;
     static List = [
-        { name: 'Chưa gửi', code: this.CHUA_GUI },
-        { name: 'Đã gửi', code: this.DA_GUI },
+        { name: 'Chưa gửi', code: this.CHUA_GUI, severity: 'secondary' },
+        { name: 'Đã gửi', code: this.DA_GUI, severity: 'success' },
     ];
+
+    static getSeverityByCode(code: number): string {
+        const status = this.List.find(s => s.code === code);
+        return status ? status.severity : 'default';
+    }
     
 }
 
