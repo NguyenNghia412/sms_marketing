@@ -284,9 +284,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         }
         public async Task SendSmsLog(object smsResponse, int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool isAccented, string noiDung)
         {
+            _logger.LogInformation($"{nameof(SendSmsLog)} - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
             try
             {
-                _logger.LogInformation($"{nameof(SendSmsLog)} - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
+
                 var isSuperAdmin = IsSuperAdmin();
                 var currentUserId = getCurrentUserId();
                 var responseJson = JObject.Parse(smsResponse.ToString());
