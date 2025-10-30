@@ -68,15 +68,22 @@ namespace thongbao.be.lib.Stringee.Implements
                 }
                 catch (JsonException ex)
                 {
-                    _logger.LogError($"JsonException - Cannot deserialize response. Error: {ex.Message}, Stringee Raw Response: {responseContent}");
+                    _logger.LogError($"[STRINGEE ERROR] JsonException - Cannot deserialize response. Error: {ex.Message}, Stringee Raw Response: {responseContent}");
 
-                    return new
+                    // Serialize error object thành JSON string để SendSmsLog có thể parse được
+                    var errorObject = new
                     {
                         stringeeError = responseContent,
                         statusCode = (int)response.StatusCode,
                         message = responseContent
                     };
+
+                    return JsonSerializer.Serialize(errorObject);
                 }
+            }
+            catch (UserFriendlyException)
+            {
+                throw;
             }
             catch (System.Exception ex)
             {
