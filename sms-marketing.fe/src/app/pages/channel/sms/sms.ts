@@ -52,7 +52,7 @@ export class Sms extends BaseComponent {
             }
         },
         //{ header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss' },
-        { header: 'Thời gian gửi', field: 'ngayBatDau', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss', cellStyle: 'text-align:center' },
+        { header: 'Thời gian tạo', field: 'ngayBatDau', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss', cellStyle: 'text-align:center' },
         { header: 'Thao tác', headerContainerStyle: 'width: 6rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
