@@ -58,11 +58,11 @@ namespace thongbao.be.lib.Stringee.Implements
             var response = await _httpClient.PostAsync(_baseUrl, httpContent);
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            if (!response.IsSuccessStatusCode)
+            /*if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError($"Stringee API Error - StatusCode: {response.StatusCode}, Response: {responseContent}");
                 throw new UserFriendlyException(ErrorCodes.InternalServerError);
-            }
+            }*/
 
             //_logger.LogInformation($"Stringee API Success - Response: {responseContent}");
 
