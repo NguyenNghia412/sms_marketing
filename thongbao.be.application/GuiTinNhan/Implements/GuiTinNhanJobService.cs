@@ -35,7 +35,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         private readonly IProfileService _profileService;
         private readonly ISendSmsService _sendSmsService;
         private readonly UserManager<AppUser> _userManager;
-        private const int BATCH_SIZE = 500;
+        private const int BATCH_SIZE = 1000;
         private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
         public GuiTinNhanJobService(
@@ -572,7 +572,149 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 //throw new UserFriendlyException(ErrorCodes.InternalServerError);
             }
         }
+        private async Task SendSmsLogForBatch(object smsResponse, int idChienDich, int? idDanhBa, int idBrandName, bool isAccented, string noiDung, int batchIndex)
+        {
+            _logger.LogInformation($"{nameof(SendSmsLogForBatch)} - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}, batchIndex: {batchIndex}");
+            try
+            {
+                var isSuperAdmin = IsSuperAdmin();
+                var currentUserId = getCurrentUserId();
+                var responseJson = JObject.Parse(smsResponse.ToString());
+                var smsSent = responseJson["smsSent"].Value<int>();
+                var resultArray = responseJson["result"].ToArray();
 
+                var vietnamNow = GetVietnamTime();
+                int smsSuccess = 0;
+                int smsFailed = 0;
+
+                foreach (var item in resultArray)
+                {
+                    var code = item["r"].Value<int>();
+                    var message = item["msg"].Value<string>();
+
+                    if (code == 0 && string.Equals(message, "Success", StringComparison.OrdinalIgnoreCase))
+                    {
+                        smsSuccess++;
+                    }
+                    else
+                    {
+                        smsFailed++;
+                    }
+                }
+
+                var danhBaSmsList = await _smDbContext.DanhBaSms
+                    .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
+                    .OrderBy(x => x.Id)
+                    .Skip(batchIndex * BATCH_SIZE)
+                    .Take(BATCH_SIZE)
+                    .Select(x => new { x.Id, x.SoDienThoai })
+                    .ToListAsync();
+
+                var truongDataMapping = await GetTruongDataMapping(idDanhBa.Value);
+                var recordIds = danhBaSmsList.Select(x => x.Id).ToList();
+                var allUserData = await GetDanhBaDataForBatch(recordIds, idChienDich);
+
+                var networkCosts = new Dictionary<string, int>
+                {
+                    ["Viettel"] = 800,
+                    ["Mobifone"] = 800,
+                    ["Vinaphone"] = 800,
+                    ["Vietnamobile"] = 800,
+                    ["Gmobile"] = 800
+                };
+
+                int tongChiPhi = 0;
+
+                for (int i = 0; i < resultArray.Length && i < danhBaSmsList.Count; i++)
+                {
+                    var resultItem = resultArray[i];
+                    var danhBaSms = danhBaSmsList[i];
+
+                    var userData = allUserData.Where(x => x.IdDanhBaChiTiet == danhBaSms.Id).ToList();
+                    var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, isAccented);
+
+                    var formattedNumber = FormatPhoneNumber(danhBaSms.SoDienThoai);
+                    var network = GetNetworkByPhoneNumber(formattedNumber);
+
+                    var length = personalizedText.Length;
+                    int smsCount = CalculateSmsCount(length, isAccented);
+
+                    int calculatedPrice = 0;
+                    if (networkCosts.ContainsKey(network))
+                    {
+                        calculatedPrice = networkCosts[network] * smsCount;
+                    }
+
+                    var code = resultItem["r"].Value<int>();
+                    var message = resultItem["msg"].Value<string>();
+                    string trangThaiChiTiet = (code == 0 && string.Equals(message, "Success", StringComparison.OrdinalIgnoreCase)) ? "Success" : "Failed";
+
+                    if (trangThaiChiTiet == "Success")
+                    {
+                        tongChiPhi += calculatedPrice;
+                    }
+
+                    var logChiTiet = new GuiTinNhanLogChiTiet
+                    {
+                        IdChienDich = idChienDich,
+                        IdDanhBa = idDanhBa,
+                        IdBrandName = idBrandName,
+                        IdDanhBaSms = danhBaSms.Id,
+                        SoDienThoai = danhBaSms.SoDienThoai,
+                        NoiDungChiTiet = personalizedText,
+                        Price = calculatedPrice,
+                        Code = code,
+                        Message = message,
+                        TrangThai = trangThaiChiTiet,
+                        CreatedDate = vietnamNow,
+                        CreatedBy = currentUserId
+                    };
+
+                    _smDbContext.GuiTinNhanLogChiTiets.Add(logChiTiet);
+                }
+
+                string trangThaiChienDich = resultArray.Any() ? "Success" : "Failed";
+
+                var chienDichLog = new ChienDichLogTrangThaiGui
+                {
+                    IdChienDich = idChienDich,
+                    IdDanhBa = idDanhBa,
+                    IdBrandName = idBrandName,
+                    TongSoSms = smsSent,
+                    SmsSendSuccess = smsSuccess,
+                    SmsSendFailed = smsFailed,
+                    TrangThai = trangThaiChienDich,
+                    NoiDung = noiDung,
+                    TongChiPhi = tongChiPhi,
+                    CreatedDate = vietnamNow,
+                    CreatedBy = currentUserId
+                };
+
+                _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
+
+                if (smsSuccess > 0)
+                {
+                    var chienDich = await _smDbContext.ChienDiches
+                        .FirstOrDefaultAsync(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
+
+                    if (chienDich != null)
+                    {
+                        chienDich.TrangThai = true;
+                        _smDbContext.ChienDiches.Update(chienDich);
+                    }
+                }
+
+                await _smDbContext.SaveChangesAsync();
+            }
+            catch (JsonReaderException ex)
+            {
+                _logger.LogError($"[SendSmsLogForBatch ERROR] JsonReaderException - Cannot parse response. Error: {ex.Message}, Response: {smsResponse}");
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"[SendSmsLogForBatch ERROR] Exception - Type: {ex.GetType().Name}, Message: {ex.Message}, StackTrace: {ex.StackTrace}");
+            }
+        }
 
         public async Task<object> GetSoLuongNguoiNhanVaTinNhan(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool isFlashSms, bool isAccented, string noiDung)
         {
@@ -676,47 +818,95 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var brandName = await GetBrandNameByChienDich(idBrandName);
             var allSmsMessages = new List<object>();
 
-            // Mode: Danh bạ
-            if (idDanhBa.HasValue)
+            try
             {
-                var totalRecords = await _smDbContext.DanhBaSms
-                    .Where(x => x.IdDanhBa == idDanhBa.Value && !x.Deleted)
-                    .CountAsync();
-
-                if (IsFlashSms)
+                // Mode: Danh bạ
+                if (idDanhBa.HasValue)
                 {
-                    var allMessages = await ProcessAllData(idChienDich, idDanhBa.Value, noiDung, brandName, IsAccented);
-                    allSmsMessages.AddRange(allMessages);
+                    var totalRecords = await _smDbContext.DanhBaSms
+                        .Where(x => x.IdDanhBa == idDanhBa.Value && !x.Deleted)
+                        .CountAsync();
+
+                    if (IsFlashSms)
+                    {
+                        var allMessages = await ProcessAllData(idChienDich, idDanhBa.Value, noiDung, brandName, IsAccented);
+
+                        if (allMessages.Any())
+                        {
+                            try
+                            {
+                                var result = await _sendSmsService.SendSmsAsync(allMessages);
+                                await SendSmsLog(result, idChienDich, idDanhBa, null, idBrandName, IsAccented, noiDung);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError($"[ProcessGuiTinNhanJob ERROR] FlashSMS - idChienDich: {idChienDich}, Error: {ex.Message}, StackTrace: {ex.StackTrace}");
+                                throw;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var totalBatches = (int)Math.Ceiling((double)totalRecords / BATCH_SIZE);
+
+                        for (int batchIndex = 0; batchIndex < totalBatches; batchIndex++)
+                        {
+                            try
+                            {
+                                var batchMessages = await ProcessBatch(idChienDich, idDanhBa.Value, noiDung, batchIndex, brandName, IsAccented);
+
+                                if (batchMessages.Any())
+                                {
+                                    var result = await _sendSmsService.SendSmsAsync(batchMessages);
+                                    await SendSmsLogForBatch(result, idChienDich, idDanhBa, idBrandName, IsAccented, noiDung, batchIndex);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError($"[ProcessGuiTinNhanJob ERROR] Batch {batchIndex} - idChienDich: {idChienDich}, Error: {ex.Message}, StackTrace: {ex.StackTrace}");
+                                // Tiếp tục xử lý batch tiếp theo
+                                continue;
+                            }
+                        }
+                    }
                 }
+                // Mode: List số điện thoại
                 else
                 {
-                    var totalBatches = (int)Math.Ceiling((double)totalRecords / BATCH_SIZE);
+                    var personalizedText = IsAccented ? noiDung : RemoveAccents(noiDung);
 
-                    for (int batchIndex = 0; batchIndex < totalBatches; batchIndex++)
+                    foreach (var item in danhSachSoDienThoai)
                     {
-                        var batchMessages = await ProcessBatch(idChienDich, idDanhBa.Value, noiDung, batchIndex, brandName, IsAccented);
-                        allSmsMessages.AddRange(batchMessages);
+                        var formattedPhoneNumber = FormatPhoneNumber(item.SoDienThoai);
+
+                        var smsObject = new
+                        {
+                            from = brandName,
+                            to = formattedPhoneNumber,
+                            text = personalizedText
+                        };
+
+                        allSmsMessages.Add(smsObject);
+                    }
+
+                    if (allSmsMessages.Any())
+                    {
+                        try
+                        {
+                            var result = await _sendSmsService.SendSmsAsync(allSmsMessages);
+                            await SendSmsLog(result, idChienDich, null, danhSachSoDienThoai, idBrandName, IsAccented, noiDung);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"[ProcessGuiTinNhanJob ERROR] ListSoDienThoai - idChienDich: {idChienDich}, Error: {ex.Message}, StackTrace: {ex.StackTrace}");
+                            throw;
+                        }
                     }
                 }
             }
-            // Mode: List số điện thoại
-            else
+            catch (Exception ex)
             {
-                var personalizedText = IsAccented ? noiDung : RemoveAccents(noiDung);
-
-                foreach (var item in danhSachSoDienThoai)
-                {
-                    var formattedPhoneNumber = FormatPhoneNumber(item.SoDienThoai);
-
-                    var smsObject = new
-                    {
-                        from = brandName,
-                        to = formattedPhoneNumber,
-                        text = personalizedText
-                    };
-
-                    allSmsMessages.Add(smsObject);
-                }
+                _logger.LogError($"[ProcessGuiTinNhanJob ERROR] idChienDich: {idChienDich}, idDanhBa: {idDanhBa}, Error: {ex.Message}, StackTrace: {ex.StackTrace}");
             }
 
             return allSmsMessages;

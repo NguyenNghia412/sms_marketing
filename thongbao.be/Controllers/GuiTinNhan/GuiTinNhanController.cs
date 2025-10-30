@@ -61,7 +61,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
         {
             try
             {
-                var smsMessages = await _guiTinNhanJobService.StartGuiTinNhanJob(
+                await _guiTinNhanJobService.StartGuiTinNhanJob(
                     dto.IdChienDich,
                     dto.IdDanhBa,
                     dto.DanhSachSoDienThoai,
@@ -71,36 +71,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.NoiDung
                 );
 
-                var result = await _sendSmsService.SendSmsAsync(smsMessages);
-
-                // Mode:Danh bạ
-                if (dto.IdDanhBa.HasValue)
-                {
-                    await _guiTinNhanJobService.SendSmsLog(
-                        result,
-                        dto.IdChienDich,
-                        dto.IdDanhBa.Value,
-                        dto.DanhSachSoDienThoai,
-                        dto.IdBrandName ?? 0,
-                        dto.IsAccented,
-                        dto.NoiDung
-                    );
-                }
-                // Mode:List số điện thoại
-                else
-                {
-                    await _guiTinNhanJobService.SendSmsLog(
-                        result,
-                        dto.IdChienDich,
-                        null,
-                        dto.DanhSachSoDienThoai,
-                        dto.IdBrandName ?? 0,
-                        dto.IsAccented,
-                        dto.NoiDung
-                    );
-                }
-
-                    return new(result);
+                return new();
             }
             catch (Exception ex)
             {
