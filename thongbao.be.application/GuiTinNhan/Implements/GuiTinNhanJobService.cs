@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NLog.Targets.Wrappers;
 using System;
@@ -283,163 +284,165 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         }
         public async Task SendSmsLog(object smsResponse, int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool isAccented, string noiDung)
         {
-            _logger.LogInformation($"{nameof(SendSmsLog)} - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
-            var isSuperAdmin = IsSuperAdmin();
-            var currentUserId = getCurrentUserId();
-            var responseJson = JObject.Parse(smsResponse.ToString());
-            var smsSent = responseJson["smsSent"].Value<int>();
-            var resultArray = responseJson["result"].ToArray();
-
-            var vietnamNow = GetVietnamTime();
-            int smsSuccess = 0;
-            int smsFailed = 0;
-
-            foreach (var item in resultArray)
+            try
             {
-                var code = item["r"].Value<int>();
-                var message = item["msg"].Value<string>();
+                _logger.LogInformation($"{nameof(SendSmsLog)} - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
+                var isSuperAdmin = IsSuperAdmin();
+                var currentUserId = getCurrentUserId();
+                var responseJson = JObject.Parse(smsResponse.ToString());
+                var smsSent = responseJson["smsSent"].Value<int>();
+                var resultArray = responseJson["result"].ToArray();
 
-                if (code == 0 && string.Equals(message, "Success", StringComparison.OrdinalIgnoreCase))
+                var vietnamNow = GetVietnamTime();
+                int smsSuccess = 0;
+                int smsFailed = 0;
+
+                foreach (var item in resultArray)
                 {
-                    smsSuccess++;
-                }
-                else
-                {
-                    smsFailed++;
-                }
-            }
-            string trangThaiChienDich = resultArray.Any() ? "Success" : "Failed";
-            //Mode: Danh bạ
-            if (idDanhBa.HasValue)
-            {
-                var danhBaSmsList = await _smDbContext.DanhBaSms
-                    .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
-                    .OrderBy(x => x.Id)
-                    .Select(x => new { x.Id, x.SoDienThoai })
-                    .ToListAsync();
+                    var code = item["r"].Value<int>();
+                    var message = item["msg"].Value<string>();
 
-                var truongDataMapping = await GetTruongDataMapping(idDanhBa.Value);
-                var recordIds = danhBaSmsList.Select(x => x.Id).ToList();
-                var allUserData = await GetDanhBaDataForBatch(recordIds, idChienDich);
-
-                var networkCosts = new Dictionary<string, int>
-                {
-                    ["Viettel"] = 800,
-                    ["Mobifone"] = 800,
-                    ["Vinaphone"] = 800,
-                    ["Vietnamobile"] = 800,
-                    ["Gmobile"] = 800
-                };
-
-                var viettelPrefixes = new[] { "96", "97", "98", "86", "32", "33", "34", "35", "36", "37", "38", "39" };
-                var mobifone = new[] { "90", "93", "89", "70", "76", "77", "78", "79" };
-                var vinaphone = new[] { "91", "94", "88", "81", "82", "83", "84", "85", "80" };
-                var vietnamobile = new[] { "92", "56", "58", "52" };
-                var gmobile = new[] { "99", "59" };
-                int tongChiPhi = 0;
-
-                for (int i = 0; i < resultArray.Length && i < danhBaSmsList.Count; i++)
-                {
-                    var resultItem = resultArray[i];
-                    var danhBaSms = danhBaSmsList[i];
-
-                    var userData = allUserData.Where(x => x.IdDanhBaChiTiet == danhBaSms.Id).ToList();
-                    var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, isAccented);
-
-                    var formattedNumber = FormatPhoneNumber(danhBaSms.SoDienThoai);
-                    var prefix = formattedNumber.Length >= 4 ? formattedNumber.Substring(2, 2) : "";
-
-                    string network = "Unknown";
-                    if (viettelPrefixes.Contains(prefix)) network = "Viettel";
-                    else if (mobifone.Contains(prefix)) network = "Mobifone";
-                    else if (vinaphone.Contains(prefix)) network = "Vinaphone";
-                    else if (vietnamobile.Contains(prefix)) network = "Vietnamobile";
-                    else if (gmobile.Contains(prefix)) network = "Gmobile";
-
-                    var length = personalizedText.Length;
-                    int smsCount;
-
-                    if (isAccented)
+                    if (code == 0 && string.Equals(message, "Success", StringComparison.OrdinalIgnoreCase))
                     {
-                        if (length <= 70) smsCount = 1;
-                        else if (length <= 134) smsCount = 2;
-                        else if (length <= 201) smsCount = 3;
-                        else if (length <= 268) smsCount = 4;
-                        else if (length <= 335) smsCount = 5;
-                        else smsCount = (int)Math.Ceiling((double)length / 67);
+                        smsSuccess++;
                     }
                     else
                     {
-                        if (length <= 160) smsCount = 1;
-                        else if (length <= 306) smsCount = 2;
-                        else if (length <= 459) smsCount = 3;
-                        else smsCount = (int)Math.Ceiling((double)length / 153);
+                        smsFailed++;
                     }
+                }
+                string trangThaiChienDich = resultArray.Any() ? "Success" : "Failed";
+                //Mode: Danh bạ
+                if (idDanhBa.HasValue)
+                {
+                    var danhBaSmsList = await _smDbContext.DanhBaSms
+                        .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
+                        .OrderBy(x => x.Id)
+                        .Select(x => new { x.Id, x.SoDienThoai })
+                        .ToListAsync();
 
-                    int calculatedPrice = 0;
-                    if (networkCosts.ContainsKey(network))
-                    {
-                        calculatedPrice = networkCosts[network] * smsCount;
-                    }
-                    var code = resultItem["r"].Value<int>();
-                    var message = resultItem["msg"].Value<string>();
-                    string trangThaiChiTiet = (code == 0 && string.Equals(message, "Success", StringComparison.OrdinalIgnoreCase)) ? "Success" : "Failed";
-                    if (trangThaiChiTiet == "Success")
-                    {
-                        tongChiPhi += calculatedPrice;
-                    }
+                    var truongDataMapping = await GetTruongDataMapping(idDanhBa.Value);
+                    var recordIds = danhBaSmsList.Select(x => x.Id).ToList();
+                    var allUserData = await GetDanhBaDataForBatch(recordIds, idChienDich);
 
-                    var logChiTiet = new GuiTinNhanLogChiTiet
+                    var networkCosts = new Dictionary<string, int>
+                    {
+                        ["Viettel"] = 800,
+                        ["Mobifone"] = 800,
+                        ["Vinaphone"] = 800,
+                        ["Vietnamobile"] = 800,
+                        ["Gmobile"] = 800
+                    };
+
+                    var viettelPrefixes = new[] { "96", "97", "98", "86", "32", "33", "34", "35", "36", "37", "38", "39" };
+                    var mobifone = new[] { "90", "93", "89", "70", "76", "77", "78", "79" };
+                    var vinaphone = new[] { "91", "94", "88", "81", "82", "83", "84", "85", "80" };
+                    var vietnamobile = new[] { "92", "56", "58", "52" };
+                    var gmobile = new[] { "99", "59" };
+                    int tongChiPhi = 0;
+
+                    for (int i = 0; i < resultArray.Length && i < danhBaSmsList.Count; i++)
+                    {
+                        var resultItem = resultArray[i];
+                        var danhBaSms = danhBaSmsList[i];
+
+                        var userData = allUserData.Where(x => x.IdDanhBaChiTiet == danhBaSms.Id).ToList();
+                        var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, isAccented);
+
+                        var formattedNumber = FormatPhoneNumber(danhBaSms.SoDienThoai);
+                        var prefix = formattedNumber.Length >= 4 ? formattedNumber.Substring(2, 2) : "";
+
+                        string network = "Unknown";
+                        if (viettelPrefixes.Contains(prefix)) network = "Viettel";
+                        else if (mobifone.Contains(prefix)) network = "Mobifone";
+                        else if (vinaphone.Contains(prefix)) network = "Vinaphone";
+                        else if (vietnamobile.Contains(prefix)) network = "Vietnamobile";
+                        else if (gmobile.Contains(prefix)) network = "Gmobile";
+
+                        var length = personalizedText.Length;
+                        int smsCount;
+
+                        if (isAccented)
+                        {
+                            if (length <= 70) smsCount = 1;
+                            else if (length <= 134) smsCount = 2;
+                            else if (length <= 201) smsCount = 3;
+                            else if (length <= 268) smsCount = 4;
+                            else if (length <= 335) smsCount = 5;
+                            else smsCount = (int)Math.Ceiling((double)length / 67);
+                        }
+                        else
+                        {
+                            if (length <= 160) smsCount = 1;
+                            else if (length <= 306) smsCount = 2;
+                            else if (length <= 459) smsCount = 3;
+                            else smsCount = (int)Math.Ceiling((double)length / 153);
+                        }
+
+                        int calculatedPrice = 0;
+                        if (networkCosts.ContainsKey(network))
+                        {
+                            calculatedPrice = networkCosts[network] * smsCount;
+                        }
+                        var code = resultItem["r"].Value<int>();
+                        var message = resultItem["msg"].Value<string>();
+                        string trangThaiChiTiet = (code == 0 && string.Equals(message, "Success", StringComparison.OrdinalIgnoreCase)) ? "Success" : "Failed";
+                        if (trangThaiChiTiet == "Success")
+                        {
+                            tongChiPhi += calculatedPrice;
+                        }
+
+                        var logChiTiet = new GuiTinNhanLogChiTiet
+                        {
+                            IdChienDich = idChienDich,
+                            IdDanhBa = idDanhBa,
+                            IdBrandName = idBrandName,
+                            IdDanhBaSms = danhBaSms.Id,
+                            SoDienThoai = danhBaSms.SoDienThoai,
+                            NoiDungChiTiet = personalizedText,
+                            Price = calculatedPrice,
+                            Code = code,
+                            Message = message,
+                            TrangThai = trangThaiChiTiet,
+                            CreatedDate = vietnamNow,
+                            CreatedBy = currentUserId
+                        };
+
+                        _smDbContext.GuiTinNhanLogChiTiets.Add(logChiTiet);
+                    }
+                    var chienDichLog = new ChienDichLogTrangThaiGui
                     {
                         IdChienDich = idChienDich,
                         IdDanhBa = idDanhBa,
                         IdBrandName = idBrandName,
-                        IdDanhBaSms = danhBaSms.Id,
-                        SoDienThoai = danhBaSms.SoDienThoai,
-                        NoiDungChiTiet = personalizedText,
-                        Price = calculatedPrice,
-                        Code = code,
-                        Message = message,
-                        TrangThai = trangThaiChiTiet,
+                        TongSoSms = smsSent,
+                        SmsSendSuccess = smsSuccess,
+                        SmsSendFailed = smsFailed,
+                        TrangThai = trangThaiChienDich,
+                        NoiDung = noiDung,
+                        TongChiPhi = tongChiPhi,
                         CreatedDate = vietnamNow,
                         CreatedBy = currentUserId
                     };
 
-                    _smDbContext.GuiTinNhanLogChiTiets.Add(logChiTiet);
-                }
-                var chienDichLog = new ChienDichLogTrangThaiGui
-                {
-                    IdChienDich = idChienDich,
-                    IdDanhBa = idDanhBa,
-                    IdBrandName = idBrandName,
-                    TongSoSms = smsSent,
-                    SmsSendSuccess = smsSuccess,
-                    SmsSendFailed = smsFailed,
-                    TrangThai = trangThaiChienDich,
-                    NoiDung = noiDung,
-                    TongChiPhi = tongChiPhi,
-                    CreatedDate = vietnamNow,
-                    CreatedBy = currentUserId
-                };
-
-                _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
-                if (smsSuccess > 0)
-                {
-                    var chienDich = await _smDbContext.ChienDiches
-                        .FirstOrDefaultAsync(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
-
-                    if (chienDich != null)
+                    _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
+                    if (smsSuccess > 0)
                     {
-                        chienDich.TrangThai = true;
-                        _smDbContext.ChienDiches.Update(chienDich);
-                    }
-                }
+                        var chienDich = await _smDbContext.ChienDiches
+                            .FirstOrDefaultAsync(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
 
-                await _smDbContext.SaveChangesAsync();
-            }
-            //Mode: List số điện thoại
-            else
-            {
+                        if (chienDich != null)
+                        {
+                            chienDich.TrangThai = true;
+                            _smDbContext.ChienDiches.Update(chienDich);
+                        }
+                    }
+
+                    await _smDbContext.SaveChangesAsync();
+                }
+                //Mode: List số điện thoại
+                else
+                {
                     var networkCosts = new Dictionary<string, int>
                     {
                         ["Viettel"] = 800,
@@ -458,7 +461,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     for (int i = 0; i < resultArray.Length && i < danhSachSoDienThoai.Count; i++)
                     {
                         var resultItem = resultArray[i];
-                        var SoDienThoai = danhSachSoDienThoai[i]; 
+                        var SoDienThoai = danhSachSoDienThoai[i];
 
 
 
@@ -555,9 +558,21 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                     await _smDbContext.SaveChangesAsync();
                 }
-            
+
+            }
+            catch (JsonReaderException ex)
+            {
+                _logger.LogError($"[SendSmsLog ERROR] JsonReaderException - Cannot parse response. Error: {ex.Message}, Response: {smsResponse}");
+                //throw new UserFriendlyException(ErrorCodes.InternalServerError);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError($"[SendSmsLog ERROR] Exception - Type: {ex.GetType().Name}, Message: {ex.Message}, StackTrace: {ex.StackTrace}");
+                //throw new UserFriendlyException(ErrorCodes.InternalServerError);
+            }
         }
-        
+
+
         public async Task<object> GetSoLuongNguoiNhanVaTinNhan(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool isFlashSms, bool isAccented, string noiDung)
         {
             await ValidateInput(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, noiDung);
