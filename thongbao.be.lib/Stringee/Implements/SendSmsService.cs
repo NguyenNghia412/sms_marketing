@@ -35,39 +35,58 @@ namespace thongbao.be.lib.Stringee.Implements
 
         public async Task<object> SendSmsAsync(List<object> smsMessages)
         {
-            if (smsMessages == null || !smsMessages.Any())
+            try
             {
-                throw new UserFriendlyException(ErrorCodes.BadRequest);
+                if (smsMessages == null || !smsMessages.Any())
+                {
+                    throw new UserFriendlyException(ErrorCodes.BadRequest);
+                }
+
+                var jwtToken = await _authService.GenerateJwtTokenAsync();
+
+                var requestBody = new
+                {
+                    sms = smsMessages
+                };
+
+                var jsonContent = JsonSerializer.Serialize(requestBody);
+                var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.Add("X-STRINGEE-AUTH", jwtToken);
+
+                var response = await _httpClient.PostAsync(_baseUrl, httpContent);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                // Log response để debug
+                _logger.LogInformation($"Stringee Response - StatusCode: {response.StatusCode}, Content: {responseContent}");
+
+                try
+                {
+                    var responseObject = JsonSerializer.Deserialize<object>(responseContent);
+                    return responseObject ?? "";
+                }
+                catch (JsonException ex)
+                {
+                    _logger.LogError($"JsonException - Cannot deserialize response. Error: {ex.Message}, Stringee Raw Response: {responseContent}");
+
+                    return new
+                    {
+                        stringeeError = responseContent,
+                        statusCode = (int)response.StatusCode,
+                        message = responseContent
+                    };
+                }
             }
-
-            var jwtToken = await _authService.GenerateJwtTokenAsync();
-
-            var requestBody = new
+            catch (UserFriendlyException)
             {
-                sms = smsMessages
-            };
-
-            var jsonContent = JsonSerializer.Serialize(requestBody);
-            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-            _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.Add("X-STRINGEE-AUTH", jwtToken);
-
-           // _logger.LogInformation($"Sending SMS to Stringee API: {_baseUrl}, Message count: {smsMessages.Count}");
-
-            var response = await _httpClient.PostAsync(_baseUrl, httpContent);
-            var responseContent = await response.Content.ReadAsStringAsync();
-
-            /*if (!response.IsSuccessStatusCode)
+                throw;
+            }
+            catch (System.Exception ex)
             {
-                _logger.LogError($"Stringee API Error - StatusCode: {response.StatusCode}, Response: {responseContent}");
+                _logger.LogError($"[STRINGEE ERROR] SendSmsAsync Exception - Type: {ex.GetType().Name}, Message: {ex.Message}, StackTrace: {ex.StackTrace}");
                 throw new UserFriendlyException(ErrorCodes.InternalServerError);
-            }*/
-
-            //_logger.LogInformation($"Stringee API Success - Response: {responseContent}");
-
-            var responseObject = JsonSerializer.Deserialize<object>(responseContent);
-            return responseObject ?? "";
+            }
         }
     }
 }
