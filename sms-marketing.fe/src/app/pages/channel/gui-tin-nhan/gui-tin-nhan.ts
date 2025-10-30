@@ -34,7 +34,7 @@ export class GuiTinNhan extends BaseComponent {
     listDanhBa: IViewRowDanhBa[] = [];
     listBrandname: IViewBrandname[] = [];
     nguoiNhanType: 'danhBa' | 'soDienThoai' = 'danhBa';
-    
+    trangThaiChienDich: boolean = false;
 
     override form: FormGroup = new FormGroup({
         idBrandName: new FormControl(null, [Validators.required]),
@@ -93,6 +93,7 @@ export class GuiTinNhan extends BaseComponent {
                             noiDung: res.data.noiDung,
                             isAccented: res.data.isAccented ?? true
                         });
+                        this.trangThaiChienDich = res.data.trangThai || false;
                     }
                 }
             });

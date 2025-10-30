@@ -87,8 +87,8 @@
                 </div>
                 <div class="mt-5 flex flex-row justify-end space-x-3">
                     <p-button label="Lưu" icon="pi pi-save" type="button" severity="secondary" (onClick)="onClickSave()"
-                        [loading]="loading" />
-                    <p-button label="Gửi" icon="pi pi-send" type="submit" [loading]="loading" />
+                        [loading]="loading" [disabled]="trangThaiChienDich" />
+                    <p-button label="Gửi" icon="pi pi-send" type="submit" [loading]="loading" [disabled]="trangThaiChienDich" />
                 </div>
             </form>
         </div>
