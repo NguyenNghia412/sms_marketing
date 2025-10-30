@@ -7,12 +7,13 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { PaginatorModule } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 
 export const TBL_CUSTOM_COMP_EMIT = new InjectionToken<EventEmitter<any>>('TBL_CUSTOM_COMP_EMIT');
 
 @Component({
     selector: 'app-data-table',
-    imports: [TableModule, PaginatorModule, CurrencyPipe, DatePipe, IconFieldModule, InputIconModule, NgClass, NgComponentOutlet, CommonModule],
+    imports: [TableModule, PaginatorModule, CurrencyPipe, DatePipe, IconFieldModule, InputIconModule, NgClass, NgComponentOutlet, CommonModule, TagModule],
     templateUrl: './data-table.html',
     styleUrl: './data-table.scss'
 })

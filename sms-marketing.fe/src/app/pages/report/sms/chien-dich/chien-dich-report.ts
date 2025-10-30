@@ -43,7 +43,7 @@ export class ChienDichReport extends BaseComponent {
     });
     
     columns: IColumn[] = [
-        { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
+        { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem', cellStyle: 'text-align:center' },
         { 
             header: 'Tên chiến dịch', 
             field: 'tenChienDich', 
@@ -53,12 +53,12 @@ export class ChienDichReport extends BaseComponent {
         },
         { header: 'Tên danh bạ', field: 'danhBa.tenDanhBa', headerContainerStyle: 'min-width: 6rem' },
         { header: 'Nội dung', field: 'noiDung', headerContainerStyle: 'min-width: 20rem' },
-        { header: 'Tổng số thuê bao', field: 'tongSoSms', headerContainerStyle: 'min-width: 6rem' },
-        { header: 'Gửi thành công', field: 'smsSentSuccess', headerContainerStyle: 'min-width: 6rem' },
-        { header: 'Gửi thất bại', field: 'smsSentFailed', headerContainerStyle: 'min-width: 6rem' },
-        { header: 'Tổng chi phí', field: 'tongChiPhi', headerContainerStyle: 'min-width: 6rem' },
+        { header: 'Tổng số thuê bao', field: 'tongSoSms', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center' },
+        { header: 'Gửi thành công', field: 'smsSentSuccess', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center' },
+        { header: 'Gửi thất bại', field: 'smsSentFailed', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center' },
+        { header: 'Tổng chi phí', field: 'tongChiPhi', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center' },
         //{ header: 'Trạng Thái', field: 'trangThaiText', headerContainerStyle: 'width: 10rem' },
-        { header: 'Thời gian gửi', field: 'ngayGui', headerContainerStyle: 'width: 20rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' }
+        { header: 'Thời gian gửi', field: 'ngayGui', headerContainerStyle: 'width: 20rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss', cellStyle: 'text-align:center' }
     ];
     
     data: IViewChienDichReport[] = [];

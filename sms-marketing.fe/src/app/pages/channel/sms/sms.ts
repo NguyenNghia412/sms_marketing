@@ -22,7 +22,7 @@ import { Popover } from 'primeng/popover';
 })
 export class Sms extends BaseComponent {
     @ViewChild('filterPanel') filterPanel!: Popover;
-    
+
     _chienDichService = inject(ChienDichService);
     _sanitizer = inject(DomSanitizer);
     statusList = CampaginStatuses.List;
@@ -36,15 +36,23 @@ export class Sms extends BaseComponent {
 
     columns: IColumn[] = [
         //{ header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem', cellStyle:'text-align:center' },
-        { header: 'Tên chiến dịch', field: 'tenChienDich', headerContainerStyle: 'min-width: 12rem', cellClass: 'cursor-pointer text-blue-600 hover:text-blue-800 hover:underline', clickable: true },
+        { header: 'Tên chiến dịch', field: 'tenChienDich', headerContainerStyle: 'min-width: 12rem', cellClass: 'cursor-pointer hover:text-blue-800 hover:underline', clickable: true },
         { header: 'Nội dung', field: 'noiDung', headerContainerStyle: 'min-width: 12rem' },
-        { header: 'Người tạo', field: 'users.fullName', headerContainerStyle: 'min-width:9rem'}, 
-        { header: 'Số thuê bao', field: 'soLuongThueBao', headerContainerStyle: 'min-width: 8rem',cellStyle:'text-align:center' },
-        { header: 'Gửi thành công', field: 'soLuongSmsDaGuiThanhCong', headerContainerStyle: 'min-width: 9rem',cellStyle:'text-align:center' },
-        { header: 'Gửi thất bại', field: 'soLuongSmsDaGuiThatBai', headerContainerStyle: 'min-width: 8rem',cellStyle:'text-align:center' },
-        { header: 'Trạng Thái', field: 'trangThaiText', headerContainerStyle: 'width: 8rem', cellRender: 'html', cellClass: 'status-cell', cellStyle: 'position: relative; padding: 0;' },
-        //{ header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
-        { header: 'Thời gian gửi', field: 'ngayBatDau', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss',cellStyle:'text-align:center' },
+        { header: 'Người tạo', field: 'users.fullName', headerContainerStyle: 'min-width:9rem' },
+        { header: 'Số thuê bao', field: 'soLuongThueBao', headerContainerStyle: 'min-width: 8rem', cellStyle: 'text-align:center' },
+        { header: 'Gửi thành công', field: 'soLuongSmsDaGuiThanhCong', headerContainerStyle: 'min-width: 9rem', cellStyle: 'text-align:center' },
+        { header: 'Gửi thất bại', field: 'soLuongSmsDaGuiThatBai', headerContainerStyle: 'min-width: 8rem', cellStyle: 'text-align:center' },
+        {
+            header: 'Trạng thái',
+            field: 'trangThaiText',
+            headerContainerStyle: 'width: 8rem',
+            cellViewType: CellViewTypes.STATUS,
+            statusSeverityFunction: (rowData: IViewRowChienDich) => {
+                return CampaginStatuses.getSeverityByCode(rowData.trangThai ? CampaginStatuses.DA_GUI : CampaginStatuses.CHUA_GUI);
+            }
+        },
+        //{ header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss' },
+        { header: 'Thời gian tạo', field: 'ngayBatDau', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss', cellStyle: 'text-align:center' },
         { header: 'Thao tác', headerContainerStyle: 'width: 6rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
@@ -64,17 +72,17 @@ export class Sms extends BaseComponent {
 
     getData() {
         this.loading = true;
-        this._chienDichService.findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value  }).subscribe({
+        this._chienDichService.findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value }).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, false)) {
-                    this.data = res.data.items.map(item => ({
+                    this.data = res.data.items.map((item) => ({
                         ...item,
                         soLuongThueBao: item.soLuongThueBao ?? 0,
                         soLuongSmsDaGuiThanhCong: item.soLuongSmsDaGuiThanhCong ?? 0,
                         soLuongSmsDaGuiThatBai: item.soLuongSmsDaGuiThatBai ?? 0,
-                        trangThaiText: item.trangThai 
-                            ? '<span style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center;font-weight:bold;" class=" text-green-800">Đã gửi</span>'
-                            : '<span style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center;" class=" font-black text-gray-800">Nháp</span>'
+                        trangThaiText: item.trangThai
+                            ? 'Đã gửi'
+                            : 'Nháp'
                     }));
                     this.totalRecords = res.data.totalItems;
                 }
@@ -144,14 +152,13 @@ export class Sms extends BaseComponent {
 
     onCustomEmit(data: { type: string; data: IViewRowChienDich; field?: string }) {
         if (data.type === TblActionTypes.detail) {
-            this.navigateToDetail(data.data); 
+            this.navigateToDetail(data.data);
         } else if (data.type === TblActionTypes.delete) {
             this.onDelete(data.data);
-        } else if (data.type === TblActionTypes.duplicate){
+        } else if (data.type === TblActionTypes.duplicate) {
             this.onDuplicate(data.data);
-        }
-        else if (data.type === 'cellClick' && data.field === 'tenChienDich') {
-            this.navigateToDetail(data.data); 
+        } else if (data.type === 'cellClick' && data.field === 'tenChienDich') {
+            this.navigateToDetail(data.data);
         }
     }
 
@@ -159,7 +166,7 @@ export class Sms extends BaseComponent {
         if (chienDich?.id) {
             this.router.navigate(['/channel/gui-sms'], {
                 queryParams: {
-                    idChienDich: chienDich.id  
+                    idChienDich: chienDich.id
                 }
             });
         }
