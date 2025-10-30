@@ -102,7 +102,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                       || log.SoDienThoai.Contains(dto.Keyword)
                                       || log.NoiDungChiTiet.Contains(dto.Keyword)
                                       || bn.TenBrandName.Contains(dto.Keyword))
-                            orderby log.CreatedDate descending
+                            orderby log.CreatedDate, log.Id descending
                             select new ViewDanhBaSmsLogDto
                             {
                                 Id = dbs.Id,
@@ -142,7 +142,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                       || log.SoDienThoai.Contains(dto.Keyword)
                                       || log.NoiDungChiTiet.Contains(dto.Keyword)
                                       || bn.TenBrandName.Contains(dto.Keyword))
-                            orderby log.CreatedDate descending
+                            orderby log.CreatedDate, log.Id descending
                             select new ViewDanhBaSmsLogDto
                             {
                                 Id = log.Id,
