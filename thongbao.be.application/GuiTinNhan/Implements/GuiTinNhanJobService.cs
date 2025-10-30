@@ -34,7 +34,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         private readonly IProfileService _profileService;
         private readonly ISendSmsService _sendSmsService;
         private readonly UserManager<AppUser> _userManager;
-        private const int BATCH_SIZE = 400;
+        private const int BATCH_SIZE = 50;
         private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
         public GuiTinNhanJobService(
