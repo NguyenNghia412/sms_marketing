@@ -841,7 +841,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             catch (Exception ex)
                             {
                                 _logger.LogError($"[ProcessGuiTinNhanJob ERROR] FlashSMS - idChienDich: {idChienDich}, Error: {ex.Message}, StackTrace: {ex.StackTrace}");
-                                throw;
                             }
                         }
                     }
@@ -849,18 +848,66 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     {
                         var totalBatches = (int)Math.Ceiling((double)totalRecords / BATCH_SIZE);
 
+
+                        int totalSuccessAll = 0;
+                        int totalFailedAll = 0;
+                        int totalCostAll = 0;
+
                         for (int batchIndex = 0; batchIndex < totalBatches; batchIndex++)
                         {
                             try
                             {
-                                var batchMessages = await ProcessBatch(idChienDich, idDanhBa.Value, noiDung, batchIndex, brandName, IsAccented, idBrandName);
+                                var (batchMessages, batchSuccess, batchFailed, batchCost) = await ProcessBatch(idChienDich, idDanhBa.Value, noiDung, batchIndex, brandName, IsAccented, idBrandName);
                                 allSmsMessages.AddRange(batchMessages);
+
+                                totalSuccessAll += batchSuccess;
+                                totalFailedAll += batchFailed;
+                                totalCostAll += batchCost;
                             }
                             catch (Exception ex)
                             {
                                 _logger.LogError($"[ProcessGuiTinNhanJob ERROR] Batch {batchIndex} - idChienDich: {idChienDich}, Error: {ex.Message}, StackTrace: {ex.StackTrace}");
                                 continue;
                             }
+                        }
+
+
+                        if (totalSuccessAll > 0 || totalFailedAll > 0)
+                        {
+                            var isSuperAdmin = IsSuperAdmin();
+                            var currentUserId = getCurrentUserId();
+                            var vietnamNow = GetVietnamTime();
+
+                            var chienDichLog = new ChienDichLogTrangThaiGui
+                            {
+                                IdChienDich = idChienDich,
+                                IdDanhBa = idDanhBa,
+                                IdBrandName = idBrandName,
+                                TongSoSms = totalSuccessAll + totalFailedAll,
+                                SmsSendSuccess = totalSuccessAll,
+                                SmsSendFailed = totalFailedAll,
+                                TrangThai = totalSuccessAll > 0 ? "Success" : "Failed",
+                                NoiDung = noiDung,
+                                TongChiPhi = totalCostAll,
+                                CreatedDate = vietnamNow,
+                                CreatedBy = currentUserId
+                            };
+
+                            _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
+
+                            if (totalSuccessAll > 0)
+                            {
+                                var chienDich = await _smDbContext.ChienDiches
+                                    .FirstOrDefaultAsync(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
+
+                                if (chienDich != null)
+                                {
+                                    chienDich.TrangThai = true;
+                                    _smDbContext.ChienDiches.Update(chienDich);
+                                }
+                            }
+
+                            await _smDbContext.SaveChangesAsync();
                         }
                     }
                 }
@@ -893,7 +940,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         catch (Exception ex)
                         {
                             _logger.LogError($"[ProcessGuiTinNhanJob ERROR] ListSoDienThoai - idChienDich: {idChienDich}, Error: {ex.Message}, StackTrace: {ex.StackTrace}");
-                            throw;
                         }
                     }
                 }
@@ -905,7 +951,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             return allSmsMessages;
         }
-
         private async Task<List<object>> ProcessAllData(int idChienDich, int idDanhBa, string noiDung, string brandName, bool IsAccented)
         {
             var danhBaChiTiets = await _smDbContext.DanhBaSms
@@ -983,7 +1028,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             return "Unknown";
         }
-        private async Task<List<object>> ProcessBatch(int idChienDich, int idDanhBa, string noiDung, int batchIndex, string brandName, bool IsAccented, int idBrandName)
+        private async Task<(List<object> messages, int success, int failed, int cost)> ProcessBatch(int idChienDich, int idDanhBa, string noiDung, int batchIndex, string brandName, bool IsAccented, int idBrandName)
         {
             var danhBaChiTiets = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
@@ -994,13 +1039,12 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 .ToListAsync();
 
             if (!danhBaChiTiets.Any())
-                return new List<object>();
+                return (new List<object>(), 0, 0, 0);
 
             var truongDataMapping = await GetTruongDataMapping(idDanhBa);
             var danhBaChiTietIds = danhBaChiTiets.Select(x => x.Id).ToList();
             var danhBaData = await GetDanhBaDataForBatch(danhBaChiTietIds, idChienDich);
 
-            var isSuperAdmin = IsSuperAdmin();
             var currentUserId = getCurrentUserId();
             var vietnamNow = GetVietnamTime();
 
@@ -1043,7 +1087,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         to = formattedPhoneNumber,
                         text = personalizedText
                     };
-
 
                     var singleSms = new List<object> { smsObject };
                     var result = await _sendSmsService.SendSmsAsync(singleSms);
@@ -1142,41 +1185,12 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 }
             }
 
-            var chienDichLog = new ChienDichLogTrangThaiGui
-            {
-                IdChienDich = idChienDich,
-                IdDanhBa = idDanhBa,
-                IdBrandName = idBrandName,
-                TongSoSms = totalSuccess + totalFailed,
-                SmsSendSuccess = totalSuccess,
-                SmsSendFailed = totalFailed,
-                TrangThai = totalSuccess > 0 ? "Success" : "Failed",
-                NoiDung = noiDung,
-                TongChiPhi = totalCost,
-                CreatedDate = vietnamNow,
-                CreatedBy = currentUserId
-            };
-
-            _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
-
-            if (totalSuccess > 0)
-            {
-                var chienDich = await _smDbContext.ChienDiches
-                    .FirstOrDefaultAsync(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
-
-                if (chienDich != null)
-                {
-                    chienDich.TrangThai = true;
-                    _smDbContext.ChienDiches.Update(chienDich);
-                }
-            }
-
             await _smDbContext.SaveChangesAsync();
 
-            return smsMessages;
+            return (smsMessages, totalSuccess, totalFailed, totalCost);
         }
 
-        
+
 
         private string FormatPhoneNumber(string phoneNumber)
         {
