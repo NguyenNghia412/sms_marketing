@@ -35,32 +35,25 @@ namespace thongbao.be.lib.Stringee.Implements
 
         public async Task<object> SendSmsAsync(List<object> smsMessages)
         {
+            string responseContent = "";
             try
             {
                 if (smsMessages == null || !smsMessages.Any())
                 {
                     throw new UserFriendlyException(ErrorCodes.BadRequest);
                 }
-
                 var jwtToken = await _authService.GenerateJwtTokenAsync();
-
                 var requestBody = new
                 {
                     sms = smsMessages
                 };
-
                 var jsonContent = JsonSerializer.Serialize(requestBody);
                 var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
                 _httpClient.DefaultRequestHeaders.Clear();
                 _httpClient.DefaultRequestHeaders.Add("X-STRINGEE-AUTH", jwtToken);
-
                 var response = await _httpClient.PostAsync(_baseUrl, httpContent);
-                var responseContent = await response.Content.ReadAsStringAsync();
-
-                // Log response để debug
+                responseContent = await response.Content.ReadAsStringAsync();
                 _logger.LogInformation($"Stringee Response - StatusCode: {response.StatusCode}, Content: {responseContent}");
-
                 try
                 {
                     var responseObject = JsonSerializer.Deserialize<object>(responseContent);
@@ -69,7 +62,6 @@ namespace thongbao.be.lib.Stringee.Implements
                 catch (JsonException ex)
                 {
                     _logger.LogError($"[STRINGEE ERROR] JsonException - Cannot deserialize response. Error: {ex.Message}, Stringee Raw Response: {responseContent}");
-
                     // Serialize error object thành JSON string để SendSmsLog có thể parse được
                     var errorObject = new
                     {
@@ -77,18 +69,19 @@ namespace thongbao.be.lib.Stringee.Implements
                         statusCode = (int)response.StatusCode,
                         message = responseContent
                     };
-
                     return JsonSerializer.Serialize(errorObject);
                 }
             }
             catch (UserFriendlyException)
             {
-                throw;
+                //throw;
+                return null;
             }
             catch (System.Exception ex)
             {
-                _logger.LogError($"[STRINGEE ERROR] SendSmsAsync Exception - Type: {ex.GetType().Name}, Message: {ex.Message}, StackTrace: {ex.StackTrace}");
-                throw new UserFriendlyException(ErrorCodes.InternalServerError);
+                _logger.LogError($"[STRINGEE ERROR] SendSmsAsync Exception - Type: {ex.GetType().Name}, Message: {ex.Message}, StackTrace: {ex.StackTrace}, Stringee Response: {responseContent}");
+                //throw new UserFriendlyException(ErrorCodes.InternalServerError);
+                return null;
             }
         }
     }
