@@ -83,12 +83,12 @@ namespace thongbao.be.lib.Stringee.Implements
             }
             catch (UserFriendlyException)
             {
-                throw;
+                //throw;
             }
             catch (System.Exception ex)
             {
                 _logger.LogError($"[STRINGEE ERROR] SendSmsAsync Exception - Type: {ex.GetType().Name}, Message: {ex.Message}, StackTrace: {ex.StackTrace}");
-                throw new UserFriendlyException(ErrorCodes.InternalServerError);
+                //throw new UserFriendlyException(ErrorCodes.InternalServerError);
             }
         }
     }
