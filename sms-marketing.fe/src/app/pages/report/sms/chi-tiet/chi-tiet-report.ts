@@ -23,7 +23,7 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
     
     _reportSmsService = inject(ReportSmsService);
     private route = inject(ActivatedRoute);
-    items: MenuItem[] = [{ label: 'Thông kê', routerLink: '/report/chien-dich-report'  }, { label: 'Thống kê chi tiết ' }];
+    items: MenuItem[] = [{ label: 'Thống kê', routerLink: '/report/chien-dich-report'  }, { label: 'Thống kê chi tiết ' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
     statusList = CampaginStatuses.List;
     idChienDich: number = 0;
