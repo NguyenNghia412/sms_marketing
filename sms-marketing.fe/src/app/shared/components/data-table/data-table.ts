@@ -1,6 +1,6 @@
 import { CellViewTypes } from '@/shared/constants/data-table.constants';
-import { IColumn, ICustomEmit } from '@/shared/models/data-table.models';
-import { CommonModule, CurrencyPipe, DatePipe, NgClass, NgComponentOutlet } from '@angular/common';
+import { IColumn } from '@/shared/models/data-table.models';
+import { CommonModule, DatePipe, NgClass, NgComponentOutlet } from '@angular/common';
 import { Component, EventEmitter, inject, InjectionToken, Injector, input, OnInit, Output } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -13,7 +13,7 @@ export const TBL_CUSTOM_COMP_EMIT = new InjectionToken<EventEmitter<any>>('TBL_C
 
 @Component({
     selector: 'app-data-table',
-    imports: [TableModule, PaginatorModule, CurrencyPipe, DatePipe, IconFieldModule, InputIconModule, NgClass, NgComponentOutlet, CommonModule, TagModule],
+    imports: [TableModule, PaginatorModule, DatePipe, IconFieldModule, InputIconModule, NgClass, NgComponentOutlet, CommonModule, TagModule],
     templateUrl: './data-table.html',
     styleUrl: './data-table.scss'
 })
@@ -45,7 +45,7 @@ export class DataTable implements OnInit {
             ],
             parent: this.injector
         });
-        
+
         this.customEmit.subscribe((data) => this.onTblCustomCompEmit(data));
     }
 
@@ -60,8 +60,8 @@ export class DataTable implements OnInit {
     onPage($event: any) {
         this.onPageChanged.emit($event);
     }
-    
-     onCellClick(col: IColumn, row: any) {
+
+    onCellClick(col: IColumn, row: any) {
         if (col.clickable || col.cellViewType === CellViewTypes.CHECKBOX) {
             this.onCustomComp.emit({
                 type: 'cellClick',
@@ -70,8 +70,13 @@ export class DataTable implements OnInit {
             });
         }
     }
+
     isCellClickable(col: IColumn): boolean {
         return col.clickable === true;
     }
 
+    formatVND(value: number | string | null | undefined): string {
+        if (value == null || value === '' || value === undefined) return '';
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
 }
