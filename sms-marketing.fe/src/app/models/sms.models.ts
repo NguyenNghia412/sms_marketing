@@ -39,6 +39,7 @@ export type IViewChienDich = {
   isFlashSms?: boolean
   isAccented?: boolean
   createdDate?: string
+  trangThai?: boolean
 }
 
 export type ICreateChienDich = {

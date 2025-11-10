@@ -174,6 +174,23 @@ namespace thongbao.be.application.DanhBa.Implements
                         select dbct;
             var data = query.Paging(dto).ToList();
             var items = _mapper.Map<List<ViewDanhBaChiTietDto>>(data);
+
+            var idDanhBaChiTiets = items.Select(x => x.Id).ToList();
+            var danhBaTruongDatas = _smDbContext.DanhBaTruongDatas.Where(x => x.IdDanhBa == idDanhBa && !x.Deleted).ToList();
+            var danhBaDatas = _smDbContext.DanhBaDatas.Where(x => idDanhBaChiTiets.Contains(x.IdDanhBaChiTiet) && !x.Deleted).ToList();
+
+            foreach (var item in items)
+            {
+                item.Items = danhBaTruongDatas.Select(truong => new ViewDanhBaChiTietTruongDto
+                {
+                    Id = truong.Id,
+                    TenTruong = truong.TenTruong,
+                    Data = danhBaDatas.Where(d => d.IdTruongData == truong.Id && d.IdDanhBaChiTiet == item.Id)
+                                      .Select(d => new ViewDanhBaChiTietDataDto { Id = d.Id, Data = d.Data })
+                                      .FirstOrDefault()
+                }).ToList();
+            }
+
             var response = new BaseResponsePagingDto<ViewDanhBaChiTietDto>
             {
                 Items = items,
@@ -1530,7 +1547,7 @@ namespace thongbao.be.application.DanhBa.Implements
                         var headerName = headerRow[colIndex]?.Trim();
                         if (string.IsNullOrWhiteSpace(headerName)) continue;
 
-                        var cellValue = row[colIndex]?.Trim() ?? "";
+                        var cellValue = row[colIndex] ?? "";
                         pendingDanhBaDataMappings.Add((key, headerName, cellValue));
                     }
                 }
@@ -1978,7 +1995,7 @@ namespace thongbao.be.application.DanhBa.Implements
                         var headerName = headerRow[colIndex]?.Trim();
                         if (string.IsNullOrWhiteSpace(headerName)) continue;
 
-                        var cellValue = row[colIndex]?.Trim() ?? "";
+                        var cellValue = row[colIndex] ?? "";
                         pendingDanhBaDataMappings.Add((soDienThoai, headerName, cellValue));
                     }
                 }
@@ -2618,7 +2635,6 @@ namespace thongbao.be.application.DanhBa.Implements
         private async Task<List<List<string>>> _readExcelFile(IFormFile file, string sheetName)
         {
             var result = new List<List<string>>();
-
             using var stream = new MemoryStream();
             await file.CopyToAsync(stream);
             stream.Position = 0;
@@ -2648,15 +2664,12 @@ namespace thongbao.be.application.DanhBa.Implements
                     var cellValue = string.Empty;
                     if (!cell.IsEmpty())
                     {
-                        cellValue = cell.GetValue<string>();
+                        cellValue = cell.GetFormattedString();
                     }
-
                     rowData.Add(cellValue);
                 }
-
                 result.Add(rowData);
             }
-
             return result;
         }
 

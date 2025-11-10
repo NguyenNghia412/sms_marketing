@@ -19,6 +19,20 @@ namespace thongbao.be.application.DanhBa.Dtos
         //public int LaNguoiDung { get; set; }
         //public string? Lop { get; set; }
         //public string? KhoaSinhVien { get; set; }
-      
+        public List<ViewDanhBaChiTietTruongDto>? Items { get; set; } = new List<ViewDanhBaChiTietTruongDto>();
+
+    }
+
+    public class ViewDanhBaChiTietTruongDto
+    {
+        public int Id { get; set; }
+        public string TenTruong { get; set; } = string.Empty;
+        public ViewDanhBaChiTietDataDto? Data { get; set; } = new ViewDanhBaChiTietDataDto();
+    }
+
+    public class ViewDanhBaChiTietDataDto
+    {
+        public int Id { get; set; }
+        public string Data { get; set; } = string.Empty;
     }
 }

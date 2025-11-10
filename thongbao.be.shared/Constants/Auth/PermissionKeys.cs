@@ -95,6 +95,10 @@ namespace thongbao.be.shared.Constants.Auth
         public const string SubPlanView = Function + "SubPlanView";
 
 
+        public const string CategoryStringeeProfile = "QL Stringee Profile";
+        public const string StringeeProfileView = Function + "StringeeProfileView";
+
+
         public static readonly (string Key, string Name, string Category)[] All =
         {
             (MenuMarketing, "Menu Marketing", "Menu"),
@@ -167,7 +171,9 @@ namespace thongbao.be.shared.Constants.Auth
             (SubPlanView, "Xem SubPlan", CategorySubPlan),
 
             (GuiTinNhanAdd,"Gửi tin nhắn", CategoryGuiTinNhan),
-            
+
+            (StringeeProfileView, "Xem Stringee Profile", CategoryStringeeProfile)
+
 
         };
     }

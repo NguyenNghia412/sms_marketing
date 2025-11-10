@@ -231,6 +231,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 TenBrandName = brandName?.TenBrandName ?? string.Empty,
                 IsFlashSms = chienDich.IsFlashSms,
                 IsAccented = chienDich.IsAccented,
+                TrangThai = chienDich.TrangThai,
                 NoiDung = chienDich.NoiDung ?? string.Empty,
                 NgayBatDau = chienDich.NgayBatDau ?? DateTime.MinValue,
                 NgayKetThuc = chienDich.NgayKetThuc ?? DateTime.MinValue,
@@ -298,7 +299,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 TenChienDich = chienDichGoc.TenChienDich,
                 MoTa = chienDichGoc.MoTa,
-                NgayBatDau = chienDichGoc.NgayBatDau,
+                NgayBatDau = vietnamNow,
                 NgayKetThuc = chienDichGoc.NgayKetThuc,
                 IsFlashSms = chienDichGoc.IsFlashSms,
                 IdBrandName = chienDichGoc.IdBrandName,

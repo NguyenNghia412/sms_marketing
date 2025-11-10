@@ -17,6 +17,7 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public string TenChienDich { get; set; } = String.Empty;
         public int IdBrandName  { get; set; }
         public string TenBrandName { get; set; } = String.Empty ;
+        public bool TrangThai { get; set; }
         public bool IsFlashSms { get; set; }
         public bool IsAccented { get; set; }
         public string NoiDung { get; set; } = String.Empty ;

@@ -7,10 +7,22 @@ export type IColumn = {
   cellStyle?: string,
   cellViewType?: string,
   cellRender?: string,
+  /**
+   * DATE FORMAT kết hợp với cellViewType = 'DATE'
+   */
   dateFormat?: string,
   customComponent?: any,
+  /**
+   * CLICK LINK CELL
+   */
   clickable?: boolean,
   isFrozenRight?: boolean,
+  /**
+   * KẾT HỢP VỚI cellViewType = 'STATUS'
+   * @param rowData 
+   * @returns 
+   */
+  statusSeverityFunction?: (rowData: any) => string;
 }
 
 

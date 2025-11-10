@@ -39,8 +39,8 @@ export class DotDiemDanh extends BaseComponent {
         { header: 'STT', cellViewType: CellViewTypes.INDEX },
         { header: 'Tên', field: 'tenDotDiemDanh', headerContainerStyle: 'min-width: 12rem' },
         { header: 'Môn học', field: 'tenMonHoc', headerContainerStyle: 'min-width: 12rem' },
-        { header: 'Thời gian bắt đầu', field: 'thoiGianBatDau', headerContainerStyle: 'min-width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
-        { header: 'Thời gian kết thúc', field: 'thoiGianKetThuc', headerContainerStyle: 'min-width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy hh:mm:ss' },
+        { header: 'Thời gian bắt đầu', field: 'thoiGianBatDau', headerContainerStyle: 'min-width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss' },
+        { header: 'Thời gian kết thúc', field: 'thoiGianKetThuc', headerContainerStyle: 'min-width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss' },
         { header: 'Thao tác', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 

@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using thongbao.be.Attributes;
 using thongbao.be.Controllers.Base;
 using thongbao.be.lib.Stringee.Interfaces;
+using thongbao.be.shared.Constants.Auth;
 using thongbao.be.shared.HttpRequest;
 
 namespace thongbao.be.Controllers.ProfileStringee
@@ -19,6 +21,7 @@ namespace thongbao.be.Controllers.ProfileStringee
         {
             _profileService = profileService;
         }
+        [Permission(PermissionKeys.StringeeProfileView)]
     
         [HttpGet("")]
         public async Task<ApiResponse> GetProfileStringeeInfor()
@@ -33,6 +36,8 @@ namespace thongbao.be.Controllers.ProfileStringee
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.StringeeProfileView)]
+
         [HttpGet("exchange-rate-vnd")]
         public async Task<ApiResponse> GetExchangeRate()
             {

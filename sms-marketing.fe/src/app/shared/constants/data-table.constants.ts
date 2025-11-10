@@ -5,4 +5,5 @@ export class CellViewTypes {
   static CHECKBOX: string ='CHECKBOX' 
   static CUSTOM_COMP: string ='CUSTOM_COMP' 
   static LINK_BLANK: string ='LINK_BLANK' 
+  static STATUS: string ='STATUS' 
 }

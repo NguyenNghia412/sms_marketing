@@ -31,6 +31,7 @@ export class MobilePreview extends BaseComponent {
         super();
         effect(() => {
             this.noiDung();
+            this.isAccented();
             
             clearTimeout(this.debounceTimer);
 
@@ -57,6 +58,7 @@ export class MobilePreview extends BaseComponent {
     }
 
     onPreviewSendSms() {
+        console.log('onPreviewSendSms');
         const body: IPreviewSendSms = {
             idChienDich: this.idChienDich(),
             idBrandName: this.idBrandName() ?? 0,

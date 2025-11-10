@@ -23,13 +23,18 @@
                 } @else if (col.cellViewType === cellViewTypes.DATE) {
                 {{ get(row, col.field || '') | date: (col.dateFormat || 'dd/MM/yyyy') }}
                 } @else if (col.cellViewType === cellViewTypes.CURRENCY) {
-                {{ get(row, col.field || '') | currency: 'USD' : 'symbol' }}
+                {{ formatVND(get(row, col.field || '')) }}
                 }
                 @else if (col.cellViewType === cellViewTypes.CHECKBOX) {
                 <input type="checkbox" [checked]="get(row, col.field || '')" (click)="$event.stopPropagation()" (change)="onCellClick(col, row)" />
                 }
                 @else if (col.cellViewType === cellViewTypes.LINK_BLANK) {
                     <a [href]="get(row, col.field || '')" target="_blank" class="!underline cursor-pointer text-blue-600">{{get(row, col.field || '')}}</a>
+                }
+                @else if (col.cellViewType === cellViewTypes.STATUS && col.statusSeverityFunction) {
+                    <div class="flex justify-center">
+                        <p-tag [value]="get(row, col.field || '')" [severity]="col.statusSeverityFunction(row)"></p-tag>
+                    </div>
                 }
                 @else if ('field' in col) {
                 <span [class.cursor-pointer]="isCellClickable(col)" (click)="onCellClick(col, row)">{{ get(row, col.field || '') }}</span>

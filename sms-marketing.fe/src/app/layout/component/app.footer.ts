@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
     selector: 'app-footer',
     template: `<div class="layout-footer">
         SMS MARKETING by
-        <a href="https://nhaplieu.com" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline">nhaplieu.com</a>
+        <span class="text-primary font-bold hover:underline">DOMOCOM</span>
     </div>`
 })
 export class AppFooter {}
