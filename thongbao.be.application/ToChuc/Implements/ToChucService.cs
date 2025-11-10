@@ -42,9 +42,9 @@ namespace thongbao.be.application.ToChuc.Implements
         {
             _logger.LogInformation($"{nameof(Create)}  dto = {JsonSerializer.Serialize(dto)}");
             var vietnamNow = GetVietnamTime();
-            if (dto.LoaiToChuc != ToChucConstants.NhanVien && dto.LoaiToChuc != ToChucConstants.SinhVien) {
+            /*if (dto.LoaiToChuc != ToChucConstants.NhanVien && dto.LoaiToChuc != ToChucConstants.SinhVien) {
                 throw new UserFriendlyException(ErrorCodes.ToChucErrorLoaiToChucNotFound,ErrorMessages.GetMessage(ErrorCodes.ToChucErrorLoaiToChucNotFound));
-            }
+            }*/
                 var toChuc = new domain.ToChuc.ToChuc
             {
                 TenToChuc = dto.TenToChuc,
