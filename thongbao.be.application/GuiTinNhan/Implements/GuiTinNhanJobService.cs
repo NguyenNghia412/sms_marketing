@@ -324,11 +324,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                 var networkCosts = new Dictionary<string, int>
                 {
-                    ["Viettel"] = 800,
-                    ["Mobifone"] = 800,
-                    ["Vinaphone"] = 800,
-                    ["Vietnamobile"] = 800,
-                    ["Gmobile"] = 800
+                    ["Viettel"] = 420,
+                    ["Mobifone"] = 420,
+                    ["Vinaphone"] = 420,
+                    ["Vietnamobile"] = 700,
+                    ["Gmobile"] = 300
                 };
 
                 var viettelPrefixes = new[] { "96", "97", "98", "86", "32", "33", "34", "35", "36", "37", "38", "39" };
@@ -442,11 +442,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                     var networkCosts = new Dictionary<string, int>
                     {
-                        ["Viettel"] = 800,
-                        ["Mobifone"] = 800,
-                        ["Vinaphone"] = 800,
-                        ["Vietnamobile"] = 800,
-                        ["Gmobile"] = 800
+                        ["Viettel"] = 420,
+                        ["Mobifone"] = 420,
+                        ["Vinaphone"] = 420,
+                        ["Vietnamobile"] = 700,
+                        ["Gmobile"] = 300
                     };
 
                     var viettelPrefixes = new[] { "96", "97", "98", "86", "32", "33", "34", "35", "36", "37", "38", "39" };
