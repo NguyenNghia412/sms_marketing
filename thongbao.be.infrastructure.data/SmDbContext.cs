@@ -141,11 +141,11 @@ namespace thongbao.be.infrastructure.data
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-            modelBuilder.Entity<ToChucDanhBaChiTiet>(entity =>
-            {
-                entity.Property(e => e.Deleted).HasDefaultValue(0);
-                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
-            });
+                modelBuilder.Entity<ToChucDanhBaChiTiet>(entity =>
+                {
+                    entity.Property(e => e.Deleted).HasDefaultValue(0);
+                    entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+                });
             modelBuilder.Entity<BrandName>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
