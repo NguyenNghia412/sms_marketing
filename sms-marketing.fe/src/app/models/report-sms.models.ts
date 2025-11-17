@@ -11,6 +11,7 @@ export interface IViewChienDichReport{
         idDanhBa?: number;
         tenDanhBa?: string;
     };
+    users?: IChienDichLogCreatedBy[]
     tongSoSms?: number
     smsSentSuccess?: number
     smsSentFailed?: number
@@ -32,6 +33,8 @@ export interface ILogReport {
     code?: number;
     message?: string;
     ngayGui?: string;
+    soLuongTinNhan?: number;
+    users: IChienDichLogCreatedBy[]
 }
 
 export interface IViewChiTietChienDichReport {
@@ -54,4 +57,10 @@ export interface IFindPagingChienDichReport extends IBaseRequestPaging {}
 export interface IFindPagingChiTietChienDichReport extends IBaseRequestPaging{
     idDanhBa?: number;
 }
+
+export interface IChienDichLogCreatedBy{
+    id?: string
+    fullName?: string
+}
+
 

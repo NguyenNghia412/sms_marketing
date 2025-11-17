@@ -405,6 +405,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             Code = code,
                             Message = message,
                             TrangThai = trangThaiChiTiet,
+                            SoLuongTinNhan = smsCount,
                             CreatedDate = vietnamNow,
                             CreatedBy = currentUserId
                         };
@@ -523,6 +524,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             Code = code,
                             Message = message,
                             TrangThai = trangThaiChiTiet,
+                            SoLuongTinNhan = smsCount,
+                
                             CreatedDate = vietnamNow,
                             CreatedBy = currentUserId
                         };

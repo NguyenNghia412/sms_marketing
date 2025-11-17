@@ -30,6 +30,7 @@ namespace thongbao.be.domain.GuiTinNhan
         public int Code { get; set; }
         public string Message { get; set; } = String.Empty;
         public string TrangThai { get; set; } = String.Empty;
+        public int SoLuongTinNhan { get; set; } 
         public string NoiDungChiTiet { get; set; } = String.Empty;
         public string? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }

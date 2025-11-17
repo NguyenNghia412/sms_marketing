@@ -16,6 +16,7 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
 
         public BrandNameDto BrandName { get; set; } = new BrandNameDto();
         public ViewGuiTinNhanLogDto Log { get; set; } = new ViewGuiTinNhanLogDto();
+        public CreatedByGuiTinNhanLogDto Users { get; set; } = new CreatedByGuiTinNhanLogDto();
     }
     public class BrandNameDto
     {
@@ -30,6 +31,17 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public int Code { get; set; }
         public string Message { get; set; } = String.Empty;
         public DateTime? NgayGui { get; set; }
+        public int SoLuongTinNhan { get; set; }
 
+
+    }
+
+    public class CreatedByGuiTinNhanLogDto
+    {
+        public string Id { get; set; } = String.Empty;
+        //public string UserName { get; set; } = String.Empty;
+        public string FullName { get; set; } = String.Empty;
+        //public string SoDienThoai { get; set; } = String.Empty;
+        //public string Email { get; set; } = String.Empty;
     }
 }

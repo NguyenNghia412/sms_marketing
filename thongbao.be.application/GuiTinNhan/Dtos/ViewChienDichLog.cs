@@ -17,7 +17,8 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public string NoiDung { get; set; } = String.Empty;
         public string TrangThai { get; set; } = String.Empty;
         public int? TongChiPhi { get; set; }
-        public DateTime? NgayGui { get; set; } 
+        public DateTime? NgayGui { get; set; }
+        public ChienDichLogCreatedByDto Users { get; set; } = new ChienDichLogCreatedByDto();
 
     }
     public class ViewDanhBaLogDto
@@ -25,5 +26,14 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public int IdDanhBa {  get; set; }
         public string TenDanhBa { get; set; } = String.Empty ;
     }
-    
+
+    public class ChienDichLogCreatedByDto
+    {
+        public string Id { get; set; } = String.Empty;
+        //public string UserName { get; set; } = String.Empty;
+        public string FullName { get; set; } = String.Empty;
+        //public string SoDienThoai { get; set; } = String.Empty;
+        //public string Email { get; set; } = String.Empty;
+    }
+
 }
