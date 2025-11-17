@@ -48,7 +48,7 @@ export class ChienDichReport extends BaseComponent {
             header: 'Tên chiến dịch', 
             field: 'tenChienDich', 
             headerContainerStyle: 'min-width: 6rem',
-            cellClass: 'cursor-pointer text-blue-600 hover:text-blue-800 hover:underline',
+            cellClass: 'cursor-pointer hover:text-blue-800 hover:underline',
             clickable: true 
         },
         { header: 'Tên danh bạ', field: 'danhBa.tenDanhBa', headerContainerStyle: 'min-width: 6rem' },
@@ -56,7 +56,7 @@ export class ChienDichReport extends BaseComponent {
         { header: 'Tổng số thuê bao', field: 'tongSoSms', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center' },
         { header: 'Gửi thành công', field: 'smsSentSuccess', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center' },
         { header: 'Gửi thất bại', field: 'smsSentFailed', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center' },
-        { header: 'Tổng chi phí', field: 'tongChiPhi', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center' },
+        { header: 'Tổng chi phí', field: 'tongChiPhi', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center', cellViewType: CellViewTypes.CURRENCY },
         //{ header: 'Trạng Thái', field: 'trangThaiText', headerContainerStyle: 'width: 10rem' },
         { header: 'Người gửi', field: 'users.fullName', headerContainerStyle: 'min-width: 12rem', cellStyle: 'text-align:center' },
         { header: 'Thời gian gửi', field: 'ngayGui', headerContainerStyle: 'width: 20rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss', cellStyle: 'text-align:center' }

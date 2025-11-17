@@ -44,7 +44,7 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
         { header: 'Số điện thoại', field: 'log.soDienThoai', headerContainerStyle: 'min-width: 8rem', cellStyle: 'text-align:center' },
         { header: 'Brand Name', field: 'tenBrandName', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center' },
         { header: 'Nội dung chi tiết', field: 'log.noiDungChiTiet', headerContainerStyle: 'min-width: 20rem' },
-        { header: 'Số Tin Nhắn', field: 'soLuongTinNhan', headerContainerStyle: 'min-width: 8rem', cellStyle: 'text-align:center' },
+        { header: 'Số Tin Nhắn', field: 'log.soLuongTinNhan', headerContainerStyle: 'min-width: 8rem', cellStyle: 'text-align:center' },
         { header: 'Chi Phí', field: 'gia', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center' },
         { header: 'Message', field: 'messageText', headerContainerStyle: 'min-width: 8rem', cellStyle: 'text-align:center' },
         { header: 'Người gửi', field: 'users.fullName', headerContainerStyle: 'min-width: 12rem', cellStyle: 'text-align:center' },

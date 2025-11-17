@@ -185,6 +185,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                     Code = log.Code,
                                     Message = log.Message,
                                     NgayGui = log.CreatedDate,
+                                    SoLuongTinNhan = log.SoLuongTinNhan,
                                 }
                             };
                 var data = query.Paging(dto).ToList();
@@ -429,6 +430,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         worksheet.Cell(currentRow, 5).Value = chiTiet.bn.TenBrandName;
                         worksheet.Cell(currentRow, 6).Value = chiTiet.log.NoiDungChiTiet;
                         worksheet.Cell(currentRow, 7).Value = chiTiet.log.TrangThai;
+                        worksheet.Cell(currentRow, 8).Value = chiTiet.log.SoLuongTinNhan;
                         worksheet.Cell(currentRow, 9).Value = !string.IsNullOrEmpty(chiTiet.log.CreatedBy) ?
                             _smDbContext.Users.FirstOrDefault(x => x.Id == chiTiet.log.CreatedBy)?.FullName ?? "" : "";
                         worksheet.Cell(currentRow, 10).Value = chiTiet.log.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");

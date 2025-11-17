@@ -23,7 +23,7 @@
                 } @else if (col.cellViewType === cellViewTypes.DATE) {
                 {{ get(row, col.field || '') | date: (col.dateFormat || 'dd/MM/yyyy') }}
                 } @else if (col.cellViewType === cellViewTypes.CURRENCY) {
-                {{ get(row, col.field || '') | currency: 'USD' : 'symbol' }}
+                {{ formatVND(get(row, col.field || '')) }}
                 }
                 @else if (col.cellViewType === cellViewTypes.CHECKBOX) {
                 <input type="checkbox" [checked]="get(row, col.field || '')" (click)="$event.stopPropagation()" (change)="onCellClick(col, row)" />

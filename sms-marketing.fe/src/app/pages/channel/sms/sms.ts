@@ -41,7 +41,7 @@ export class Sms extends BaseComponent {
         { header: 'Người tạo', field: 'users.fullName', headerContainerStyle: 'min-width:9rem' },
         { header: 'Số thuê bao', field: 'soLuongThueBao', headerContainerStyle: 'min-width: 8rem', cellStyle: 'text-align:center' },
         { header: 'Gửi thành công', field: 'soLuongSmsDaGuiThanhCong', headerContainerStyle: 'min-width: 9rem', cellStyle: 'text-align:center' },
-        { header: 'Gửi thất bại', field: 'soLuongSmsDaGuiThatBai', headerContainerStyle: 'min-width: 8rem', cellStyle: 'text-align:center' },
+        { header: 'Gửi thất bại', field: 'soLuongSmsGuiThatBai', headerContainerStyle: 'min-width: 8rem', cellStyle: 'text-align:center' },
         {
             header: 'Trạng thái',
             field: 'trangThaiText',
@@ -52,7 +52,7 @@ export class Sms extends BaseComponent {
             }
         },
         //{ header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss' },
-        { header: 'Thời gian tạo', field: 'ngayBatDau', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss', cellStyle: 'text-align:center' },
+        { header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss', cellStyle: 'text-align:center' },
         { header: 'Thao tác', headerContainerStyle: 'width: 6rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
