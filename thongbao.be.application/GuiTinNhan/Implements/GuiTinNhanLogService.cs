@@ -2,6 +2,7 @@
 using ClosedXML.Excel;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 using thongbao.be.application.Base;
 using thongbao.be.application.GuiTinNhan.Dtos;
 using thongbao.be.application.GuiTinNhan.Interfaces;
+using thongbao.be.domain.Auth;
 using thongbao.be.domain.DanhBa;
 using thongbao.be.domain.GuiTinNhan;
 using thongbao.be.infrastructure.data;
@@ -25,15 +27,18 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 {
     public class GuiTinNhanLogService : BaseService, IGuiTinNhanLogService
     {
+        private readonly UserManager<AppUser> _userManager;
         private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
         public GuiTinNhanLogService(
              SmDbContext smDbContext,
             ILogger<GuiTinNhanLogService> logger,
             IHttpContextAccessor httpContextAccessor,
+            UserManager<AppUser> userManager,
             IMapper mapper
             ) : base(smDbContext, logger, httpContextAccessor, mapper)
         {
+            _userManager = userManager;
         }
 
         public BaseResponsePagingDto<ViewChienDichLogDto> PagingChienDichLog(FindPagingChienDichLogDto dto)
@@ -47,6 +52,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         where !cd.Deleted && (isSuperAdmin || cd.CreatedBy == currentUserId)
                         join db in _smDbContext.DanhBas on clog.IdDanhBa equals db.Id into dbGroup
                         from db in dbGroup.DefaultIfEmpty()
+                        join u in _userManager.Users on cd.CreatedBy equals u.Id
                         where !cd.Deleted && !clog.Deleted && (db == null || !db.Deleted)
                               && (string.IsNullOrEmpty(dto.Keyword)
                                   || cd.TenChienDich.Contains(dto.Keyword)
@@ -68,7 +74,15 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             {
                                 IdDanhBa = db.Id,
                                 TenDanhBa = db.TenDanhBa
-                            } : null
+                            } : null,
+                             Users = new ChienDichLogCreatedByDto
+                             {
+                                 Id = u.Id,
+                                 //UserName = u.UserName ?? "",
+                                 FullName = u.FullName,
+                                 //SoDienThoai = u.PhoneNumber ?? "",
+                                 //Email = u.Email ?? "",
+                             },
                         };
             var data = query.Paging(dto).ToList();
             return new BaseResponsePagingDto<ViewChienDichLogDto>
@@ -94,6 +108,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 var query = from dbs in _smDbContext.DanhBaSms
                             join log in _smDbContext.GuiTinNhanLogChiTiets on dbs.Id equals log.IdDanhBaSms
                             join bn in _smDbContext.BrandName on log.IdBrandName equals bn.Id
+                            join u in _userManager.Users on log.CreatedBy equals u.Id
                             where !dbs.Deleted && !log.Deleted && !bn.Deleted
                                   && log.IdChienDich == idChienDich
                                   && dbs.IdDanhBa == dto.idDanhBa
@@ -121,7 +136,16 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                     Code = log.Code,
                                     Message = log.Message,
                                     NgayGui = log.CreatedDate,
-                                }
+                                    SoLuongTinNhan = log.SoLuongTinNhan,
+                                },
+                                Users = new CreatedByGuiTinNhanLogDto
+                                {
+                                    Id = u.Id,
+                                    //UserName = u.UserName ?? "",
+                                    FullName = u.FullName,
+                                    //SoDienThoai = u.PhoneNumber ?? "",
+                                    //Email = u.Email ?? "",
+                                },
                             };
                 var data = query.Paging(dto).ToList();
                 return new BaseResponsePagingDto<ViewDanhBaSmsLogDto>
@@ -161,6 +185,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                     Code = log.Code,
                                     Message = log.Message,
                                     NgayGui = log.CreatedDate,
+                                    SoLuongTinNhan = log.SoLuongTinNhan,
                                 }
                             };
                 var data = query.Paging(dto).ToList();
@@ -189,7 +214,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 titleCell.Style.Font.FontSize = 16;
                 titleCell.Style.Fill.BackgroundColor = XLColor.LightGray;
                 titleCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                worksheet.Range(currentRow, 1, currentRow, 8).Merge();
+                worksheet.Range(currentRow, 1, currentRow, 10).Merge();
                 currentRow += 3;
 
                 foreach (var idChienDich in dto.idChienDichs)
@@ -221,9 +246,12 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     worksheet.Cell(currentRow, 5).Value = "BrandName";
                     worksheet.Cell(currentRow, 6).Value = "Nội Dung Chi Tiết";
                     worksheet.Cell(currentRow, 7).Value = "Trạng Thái";
-                    worksheet.Cell(currentRow, 8).Value = "Thời Gian Gửi";
+                    worksheet.Cell(currentRow, 8).Value = "Số Lượng Tin Nhắn";
+                    worksheet.Cell(currentRow, 9).Value = "Người Đặt Lệnh";
+                    worksheet.Cell(currentRow, 10).Value = "Thời Gian Gửi";
 
-                    for (int col = 1; col <= 8; col++)
+
+                    for (int col = 1; col <= 10; col++)
                     {
                         var headerCell = worksheet.Cell(headerRow, col);
                         headerCell.Style.Fill.BackgroundColor = XLColor.LightGray;
@@ -243,7 +271,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         worksheet.Cell(currentRow, 5).Value = chiTiet.bn.TenBrandName;
                         worksheet.Cell(currentRow, 6).Value = chiTiet.log.NoiDungChiTiet;
                         worksheet.Cell(currentRow, 7).Value = chiTiet.log.TrangThai;
-                        worksheet.Cell(currentRow, 8).Value = chiTiet.log.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");
+                        worksheet.Cell(currentRow, 8).Value = chiTiet.log.SoLuongTinNhan;
+                        worksheet.Cell(currentRow, 9).Value = !string.IsNullOrEmpty(chiTiet.log.CreatedBy) ?
+                            _smDbContext.Users.FirstOrDefault(x => x.Id == chiTiet.log.CreatedBy)?.FullName ?? "" : "";
+                        worksheet.Cell(currentRow, 10).Value = chiTiet.log.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");
 
                         currentRow++;
                         stt++;
@@ -302,7 +333,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 worksheet.Column(5).Width = 15;
                 worksheet.Column(6).Width = 45;
                 worksheet.Column(7).Width = 15;
-                worksheet.Column(8).Width = 20;
+                worksheet.Column(8).Width = 15;
+                worksheet.Column(9).Width = 20;
+                worksheet.Column(10).Width = 20;
 
                 using (var memoryStream = new System.IO.MemoryStream())
                 {
@@ -328,7 +361,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 titleCell.Style.Font.FontSize = 16;
                 titleCell.Style.Fill.BackgroundColor = XLColor.LightGray;
                 titleCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                worksheet.Range(currentRow, 1, currentRow, 8).Merge();
+                worksheet.Range(currentRow, 1, currentRow, 10).Merge();
                 currentRow += 3;
 
                 var chienDichLogsTheoThang = await _smDbContext.ChienDichLogTrangThaiGuis
@@ -373,9 +406,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     worksheet.Cell(currentRow, 5).Value = "BrandName";
                     worksheet.Cell(currentRow, 6).Value = "Nội Dung Chi Tiết";
                     worksheet.Cell(currentRow, 7).Value = "Trạng Thái";
-                    worksheet.Cell(currentRow, 8).Value = "Thời Gian Gửi";
+                    worksheet.Cell(currentRow, 8).Value = "Số Lượng Tin Nhắn";
+                    worksheet.Cell(currentRow, 9).Value = "Người Đặt Lệnh";
+                    worksheet.Cell(currentRow, 10).Value = "Thời Gian Gửi";
 
-                    for (int col = 1; col <= 8; col++)
+                    for (int col = 1; col <= 9; col++)
                     {
                         var headerCell = worksheet.Cell(headerRow, col);
                         headerCell.Style.Fill.BackgroundColor = XLColor.LightGray;
@@ -395,7 +430,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         worksheet.Cell(currentRow, 5).Value = chiTiet.bn.TenBrandName;
                         worksheet.Cell(currentRow, 6).Value = chiTiet.log.NoiDungChiTiet;
                         worksheet.Cell(currentRow, 7).Value = chiTiet.log.TrangThai;
-                        worksheet.Cell(currentRow, 8).Value = chiTiet.log.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");
+                        worksheet.Cell(currentRow, 8).Value = chiTiet.log.SoLuongTinNhan;
+                        worksheet.Cell(currentRow, 9).Value = !string.IsNullOrEmpty(chiTiet.log.CreatedBy) ?
+                            _smDbContext.Users.FirstOrDefault(x => x.Id == chiTiet.log.CreatedBy)?.FullName ?? "" : "";
+                        worksheet.Cell(currentRow, 10).Value = chiTiet.log.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");
 
                         currentRow++;
                         stt++;
@@ -454,7 +492,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 worksheet.Column(5).Width = 15;
                 worksheet.Column(6).Width = 45;
                 worksheet.Column(7).Width = 15;
-                worksheet.Column(8).Width = 20;
+                worksheet.Column(8).Width = 15;
+                worksheet.Column(9).Width = 20;
+                worksheet.Column(10).Width = 20;
 
                 using (var memoryStream = new System.IO.MemoryStream())
                 {

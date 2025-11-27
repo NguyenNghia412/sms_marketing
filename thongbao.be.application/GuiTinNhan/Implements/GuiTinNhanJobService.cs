@@ -405,6 +405,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             Code = code,
                             Message = message,
                             TrangThai = trangThaiChiTiet,
+                            SoLuongTinNhan = smsCount,
                             CreatedDate = vietnamNow,
                             CreatedBy = currentUserId
                         };
@@ -523,6 +524,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             Code = code,
                             Message = message,
                             TrangThai = trangThaiChiTiet,
+                            SoLuongTinNhan = smsCount,
+                
                             CreatedDate = vietnamNow,
                             CreatedBy = currentUserId
                         };
@@ -1050,11 +1053,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
             var networkCosts = new Dictionary<string, int>
             {
-                ["Viettel"] = 800,
-                ["Mobifone"] = 800,
-                ["Vinaphone"] = 800,
-                ["Vietnamobile"] = 800,
-                ["Gmobile"] = 800
+                ["Viettel"] = 420,
+                ["Mobifone"] = 420,
+                ["Vinaphone"] = 420,
+                ["Vietnamobile"] = 700,
+                ["Gmobile"] = 300
             };
 
             var smsMessages = new List<object>();
@@ -1066,7 +1069,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 string personalizedText = "";
                 int calculatedPrice = 0;
-
+                int smsCount = 0;
                 try
                 {
                     var userData = danhBaData.Where(x => x.IdDanhBaChiTiet == danhBaChiTiet.Id).ToList();
@@ -1074,8 +1077,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     var formattedPhoneNumber = FormatPhoneNumber(danhBaChiTiet.SoDienThoai);
                     var network = GetNetworkByPhoneNumber(formattedPhoneNumber);
                     var length = personalizedText.Length;
-                    int smsCount = CalculateSmsCount(length, IsAccented);
+                    smsCount = CalculateSmsCount(length, IsAccented);
 
+                    _logger.LogInformation($"[DEBUG] Phone: {danhBaChiTiet.SoDienThoai}, smsCount: {smsCount}");
                     if (networkCosts.ContainsKey(network))
                     {
                         calculatedPrice = networkCosts[network] * smsCount;
@@ -1150,11 +1154,13 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         Code = code,
                         Message = message,
                         TrangThai = trangThai,
+                        SoLuongTinNhan = smsCount,
                         CreatedDate = vietnamNow,
                         CreatedBy = currentUserId
                     };
-
+                   _logger.LogInformation($"[DEBUG] Before Add - Phone: {danhBaChiTiet.SoDienThoai}, SoLuongTinNhan: {logChiTiet.SoLuongTinNhan}");
                     _smDbContext.GuiTinNhanLogChiTiets.Add(logChiTiet);
+                    _logger.LogInformation($"[DEBUG] After Add - Phone: {danhBaChiTiet.SoDienThoai}, SoLuongTinNhan: {logChiTiet.SoLuongTinNhan}");
 
                     smsMessages.Add(smsObject);
                 }
@@ -1174,6 +1180,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         Code = -1,
                         Message = $"Exception: {ex.Message}",
                         TrangThai = "Failed",
+                        SoLuongTinNhan = 0,
                         CreatedDate = vietnamNow,
                         CreatedBy = currentUserId
                     };
@@ -1186,7 +1193,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             }
 
             await _smDbContext.SaveChangesAsync();
-
+            _logger.LogInformation($"[DEBUG] SaveChangesAsync completed for batch {batchIndex}");
             return (smsMessages, totalSuccess, totalFailed, totalCost);
         }
 
