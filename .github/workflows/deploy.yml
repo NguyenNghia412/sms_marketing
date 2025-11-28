@@ -14,10 +14,6 @@ jobs:
           fetch-depth: 0
           clean: false  # Prevents deletion of untracked files
       
-
-      - name: Clean old code
-        run: |
-          rm -rf ~/smdev/code
           
       - name: Copy Code
         run: 
