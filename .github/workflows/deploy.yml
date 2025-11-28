@@ -17,7 +17,7 @@ jobs:
 
       - name: Clean old code
         run: |
-          rm -rf ~/smdev/code/*
+          rm -rf ~/smdev/code
           
       - name: Copy Code
         run: 
