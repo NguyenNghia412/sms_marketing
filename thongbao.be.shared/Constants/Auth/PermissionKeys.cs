@@ -23,14 +23,6 @@ namespace thongbao.be.shared.Constants.Auth
         public const string MenuContact = Menu + "Contact";
         public const string MenuTemplate = Menu + "Template";
         public const string MenuReport = Menu + "Report";
-        public const string MenuTraoBang = Menu + "TraoBang";
-
-        public const string MenuTraoBangCauHinh = MenuTraoBang + "_CauHinh";
-        public const string MenuTraoBangCauHinhChuongTrinh = MenuTraoBangCauHinh + "_ChuongTrinh";
-        public const string MenuTraoBangCauHinhKhoa = MenuTraoBangCauHinh + "_Khoa";
-        public const string MenuTraoBangCauHinhSinhVienNhanBang = MenuTraoBangCauHinh + "_SinhVienNhanBang";
-        public const string MenuTraoBangQuetQr = MenuTraoBang + "_QuetQr";
-        public const string MenuTraoBangMc = MenuTraoBang + "_Mc";
 
         public const string CategoryUser = "QL User";
         public const string UserAdd = Function + "UserAdd";
@@ -82,17 +74,7 @@ namespace thongbao.be.shared.Constants.Auth
         public const string GuiTinNhanAdd = Function + "GuiTinNhanAdd";
         
 
-        public const string CategoryPlan = "QL Plan";
-        public const string PlanAdd = Function + "PlanAdd";
-        public const string PlanUpdate = Function + "PlanUpdate";
-        public const string PlanDelete = Function + "PlanDelete";
-        public const string PlanView = Function + "PlanView";
 
-        public const string CategorySubPlan = "QL SubPlan";
-        public const string SubPlanAdd = Function + "SubPlanAdd";
-        public const string SubPlanUpdate = Function + "SubPlanUpdate";
-        public const string SubPlanDelete = Function + "SubPlanDelete";
-        public const string SubPlanView = Function + "SubPlanView";
 
 
         public const string CategoryStringeeProfile = "QL Stringee Profile";
@@ -113,14 +95,7 @@ namespace thongbao.be.shared.Constants.Auth
             (MenuContact, "Menu Danh bạ", "Menu"),
             (MenuTemplate, "Menu Template", "Menu"),
             (MenuReport, "Menu Báo cáo", "Menu"),
-            (MenuTraoBang, "Menu Trao Bằng", "Menu"),
 
-            (MenuTraoBangCauHinh, "Menu Trao Bằng Cấu hình", "Menu"),
-            (MenuTraoBangCauHinhChuongTrinh, "Menu Trao Bằng Cấu hình Chương trình", "Menu"),
-            (MenuTraoBangCauHinhKhoa, "Menu Trao Bằng Cấu hình Khoa", "Menu"),
-            (MenuTraoBangCauHinhSinhVienNhanBang, "Menu Trao Bằng Cấu hình Sinh viên", "Menu"),
-            (MenuTraoBangQuetQr, "Menu Trao Bằng Quét QR", "Menu"),
-            (MenuTraoBangMc, "Menu Trao Bằng Điều khiển", "Menu"),
 
             (UserAdd, "Thêm user", CategoryUser),
             (UserUpdate, "Cập nhật User" , CategoryUser),
@@ -160,15 +135,6 @@ namespace thongbao.be.shared.Constants.Auth
             (MauNoiDungDelete, "Xoá Mẫu Nội Dung", CategoryMauNoiDung),
             (MauNoiDungView, "Xem Mẫu Nội Dung", CategoryMauNoiDung),
 
-            (PlanAdd, "Thêm Plan ", CategoryPlan),
-            (PlanUpdate, "Cập nhật Plan", CategoryPlan),
-            (PlanDelete, "Xoá Plan", CategoryPlan),
-            (PlanView, "Xem Plan", CategoryPlan),
-
-            (SubPlanAdd, "Thêm SubPlan ", CategorySubPlan),
-            (SubPlanUpdate, "Cập nhật SubPlan", CategorySubPlan),
-            (SubPlanDelete, "Xoá SubPlan", CategorySubPlan),
-            (SubPlanView, "Xem SubPlan", CategorySubPlan),
 
             (GuiTinNhanAdd,"Gửi tin nhắn", CategoryGuiTinNhan),
 

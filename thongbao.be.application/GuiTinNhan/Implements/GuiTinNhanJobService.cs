@@ -1158,9 +1158,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         CreatedDate = vietnamNow,
                         CreatedBy = currentUserId
                     };
-                   _logger.LogInformation($"[DEBUG] Before Add - Phone: {danhBaChiTiet.SoDienThoai}, SoLuongTinNhan: {logChiTiet.SoLuongTinNhan}");
+                   
                     _smDbContext.GuiTinNhanLogChiTiets.Add(logChiTiet);
-                    _logger.LogInformation($"[DEBUG] After Add - Phone: {danhBaChiTiet.SoDienThoai}, SoLuongTinNhan: {logChiTiet.SoLuongTinNhan}");
+
 
                     smsMessages.Add(smsObject);
                 }
@@ -1193,7 +1193,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             }
 
             await _smDbContext.SaveChangesAsync();
-            _logger.LogInformation($"[DEBUG] SaveChangesAsync completed for batch {batchIndex}");
+
             return (smsMessages, totalSuccess, totalFailed, totalCost);
         }
 

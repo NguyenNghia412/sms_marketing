@@ -119,63 +119,7 @@ export class AppMenu {
                 visible: this._sharedService.isGranted(PermissionConstants.MenuReport),
 
             },
-            {
-                items: [
-                    {
-                        label: 'Trao bằng',
-                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBang),
-                        items: [
-                            {
-                                label: 'Màn hình',
-                                items: [
-                                    {
-                                        label: 'Sân khấu',
-                                        routerLink: ['/guest/trao-bang/main-screen'],
-                                        visible: true,
-                                    },
-                                    {
-                                        label: 'Cánh gà',
-                                        routerLink: ['/guest/trao-bang/side-screen'],
-                                        visible: true,
-                                    },
-                                    {
-                                        label: 'Điều khiển',
-                                        routerLink: ['/trao-bang/mc-screen'],
-                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangMc),
-                                    },
-                                    {
-                                        label: 'Checkin',
-                                        routerLink: ['/trao-bang/scan-qr-sv'],
-                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangQuetQr),
-                                    },
-                                ]
-                            },
-                            {
-                                label: 'Cấu hình',
-                                visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangCauHinh),
-                                items: [
-                                    {
-                                        label: 'Chương trình',
-                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangCauHinhChuongTrinh),
-                                        routerLink: ['/trao-bang/config/plan']
-                                    },
-                                    {
-                                        label: 'Khoa',
-                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangCauHinhKhoa),
-                                        routerLink: ['/trao-bang/config/sub-plan']
-                                    },
-                                    {
-                                        label: 'SV nhận bằng',
-                                        visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBangCauHinhSinhVienNhanBang),
-                                        routerLink: ['/trao-bang/config/sv']
-                                    },
-                                ]
-                            },
-                        ]
-                    }
-                ],
-                visible: this._sharedService.isGranted(PermissionConstants.MenuTraoBang),
-            },
+            
             {
                 items: [
                     {
