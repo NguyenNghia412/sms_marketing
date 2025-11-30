@@ -1,0 +1,37 @@
+<div class="card h-full">
+    <div class="flex flex-row justify-between items-center mb-4">
+        <div class="font-semibold text-xl uppercase">Cấu hình template Email</div>
+        <div class="flex gap-2 items-center">
+
+            <p-select
+                [options]="data"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Chọn data để preview"
+                (onChange)="selectData($event)">
+            </p-select>
+            <p-button
+                label="Preview"
+                icon="pi pi-eye"
+                severity="secondary"
+                size="small"
+                [disabled]="!selectedPerson"
+                (click)="previewWithData()">
+            </p-button>
+            <p-button
+                label="Save"
+                icon="pi pi-save"
+                severity="success"
+                size="small"
+                (click)="saveTemplate()">
+            </p-button>
+        </div>
+    </div>
+
+    <app-breadcrumb [home]="home" [items]="items" />
+
+    <!-- Email Editor -->
+    <div class="col-span-9 h-full">
+        <email-editor #editor style="height: 70vh" class="h-full" [options]="options" (loaded)="onLoad()" (ready)="onReady($event)"> </email-editor>
+    </div>
+</div>
