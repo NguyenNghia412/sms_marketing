@@ -58,7 +58,7 @@ export class MauNoiDung extends BaseComponent {
         this.data = [
             {
                 id: 1,
-                nameTemplate: 'EMAIL Template',
+                nameTemplate: 'EMAIL Template 1 ',
                 design: {
                     counters: {
                         u_column: 17,
@@ -110,7 +110,7 @@ export class MauNoiDung extends BaseComponent {
                                                     deletable: true,
                                                     hideable: true,
                                                     locked: false,
-                                                    text: '<strong>☣ Thuốc L&agrave;o ☣</strong>',
+                                                    text: '<strong>TITLE OF EMAIL</strong>',
                                                     _languages: {}
                                                 }
                                             },
@@ -144,7 +144,7 @@ export class MauNoiDung extends BaseComponent {
                                                     deletable: true,
                                                     hideable: true,
                                                     locked: false,
-                                                    text: '<strong>&nbsp;Văn Thơ Thuốc L&agrave;o</strong>',
+                                                    text: '<span>THANKS {{name}}</span>',
                                                     _languages: {}
                                                 }
                                             }
@@ -229,30 +229,8 @@ export class MauNoiDung extends BaseComponent {
                                                     hideable: true,
                                                     locked: false,
                                                     textJson:
-                                                        '{"root":{"children":[{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"Hút thuốc lào nâng cao sĩ diện.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"\\r\\nThơm mồm bổ phổi,diệt trùng lao.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"\\r\\nNâng điếu lên như Triệu Tử cầm đao.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"\\r\\nNhả khói ra như Khổng Minh gọi gió.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"\\r\\nMột thằng hút,bốn thằng say.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"\\r\\nHai thằng châm đóm ngã lăn quay.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"\\r\\nBà già vác củi loay hoay.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"\\r\\nHít phải mùi thuốc lăn quay xuống đồi.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"\\r\\nNgọc Hoàng trông thấy hay hay.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"\\r\\nVén mây nhìn xuống cũng say thuốc lào","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"}],"direction":"ltr","format":"","indent":0,"type":"root","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"}}',
+                                                        '{"root":{"children":[{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"Smoking pipe tobacco boosts one’s pride.","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"\\nFragrant breath, lungs fortified, chasing all the germs aside.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"Raise the pipe like Zhao Yun lifting his spear high.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"Blow the smoke like Kongming summoning the winds from the sky.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"\\nOne man smokes — four men get dizzy.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"Two light the ember — both fall down easy.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"An old granny carrying firewood, all busy,\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"Breathes in a whiff — tumbles down the hill all woozy.\\n","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"\\nJade Emperor sees it and laughs away,","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"},{"children":[{"detail":0,"format":1,"mode":"normal","style":"background-color: ;color: ;","text":"\\nPulls apart the clouds — even he gets smoked today.","type":"extended-text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"}],"direction":"ltr","format":"","indent":0,"type":"root","version":1,"textFormat":1,"textStyle":"background-color: ;color: ;"}}',
                                                     _languages: {}
-                                                }
-                                            },
-                                            {
-                                                id: 'RrzF9cOWOK',
-                                                type: 'html',
-                                                values: {
-                                                    html: '<iframe width="500" height="280" src="https://www.youtube.com/embed/3QyGsA2AGR8?si=uVTVfv2L416hfn0C" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
-                                                    hideDesktop: false,
-                                                    displayCondition: null,
-                                                    _styleGuide: null,
-                                                    containerPadding: '0px',
-                                                    anchor: '',
-                                                    _meta: {
-                                                        htmlID: 'u_content_html_1',
-                                                        htmlClassNames: 'u_content_html'
-                                                    },
-                                                    selectable: true,
-                                                    draggable: true,
-                                                    duplicatable: true,
-                                                    deletable: true,
-                                                    hideable: true,
-                                                    locked: false
                                                 }
                                             }
                                         ],
@@ -336,7 +314,7 @@ export class MauNoiDung extends BaseComponent {
                                                     deletable: true,
                                                     hideable: true,
                                                     locked: false,
-                                                    text: '<span>@ Thuốc l&agrave;o Ti&ecirc;n L&atilde;ng</span>',
+                                                    text: '<span>@ Về ch&uacute;ng t&ocirc;i</span>',
                                                     _languages: {}
                                                 }
                                             }
@@ -514,109 +492,7 @@ export class MauNoiDung extends BaseComponent {
                                                     deletable: true,
                                                     hideable: true,
                                                     locked: false,
-                                                    text: '<span>Thuốc l&agrave;o Ti&ecirc;n L&atilde;ng</span>',
-                                                    _languages: {}
-                                                }
-                                            },
-                                            {
-                                                id: 'm4okIl5jXZ',
-                                                type: 'heading',
-                                                values: {
-                                                    containerPadding: '10px',
-                                                    anchor: '',
-                                                    headingType: 'h4',
-                                                    fontSize: '15px',
-                                                    textAlign: 'left',
-                                                    lineHeight: '140%',
-                                                    linkStyle: {
-                                                        inherit: true,
-                                                        linkColor: '#0000ee',
-                                                        linkHoverColor: '#0000ee',
-                                                        linkUnderline: true,
-                                                        linkHoverUnderline: true
-                                                    },
-                                                    hideDesktop: false,
-                                                    displayCondition: null,
-                                                    _styleGuide: null,
-                                                    _meta: {
-                                                        htmlID: 'u_content_heading_19',
-                                                        htmlClassNames: 'u_content_heading'
-                                                    },
-                                                    selectable: true,
-                                                    draggable: true,
-                                                    duplicatable: true,
-                                                    deletable: true,
-                                                    hideable: true,
-                                                    locked: false,
-                                                    text: '<strong>Thơm mồm</strong>',
-                                                    _languages: {}
-                                                }
-                                            },
-                                            {
-                                                id: 'i-rdsPicsA',
-                                                type: 'heading',
-                                                values: {
-                                                    containerPadding: '10px',
-                                                    anchor: '',
-                                                    headingType: 'h4',
-                                                    fontSize: '15px',
-                                                    textAlign: 'left',
-                                                    lineHeight: '140%',
-                                                    linkStyle: {
-                                                        inherit: true,
-                                                        linkColor: '#0000ee',
-                                                        linkHoverColor: '#0000ee',
-                                                        linkUnderline: true,
-                                                        linkHoverUnderline: true
-                                                    },
-                                                    hideDesktop: false,
-                                                    displayCondition: null,
-                                                    _styleGuide: null,
-                                                    _meta: {
-                                                        htmlID: 'u_content_heading_20',
-                                                        htmlClassNames: 'u_content_heading'
-                                                    },
-                                                    selectable: true,
-                                                    draggable: true,
-                                                    duplicatable: true,
-                                                    deletable: true,
-                                                    hideable: true,
-                                                    locked: false,
-                                                    text: '<strong>Bổ Phổi<br></strong>',
-                                                    _languages: {}
-                                                }
-                                            },
-                                            {
-                                                id: '6Lt443mrOm',
-                                                type: 'heading',
-                                                values: {
-                                                    containerPadding: '10px',
-                                                    anchor: '',
-                                                    headingType: 'h4',
-                                                    fontSize: '15px',
-                                                    textAlign: 'left',
-                                                    lineHeight: '140%',
-                                                    linkStyle: {
-                                                        inherit: true,
-                                                        linkColor: '#0000ee',
-                                                        linkHoverColor: '#0000ee',
-                                                        linkUnderline: true,
-                                                        linkHoverUnderline: true
-                                                    },
-                                                    hideDesktop: false,
-                                                    displayCondition: null,
-                                                    _styleGuide: null,
-                                                    _meta: {
-                                                        htmlID: 'u_content_heading_21',
-                                                        htmlClassNames: 'u_content_heading'
-                                                    },
-                                                    selectable: true,
-                                                    draggable: true,
-                                                    duplicatable: true,
-                                                    deletable: true,
-                                                    hideable: true,
-                                                    locked: false,
-                                                    text: '<strong>Diệt Tr&ugrave;ng Lao</strong>',
+                                                    text: '<span>Email</span>',
                                                     _languages: {}
                                                 }
                                             }
