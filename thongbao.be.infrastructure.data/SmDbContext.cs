@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using thongbao.be.domain.Auth;
+using thongbao.be.domain.Config;
 using thongbao.be.domain.DanhBa;
 using thongbao.be.domain.DiemDanh;
 using thongbao.be.domain.GuiTinNhan;
@@ -44,6 +45,7 @@ namespace thongbao.be.infrastructure.data
         public DbSet<MauNoiDung> MauNoiDungs { get; set; }
         public DbSet<ChienDichLogTrangThaiGui> ChienDichLogTrangThaiGuis { get; set; }
         public DbSet<GuiTinNhanLogChiTiet> GuiTinNhanLogChiTiets { get; set; }
+        public DbSet<CauHinhDonGia> CauHinhDonGias { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -161,7 +163,13 @@ namespace thongbao.be.infrastructure.data
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-         
+            modelBuilder.Entity<CauHinhDonGia>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+
+
 
 
             modelBuilder.HasDefaultSchema(DbSchemas.Core);

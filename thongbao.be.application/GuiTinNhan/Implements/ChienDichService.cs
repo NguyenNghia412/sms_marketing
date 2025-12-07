@@ -16,6 +16,7 @@ using thongbao.be.application.GuiTinNhan.Interfaces;
 using thongbao.be.domain.Auth;
 using thongbao.be.domain.GuiTinNhan;
 using thongbao.be.infrastructure.data;
+using thongbao.be.shared.Constants.ChienDich;
 using thongbao.be.shared.HttpRequest.BaseRequest;
 using thongbao.be.shared.HttpRequest.Error;
 using thongbao.be.shared.HttpRequest.Exception;
@@ -52,7 +53,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 NgayKetThuc = dto.NgayKetThuc,
                 CreatedDate = vietnamNow,
                 CreatedBy = currentUserId,
-                TrangThai = false,
+                TrangThai = ChienDichConstants.Nhap,
                 IsAccented = true,
             };
 
@@ -64,7 +65,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _logger.LogInformation($"{nameof(Find)} dto={JsonSerializer.Serialize(dto)}");
             var isSuperAdmin = IsSuperAdmin();
             var currentUserId = getCurrentUserId();
-
             var query = from cd in _smDbContext.ChienDiches
                         where isSuperAdmin || cd.CreatedBy == currentUserId
                         join bn in _smDbContext.BrandName on cd.IdBrandName equals bn.Id into brandJoin
@@ -81,7 +81,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                   || cd.MoTa.Contains(dto.Keyword)
                                   || u.FullName.Contains(dto.Keyword))
                         orderby cd.CreatedDate descending
-
                         select new ViewChienDichDto
                         {
                             Id = cd.Id,
@@ -98,18 +97,18 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             IsFlashSms = cd.IsFlashSms,
                             TrangThai = cd.TrangThai,
                             SoLuongThueBao = cd.SoLuongThueBao,
-                            SoLuongSmsDaGuiThanhCong = cd.TrangThai ? (log != null ? log.SmsSendSuccess : 0) : 0,
-                            SoLuongSmsGuiThatBai = cd.TrangThai ? (log != null ? log.SmsSendFailed : 0) : 0,
+                            SoLuongSmsDaGuiThanhCong = cd.TrangThai != 0 ? (log != null ? log.SmsSendSuccess : 0) : 0,
+                            SoLuongSmsGuiThatBai = cd.TrangThai != 0 ? (log != null ? log.SmsSendFailed : 0) : 0,
                             CreatedBy = cd.CreatedBy,
                             CreatedDate = cd.CreatedDate,
-                            Users =  new ChienDichCreatedByDto
+                            Users = new ChienDichCreatedByDto
                             {
                                 Id = u.Id,
                                 //UserName = u.UserName ?? "",
                                 FullName = u.FullName,
                                 //SoDienThoai = u.PhoneNumber ?? "",
                                 //Email = u.Email ?? "",
-                            },   
+                            },
                             DanhBas = (from cddb in _smDbContext.ChienDichDanhBa
                                        join db in _smDbContext.DanhBas on cddb.IdDanhBa equals db.Id
                                        where cddb.IdChienDich == cd.Id
@@ -163,7 +162,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
             }
-            if (chienDich.TrangThai == true)
+            if (chienDich.TrangThai == ChienDichConstants.DaGui)
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorTrangThaiTrueCannotDelete);
             }
@@ -306,7 +305,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 IdMauNoiDung = chienDichGoc.IdMauNoiDung,
                 NoiDung = chienDichGoc.NoiDung,
                 IsAccented = chienDichGoc.IsAccented,
-                TrangThai = false,
+                TrangThai = ChienDichConstants.Nhap,
                 CreatedDate = vietnamNow,
                 CreatedBy = currentUserId,
                 Deleted = false

@@ -1,9 +1,11 @@
 export class CampaginStatuses {
-    static CHUA_GUI = 1;
-    static DA_GUI = 2;
+    static CHUA_GUI = 0;
+    static DA_GUI = 1;
+    static DANG_GUI = 2
     static List = [
         { name: 'Chưa gửi', code: this.CHUA_GUI, severity: 'secondary' },
         { name: 'Đã gửi', code: this.DA_GUI, severity: 'success' },
+        { name: 'Đang gửi', code: this.DANG_GUI, severity:'info'}
     ];
 
     static getSeverityByCode(code: number): string {
