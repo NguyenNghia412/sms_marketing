@@ -64,8 +64,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             try
 
             {
-                _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackground)} - DELAYING 1 minute - idChienDich: {idChienDich}");
-                await Task.Delay(TimeSpan.FromSeconds(30));
+                //_logger.LogInformation($"{nameof(ProcessGuiTinNhanBackground)} - DELAYING 1 minute - idChienDich: {idChienDich}");
+                //await Task.Delay(TimeSpan.FromSeconds(30));
                 _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackground)} - DEBUG - idChienDich: {idChienDich}");
                 var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung, currentUserId,  isSuperAdmin);
 
