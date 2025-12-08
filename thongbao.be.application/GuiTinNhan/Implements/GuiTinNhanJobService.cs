@@ -55,7 +55,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _sendSmsService = sendSmsService;
         }
 
-        public async Task ProcessGuiTinNhanBackground(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung)
+        public async Task ProcessGuiTinNhanBackground(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung, string currentUserId, bool isSuperAdmin)
         {
             _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackground)} - START - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
 
@@ -64,9 +64,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             try
 
             {
-             
+                _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackground)} - DELAYING 1 minute - idChienDich: {idChienDich}");
+                await Task.Delay(TimeSpan.FromSeconds(30));
                 _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackground)} - DEBUG - idChienDich: {idChienDich}");
-                var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
+                var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung, currentUserId,  isSuperAdmin);
 
                 hasProcessedSuccessfully = true;
 
@@ -107,14 +108,14 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 }
             }
         }
-        public async Task SendSmsLog(object smsResponse, int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool isAccented, string noiDung)
+        public async Task SendSmsLog(object smsResponse, int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool isAccented, string noiDung, string currentUserId, bool isSuperAdmin)
         {
             _logger.LogInformation($"{nameof(SendSmsLog)} - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
             try
             {
 
-                var isSuperAdmin = IsSuperAdmin();
-                var currentUserId = getCurrentUserId();
+                //var isSuperAdmin = IsSuperAdmin();
+                //var currentUserId = getCurrentUserId();
                 var responseJson = JObject.Parse(smsResponse.ToString());
                 var smsSent = responseJson["smsSent"].Value<int>();
                 var resultArray = responseJson["result"].ToArray();
@@ -401,7 +402,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             }
         }
 
-        private async Task<List<object>> ProcessGuiTinNhanJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung)
+        private async Task<List<object>> ProcessGuiTinNhanJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung, string currentUserId, bool isSuperAdmin)
         {
             var brandName = await GetBrandNameByChienDich(idBrandName);
             var allSmsMessages = new List<object>();
@@ -424,7 +425,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             try
                             {
                                 var result = await _sendSmsService.SendSmsAsync(allMessages);
-                                await SendSmsLog(result, idChienDich, idDanhBa, null, idBrandName, IsAccented, noiDung);
+                                await SendSmsLog(result, idChienDich, idDanhBa, null, idBrandName, IsAccented, noiDung, currentUserId,  isSuperAdmin);
                             }
                             catch (Exception ex)
                             {
@@ -444,7 +445,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         {
                             try
                             {
-                                var (batchMessages, batchSuccess, batchFailed, batchCost) = await ProcessBatch(idChienDich, idDanhBa.Value, noiDung, batchIndex, brandName, IsAccented, idBrandName);
+                                var (batchMessages, batchSuccess, batchFailed, batchCost) = await ProcessBatch(idChienDich, idDanhBa.Value, noiDung, batchIndex, brandName, IsAccented, idBrandName, currentUserId,  isSuperAdmin);
                                 allSmsMessages.AddRange(batchMessages);
 
                                 totalSuccessAll += batchSuccess;
@@ -460,8 +461,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                         if (totalSuccessAll > 0 || totalFailedAll > 0)
                         {
-                            var isSuperAdmin = IsSuperAdmin();
-                            var currentUserId = getCurrentUserId();
+                            //var isSuperAdmin = IsSuperAdmin();
+                            //var currentUserId = getCurrentUserId();
                             var vietnamNow = GetVietnamTime();
 
                             var chienDichLog = new ChienDichLogTrangThaiGui
@@ -521,7 +522,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         try
                         {
                             var result = await _sendSmsService.SendSmsAsync(allSmsMessages);
-                            await SendSmsLog(result, idChienDich, null, danhSachSoDienThoai, idBrandName, IsAccented, noiDung);
+                            await SendSmsLog(result, idChienDich, null, danhSachSoDienThoai, idBrandName, IsAccented, noiDung, currentUserId, isSuperAdmin);
                         }
                         catch (Exception ex)
                         {
@@ -578,7 +579,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             return smsMessages;
         }
 
-        private async Task<(List<object> messages, int success, int failed, int cost)> ProcessBatch(int idChienDich, int idDanhBa, string noiDung, int batchIndex, string brandName, bool IsAccented, int idBrandName)
+        private async Task<(List<object> messages, int success, int failed, int cost)> ProcessBatch(int idChienDich, int idDanhBa, string noiDung, int batchIndex, string brandName, bool IsAccented, int idBrandName, string currentUserId, bool isSuperAdmin)
         {
             var danhBaChiTiets = await _smDbContext.DanhBaSms
                 .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
@@ -595,7 +596,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var danhBaChiTietIds = danhBaChiTiets.Select(x => x.Id).ToList();
             var danhBaData = await GetDanhBaDataForBatch(danhBaChiTietIds, idChienDich);
 
-            var currentUserId = getCurrentUserId();
+            //var currentUserId = getCurrentUserId();
             var vietnamNow = GetVietnamTime();
 
             var networkCosts = new Dictionary<string, int>

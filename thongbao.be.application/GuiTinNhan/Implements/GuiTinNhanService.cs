@@ -52,6 +52,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
         public async Task<string> StartGuiTinNhanJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung)
         {
+            var currentUserId = getCurrentUserId();
+            var isSuperAdmin = IsSuperAdmin();
             await ValidateInput(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, noiDung);
             await ValidateChienDichChuaGui(idChienDich);
             await ValidateSoLuongTinNhan(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
@@ -75,7 +77,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 await _smDbContext.SaveChangesAsync();
             }
             var jobId = _backgroundJobClient.Enqueue<IGuiTinNhanJobService>(x =>
-               x.ProcessGuiTinNhanBackground(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung));
+               x.ProcessGuiTinNhanBackground(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung,  currentUserId, isSuperAdmin ));
             var chienDichDaGui = await _smDbContext.ChienDiches.FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
            
             return jobId;
