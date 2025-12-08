@@ -27,7 +27,7 @@ namespace thongbao.be.lib.Stringee.Implements
 
             if (string.IsNullOrEmpty(_apiSidKey) || string.IsNullOrEmpty(_apiSecretKey) || string.IsNullOrEmpty(_accountSidKey) || string.IsNullOrEmpty(_accountSecretKey))
             {
-                throw new UserFriendlyException(ErrorCodes.System);
+                //throw new UserFriendlyException(ErrorCodes.System);
             }
         }
 

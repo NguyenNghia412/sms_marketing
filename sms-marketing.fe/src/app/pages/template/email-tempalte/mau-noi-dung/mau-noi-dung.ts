@@ -9,8 +9,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { PaginatorState } from 'primeng/paginator';
 import { TblAction, TblActionTypes } from './tbl-action/tbl-action';
-import { EmailTempalte } from '../models/data-email-template.models';
-import { CreateTemplateEmail } from '../create-template-email/create-template-email';
+import { EmailTempalte } from '../../models/data-email-template.models';
 
 @Component({
     selector: 'app-mau-noi-dung',
