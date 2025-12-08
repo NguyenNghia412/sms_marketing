@@ -35,7 +35,7 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public int IdBrandName { get; set; }
         public string TenBrandName { get; set; } = String.Empty;
         public bool IsFlashSms { get; set; }
-        public bool TrangThai { get; set; }
+        public int TrangThai { get; set; }
         public int? SoLuongThueBao { get; set; }
         public int? SoLuongSmsDaGuiThanhCong { get; set; }
         public int? SoLuongSmsGuiThatBai { get; set; }

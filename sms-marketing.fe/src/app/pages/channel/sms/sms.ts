@@ -48,7 +48,8 @@ export class Sms extends BaseComponent {
             headerContainerStyle: 'width: 8rem',
             cellViewType: CellViewTypes.STATUS,
             statusSeverityFunction: (rowData: IViewRowChienDich) => {
-                return CampaginStatuses.getSeverityByCode(rowData.trangThai ? CampaginStatuses.DA_GUI : CampaginStatuses.CHUA_GUI);
+                return CampaginStatuses.getSeverityByCode(rowData.trangThai ?? 0);
+
             }
         },
         //{ header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss' },
@@ -70,7 +71,7 @@ export class Sms extends BaseComponent {
         this.getData();
     }
 
-    getData() {
+      getData() {
         this.loading = true;
         this._chienDichService.findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value }).subscribe({
             next: (res) => {
@@ -79,10 +80,8 @@ export class Sms extends BaseComponent {
                         ...item,
                         soLuongThueBao: item.soLuongThueBao ?? 0,
                         soLuongSmsDaGuiThanhCong: item.soLuongSmsDaGuiThanhCong ?? 0,
-                        soLuongSmsDaGuiThatBai: item.soLuongSmsDaGuiThatBai ?? 0,
-                        trangThaiText: item.trangThai
-                            ? 'Đã gửi'
-                            : 'Nháp'
+                        soLuongSmaDaGuiThatBai: item.soLuongSmsDaGuiThatBai ?? 0,
+                        trangThaiText: this.getTrangThaiText(item.trangThai ?? 0) 
                     }));
                     this.totalRecords = res.data.totalItems;
                 }
@@ -91,6 +90,20 @@ export class Sms extends BaseComponent {
                 this.loading = false;
             }
         });
+    }
+
+    // ✅ THÊM METHOD NÀY
+    getTrangThaiText(trangThai: number): string {
+        switch (trangThai) {
+            case CampaginStatuses.CHUA_GUI:
+                return 'Nháp';
+            case CampaginStatuses.DA_GUI:
+                return 'Đã gửi';
+            case CampaginStatuses.DANG_GUI:
+                return 'Đang gửi';
+            default:
+                return 'Nháp';
+        }
     }
 
     onOpenCreate() {

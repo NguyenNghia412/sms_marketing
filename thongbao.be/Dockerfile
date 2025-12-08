@@ -17,6 +17,7 @@ COPY ["thongbao.be.infrastructure.data/thongbao.be.infrastructure.data.csproj", 
 COPY ["thongbao.be.domain/thongbao.be.domain.csproj", "thongbao.be.domain/"]
 COPY ["thongbao.be.shared/thongbao.be.shared.csproj", "thongbao.be.shared/"]
 COPY ["thongbao.be.infrastructure.external/thongbao.be.infrastructure.external.csproj", "thongbao.be.infrastructure.external/"]
+COPY ["thongbao.be.lib/thongbao.be.lib.csproj", "thongbao.be.lib/"]
 RUN dotnet restore "./thongbao.be/thongbao.be.csproj"
 COPY . .
 WORKDIR "/src/thongbao.be"

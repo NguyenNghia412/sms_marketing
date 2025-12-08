@@ -31,8 +31,7 @@ using thongbao.be.application.MauNoiDung.Implements;
 using thongbao.be.application.MauNoiDung.Interfaces;
 using thongbao.be.application.ToChuc.Implements;
 using thongbao.be.application.ToChuc.Interfaces;
-using thongbao.be.application.TraoBang.Implements;
-using thongbao.be.application.TraoBang.Interface;
+
 using thongbao.be.domain.Auth;
 using thongbao.be.infrastructure.data;
 using thongbao.be.infrastructure.data.Seeder;
@@ -239,7 +238,7 @@ builder.Services.ConfigureHangfire(hangfireConnectionString);
 #region signalr
 builder.Services.AddSignalR();
 builder.Services.AddScoped<IDemoSignalRService, DemoSignalRService>();
-builder.Services.AddScoped<ITraoBangService, TraoBangService>();
+
 #endregion
 
 // Add services to the container.
@@ -256,8 +255,7 @@ builder.Services.AddScoped<IGuiTinNhanJobService, GuiTinNhanJobService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISendSmsService, SendSmsService>();
 builder.Services.AddScoped<IGuiTinNhanLogService, GuiTinNhanLogService>();
-builder.Services.AddScoped<IPlanService, PlanService>();
-builder.Services.AddScoped<ISubPlanService, SubPlanService>();
+builder.Services.AddScoped<IGuiTinNhanService, GuiTinNhanService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 #endregion
 
@@ -345,7 +343,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<DemoHub>("/hub/sms").RequireCors("SignalRPolicy");
-app.MapHub<TraoBangHub>("/hub/trao-bang").RequireCors("SignalRPolicy");
+
 app.UseHangfireDashboard();
 app.MapHealthChecks("/health");
 app.Run();
+

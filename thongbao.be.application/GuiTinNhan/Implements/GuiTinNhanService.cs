@@ -1,0 +1,638 @@
+﻿using AutoMapper;
+using Hangfire;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using thongbao.be.application.Base;
+using thongbao.be.application.GuiTinNhan.Dtos;
+using thongbao.be.application.GuiTinNhan.Interfaces;
+using thongbao.be.domain.Auth;
+using thongbao.be.infrastructure.data;
+using thongbao.be.lib.Stringee.Implements;
+using thongbao.be.lib.Stringee.Interfaces;
+using thongbao.be.shared.Constants.ChienDich;
+using thongbao.be.shared.HttpRequest.Error;
+using thongbao.be.shared.HttpRequest.Exception;
+
+namespace thongbao.be.application.GuiTinNhan.Implements
+{
+   
+    public class GuiTinNhanService: BaseService, IGuiTinNhanService
+    {
+        private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IProfileService _profileService;
+        private readonly ISendSmsService _sendSmsService;
+        private readonly UserManager<AppUser> _userManager;
+        private const int BATCH_SIZE = 400;
+        private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        public GuiTinNhanService(
+             SmDbContext smDbContext,
+            ILogger<GuiTinNhanService> logger,
+            IHttpContextAccessor httpContextAccessor,
+            IMapper mapper,
+            IBackgroundJobClient backgroundJobClient,
+            ISendSmsService sendSmsService,
+            UserManager<AppUser> userManager,
+            IProfileService profileService) : base(smDbContext, logger, httpContextAccessor, mapper)
+        {
+            _backgroundJobClient = backgroundJobClient;
+            _profileService = profileService;
+            _userManager = userManager;
+            _sendSmsService = sendSmsService;
+        }
+
+
+        public async Task<string> StartGuiTinNhanJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung)
+        {
+            var currentUserId = getCurrentUserId();
+            var isSuperAdmin = IsSuperAdmin();
+            await ValidateInput(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, noiDung);
+            await ValidateChienDichChuaGui(idChienDich);
+            await ValidateSoLuongTinNhan(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
+            if (idDanhBa.HasValue)
+            {
+                await SaveThongTinChienDich(idChienDich, idDanhBa.Value, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
+            }
+            var estimatedAmount = await GetChiPhiDuTruChienDich(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
+            var profileInfo = await _profileService.GetProfileStringeeInfor();
+            var amount = Convert.ToInt32(profileInfo?.Data?.Amount ?? 0);
+            if (estimatedAmount > amount)
+            {
+                await SendWarningToAdmin(idChienDich, estimatedAmount, amount);
+                throw new UserFriendlyException(ErrorCodes.GuiTinNhanErrorNotEnoughBalance);
+            }
+            var chienDich = await _smDbContext.ChienDiches.FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
+            if (chienDich != null)
+            {
+                chienDich.TrangThai = ChienDichConstants.DangGui;
+                _smDbContext.ChienDiches.Update(chienDich);
+                await _smDbContext.SaveChangesAsync();
+            }
+            var jobId = _backgroundJobClient.Enqueue<IGuiTinNhanJobService>(x =>
+               x.ProcessGuiTinNhanBackground(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung,  currentUserId, isSuperAdmin ));
+            var chienDichDaGui = await _smDbContext.ChienDiches.FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
+           
+            return jobId;
+        }
+        public async Task<object> GetSoLuongNguoiNhanVaTinNhan(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool isFlashSms, bool isAccented, string noiDung)
+        {
+            await ValidateInput(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, noiDung);
+
+            int soLuongNguoiNhan = 0;
+            int tongSoLuongTinNhan = 0;
+
+            // Mode: Danh bạ
+            if (idDanhBa.HasValue)
+            {
+                var truongDataMapping = await GetTruongDataMapping(idDanhBa.Value);
+                var allRecords = await _smDbContext.DanhBaSms
+                    .Where(x => x.IdDanhBa == idDanhBa.Value && !x.Deleted)
+                    .Select(x => new { x.Id, x.SoDienThoai })
+                    .ToListAsync();
+
+                var recordIds = allRecords.Select(x => x.Id).ToList();
+                var allUserData = await GetDanhBaDataForBatch(recordIds, idChienDich);
+
+                soLuongNguoiNhan = allRecords.Count;
+
+                foreach (var record in allRecords)
+                {
+                    var userData = allUserData.Where(x => x.IdDanhBaChiTiet == record.Id).ToList();
+                    var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, isAccented);
+                    var smsCount = CalculateSmsCount(personalizedText.Length, isAccented);
+                    tongSoLuongTinNhan += smsCount;
+                }
+            }
+            // Mode: List số điện thoại
+            else
+            {
+                soLuongNguoiNhan = danhSachSoDienThoai.Count;
+                var personalizedText = isAccented ? noiDung : RemoveAccents(noiDung);
+                var smsCount = CalculateSmsCount(personalizedText.Length, isAccented);
+                tongSoLuongTinNhan = soLuongNguoiNhan * smsCount;
+            }
+
+            return new
+            {
+                SoLuongNguoiNhan = soLuongNguoiNhan,
+                TongSoLuongTinNhan = tongSoLuongTinNhan
+            };
+        }
+        public async Task<object> GetPreviewMessage(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung, int currentIndex)
+        {
+            await ValidateInput(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, noiDung);
+            var brandName = await GetBrandNameByChienDich(idBrandName);
+
+            // Mode: Danh bạ
+            if (idDanhBa.HasValue)
+            {
+                var truongDataMapping = await GetTruongDataMapping(idDanhBa.Value);
+                var allRecords = await _smDbContext.DanhBaSms
+                    .Where(x => x.IdDanhBa == idDanhBa.Value && !x.Deleted)
+                    .Select(x => new { x.Id, x.SoDienThoai })
+                    .ToListAsync();
+
+                if (currentIndex < 1 || currentIndex > allRecords.Count)
+                    return null;
+
+                var currentRecord = allRecords[currentIndex - 1];
+                var userData = await GetDanhBaDataForBatch(new List<int> { currentRecord.Id }, idChienDich);
+                var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, IsAccented);
+                var formattedPhoneNumber = FormatPhoneNumber(currentRecord.SoDienThoai);
+                var length = personalizedText.Length;
+
+                int smsCount = CalculateSmsCount(length, IsAccented);
+
+                return new
+                {
+                    IdDanhBaSms = currentRecord.Id,
+                    SoDienThoai = formattedPhoneNumber,
+                    BrandName = brandName ?? string.Empty,
+                    PersonalizedText = personalizedText,
+                    SmsCount = smsCount
+                };
+            }
+            // Mode: List số điện thoại
+            else
+            {
+                if (danhSachSoDienThoai == null || !danhSachSoDienThoai.Any())
+                    return null;
+
+                if (currentIndex < 1 || currentIndex > danhSachSoDienThoai.Count)
+                    return null;
+
+                var currentPhone = danhSachSoDienThoai[currentIndex - 1];
+                var personalizedText = IsAccented ? noiDung : RemoveAccents(noiDung);
+                var formattedPhoneNumber = FormatPhoneNumber(currentPhone.SoDienThoai);
+                var length = personalizedText.Length;
+
+                int smsCount = CalculateSmsCount(length, IsAccented);
+
+                return new
+                {
+                    IdDanhBaSms = (int?)null,
+                    SoDienThoai = formattedPhoneNumber,
+                    BrandName = brandName ?? string.Empty,
+                    PersonalizedText = personalizedText,
+                    SmsCount = smsCount
+                };
+            }
+        }
+        
+        private async Task ValidateInput(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int? idBrandName, string noiDung)
+        {
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            /*if (string.IsNullOrWhiteSpace(noiDung))
+            {
+                throw new UserFriendlyException(ErrorCodes.BadRequest);
+            }*/
+            int? validIdDanhBa = (idDanhBa.HasValue && idDanhBa.Value > 0) ? idDanhBa : null;
+            if (!idDanhBa.HasValue && (danhSachSoDienThoai == null || !danhSachSoDienThoai.Any()))
+            {
+                throw new UserFriendlyException(ErrorCodes.DanhBaErrorDanhSachSoDienThoaiRequired);
+            }
+
+            var chienDichExists = await _smDbContext.ChienDiches
+                .AnyAsync(x => x.Id == idChienDich && !x.Deleted);
+
+            if (!chienDichExists)
+            {
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound);
+            }
+
+            if (validIdDanhBa.HasValue)
+            {
+                var danhBaExists = await _smDbContext.DanhBas
+                    .AnyAsync(x => x.Id == validIdDanhBa.Value && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
+                if (!danhBaExists)
+                {
+                    throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound);
+                }
+            }
+
+            if (danhSachSoDienThoai != null && danhSachSoDienThoai.Any())
+            {
+                foreach (var item in danhSachSoDienThoai)
+                {
+                    var cleanedNumber = Regex.Replace(item.SoDienThoai ?? "", @"[^\d]", "");
+
+                    if (cleanedNumber.Length != 10 && cleanedNumber.Length != 11)
+                    {
+                        throw new UserFriendlyException(ErrorCodes.DanhBaErrorDanhSachSoDienThoaiInvalid, item.SoDienThoai);
+                    }
+                }
+            }
+
+            var brandNameExists = await _smDbContext.BrandName
+                .AnyAsync(x => x.Id == idBrandName && !x.Deleted);
+            /*if (!brandNameExists)
+            {
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorBrandNameNotFound);
+            }*/
+        }
+        private async Task ValidateChienDichChuaGui(int idChienDich)
+        {
+            var chienDich = await _smDbContext.ChienDiches
+                .FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
+
+            if (chienDich == null)
+            {
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound);
+            }
+
+            if (chienDich.TrangThai == ChienDichConstants.DaGui)
+            {
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorTrangThaiTrue);
+            }
+        }
+        private async Task ValidateSoLuongTinNhan(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung)
+        {
+            int maxSmsCount = IsAccented ? 402 : 612;
+
+            // Mode: Danh bạ
+            if (idDanhBa.HasValue)
+            {
+                var truongDataMapping = await GetTruongDataMapping(idDanhBa.Value);
+                var allRecords = await _smDbContext.DanhBaSms
+                    .Where(x => x.IdDanhBa == idDanhBa.Value && !x.Deleted)
+                    .Select(x => new { x.Id, x.SoDienThoai })
+                    .ToListAsync();
+
+                var recordIds = allRecords.Select(x => x.Id).ToList();
+                var allUserData = await GetDanhBaDataForBatch(recordIds, idChienDich);
+
+                foreach (var record in allRecords)
+                {
+                    var userData = allUserData.Where(x => x.IdDanhBaChiTiet == record.Id).ToList();
+                    var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, IsAccented);
+
+                    if (personalizedText.Length > maxSmsCount)
+                    {
+                        throw new UserFriendlyException(ErrorCodes.GuiTinNhanErrorSmsCountExceeded);
+                    }
+                }
+            }
+            // Mode: List số điện thoại
+            else
+            {
+                var personalizedText = IsAccented ? noiDung : RemoveAccents(noiDung);
+
+                if (personalizedText.Length > maxSmsCount)
+                {
+                    throw new UserFriendlyException(ErrorCodes.GuiTinNhanErrorSmsCountExceeded);
+                }
+            }
+        }
+        public async Task SaveThongTinChienDich(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int? idBrandName, bool IsFlashSms, bool IsAccented, string? noiDung)
+        {
+            _logger.LogInformation($"{nameof(SaveThongTinChienDich)}");
+            var vietnamNow = GetVietnamTime();
+
+            await ValidateInput(idChienDich, idDanhBa, null, idBrandName, noiDung);
+            await ValidateChienDichChuaGui(idChienDich);
+
+            var chienDichExisting = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound);
+
+            if (idBrandName.HasValue)
+            {
+                chienDichExisting.IdBrandName = idBrandName.Value;
+            }
+
+            chienDichExisting.IsFlashSms = IsFlashSms;
+            chienDichExisting.NoiDung = noiDung;
+            chienDichExisting.IsAccented = IsAccented;
+            chienDichExisting.TrangThai = ChienDichConstants.Nhap;
+
+
+            //Mode: Danh bạ
+            if (idDanhBa.HasValue && idDanhBa.Value > 0)
+            {
+                var chienDichDanhBa = await _smDbContext.ChienDichDanhBa.FirstOrDefaultAsync(x => x.IdChienDich == idChienDich && x.IdDanhBa == idDanhBa.Value && !x.Deleted);
+                var countDanhBa = await _smDbContext.DanhBaSms.Where(x => x.IdDanhBa == idDanhBa.Value && !x.Deleted).CountAsync();
+                chienDichExisting.SoLuongThueBao = countDanhBa;
+                _smDbContext.ChienDiches.Update(chienDichExisting);
+                if (chienDichDanhBa == null)
+                {
+                    chienDichDanhBa = new domain.GuiTinNhan.ChienDichDanhBa
+                    {
+                        IdChienDich = idChienDich,
+                        IdDanhBa = idDanhBa.Value,
+                    };
+                    _smDbContext.ChienDichDanhBa.Add(chienDichDanhBa);
+                }
+            }
+            //Mode: List số điện thoại
+            else if (danhSachSoDienThoai != null && danhSachSoDienThoai.Count > 0)
+            {
+                var countSoDienThoai = danhSachSoDienThoai.Count;
+                chienDichExisting.SoLuongThueBao = countSoDienThoai;
+            }
+            _smDbContext.ChienDiches.Update(chienDichExisting);
+            await _smDbContext.SaveChangesAsync();
+        }
+        private async Task SendWarningToAdmin(int idChienDich, int estimatedAmount, int amount)
+        {
+            _logger.LogInformation($"{nameof(SendWarningToAdmin)}");
+            var admins = await _userManager.GetUsersInRoleAsync("SuperAdmin");
+            var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
+            var brandName = _smDbContext.BrandName.FirstOrDefault(x => x.TenBrandName == "HUCE" && !x.Deleted);
+            var idBrandName = brandName.Id;
+            var IsAccented = true;
+            var amountNeeded = estimatedAmount - amount;
+            var noiDung = $"Chiến dịch \"{chienDich.TenChienDich}\" yêu cầu vượt mức chi phí hiện có từ Stringee. Xin vui lòng chuyển khoản thêm vào tài khoản Stringee số tiền là {amountNeeded:N0}VND để khách hàng thực hiện tiếp dịch vụ. Xin cảm ơn!";
+            var smsMessages = new List<object>();
+            foreach (var admin in admins)
+            {
+                if (!string.IsNullOrEmpty(admin.PhoneNumber))
+                {
+                    var formattedPhoneNumber = FormatPhoneNumber(admin.PhoneNumber);
+                    var smsObject = new
+                    {
+                        from = brandName.TenBrandName,
+                        to = formattedPhoneNumber,
+                        text = noiDung,
+                    };
+                    smsMessages.Add(smsObject);
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            if (smsMessages.Any())
+            {
+                await _sendSmsService.SendSmsAsync(smsMessages);
+            }
+        }
+        public async Task<int> GetChiPhiDuTruChienDich(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung)
+        {
+            await ValidateInput(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, noiDung);
+
+            var networkCosts = new Dictionary<string, decimal>
+            {
+                ["Viettel"] = 420,
+                ["Mobifone"] = 420,
+                ["Vinaphone"] = 420,
+                ["Vietnamobile"] = 700,
+                ["Gmobile"] = 300
+            };
+
+
+            decimal totalCost = 0;
+
+            // Mode: Danh bạ
+            if (idDanhBa.HasValue)
+            {
+                var truongDataMapping = await GetTruongDataMapping(idDanhBa.Value);
+                var allRecords = await _smDbContext.DanhBaSms
+                    .Where(x => x.IdDanhBa == idDanhBa.Value && !x.Deleted)
+                    .Select(x => new { x.Id, x.SoDienThoai })
+                    .ToListAsync();
+
+                var recordIds = allRecords.Select(x => x.Id).ToList();
+                var allUserData = await GetDanhBaDataForBatch(recordIds, idChienDich);
+
+                foreach (var record in allRecords)
+                {
+                    var userData = allUserData.Where(x => x.IdDanhBaChiTiet == record.Id).ToList();
+                    var personalizedText = ProcessTextContent(noiDung, userData, truongDataMapping, IsAccented);
+                    var formattedNumber = FormatPhoneNumber(record.SoDienThoai);
+                    var network = GetNetworkByPhoneNumber(formattedNumber);
+                    var smsCount = CalculateSmsCount(personalizedText.Length, IsAccented);
+
+                    if (networkCosts.ContainsKey(network))
+                    {
+                        totalCost += networkCosts[network] * smsCount;
+
+                    }
+                }
+            }
+            // Mode: List số điện thoại
+            else
+            {
+                var personalizedText = IsAccented ? noiDung : RemoveAccents(noiDung);
+                var length = personalizedText.Length;
+
+                foreach (var item in danhSachSoDienThoai)
+                {
+                    var formattedNumber = FormatPhoneNumber(item.SoDienThoai);
+                    var network = GetNetworkByPhoneNumber(formattedNumber);
+                    var smsCount = CalculateSmsCount(length, IsAccented);
+
+                    if (networkCosts.ContainsKey(network))
+                    {
+                        totalCost += networkCosts[network] * smsCount;
+
+                    }
+                }
+            }
+
+            return Convert.ToInt32(totalCost);
+
+        }
+
+        private async Task<List<DanhBaDataInfoDto>> GetDanhBaDataForBatch(List<int> danhBaChiTietIds, int idChienDich)
+        {
+            var allDataCount = await _smDbContext.DanhBaDatas
+                .Where(x => danhBaChiTietIds.Contains(x.IdDanhBaChiTiet) && !x.Deleted)
+                .CountAsync();
+            var result = await (from dbd in _smDbContext.DanhBaDatas
+                                where danhBaChiTietIds.Contains(dbd.IdDanhBaChiTiet)
+                                      && dbd.IdDanhBaChienDich == idChienDich
+                                      && !dbd.Deleted
+                                select new DanhBaDataInfoDto
+                                {
+                                    IdDanhBaChiTiet = dbd.IdDanhBaChiTiet,
+                                    IdTruongData = dbd.IdTruongData,
+                                    Data = dbd.Data
+                                })
+                              .ToListAsync();
+
+
+            if (result.Count == 0 && allDataCount > 0)
+            {
+                result = await (from dbd in _smDbContext.DanhBaDatas
+                                where danhBaChiTietIds.Contains(dbd.IdDanhBaChiTiet)
+                                      && !dbd.Deleted
+                                select new DanhBaDataInfoDto
+                                {
+                                    IdDanhBaChiTiet = dbd.IdDanhBaChiTiet,
+                                    IdTruongData = dbd.IdTruongData,
+                                    Data = dbd.Data
+                                })
+                              .ToListAsync();
+
+            }
+            return result;
+        }
+        private string ProcessTextContent(string textTemplate, List<DanhBaDataInfoDto> userData, Dictionary<int, string> truongDataMapping, bool IsAccented)
+        {
+
+            var processedText = textTemplate;
+            var dataDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var data in userData)
+            {
+                if (truongDataMapping.TryGetValue(data.IdTruongData, out string tenTruong))
+                {
+                    var dataValue = data.Data ?? string.Empty;
+                    var finalDataValue = IsAccented ? dataValue : RemoveAccents(dataValue);
+
+                    dataDict[tenTruong] = finalDataValue;
+                }
+                else
+                {
+                }
+            }
+            var placeholderPattern = @"\[([^\]]+)\]";
+            var matches = Regex.Matches(processedText, placeholderPattern);
+
+            foreach (Match match in matches)
+            {
+                var placeholder = match.Value;
+                var fieldName = match.Groups[1].Value;
+
+                var dataValue = dataDict.FirstOrDefault(x =>
+                    string.Equals(x.Key, fieldName, StringComparison.OrdinalIgnoreCase)).Value;
+
+                if (dataValue != null)
+                {
+                    processedText = processedText.Replace(placeholder, dataValue);
+                }
+                else
+                {
+                    processedText = processedText.Replace(placeholder, string.Empty);
+                }
+            }
+            var finalResult = IsAccented ? processedText : RemoveAccents(processedText);
+            return finalResult;
+        }
+
+        private async Task<Dictionary<int, string>> GetTruongDataMapping(int idDanhBa)
+        {
+            var truongDataList = await _smDbContext.DanhBaTruongDatas
+                .Where(x => x.IdDanhBa == idDanhBa && !x.Deleted)
+                .Select(x => new { x.Id, x.TenTruong })
+                .ToListAsync();
+
+            return truongDataList.ToDictionary(x => x.Id, x => x.TenTruong);
+        }
+
+        private string RemoveAccents(string text)
+        {
+
+            if (string.IsNullOrEmpty(text))
+            {
+                return text;
+            }
+
+            if (Regex.IsMatch(text, @"^\d+$"))
+            {
+                return text;
+            }
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            var result = stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+
+            if (!Regex.IsMatch(result, @"^\d+$"))
+            {
+                result = result.Replace("đ", "d").Replace("Đ", "D");
+            }
+            else
+            {
+            }
+            return result;
+        }
+        private int CalculateSmsCount(int length, bool isAccented)
+        {
+            if (isAccented)
+            {
+                if (length <= 70) return 1;
+                else if (length <= 134) return 2;
+                else if (length <= 201) return 3;
+                else if (length <= 268) return 4;
+                else if (length <= 335) return 5;
+                else return (int)Math.Ceiling((double)length / 67);
+            }
+            else
+            {
+                if (length <= 160) return 1;
+                else if (length <= 306) return 2;
+                else if (length <= 459) return 3;
+                else return (int)Math.Ceiling((double)length / 153);
+            }
+        }
+        private string GetNetworkByPhoneNumber(string formattedNumber)
+        {
+            var prefix = formattedNumber.Length >= 4 ? formattedNumber.Substring(2, 2) : "";
+
+            var viettelPrefixes = new[] { "96", "97", "98", "86", "32", "33", "34", "35", "36", "37", "38", "39" };
+            var mobifone = new[] { "90", "93", "89", "70", "76", "77", "78", "79" };
+            var vinaphone = new[] { "91", "94", "88", "81", "82", "83", "84", "85", "80" };
+            var vietnamobile = new[] { "92", "56", "58", "52" };
+            var gmobile = new[] { "99", "59" };
+
+            if (viettelPrefixes.Contains(prefix)) return "Viettel";
+            else if (mobifone.Contains(prefix)) return "Mobifone";
+            else if (vinaphone.Contains(prefix)) return "Vinaphone";
+            else if (vietnamobile.Contains(prefix)) return "Vietnamobile";
+            else if (gmobile.Contains(prefix)) return "Gmobile";
+
+            return "Unknown";
+        }
+
+        private string FormatPhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+                return phoneNumber;
+
+            var cleanedNumber = Regex.Replace(phoneNumber, @"[^\d]", "");
+
+            if (cleanedNumber.StartsWith("0"))
+            {
+                return "84" + cleanedNumber.Substring(1);
+            }
+
+            return cleanedNumber;
+        }
+        private async Task<string> GetBrandNameByChienDich(int idBrandName)
+        {
+            var brandName = await (from bn in _smDbContext.BrandName
+                                   where bn.Id == idBrandName && !bn.Deleted
+                                   select bn.TenBrandName)
+                                 .FirstOrDefaultAsync();
+
+            if (string.IsNullOrEmpty(brandName))
+            {
+                throw new UserFriendlyException(ErrorCodes.ChienDichErrorBrandNameNotFound);
+            }
+
+            return brandName;
+        }
+        private static DateTime GetVietnamTime()
+        {
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);
+        }
+    }
+}

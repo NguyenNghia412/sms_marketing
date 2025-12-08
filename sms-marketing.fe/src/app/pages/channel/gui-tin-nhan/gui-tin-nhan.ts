@@ -93,7 +93,7 @@ export class GuiTinNhan extends BaseComponent {
                             noiDung: res.data.noiDung,
                             isAccented: res.data.isAccented ?? true
                         });
-                        this.trangThaiChienDich = res.data.trangThai || false;
+                        this.trangThaiChienDich = res.data.trangThai === 1;
                     }
                 }
             });

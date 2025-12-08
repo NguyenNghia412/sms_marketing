@@ -35,7 +35,7 @@ namespace thongbao.be.domain.GuiTinNhan
         public bool IsAccented { get; set; } 
 
         public bool IsFlashSms { get; set; }
-        public bool TrangThai { get; set; }
+        public int TrangThai { get; set; }
         public int? SoLuongThueBao { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }

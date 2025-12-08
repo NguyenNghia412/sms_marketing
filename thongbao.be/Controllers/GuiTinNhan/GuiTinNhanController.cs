@@ -17,16 +17,16 @@ namespace thongbao.be.Controllers.GuiTinNhan
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class GuiTinNhanController : BaseController
     {
-        private readonly IGuiTinNhanJobService _guiTinNhanJobService;
+        private readonly IGuiTinNhanService _guiTinNhanService;
         private readonly ILogger<GuiTinNhanController> _logger;
         private readonly ISendSmsService _sendSmsService;
 
         public GuiTinNhanController(
             ILogger<GuiTinNhanController> logger,
-            IGuiTinNhanJobService guiTinNhanJobService,
+            IGuiTinNhanService guiTinNhanService,
             ISendSmsService sendSmsService) : base(logger)
         {
-            _guiTinNhanJobService = guiTinNhanJobService;
+            _guiTinNhanService = guiTinNhanService;
             _sendSmsService = sendSmsService;
             _logger = logger;
         }
@@ -37,7 +37,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
         {
             try
             {
-                await _guiTinNhanJobService.SaveThongTinChienDich(
+                await _guiTinNhanService.SaveThongTinChienDich(
                     dto.IdChienDich,
                     dto.IdDanhBa ?? 0,
                     dto.DanhSachSoDienThoai ?? [],
@@ -61,7 +61,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
         {
             try
             {
-                await _guiTinNhanJobService.StartGuiTinNhanJob(
+                await _guiTinNhanService.StartGuiTinNhanJob(
                     dto.IdChienDich,
                     dto.IdDanhBa,
                     dto.DanhSachSoDienThoai,
@@ -85,7 +85,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
         {
             try
             {
-                var preview = await _guiTinNhanJobService.GetPreviewMessage(
+                var preview = await _guiTinNhanService.GetPreviewMessage(
                     dto.IdChienDich,
                     dto.IdDanhBa,
                     dto.DanhSachSoDienThoai,
@@ -110,7 +110,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
         {
             try
             {
-                var data = await _guiTinNhanJobService.GetSoLuongNguoiNhanVaTinNhan(
+                var data = await _guiTinNhanService.GetSoLuongNguoiNhanVaTinNhan(
                     dto.IdChienDich,
                     dto.IdDanhBa,
                     dto.DanhSachSoDienThoai,
@@ -134,7 +134,7 @@ namespace thongbao.be.Controllers.GuiTinNhan
         {
             try
             {
-                var cost = await _guiTinNhanJobService.GetChiPhiDuTruChienDich(
+                var cost = await _guiTinNhanService.GetChiPhiDuTruChienDich(
                     dto.IdChienDich,
                     dto.IdDanhBa,
                     dto.DanhSachSoDienThoai,

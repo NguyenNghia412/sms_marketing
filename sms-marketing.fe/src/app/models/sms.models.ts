@@ -15,7 +15,8 @@ export type IViewRowChienDich = {
   mauNoiDungs?: IViewMauNoiDung[]
   danhBas?: IViewDanhBa[]
   isFlashSms?: boolean
-  trangThai?: boolean
+  trangThai?: number
+  trangThaiText?: string 
   soLuongThueBao?: number
   soLuongSmsDaGuiThanhCong?: number
   soLuongSmsDaGuiThatBai ?: number
@@ -39,7 +40,7 @@ export type IViewChienDich = {
   isFlashSms?: boolean
   isAccented?: boolean
   createdDate?: string
-  trangThai?: boolean
+  trangThai?: number
 }
 
 export type ICreateChienDich = {
