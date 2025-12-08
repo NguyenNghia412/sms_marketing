@@ -20,6 +20,7 @@ namespace thongbao.be.application.Base
         public readonly ILogger<BaseService> _logger;
         public readonly IHttpContextAccessor _httpContextAccessor;
         protected readonly IMapper _mapper;
+        private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
         public BaseService(
             SmDbContext smDbContext,
             ILogger<BaseService> logger,
@@ -52,6 +53,10 @@ namespace thongbao.be.application.Base
             var roles = _httpContextAccessor.HttpContext?.User.FindAll(ClaimTypes.Role).ToList();
             var isSuperAdmin = roles?.Any(r => r.Value == RoleConstants.ROLE_SUPER_ADMIN) ?? false;
             return isSuperAdmin;
+        }
+        protected static DateTime GetVietnamTime()
+        {
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);
         }
     }
 }

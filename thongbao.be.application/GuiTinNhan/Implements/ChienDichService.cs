@@ -69,7 +69,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         where isSuperAdmin || cd.CreatedBy == currentUserId
                         join bn in _smDbContext.BrandName on cd.IdBrandName equals bn.Id into brandJoin
                         from brand in brandJoin.DefaultIfEmpty()
-                        join mnd in _smDbContext.MauNoiDungs on cd.IdMauNoiDung equals mnd.Id into mauNoiDungJoin
+                        join mnd in _smDbContext.MauNoiDungSms on cd.IdMauNoiDung equals mnd.Id into mauNoiDungJoin
                         from mauNoiDung in mauNoiDungJoin.DefaultIfEmpty()
                         join u in _userManager.Users on cd.CreatedBy equals u.Id
                         join logTrangThai in _smDbContext.ChienDichLogTrangThaiGuis on cd.Id equals logTrangThai.IdChienDich into logTrangThaiJoin

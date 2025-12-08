@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace thongbao.be.application.MauNoiDung.Dtos
+namespace thongbao.be.application.MauNoiDung.Dtos.MauNoiDungSms
 {
     public class CreateChienDichByMauNoiDungDto
     {
-        private string _tenChienDich = String.Empty;
-        private string _moTa = String.Empty;
+        private string _tenChienDich = string.Empty;
+        private string _moTa = string.Empty;
 
         [Required(AllowEmptyStrings = false, ErrorMessage = "Không được bỏ trống")]
         required public string TenChienDich { get => _tenChienDich; set => _tenChienDich = value?.Trim()!; }

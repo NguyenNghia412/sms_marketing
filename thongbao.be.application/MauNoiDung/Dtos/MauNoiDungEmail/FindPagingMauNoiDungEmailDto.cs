@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using thongbao.be.shared.HttpRequest.BaseRequest;
 
-namespace thongbao.be.application.MauNoiDung.Dtos
+namespace thongbao.be.application.MauNoiDung.Dtos.MauNoiDungEmail
 {
-    public class FindPagingMauNoiDungDto : BaseRequestPagingDto
+    public class FindPagingMauNoiDungEmailDto : BaseRequestPagingDto
     {
     }
 }

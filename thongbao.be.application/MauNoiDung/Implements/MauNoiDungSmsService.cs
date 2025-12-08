@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using thongbao.be.application.Base;
 using thongbao.be.application.DiemDanh.Dtos;
 using thongbao.be.application.GuiTinNhan.Implements;
-using thongbao.be.application.MauNoiDung.Dtos;
+using thongbao.be.application.MauNoiDung.Dtos.MauNoiDungSms;
 using thongbao.be.application.MauNoiDung.Interfaces;
 using thongbao.be.infrastructure.data;
 using thongbao.be.shared.HttpRequest.BaseRequest;
@@ -21,12 +21,12 @@ using Volo.Abp.Users;
 
 namespace thongbao.be.application.MauNoiDung.Implements
 {
-    public class MauNoiDungService: BaseService, IMauNoiDungService
+    public class MauNoiDungSmsService: BaseService, IMauNoiDungSmsService
     {
         private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-        public MauNoiDungService(
+        public MauNoiDungSmsService(
             SmDbContext smDbContext,
-            ILogger<MauNoiDungService> logger,
+            ILogger<MauNoiDungSmsService> logger,
             IHttpContextAccessor httpContextAccessor,
             IMapper mapper
         )
@@ -40,7 +40,7 @@ namespace thongbao.be.application.MauNoiDung.Implements
             var vietnamNow = GetVietnamTime();
             var isSuperAdmin = IsSuperAdmin();
             var currentUserId = getCurrentUserId();
-            var mauNoiDung = new domain.MauNoiDung.MauNoiDung
+            var mauNoiDung = new domain.MauNoiDung.MauNoiDungSms
             {
                 TenMauNoiDung = dto.TenMauNoiDung,
                 NoiDung = dto.MauNoiDung,
@@ -49,7 +49,7 @@ namespace thongbao.be.application.MauNoiDung.Implements
                 Deleted = false
 
             };
-            _smDbContext.MauNoiDungs.Add( mauNoiDung );
+            _smDbContext.MauNoiDungSms.Add( mauNoiDung );
             _smDbContext.SaveChanges(); 
         }
 
@@ -59,11 +59,11 @@ namespace thongbao.be.application.MauNoiDung.Implements
             var vietnamNow = GetVietnamTime();
             var isSuperAdmin = IsSuperAdmin();
             var currentUserId = getCurrentUserId();
-            var mauNoiDung = _smDbContext.MauNoiDungs.FirstOrDefault(x => x.Id == id &&( isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
+            var mauNoiDung = _smDbContext.MauNoiDungSms.FirstOrDefault(x => x.Id == id &&( isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.MauNoiDungErrorNotFound);
             mauNoiDung.TenMauNoiDung = dto.TenMauNoiDung;
             mauNoiDung.NoiDung = dto.NoiDung;
-            _smDbContext.MauNoiDungs.Update(mauNoiDung);
+            _smDbContext.MauNoiDungSms.Update(mauNoiDung);
             _smDbContext.SaveChanges();
         }
         public BaseResponsePagingDto<ViewMauNoiDungDto> Find (FindPagingMauNoiDungDto dto)
@@ -71,7 +71,7 @@ namespace thongbao.be.application.MauNoiDung.Implements
             _logger.LogInformation($"{nameof(Find)}, dto = {JsonSerializer.Serialize(dto)}");
             var isSuperAdmin = IsSuperAdmin();
             var currentUserId = getCurrentUserId();
-            var query = from mnd in _smDbContext.MauNoiDungs
+            var query = from mnd in _smDbContext.MauNoiDungSms
                         where !mnd.Deleted && (isSuperAdmin || mnd.CreatedBy == currentUserId)
                         orderby mnd.CreatedDate descending
                         select mnd;
@@ -89,7 +89,7 @@ namespace thongbao.be.application.MauNoiDung.Implements
             _logger.LogInformation($"{nameof(GetListMauNoiDung)}");
             var isSuperAdmin = IsSuperAdmin();
             var currentUserId = getCurrentUserId();
-            var query = from mnd in _smDbContext.MauNoiDungs
+            var query = from mnd in _smDbContext.MauNoiDungSms
                         where !mnd.Deleted && (isSuperAdmin || mnd.CreatedBy == currentUserId)
                         orderby mnd.CreatedDate descending
                         select mnd;
@@ -104,7 +104,7 @@ namespace thongbao.be.application.MauNoiDung.Implements
             var vietnamNow = GetVietnamTime();
             var isSuperAdmin = IsSuperAdmin();
             var currentUserId = getCurrentUserId();
-            var mauNoiDung = _smDbContext.MauNoiDungs.FirstOrDefault(x => x.Id == id && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
+            var mauNoiDung = _smDbContext.MauNoiDungSms.FirstOrDefault(x => x.Id == id && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.MauNoiDungErrorNotFound);
             mauNoiDung.Deleted = true;
             mauNoiDung.DeletedDate = vietnamNow;
@@ -122,7 +122,7 @@ namespace thongbao.be.application.MauNoiDung.Implements
             var vietnamNow = GetVietnamTime();
             var isSuperAdmin = IsSuperAdmin();
             var currentUserId = getCurrentUserId();
-            var mauNoiDung = _smDbContext.MauNoiDungs.FirstOrDefault(x => x.Id == id && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
+            var mauNoiDung = _smDbContext.MauNoiDungSms.FirstOrDefault(x => x.Id == id && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.MauNoiDungErrorNotFound);
 
             var chienDich = new domain.GuiTinNhan.ChienDich

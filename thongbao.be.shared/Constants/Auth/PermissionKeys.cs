@@ -63,11 +63,18 @@ namespace thongbao.be.shared.Constants.Auth
         public const string ToChucDelete = Function + "ToChucDelete";
         public const string ToChucView = Function + "ToChucView";
 
-        public const string CategoryMauNoiDung = "QL Mẫu Nội Dung";
-        public const string MauNoiDungAdd = Function + "MauNoiDungAdd";
-        public const string MauNoiDungUpdate = Function + "MauNoiDungUpdate";
-        public const string MauNoiDungDelete = Function + "MauNoiDungDelete";
-        public const string MauNoiDungView = Function + "MauNoiDungView";
+        public const string CategoryMauNoiDungSms = "QL Mẫu Nội Dung Sms";
+        public const string MauNoiDungSmsAdd = Function + "MauNoiDungAddSms";
+        public const string MauNoiDungSmsUpdate = Function + "MauNoiDungUpdateSms";
+        public const string MauNoiDungSmsDelete = Function + "MauNoiDungDeleteSms";
+        public const string MauNoiDungSmsView = Function + "MauNoiDungViewSms";
+
+
+        public const string CategoryMauNoiDungEmail = "QL Mẫu Nội Dung Email";
+        public const string MauNoiDungEmailAdd = Function + "MauNoiDungEmailAdd";
+        public const string MauNoiDungEmailUpdate = Function + "MauNoiDungEmailUpdate";
+        public const string MauNoiDungEmailDelete = Function + "MauNoiDungEmailDelete";
+        public const string MauNoiDungEmailView = Function + "MauNoiDungEmailView";
 
 
         public const string CategoryGuiTinNhan = "QL Gửi tin nhắn";
@@ -130,10 +137,18 @@ namespace thongbao.be.shared.Constants.Auth
             (ToChucDelete, "Xoá Tổ chức", CategoryToChuc),
             (ToChucView, "Xem Tổ chức", CategoryToChuc),
 
-            (MauNoiDungAdd, "Thêm Mẫu Nội Dung ", CategoryMauNoiDung),
-            (MauNoiDungUpdate, "Cập nhật Mẫu Nội Dung", CategoryMauNoiDung),
-            (MauNoiDungDelete, "Xoá Mẫu Nội Dung", CategoryMauNoiDung),
-            (MauNoiDungView, "Xem Mẫu Nội Dung", CategoryMauNoiDung),
+            (MauNoiDungSmsAdd, "Thêm Mẫu Nội Dung Sms", CategoryMauNoiDungSms),
+            (MauNoiDungSmsUpdate, "Cập nhật Mẫu Nội Dung Sms", CategoryMauNoiDungSms),
+            (MauNoiDungSmsDelete, "Xoá Mẫu Nội Dung Sms", CategoryMauNoiDungSms),
+            (MauNoiDungSmsView, "Xem Mẫu Nội Dung Sms", CategoryMauNoiDungSms),
+
+
+            (MauNoiDungEmailAdd, "Thêm Mẫu Nội Dung Email ", CategoryMauNoiDungEmail),
+            (MauNoiDungEmailUpdate, "Cập nhật Mẫu Nội Dung Email", CategoryMauNoiDungEmail),
+            (MauNoiDungEmailDelete, "Xoá Mẫu Nội Dung Email", CategoryMauNoiDungEmail),
+            (MauNoiDungEmailView, "Xem Mẫu Nội Dung Email", CategoryMauNoiDungEmail),
+
+
 
 
             (GuiTinNhanAdd,"Gửi tin nhắn", CategoryGuiTinNhan),
