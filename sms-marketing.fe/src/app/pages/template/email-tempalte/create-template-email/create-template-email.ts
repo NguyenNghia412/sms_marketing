@@ -1,26 +1,38 @@
+import { EmailTempalte, ICreateEmailTempalte } from './../../models/data-email-template.models';
 import { SharedImports } from '@/shared/import.shared';
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Breadcrumb } from '@/shared/components/breadcrumb/breadcrumb';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { EmailEditorComponent, EmailEditorModule } from 'angular-email-editor';
 import { ToolsConfig, UnlayerOptions } from 'node_modules/angular-email-editor/types';
-
+import { TemplateEmailService } from '@/services/template-email.service';
+import { DrawerModule } from 'primeng/drawer';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 declare var unlayer: any;
 
 @Component({
     selector: 'app-create-template-email',
-    imports: [SharedImports, Breadcrumb, EmailEditorModule],
+    imports: [SharedImports, Breadcrumb, EmailEditorModule, DrawerModule],
     templateUrl: './create-template-email.html',
     styleUrl: './create-template-email.scss'
 })
 export class CreateTemplateEmail extends BaseComponent {
+    private _templateEmailService = inject(TemplateEmailService);
     @ViewChild(EmailEditorComponent)
     editor!: EmailEditorComponent;
-
+    visible: boolean = false
     showSelectModal = false;
     selectedPerson: any = null;
+    templateEmail!: EmailTempalte
     design: any = null;
+    idTemplate!: number;
+
+
+    override form: FormGroup = new FormGroup({
+        tenMauNoiDung: new FormControl('', [Validators.required]),
+    });
+
 
     override ngOnInit() {
         this._activatedRoute.queryParamMap.subscribe((params) => {
@@ -81,12 +93,23 @@ export class CreateTemplateEmail extends BaseComponent {
     items: MenuItem[] = [{ label: 'Danh sách template', routerLink: '/channel/email' }, { label: 'Tempale email' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
 
-    onLoad() {}
+    onLoad() { }
 
     onReady(event: any) {
         if (this.design) {
             this.editor.loadDesign(this.design);
         }
+    }
+
+    getTemplateById() {
+        this.loading = true;
+        this._templateEmailService.getById(this.idTemplate).subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, false)) {
+                    this.templateEmail = res.data
+                }
+            }
+        })
     }
 
     // Cấu hình merge tags cho Unlayer
@@ -150,53 +173,31 @@ export class CreateTemplateEmail extends BaseComponent {
     }
 
     saveTemplate() {
-        if (!this.editor) {
+         if (this.isFormInvalid()) {
             return;
         }
-
+        this.loading = true;
         this.editor.exportHtml((templateData: any) => {
-            const templateJson = {
-                id: Date.now(),
-                name: `Email Template ${new Date().toLocaleString()}`,
-                html: templateData.html,
-                design: templateData.design,
-                createdAt: new Date().toISOString()
-            };
-
-            this.writeToJsonFile(templateJson);
-
-            this.messageSuccess('Template đã được lưu vào file JSON!');
+            const body: ICreateEmailTempalte = {
+                tenMauNoiDung: this.form.get("tenMauNoiDung")?.value,
+                thietKe: this.designToString(templateData.design)
+            }
+            this._templateEmailService.create(body).subscribe({
+                next: (res) => {
+                    if (this.isResponseSucceed(res, true, 'Tạo template thành công')) {
+                        this.ngOnInit()
+                    }
+                },
+                error: (err) => {
+                    this.messageError(err?.message);
+                },
+                complete: () => {
+                    this.loading = false;
+                }
+            })
         });
     }
 
-    private async writeToJsonFile(templateData: any) {
-        try {
-            const response = await fetch('/assets/data/email-templates.json');
-            let templates = [];
-
-            if (response.ok) {
-                templates = await response.json();
-            }
-
-            templates.push(templateData);
-
-            const fileContent = JSON.stringify(templates, null, 2);
-
-            const blob = new Blob([fileContent], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'email-templates.json';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-
-            console.log('File JSON đã được tải về với template mới:', templateData);
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
     private showPreview(html: string) {
         const previewWindow = window.open('', '_blank', 'width=800,height=600');
 

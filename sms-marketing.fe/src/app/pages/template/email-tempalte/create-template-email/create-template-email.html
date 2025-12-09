@@ -2,7 +2,12 @@
     <div class="flex flex-row justify-between items-center mb-4">
         <div class="font-semibold text-xl uppercase">Cấu hình template Email</div>
         <div class="flex gap-2 items-center">
-
+            <form [formGroup]="form">
+                <input pInputText formControlName="tenMauNoiDung" id="tenMauNoiDung" placeholder="Tên Template" type="text" class="w-full" />
+                @if (form.get('tenMauNoiDung')?.hasError('required') && form.get('tenMauNoiDung')?.touched) {
+                <p-message severity="error" variant="simple" size="small">{{ getError('tenMauNoiDung') }} </p-message>
+                }
+            </form>
             <p-select
                 [options]="data"
                 optionLabel="name"
@@ -21,7 +26,13 @@
             <p-button
                 label="Save"
                 icon="pi pi-save"
-                severity="success"
+                size="small"
+                (click)="saveTemplate()">
+            </p-button>
+             <p-button
+                label="Back"
+                icon="pi pi-arrow-left"
+                severity="contrast"
                 size="small"
                 (click)="saveTemplate()">
             </p-button>
