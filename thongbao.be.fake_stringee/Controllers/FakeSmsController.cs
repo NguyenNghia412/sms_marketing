@@ -1,0 +1,29 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace thongbao.be.fake_stringee.Controllers
+{
+    [Route("sms")]
+    [ApiController]
+    public class FakeSmsController : ControllerBase
+    {
+        [HttpPost]
+        public IActionResult SendSmsFake([FromBody] object dto)
+        {
+            Random rnd = new Random();
+            int number = rnd.Next(1, 11);
+
+            if (number <= 3)
+            {
+                return StatusCode(StatusCodes.Status504GatewayTimeout, "The server timed out while processing the request.");
+            }
+
+            return Ok(new
+            {
+                status = 200,
+                message = "ok",
+                isFake = true
+            });
+        }
+    }
+}
