@@ -34,6 +34,8 @@ namespace thongbao.be.lib.Stringee.Implements
 
             // Nếu có giá trị thì gọi api vào đây
             string fakeStringeeUrl = _configuration["Stringee:FakeUrl"] ?? "";
+
+            _logger.LogInformation($"Fake Stringee URL: {fakeStringeeUrl}");
             if (!string.IsNullOrEmpty(fakeStringeeUrl))
             {
                 _baseUrl = fakeStringeeUrl;
