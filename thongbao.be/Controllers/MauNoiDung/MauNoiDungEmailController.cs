@@ -103,8 +103,8 @@ namespace thongbao.be.Controllers.MauNoiDung
         {
             try
             {
-                _mauNoiDungEmailService.FindById(idMnd);
-                return new();
+                var data = _mauNoiDungEmailService.FindById(idMnd);
+                return new(data);
             }
             catch (Exception ex)
             {

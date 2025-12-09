@@ -28,8 +28,7 @@ export class MauNoiDung extends BaseComponent {
     listEmailTempalte: EmailTempalte[] = [];
     columns: IColumn[] = [
         { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem' },
-        { header: 'Tiêu đề template', field: 'nameTemplate', headerContainerStyle: 'min-width: 10rem' },
-        { header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss' },
+        { header: 'Tên mẫu nội dung', field: 'tenMauNoiDung', headerContainerStyle: 'min-width: 10rem' },
         { header: 'Thao tác', headerContainerStyle: 'width: 12rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
@@ -783,12 +782,12 @@ export class MauNoiDung extends BaseComponent {
     onOpenUpdate(data: any) {
         this.router.navigate(['template/mau-email/create-template-email'], {
             queryParams: {
-                design: encodeURIComponent(JSON.stringify(data.design))
+                id: encodeURIComponent(JSON.stringify(data.id))
             }
         });
     }
 
-    onCustomEmit(data: { type: string; data: IViewRowMauNoiDung }) {
+    onCustomEmit(data: { type: string; data: EmailTempalte }) {
         if (data.type === TblActionTypes.use) {
             // const uri = '/danh-ba/chi-tiet';
             // this.router.navigate([uri], {
@@ -803,14 +802,14 @@ export class MauNoiDung extends BaseComponent {
         }
     }
 
-    onDelete(data: IViewRowMauNoiDung) {
+    onDelete(data: EmailTempalte) {
         this.confirmDelete(
             {
                 header: 'Bạn chắc chắn muốn xóa template?',
                 message: 'Không thể khôi phục sau khi xóa'
             },
             () => {
-                this._templateEmailService.delete(data.idMauNoiDung || 0).subscribe(
+                this._templateEmailService.delete(data.id || 0).subscribe(
                     (res) => {
                         if (this.isResponseSucceed(res, true, 'Đã xóa')) {
                             this.getData();

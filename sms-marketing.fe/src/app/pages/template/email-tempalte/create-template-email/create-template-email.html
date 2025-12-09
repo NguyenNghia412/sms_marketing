@@ -24,17 +24,25 @@
                 (click)="previewWithData()">
             </p-button>
             <p-button
-                label="Save"
-                icon="pi pi-save"
+                *ngIf="!this.templateEmail"
+                label="Create"
+                icon="pi pi-plus"
                 size="small"
                 (click)="saveTemplate()">
             </p-button>
              <p-button
+                *ngIf="this.templateEmail"
+                label="Update"
+                icon="pi pi-save"
+                size="small"
+                (click)="saveTemplate()">
+            </p-button>
+            <p-button
                 label="Back"
                 icon="pi pi-arrow-left"
                 severity="contrast"
                 size="small"
-                (click)="saveTemplate()">
+                (click)="back()">
             </p-button>
         </div>
     </div>

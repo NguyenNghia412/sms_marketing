@@ -21,24 +21,22 @@ export class CreateTemplateEmail extends BaseComponent {
     private _templateEmailService = inject(TemplateEmailService);
     @ViewChild(EmailEditorComponent)
     editor!: EmailEditorComponent;
-    visible: boolean = false
+    visible: boolean = false;
     showSelectModal = false;
     selectedPerson: any = null;
-    templateEmail!: EmailTempalte
-    design: any = null;
-    idTemplate!: number;
-
-
+    templateEmail!: EmailTempalte;
+    idTemplate!: any;
+    dataRoute: any;
     override form: FormGroup = new FormGroup({
-        tenMauNoiDung: new FormControl('', [Validators.required]),
+        tenMauNoiDung: new FormControl('', [Validators.required])
     });
-
 
     override ngOnInit() {
         this._activatedRoute.queryParamMap.subscribe((params) => {
-            const designParam = params.get('design');
-            if (designParam) {
-                this.design = JSON.parse(decodeURIComponent(designParam));
+            const id = params.get('id');
+            if (id) {
+                this.idTemplate = id;
+                this.getTemplateById();
             }
         });
     }
@@ -93,11 +91,12 @@ export class CreateTemplateEmail extends BaseComponent {
     items: MenuItem[] = [{ label: 'Danh sách template', routerLink: '/channel/email' }, { label: 'Tempale email' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
 
-    onLoad() { }
+    onLoad() {}
 
     onReady(event: any) {
-        if (this.design) {
-            this.editor.loadDesign(this.design);
+        if (this.templateEmail) {
+            const cleanedDesign = this.cleanDesignString(this.stringToDesign(this.templateEmail.thietKe));
+            this.editor.loadDesign(cleanedDesign);
         }
     }
 
@@ -106,10 +105,11 @@ export class CreateTemplateEmail extends BaseComponent {
         this._templateEmailService.getById(this.idTemplate).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, false)) {
-                    this.templateEmail = res.data
+                    this.templateEmail = res.data;
+                    this.form.get('tenMauNoiDung')?.patchValue(this.templateEmail.tenMauNoiDung);
                 }
             }
-        })
+        });
     }
 
     // Cấu hình merge tags cho Unlayer
@@ -122,6 +122,38 @@ export class CreateTemplateEmail extends BaseComponent {
             };
         });
         return config;
+    }
+
+    // Method để clean design string nếu có ký tự { } wrapper
+    private cleanDesignString(designString: string): any {
+        if (!designString || typeof designString !== 'string') {
+            console.error('Invalid design string');
+            return null;
+        }
+
+        let cleanedString = designString.trim();
+
+        // Loại bỏ ký tự { ở đầu và } ở cuối nếu có
+        if (cleanedString.startsWith('{') && cleanedString.endsWith('}')) {
+            // Kiểm tra xem có phải là wrapper không (không phải là JSON object)
+            const secondChar = cleanedString.charAt(1);
+            const secondLastChar = cleanedString.charAt(cleanedString.length - 2);
+
+            // Nếu ký tự thứ 2 là { và ký tự thứ 2 từ cuối là }, thì loại bỏ wrapper
+            if (secondChar === '{' && secondLastChar === '}') {
+                cleanedString = cleanedString.substring(1, cleanedString.length - 1);
+                console.log('Removed wrapper braces, cleaned string:', cleanedString);
+            }
+        }
+
+        // Parse JSON
+        try {
+            return JSON.parse(cleanedString);
+        } catch (error) {
+            console.error('Error parsing cleaned design string:', error);
+            console.error('Cleaned string was:', cleanedString);
+            return null;
+        }
     }
 
     // Export template without data replacement
@@ -173,31 +205,60 @@ export class CreateTemplateEmail extends BaseComponent {
     }
 
     saveTemplate() {
-         if (this.isFormInvalid()) {
+        if (this.isFormInvalid()) {
             return;
         }
         this.loading = true;
         this.editor.exportHtml((templateData: any) => {
-            const body: ICreateEmailTempalte = {
-                tenMauNoiDung: this.form.get("tenMauNoiDung")?.value,
-                thietKe: this.designToString(templateData.design)
+            let body: any;
+            if (this.templateEmail) {
+                body = {
+                    id: this.idTemplate,
+                    tenMauNoiDung: this.form.get('tenMauNoiDung')?.value,
+                    thietKe: this.designToString(templateData.design)
+                };
+            } else {
+                body = {
+                    tenMauNoiDung: this.form.get('tenMauNoiDung')?.value,
+                    thietKe: this.designToString(templateData.design)
+                };
             }
-            this._templateEmailService.create(body).subscribe({
-                next: (res) => {
-                    if (this.isResponseSucceed(res, true, 'Tạo template thành công')) {
-                        this.ngOnInit()
+
+            if (this.templateEmail) {
+                this._templateEmailService.update(body).subscribe({
+                    next: (res) => {
+                        if (this.isResponseSucceed(res, true, 'Update template thành công')) {
+                            this.ngOnInit();
+                        }
+                    },
+                    error: (err) => {
+                        this.messageError(err?.message);
+                    },
+                    complete: () => {
+                        this.loading = false;
                     }
-                },
-                error: (err) => {
-                    this.messageError(err?.message);
-                },
-                complete: () => {
-                    this.loading = false;
-                }
-            })
+                });
+            } else {
+                this._templateEmailService.create(body).subscribe({
+                    next: (res) => {
+                        if (this.isResponseSucceed(res, true, 'Tạo template thành công')) {
+                            this.ngOnInit();
+                        }
+                    },
+                    error: (err) => {
+                        this.messageError(err?.message);
+                    },
+                    complete: () => {
+                        this.loading = false;
+                    }
+                });
+            }
         });
     }
 
+    back() {
+        this.router.navigate(['template/mau-email']);
+    }
     private showPreview(html: string) {
         const previewWindow = window.open('', '_blank', 'width=800,height=600');
 

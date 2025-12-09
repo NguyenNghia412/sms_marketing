@@ -26,9 +26,9 @@ export class TemplateEmailService {
     }
 
     delete(idMauNoiDung: number) {
-        return this.http.delete<IBaseResponse>(`${this.api}?id=${idMauNoiDung}`);
+        return this.http.delete<IBaseResponse>(`${this.api}/${idMauNoiDung}`);
     }
     getById(id:number){
-        return this.http.get<IBaseResponseWithData<EmailTempalte>>(`${this.api}?id=${id}`)
+        return this.http.get<IBaseResponseWithData<EmailTempalte>>(`${this.api}/${id}`)
     }
 }
