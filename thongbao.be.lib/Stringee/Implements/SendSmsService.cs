@@ -31,6 +31,13 @@ namespace thongbao.be.lib.Stringee.Implements
             _httpClient = httpClient;
             _logger = logger;
             _baseUrl = _configuration["Stringee:BaseUrl"] ?? "";
+
+            // Nếu có giá trị thì gọi api vào đây
+            string fakeStringeeUrl = _configuration["Stringee:FakeUrl"] ?? "";
+            if (!string.IsNullOrEmpty(fakeStringeeUrl))
+            {
+                _baseUrl = fakeStringeeUrl;
+            }
         }
 
         public async Task<object> SendSmsAsync(List<object> smsMessages)
