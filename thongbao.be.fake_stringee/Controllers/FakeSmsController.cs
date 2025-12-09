@@ -18,11 +18,11 @@ namespace thongbao.be.fake_stringee.Controllers
                 return StatusCode(StatusCodes.Status504GatewayTimeout, "The server timed out while processing the request.");
             }
 
+            var result = new object[] { new { r = 0, msg = "Success" } };
+
             return Ok(new
             {
-                status = 200,
-                message = "ok",
-                isFake = true
+                result
             });
         }
     }
