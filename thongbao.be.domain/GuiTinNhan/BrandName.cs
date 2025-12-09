@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,8 @@ namespace thongbao.be.domain.GuiTinNhan
     [Table(nameof(BrandName), Schema = DbSchemas.Core)]
     public  class BrandName :ISoftDelted
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string TenBrandName { get; set; } = String.Empty;
         public string? Mota { get; set; } = String.Empty;

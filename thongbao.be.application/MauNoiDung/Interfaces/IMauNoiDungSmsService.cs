@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using thongbao.be.application.MauNoiDung.Dtos;
+using thongbao.be.application.MauNoiDung.Dtos.MauNoiDungSms;
 using thongbao.be.shared.HttpRequest.BaseRequest;
 
 namespace thongbao.be.application.MauNoiDung.Interfaces
 {
-    public interface  IMauNoiDungService
+    public interface  IMauNoiDungSmsService
     {
         public void Create(CreateMauNoiDungDto dto);
         public void Update(int id, UpdateMauNoiDungDto dto);

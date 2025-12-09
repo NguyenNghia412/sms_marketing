@@ -42,7 +42,8 @@ namespace thongbao.be.infrastructure.data
         public DbSet<ToChuc> ToChucs { get; set; }
         public DbSet<ToChucDanhBaChiTiet> ToChucDanhBaChiTiet { get; set; }
         public DbSet<BrandName> BrandName { get; set; }
-        public DbSet<MauNoiDung> MauNoiDungs { get; set; }
+        public DbSet<MauNoiDungSms> MauNoiDungSms { get; set; }
+        public DbSet<MauNoiDungEmail> MauNoiDungEmail { get; set; }
         public DbSet<ChienDichLogTrangThaiGui> ChienDichLogTrangThaiGuis { get; set; }
         public DbSet<GuiTinNhanLogChiTiet> GuiTinNhanLogChiTiets { get; set; }
         public DbSet<CauHinhDonGia> CauHinhDonGias { get; set; }
@@ -148,7 +149,12 @@ namespace thongbao.be.infrastructure.data
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-            modelBuilder.Entity<MauNoiDung>(entity =>
+            modelBuilder.Entity<MauNoiDungSms>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<MauNoiDungEmail>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");

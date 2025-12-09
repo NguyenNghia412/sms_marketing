@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using thongbao.be.application.GuiTinNhan.Interfaces;
-using thongbao.be.application.MauNoiDung.Dtos;
+using thongbao.be.application.MauNoiDung.Dtos.MauNoiDungSms;
 using thongbao.be.application.MauNoiDung.Interfaces;
 using thongbao.be.Attributes;
 using thongbao.be.Controllers.Base;
@@ -12,27 +12,27 @@ using thongbao.be.shared.HttpRequest;
 
 namespace thongbao.be.Controllers.MauNoiDung
 {
-    [Route("api/core/mau-noi-dung")]
+    [Route("api/core/mau-noi-dung-sms")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class MauNoiDungController:BaseController
+    public class MauNoiDungSmsController:BaseController
 
     {
-        private readonly IMauNoiDungService _mauNoiDungService;
+        private readonly IMauNoiDungSmsService _mauNoiDungSmsService;
 
-        public MauNoiDungController(ILogger<MauNoiDungController> logger, IMauNoiDungService mauNoiDungService) : base(logger)
+        public MauNoiDungSmsController(ILogger<MauNoiDungSmsController> logger, IMauNoiDungSmsService mauNoiDungSmsService) : base(logger)
         {
-            _mauNoiDungService = mauNoiDungService;
+            _mauNoiDungSmsService = mauNoiDungSmsService;
         }
 
 
-        [Permission(PermissionKeys.MauNoiDungAdd)]
+        [Permission(PermissionKeys.MauNoiDungSmsAdd)]
         [HttpPost("")]
         public ApiResponse Create([FromBody] CreateMauNoiDungDto dto)
         {
             try
             {
-                _mauNoiDungService.Create(dto);
+                _mauNoiDungSmsService.Create(dto);
                 return new();
             }
             catch (Exception ex)
@@ -40,13 +40,13 @@ namespace thongbao.be.Controllers.MauNoiDung
                 return OkException(ex);
             }
         }
-        [Permission(PermissionKeys.MauNoiDungUpdate)]
+        [Permission(PermissionKeys.MauNoiDungSmsUpdate)]
         [HttpPut("")]
         public ApiResponse Update([FromQuery] int id ,[FromBody] UpdateMauNoiDungDto dto)
         {
             try
             {
-                _mauNoiDungService.Update(id,dto);
+                _mauNoiDungSmsService.Update(id,dto);
                 return new();
             }
             catch (Exception ex)
@@ -54,13 +54,13 @@ namespace thongbao.be.Controllers.MauNoiDung
                 return OkException(ex);
             }
         }
-        [Permission(PermissionKeys.MauNoiDungView)]
+        [Permission(PermissionKeys.MauNoiDungSmsView)]
         [HttpGet("")]
         public ApiResponse Find([FromQuery] FindPagingMauNoiDungDto dto)
         {
             try
             {
-                var data = _mauNoiDungService.Find( dto);
+                var data = _mauNoiDungSmsService.Find( dto);
                 return new(data);
             }
             catch (Exception ex)
@@ -68,13 +68,13 @@ namespace thongbao.be.Controllers.MauNoiDung
                 return OkException(ex);
             }
         }
-        [Permission(PermissionKeys.MauNoiDungDelete)]
+        [Permission(PermissionKeys.MauNoiDungSmsDelete)]
         [HttpDelete("")]
         public ApiResponse Delete([FromQuery] int id)
         {
             try
             {
-                _mauNoiDungService.Delete(id);
+                _mauNoiDungSmsService.Delete(id);
                 return new();
             }
             catch (Exception ex)
@@ -83,13 +83,13 @@ namespace thongbao.be.Controllers.MauNoiDung
             }
         }
 
-        [Permission(PermissionKeys.MauNoiDungAdd)]
+        [Permission(PermissionKeys.MauNoiDungSmsAdd)]
         [HttpPost("chien-dich")]
         public ApiResponse CreateChienDichByMauNoiDung([FromQuery] int id, [FromBody] CreateChienDichByMauNoiDungDto dto)
         {
             try
             {
-                _mauNoiDungService.CreateChienDichByMauNoiDung(id,dto);
+                _mauNoiDungSmsService.CreateChienDichByMauNoiDung(id,dto);
                 return new();
             }
             catch (Exception ex)
@@ -97,13 +97,13 @@ namespace thongbao.be.Controllers.MauNoiDung
                 return OkException(ex);
             }
         }
-        [Permission(PermissionKeys.MauNoiDungView)]
+        [Permission(PermissionKeys.MauNoiDungSmsView)]
         [HttpGet("list-mau-noi-dung")]
         public ApiResponse GetListMauNoiDung()
         {
             try
             {
-                var data = _mauNoiDungService.GetListMauNoiDung();
+                var data = _mauNoiDungSmsService.GetListMauNoiDung();
                 return new(data);
             }
             catch (Exception ex)
