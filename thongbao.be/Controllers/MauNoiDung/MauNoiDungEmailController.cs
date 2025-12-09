@@ -98,7 +98,7 @@ namespace thongbao.be.Controllers.MauNoiDung
         }
 
         [Permission(PermissionKeys.MauNoiDungEmailView)]
-        [HttpDelete("{idMnd}")]
+        [HttpGet("{idMnd}")]
         public ApiResponse FindById([FromRoute] int idMnd)
         {
             try
