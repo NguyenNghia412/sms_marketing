@@ -10,6 +10,7 @@ using thongbao.be.application.Auth.Dtos.User;
 using thongbao.be.application.DanhBa.Dtos;
 using thongbao.be.application.DiemDanh.Dtos;
 using thongbao.be.application.GuiTinNhan.Dtos;
+using thongbao.be.application.MauNoiDung.Dtos.MauNoiDungEmail;
 using thongbao.be.application.MauNoiDung.Dtos.MauNoiDungSms;
 using thongbao.be.application.ToChuc.Dtos;
 
@@ -42,6 +43,8 @@ namespace thongbao.be.application.Base
             CreateMap<domain.MauNoiDung.MauNoiDungSms, ViewMauNoiDungDto>();
             CreateMap<domain.MauNoiDung.MauNoiDungSms, GetListMauNoiDungResponseDto>();
             CreateMap<ChienDichLogTrangThaiGui, ViewChienDichLogDto>();
+            CreateMap<domain.MauNoiDung.MauNoiDungEmail, ViewMauNoiDungEmailDto>();
+            CreateMap<domain.MauNoiDung.MauNoiDungEmail, GetListMauNoiDungEmailResponseDto>();
 
 
         }
