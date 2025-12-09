@@ -98,12 +98,12 @@ namespace thongbao.be.Controllers.MauNoiDung
         }
 
         [Permission(PermissionKeys.MauNoiDungEmailView)]
-        [HttpDelete("{id}")]
-        public ApiResponse FindById([FromRoute] int id)
+        [HttpDelete("{idMnd}")]
+        public ApiResponse FindById([FromRoute] int idMnd)
         {
             try
             {
-                _mauNoiDungEmailService.FindById(id);
+                _mauNoiDungEmailService.FindById(idMnd);
                 return new();
             }
             catch (Exception ex)

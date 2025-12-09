@@ -16,6 +16,6 @@ namespace thongbao.be.application.MauNoiDung.Interfaces
         public void Delete(int id);
     
         public List<GetListMauNoiDungEmailResponseDto> GetListMauNoiDung();
-        public ViewMauNoiDungEmailByIdDto FindById(int id);
+        public ViewMauNoiDungEmailByIdDto FindById(int idMnd);
     }
 }

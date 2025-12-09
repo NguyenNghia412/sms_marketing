@@ -110,15 +110,15 @@ namespace thongbao.be.application.MauNoiDung.Implements
       
             _smDbContext.SaveChanges();
         }
-        public ViewMauNoiDungEmailByIdDto FindById(int id)
+        public ViewMauNoiDungEmailByIdDto FindById(int idMnd)
         {
-            _logger.LogInformation($"{nameof(FindById)}, id = {id}");
+            _logger.LogInformation($"{nameof(FindById)}, id = {idMnd}");
 
             var isSuperAdmin = IsSuperAdmin();
             var currentUserId = getCurrentUserId();
 
             var mauNoiDung = _smDbContext.MauNoiDungEmail
-                .FirstOrDefault(x => x.Id == id && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
+                .FirstOrDefault(x => x.Id == idMnd && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.MauNoiDungErrorNotFound);
 
             return new ViewMauNoiDungEmailByIdDto
