@@ -27,18 +27,31 @@ export class CreateTemplateEmail extends BaseComponent {
     templateEmail!: EmailTempalte;
     idTemplate!: any;
     dataRoute: any;
+    submitted: boolean = false;
+
     override form: FormGroup = new FormGroup({
-        tenMauNoiDung: new FormControl('', [Validators.required])
+        tenMauNoiDung: new FormControl(null, [Validators.required])
     });
 
+    override ValidationMessages: Record<string, Record<string, string>> = {
+        tenMauNoiDung: {
+            required: 'Không được bỏ trống'
+        },
+
+    };
+
     override ngOnInit() {
-        this._activatedRoute.queryParamMap.subscribe((params) => {
-            const id = params.get('id');
-            if (id) {
-                this.idTemplate = id;
-                this.getTemplateById();
-            }
-        });
+        if (!this.idTemplate) {
+            this._activatedRoute.queryParamMap.subscribe((params) => {
+                const id = params.get('id');
+                if (id) {
+                    this.idTemplate = id;
+
+                }
+            });
+        }
+        this.getTemplateById();
+
     }
 
     variables = [
@@ -91,7 +104,7 @@ export class CreateTemplateEmail extends BaseComponent {
     items: MenuItem[] = [{ label: 'Danh sách template', routerLink: '/channel/email' }, { label: 'Tempale email' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
 
-    onLoad() {}
+    onLoad() { }
 
     onReady(event: any) {
         if (this.templateEmail) {
@@ -124,29 +137,21 @@ export class CreateTemplateEmail extends BaseComponent {
         return config;
     }
 
-    // Method để clean design string nếu có ký tự { } wrapper
+
     private cleanDesignString(designString: string): any {
         if (!designString || typeof designString !== 'string') {
             console.error('Invalid design string');
             return null;
         }
-
         let cleanedString = designString.trim();
-
-        // Loại bỏ ký tự { ở đầu và } ở cuối nếu có
         if (cleanedString.startsWith('{') && cleanedString.endsWith('}')) {
-            // Kiểm tra xem có phải là wrapper không (không phải là JSON object)
             const secondChar = cleanedString.charAt(1);
             const secondLastChar = cleanedString.charAt(cleanedString.length - 2);
-
-            // Nếu ký tự thứ 2 là { và ký tự thứ 2 từ cuối là }, thì loại bỏ wrapper
             if (secondChar === '{' && secondLastChar === '}') {
                 cleanedString = cleanedString.substring(1, cleanedString.length - 1);
-                console.log('Removed wrapper braces, cleaned string:', cleanedString);
             }
         }
 
-        // Parse JSON
         try {
             return JSON.parse(cleanedString);
         } catch (error) {
@@ -156,7 +161,6 @@ export class CreateTemplateEmail extends BaseComponent {
         }
     }
 
-    // Export template without data replacement
     exportTemplate() {
         if (!this.editor) {
             return;
@@ -205,7 +209,9 @@ export class CreateTemplateEmail extends BaseComponent {
     }
 
     saveTemplate() {
+
         if (this.isFormInvalid()) {
+            this.submitted = true;
             return;
         }
         this.loading = true;
@@ -228,6 +234,7 @@ export class CreateTemplateEmail extends BaseComponent {
                 this._templateEmailService.update(body).subscribe({
                     next: (res) => {
                         if (this.isResponseSucceed(res, true, 'Update template thành công')) {
+
                             this.ngOnInit();
                         }
                     },
@@ -242,6 +249,7 @@ export class CreateTemplateEmail extends BaseComponent {
                 this._templateEmailService.create(body).subscribe({
                     next: (res) => {
                         if (this.isResponseSucceed(res, true, 'Tạo template thành công')) {
+                            this.idTemplate = res.data.id
                             this.ngOnInit();
                         }
                     },

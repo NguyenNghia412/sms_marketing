@@ -30,7 +30,7 @@ namespace thongbao.be.application.MauNoiDung.Implements
             : base(smDbContext, logger, httpContextAccessor, mapper)
         {
         }
-        public void Create(CreateMauNoiDungEmailDto dto)
+        public CreateResultEmailTemplateDto Create(CreateMauNoiDungEmailDto dto)
         {
             _logger.LogInformation($"{nameof(Create)}, dto = {JsonSerializer.Serialize(dto)}");
             var vietnamNow = GetVietnamTime();
@@ -47,6 +47,11 @@ namespace thongbao.be.application.MauNoiDung.Implements
             };
             _smDbContext.MauNoiDungEmail.Add(mauNoiDung);
             _smDbContext.SaveChanges();
+
+            return new CreateResultEmailTemplateDto
+            {
+                Id = mauNoiDung.Id
+            };
         }
 
         public void Update( UpdateMauNoiDungEmailDto dto)

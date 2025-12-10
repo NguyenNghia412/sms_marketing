@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using thongbao.be.application.MauNoiDung.Dtos.MauNoiDungEmail;
-
-using thongbao.be.application.MauNoiDung.Implements;
 using thongbao.be.application.MauNoiDung.Interfaces;
 using thongbao.be.Attributes;
 using thongbao.be.Controllers.Base;
@@ -31,8 +29,7 @@ namespace thongbao.be.Controllers.MauNoiDung
         {
             try
             {
-                _mauNoiDungEmailService.Create(dto);
-                return new();
+                return new(_mauNoiDungEmailService.Create(dto));
             }
             catch (Exception ex)
             {
@@ -41,11 +38,11 @@ namespace thongbao.be.Controllers.MauNoiDung
         }
         [Permission(PermissionKeys.MauNoiDungEmailUpdate)]
         [HttpPut("")]
-        public ApiResponse Update( [FromBody] UpdateMauNoiDungEmailDto dto)
+        public ApiResponse Update([FromBody] UpdateMauNoiDungEmailDto dto)
         {
             try
             {
-                _mauNoiDungEmailService.Update( dto);
+                _mauNoiDungEmailService.Update(dto);
                 return new();
             }
             catch (Exception ex)
@@ -112,4 +109,4 @@ namespace thongbao.be.Controllers.MauNoiDung
             }
         }
     }
-    }
+}

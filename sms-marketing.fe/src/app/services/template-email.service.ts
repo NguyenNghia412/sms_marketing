@@ -18,7 +18,7 @@ export class TemplateEmailService {
     }
 
     create(body: ICreateEmailTempalte) {
-        return this.http.post<IBaseResponse>(this.api, body);
+        return this.http.post<IBaseResponseWithData<any>>(this.api, body);
     }
 
     update(body: IUpdateEmailTempalte) {

@@ -3,10 +3,12 @@
         <div class="font-semibold text-xl uppercase">Cấu hình template Email</div>
         <div class="flex gap-2 items-center">
             <form [formGroup]="form">
-                <input pInputText formControlName="tenMauNoiDung" id="tenMauNoiDung" placeholder="Tên Template" type="text" class="w-full" />
-                @if (form.get('tenMauNoiDung')?.hasError('required') && form.get('tenMauNoiDung')?.touched) {
-                <p-message severity="error" variant="simple" size="small">{{ getError('tenMauNoiDung') }} </p-message>
-                }
+                <input pInputText formControlName="tenMauNoiDung" id="tenMauNoiDung" placeholder="Tên Template" type="text" class="w-full mt-7" />
+                <div style="min-height: 24px;">
+                    @if (form.get('tenMauNoiDung')?.hasError('required') && (form.get('tenMauNoiDung')?.touched || submitted)) {
+                    <p-message severity="error" variant="simple" size="small">{{ getError('tenMauNoiDung') }} </p-message>
+                    }
+                </div>
             </form>
             <p-select
                 [options]="data"
@@ -25,20 +27,20 @@
             </p-button>
             <p-button
                 *ngIf="!this.templateEmail"
-                label="Create"
+                label="Thêm mới"
                 icon="pi pi-plus"
                 size="small"
                 (click)="saveTemplate()">
             </p-button>
              <p-button
                 *ngIf="this.templateEmail"
-                label="Update"
+                label="Cập nhật"
                 icon="pi pi-save"
                 size="small"
                 (click)="saveTemplate()">
             </p-button>
             <p-button
-                label="Back"
+                label="Quay về  "
                 icon="pi pi-arrow-left"
                 severity="contrast"
                 size="small"
