@@ -8,8 +8,10 @@ namespace thongbao.be.fake_stringee.Controllers
     public class FakeSmsController : ControllerBase
     {
         [HttpPost]
-        public IActionResult SendSmsFake([FromBody] object dto)
+        public async Task<IActionResult> SendSmsFake([FromBody] object dto)
         {
+            await Task.Delay(60000); // 60 seconds
+
             Random rnd = new Random();
             int number = rnd.Next(1, 11);
 
