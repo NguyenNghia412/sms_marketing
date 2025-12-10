@@ -123,6 +123,7 @@ namespace thongbao.be.application.MauNoiDung.Implements
 
             return new ViewMauNoiDungEmailByIdDto
             {
+                tenMauNoiDung = mauNoiDung.TenMauNoiDung,
                 ThietKe = mauNoiDung.ThietKe  
             };
         }

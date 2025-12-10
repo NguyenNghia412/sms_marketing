@@ -1,32 +1,42 @@
+import { EmailTempalte, ICreateEmailTempalte } from './../../models/data-email-template.models';
 import { SharedImports } from '@/shared/import.shared';
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Breadcrumb } from '@/shared/components/breadcrumb/breadcrumb';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { EmailEditorComponent, EmailEditorModule } from 'angular-email-editor';
 import { ToolsConfig, UnlayerOptions } from 'node_modules/angular-email-editor/types';
-
+import { TemplateEmailService } from '@/services/template-email.service';
+import { DrawerModule } from 'primeng/drawer';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 declare var unlayer: any;
 
 @Component({
     selector: 'app-create-template-email',
-    imports: [SharedImports, Breadcrumb, EmailEditorModule],
+    imports: [SharedImports, Breadcrumb, EmailEditorModule, DrawerModule],
     templateUrl: './create-template-email.html',
     styleUrl: './create-template-email.scss'
 })
 export class CreateTemplateEmail extends BaseComponent {
+    private _templateEmailService = inject(TemplateEmailService);
     @ViewChild(EmailEditorComponent)
     editor!: EmailEditorComponent;
-
+    visible: boolean = false;
     showSelectModal = false;
     selectedPerson: any = null;
-    design: any = null;
+    templateEmail!: EmailTempalte;
+    idTemplate!: any;
+    dataRoute: any;
+    override form: FormGroup = new FormGroup({
+        tenMauNoiDung: new FormControl('', [Validators.required])
+    });
 
     override ngOnInit() {
         this._activatedRoute.queryParamMap.subscribe((params) => {
-            const designParam = params.get('design');
-            if (designParam) {
-                this.design = JSON.parse(decodeURIComponent(designParam));
+            const id = params.get('id');
+            if (id) {
+                this.idTemplate = id;
+                this.getTemplateById();
             }
         });
     }
@@ -84,9 +94,22 @@ export class CreateTemplateEmail extends BaseComponent {
     onLoad() {}
 
     onReady(event: any) {
-        if (this.design) {
-            this.editor.loadDesign(this.design);
+        if (this.templateEmail) {
+            const cleanedDesign = this.cleanDesignString(this.stringToDesign(this.templateEmail.thietKe));
+            this.editor.loadDesign(cleanedDesign);
         }
+    }
+
+    getTemplateById() {
+        this.loading = true;
+        this._templateEmailService.getById(this.idTemplate).subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, false)) {
+                    this.templateEmail = res.data;
+                    this.form.get('tenMauNoiDung')?.patchValue(this.templateEmail.tenMauNoiDung);
+                }
+            }
+        });
     }
 
     // Cấu hình merge tags cho Unlayer
@@ -99,6 +122,38 @@ export class CreateTemplateEmail extends BaseComponent {
             };
         });
         return config;
+    }
+
+    // Method để clean design string nếu có ký tự { } wrapper
+    private cleanDesignString(designString: string): any {
+        if (!designString || typeof designString !== 'string') {
+            console.error('Invalid design string');
+            return null;
+        }
+
+        let cleanedString = designString.trim();
+
+        // Loại bỏ ký tự { ở đầu và } ở cuối nếu có
+        if (cleanedString.startsWith('{') && cleanedString.endsWith('}')) {
+            // Kiểm tra xem có phải là wrapper không (không phải là JSON object)
+            const secondChar = cleanedString.charAt(1);
+            const secondLastChar = cleanedString.charAt(cleanedString.length - 2);
+
+            // Nếu ký tự thứ 2 là { và ký tự thứ 2 từ cuối là }, thì loại bỏ wrapper
+            if (secondChar === '{' && secondLastChar === '}') {
+                cleanedString = cleanedString.substring(1, cleanedString.length - 1);
+                console.log('Removed wrapper braces, cleaned string:', cleanedString);
+            }
+        }
+
+        // Parse JSON
+        try {
+            return JSON.parse(cleanedString);
+        } catch (error) {
+            console.error('Error parsing cleaned design string:', error);
+            console.error('Cleaned string was:', cleanedString);
+            return null;
+        }
     }
 
     // Export template without data replacement
@@ -150,52 +205,59 @@ export class CreateTemplateEmail extends BaseComponent {
     }
 
     saveTemplate() {
-        if (!this.editor) {
+        if (this.isFormInvalid()) {
             return;
         }
-
+        this.loading = true;
         this.editor.exportHtml((templateData: any) => {
-            const templateJson = {
-                id: Date.now(),
-                name: `Email Template ${new Date().toLocaleString()}`,
-                html: templateData.html,
-                design: templateData.design,
-                createdAt: new Date().toISOString()
-            };
+            let body: any;
+            if (this.templateEmail) {
+                body = {
+                    id: this.idTemplate,
+                    tenMauNoiDung: this.form.get('tenMauNoiDung')?.value,
+                    thietKe: this.designToString(templateData.design)
+                };
+            } else {
+                body = {
+                    tenMauNoiDung: this.form.get('tenMauNoiDung')?.value,
+                    thietKe: this.designToString(templateData.design)
+                };
+            }
 
-            this.writeToJsonFile(templateJson);
-
-            this.messageSuccess('Template đã được lưu vào file JSON!');
+            if (this.templateEmail) {
+                this._templateEmailService.update(body).subscribe({
+                    next: (res) => {
+                        if (this.isResponseSucceed(res, true, 'Update template thành công')) {
+                            this.ngOnInit();
+                        }
+                    },
+                    error: (err) => {
+                        this.messageError(err?.message);
+                    },
+                    complete: () => {
+                        this.loading = false;
+                    }
+                });
+            } else {
+                this._templateEmailService.create(body).subscribe({
+                    next: (res) => {
+                        if (this.isResponseSucceed(res, true, 'Tạo template thành công')) {
+                            this.ngOnInit();
+                        }
+                    },
+                    error: (err) => {
+                        this.messageError(err?.message);
+                    },
+                    complete: () => {
+                        this.loading = false;
+                    }
+                });
+            }
         });
     }
 
-    private async writeToJsonFile(templateData: any) {
-        try {
-            const response = await fetch('/assets/data/email-templates.json');
-            let templates = [];
-
-            if (response.ok) {
-                templates = await response.json();
-            }
-
-            templates.push(templateData);
-
-            const fileContent = JSON.stringify(templates, null, 2);
-
-            const blob = new Blob([fileContent], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'email-templates.json';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-
-            console.log('File JSON đã được tải về với template mới:', templateData);
-        } catch (error) {
-            console.error('Error:', error);
-        }
+    back() {
+        this.router.navigate(['template/mau-email']);
     }
     private showPreview(html: string) {
         const previewWindow = window.open('', '_blank', 'width=800,height=600');

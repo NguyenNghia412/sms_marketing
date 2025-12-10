@@ -12,7 +12,7 @@ import { IAccountProfileStringee, IResponseProfileStringee } from '@/models/prof
     selector: 'app-menu',
     standalone: true,
     imports: [CommonModule, AppMenuitem, RouterModule],
-     template: `
+    template: `
     <div class="flex flex-col h-full">
         <ul class="layout-menu flex-1">
             <ng-container *ngFor="let item of model; let i = index">
@@ -92,6 +92,7 @@ export class AppMenu {
                         visible: this._sharedService.isGranted(PermissionConstants.MenuContact),
                         routerLink: ['/danh-ba/ds']
                     }
+
                 ],
                 visible: this._sharedService.isGranted(PermissionConstants.MenuContact),
             },
@@ -100,7 +101,11 @@ export class AppMenu {
                     {
                         label: 'Templates',
                         visible: this._sharedService.isGranted(PermissionConstants.MenuTemplate),
-                        routerLink: ['/template/mau-nd']
+                        items: [
+                            { label: 'Template SMS', routerLink: ['/template/mau-sms'], visible: this._sharedService.isGranted(PermissionConstants.MenuMarketingSms) },
+                            { label: 'Template Email', routerLink: ['/template/mau-email'], visible: this._sharedService.isGranted(PermissionConstants.MenuMarketingSms) },
+                        ]
+
                     }
                 ],
                 visible: this._sharedService.isGranted(PermissionConstants.MenuTemplate),
@@ -119,7 +124,7 @@ export class AppMenu {
                 visible: this._sharedService.isGranted(PermissionConstants.MenuReport),
 
             },
-            
+
             {
                 items: [
                     {
