@@ -2,7 +2,14 @@
     <div class="flex flex-row justify-between items-center mb-4">
         <div class="font-semibold text-xl uppercase">Cấu hình template Email</div>
         <div class="flex gap-2 items-center">
-
+            <form [formGroup]="form">
+                <input pInputText formControlName="tenMauNoiDung" id="tenMauNoiDung" placeholder="Tên Template" type="text" class="w-full mt-7" />
+                <div style="min-height: 24px;">
+                    @if (form.get('tenMauNoiDung')?.hasError('required') && (form.get('tenMauNoiDung')?.touched || submitted)) {
+                    <p-message severity="error" variant="simple" size="small">{{ getError('tenMauNoiDung') }} </p-message>
+                    }
+                </div>
+            </form>
             <p-select
                 [options]="data"
                 optionLabel="name"
@@ -19,11 +26,25 @@
                 (click)="previewWithData()">
             </p-button>
             <p-button
-                label="Save"
-                icon="pi pi-save"
-                severity="success"
+                *ngIf="!this.templateEmail"
+                label="Thêm mới"
+                icon="pi pi-plus"
                 size="small"
                 (click)="saveTemplate()">
+            </p-button>
+             <p-button
+                *ngIf="this.templateEmail"
+                label="Cập nhật"
+                icon="pi pi-save"
+                size="small"
+                (click)="saveTemplate()">
+            </p-button>
+            <p-button
+                label="Quay về  "
+                icon="pi pi-arrow-left"
+                severity="contrast"
+                size="small"
+                (click)="back()">
             </p-button>
         </div>
     </div>

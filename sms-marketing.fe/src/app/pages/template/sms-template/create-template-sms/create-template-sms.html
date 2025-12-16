@@ -1,0 +1,22 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="grid grid-cols-2 gap-3">
+        <div class="mb-6 col-span-2">
+            <label for="tenMauNoiDung" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên mẫu nội dung <span class="text-red-500">*</span></label>
+            <input pInputText formControlName="tenMauNoiDung" id="tenMauNoiDung" type="text" class="w-full mb-2" />
+            @if (form.get('tenMauNoiDung')?.hasError('required') && form.get('tenMauNoiDung')?.touched) {
+            <p-message severity="error" variant="simple" size="small">{{ getError('tenMauNoiDung') }} </p-message>
+            }
+        </div>
+        <div class="mb-6 col-span-2">
+            <label for="mauNoiDung" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Mẫu nội dung<span class="text-red-500">*</span></label>
+            <textarea pTextarea rows="5" formControlName="mauNoiDung" id="mauNoiDung" type="text" class="w-full mb-2"></textarea>
+            @if (form.get('mauNoiDung')?.hasError('required') && form.get('mauNoiDung')?.touched) {
+            <p-message severity="error" variant="simple" size="small">{{ getError('mauNoiDung') }} </p-message>
+            }
+        </div>
+    </div>
+
+    <div class="mt-5 flex flex-row justify-end">
+        <p-button label="Lưu" icon="pi pi-save" type="submit" [loading]="loading" />
+    </div>
+</form>

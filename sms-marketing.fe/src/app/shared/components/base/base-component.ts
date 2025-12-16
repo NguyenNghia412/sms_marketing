@@ -20,7 +20,7 @@ export abstract class BaseComponent implements OnInit {
     loading: boolean = false;
     totalRecords: number = 100;
 
-    ngOnInit(): void {}
+    ngOnInit(): void { }
 
     isFormInvalid() {
         if (this.form.invalid) {
@@ -90,7 +90,7 @@ export abstract class BaseComponent implements OnInit {
         });
     }
 
-    confirmDelete(opt: {header: string, message: string} ,acceptCallback = () => {}) {
+    confirmDelete(opt: { header: string, message: string }, acceptCallback = () => { }) {
         this._confirmationService.confirm({
             message: opt.message,
             header: opt.header,
@@ -114,7 +114,7 @@ export abstract class BaseComponent implements OnInit {
         });
     }
 
-    confirmAction(opt: {header: string, message: string} ,acceptCallback = () => {}) {
+    confirmAction(opt: { header: string, message: string }, acceptCallback = () => { }) {
         this._confirmationService.confirm({
             message: opt.message,
             header: opt.header,
@@ -136,5 +136,18 @@ export abstract class BaseComponent implements OnInit {
                 }
             }
         });
+    }
+
+    designToString(design: any): string {
+        return JSON.stringify(design);
+    }
+
+    stringToDesign(designString: string): any {
+        try {
+            return JSON.parse(designString);
+        } catch (error) {
+            console.error("Invalid design JSON string:", error);
+            return null;
+        }
     }
 }
