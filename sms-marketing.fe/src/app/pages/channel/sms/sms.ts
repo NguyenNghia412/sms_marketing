@@ -1,4 +1,4 @@
-import { IFindPagingChienDich, IViewRowChienDich } from '@/models/sms.models';
+import { IFindPagingChienDich, IHuyJobSendSms, IViewRowChienDich } from '@/models/sms.models';
 import { ChienDichService } from '@/services/chien-dich.service';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { DataTable } from '@/shared/components/data-table/data-table';
@@ -13,6 +13,8 @@ import { PaginatorState } from 'primeng/paginator';
 import { TblAction, TblActionTypes } from './tbl-action/tbl-action';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Popover } from 'primeng/popover';
+import { GuiTinNhanService } from '@/services/gui-tin-nhan.service';
+
 
 @Component({
     selector: 'app-sms',
@@ -24,6 +26,7 @@ export class Sms extends BaseComponent {
     @ViewChild('filterPanel') filterPanel!: Popover;
 
     _chienDichService = inject(ChienDichService);
+    _guiTinNhanService = inject(GuiTinNhanService);
     _sanitizer = inject(DomSanitizer);
     statusList = CampaginStatuses.List;
 
@@ -54,6 +57,7 @@ export class Sms extends BaseComponent {
         },
         //{ header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 10rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss' },
         { header: 'Thời gian tạo', field: 'createdDate', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss', cellStyle: 'text-align:center' },
+        { header: 'Lịch gửi', field: 'lichGui',headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss', cellStyle: 'text-align:center' },
         { header: 'Thao tác', headerContainerStyle: 'width: 6rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
     ];
 
@@ -92,7 +96,7 @@ export class Sms extends BaseComponent {
         });
     }
 
-    // ✅ THÊM METHOD NÀY
+
     getTrangThaiText(trangThai: number): string {
         switch (trangThai) {
             case CampaginStatuses.CHUA_GUI:
@@ -101,6 +105,10 @@ export class Sms extends BaseComponent {
                 return 'Đã gửi';
             case CampaginStatuses.DANG_GUI:
                 return 'Đang gửi';
+            case CampaginStatuses.LEN_LICH:
+                return 'Lên lịch';
+            case CampaginStatuses.HUY:
+                return 'Hủy';
             default:
                 return 'Nháp';
         }
@@ -145,6 +153,31 @@ export class Sms extends BaseComponent {
         );
     }
 
+    onHuyJobSendSms(data: IViewRowChienDich) {
+        const payload: IHuyJobSendSms = {
+            idChienDich: data.id || 0,
+            idBrandName: data.idBrandName || 0
+        };
+        this.confirmAction(
+            {
+                header: 'Bạn chắc chắn muốn hủy lệnh đã đặt ?',
+                message: 'Không thể khôi phục sau khi hủy'
+            },
+            () => {
+                this._guiTinNhanService.huyJobSendSms(payload).subscribe(
+                    (res) => {
+                        if (this.isResponseSucceed(res, true, 'Đã hủy đặt lệnh')) {
+                            this.getData();
+                        }
+                    },
+                    (err) => {
+                        this.messageError(err?.message);
+                    }
+                );
+            }
+        );
+    }
+
     onDuplicate(data: IViewRowChienDich) {
         this._chienDichService.duplicate(data.id || 0).subscribe(
             (res) => {
@@ -158,6 +191,8 @@ export class Sms extends BaseComponent {
         );
     }
 
+    
+
     onPageChanged($event: PaginatorState) {
         this.query.pageNumber = ($event.page ?? 0) + 1;
         this.getData();
@@ -170,6 +205,8 @@ export class Sms extends BaseComponent {
             this.onDelete(data.data);
         } else if (data.type === TblActionTypes.duplicate) {
             this.onDuplicate(data.data);
+        } else if (data.type === TblActionTypes.cancel) {
+            this.onHuyJobSendSms(data.data);
         } else if (data.type === 'cellClick' && data.field === 'tenChienDich') {
             this.navigateToDetail(data.data);
         }

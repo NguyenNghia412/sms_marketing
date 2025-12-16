@@ -48,6 +48,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _logger.LogInformation($"{nameof(PagingChienDichLog)} dto={JsonSerializer.Serialize(dto)}");
             var query = from clog in _smDbContext.ChienDichLogTrangThaiGuis
                         where !clog.Deleted && (isSuperAdmin || clog.CreatedBy == currentUserId)
+                              && (!dto.FromDate.HasValue || (clog.CreatedDate.HasValue && clog.CreatedDate.Value.Date >= dto.FromDate.Value.Date))
+                              && (!dto.ToDate.HasValue || (clog.CreatedDate.HasValue && clog.CreatedDate.Value.Date <= dto.ToDate.Value.Date))
                         join cd in _smDbContext.ChienDiches on clog.IdChienDich equals cd.Id
                         where !cd.Deleted && (isSuperAdmin || cd.CreatedBy == currentUserId)
                         join db in _smDbContext.DanhBas on clog.IdDanhBa equals db.Id into dbGroup
@@ -58,7 +60,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                   || cd.TenChienDich.Contains(dto.Keyword)
                                   || clog.NoiDung.Contains(dto.Keyword)
                                   || (db != null && db.TenDanhBa.Contains(dto.Keyword)))
-                        orderby clog.CreatedDate descending
                         select new ViewChienDichLogDto
                         {
                             IdChienDich = cd.Id,
@@ -75,15 +76,23 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                 IdDanhBa = db.Id,
                                 TenDanhBa = db.TenDanhBa
                             } : null,
-                             Users = new ChienDichLogCreatedByDto
-                             {
-                                 Id = u.Id,
-                                 //UserName = u.UserName ?? "",
-                                 FullName = u.FullName,
-                                 //SoDienThoai = u.PhoneNumber ?? "",
-                                 //Email = u.Email ?? "",
-                             },
+                            Users = new ChienDichLogCreatedByDto
+                            {
+                                Id = u.Id,
+                                FullName = u.FullName,
+                            },
                         };
+
+   
+            if (!string.IsNullOrEmpty(dto.SapXepTheo) && dto.SapXepTheo.Equals("ASC", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.OrderBy(x => x.NgayGui);
+            }
+            else
+            {
+                query = query.OrderByDescending(x => x.NgayGui);
+            }
+
             var data = query.Paging(dto).ToList();
             return new BaseResponsePagingDto<ViewChienDichLogDto>
             {
@@ -112,6 +121,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             where !dbs.Deleted && !log.Deleted && !bn.Deleted
                                   && log.IdChienDich == idChienDich
                                   && dbs.IdDanhBa == dto.idDanhBa
+                                  && (string.IsNullOrEmpty(dto.TrangThai) || log.TrangThai == dto.TrangThai)
                                   && (string.IsNullOrEmpty(dto.Keyword)
                                       || dbs.HoVaTen.Contains(dto.Keyword)
                                       || log.SoDienThoai.Contains(dto.Keyword)
@@ -162,6 +172,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             where !log.Deleted && !bn.Deleted
                                   && log.IdChienDich == idChienDich
                                   && log.IdDanhBaSms == null
+                                  && (string.IsNullOrEmpty(dto.TrangThai) || log.TrangThai == dto.TrangThai)
                                   && (string.IsNullOrEmpty(dto.Keyword)
                                       || log.SoDienThoai.Contains(dto.Keyword)
                                       || log.NoiDungChiTiet.Contains(dto.Keyword)
@@ -351,6 +362,98 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var currentUserId = getCurrentUserId();
             using (var workbook = new XLWorkbook())
             {
+                // ===== SHEET 1: THỐNG KÊ CHIẾN DỊCH =====
+                var worksheetChienDich = workbook.Worksheets.Add("Thống Kê Chiến Dịch");
+
+                int cdRow = 1;
+                var cdTitleCell = worksheetChienDich.Cell(cdRow, 1);
+                cdTitleCell.Value = $"THỐNG KÊ CHIẾN DỊCH THÁNG {dto.Thang} NĂM {dto.Nam}";
+                cdTitleCell.Style.Font.Bold = true;
+                cdTitleCell.Style.Font.FontSize = 16;
+                cdTitleCell.Style.Fill.BackgroundColor = XLColor.LightGray;
+                cdTitleCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                worksheetChienDich.Range(cdRow, 1, cdRow, 9).Merge();
+                cdRow += 2;
+
+                // Header
+                worksheetChienDich.Cell(cdRow, 1).Value = "STT";
+                worksheetChienDich.Cell(cdRow, 2).Value = "Tên Chiến Dịch";
+                worksheetChienDich.Cell(cdRow, 3).Value = "BrandName";
+                worksheetChienDich.Cell(cdRow, 4).Value = "Tổng số thuê bao";
+                worksheetChienDich.Cell(cdRow, 5).Value = "Tổng số thuê bao gửi thành công";
+                worksheetChienDich.Cell(cdRow, 6).Value = "Tổng số thuê bao gửi thất bại";
+                worksheetChienDich.Cell(cdRow, 7).Value = "Tổng số lượng tin nhắn";
+                worksheetChienDich.Cell(cdRow, 8).Value = "Tổng chi phí";
+                worksheetChienDich.Cell(cdRow, 9).Value = "Ngày tạo";
+
+                for (int col = 1; col <= 9; col++)
+                {
+                    var headerCell = worksheetChienDich.Cell(cdRow, col);
+                    headerCell.Style.Fill.BackgroundColor = XLColor.LightGray;
+                    headerCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    headerCell.Style.Font.Bold = true;
+                }
+                cdRow++;
+
+                // Lấy dữ liệu thống kê chiến dịch theo tháng
+                var chienDichLogsTheoThangForSheet1 = await _smDbContext.ChienDichLogTrangThaiGuis
+                    .Where(x => x.CreatedDate.HasValue && x.CreatedDate.Value.Month == dto.Thang && x.CreatedDate.Value.Year == dto.Nam && !x.Deleted)
+                    .ToListAsync();
+
+                var groupByChienDichForSheet1 = chienDichLogsTheoThangForSheet1.GroupBy(x => x.IdChienDich);
+
+                int sttChienDich = 1;
+                foreach (var chienDichGroup in groupByChienDichForSheet1)
+                {
+                    var idChienDich = chienDichGroup.Key;
+                    var chienDich = await _smDbContext.ChienDiches
+                        .FirstOrDefaultAsync(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
+
+                    if (chienDich == null)
+                        continue;
+
+                    var chienDichLogs = chienDichGroup.ToList();
+                    var totalSms = chienDichLogs.Sum(x => x.TongSoSms);
+                    var successSms = chienDichLogs.Sum(x => x.SmsSendSuccess);
+                    var failedSms = chienDichLogs.Sum(x => x.SmsSendFailed);
+                    var tongChiPhi = chienDichLogs.Sum(x => x.TongChiPhi);
+
+                    // Lấy tổng số lượng tin nhắn từ GuiTinNhanLogChiTiets
+                    var tongSoLuongTinNhan = await _smDbContext.GuiTinNhanLogChiTiets
+                        .Where(x => x.IdChienDich == idChienDich && x.CreatedDate.HasValue && x.CreatedDate.Value.Month == dto.Thang && x.CreatedDate.Value.Year == dto.Nam && !x.Deleted)
+                        .SumAsync(x => x.SoLuongTinNhan);
+
+                    // Lấy BrandName
+                    var brandNameId = chienDichLogs.FirstOrDefault()?.IdBrandName;
+                    var brandName = brandNameId.HasValue ?
+                        _smDbContext.BrandName.FirstOrDefault(x => x.Id == brandNameId)?.TenBrandName ?? "" : "";
+
+                    worksheetChienDich.Cell(cdRow, 1).Value = sttChienDich;
+                    worksheetChienDich.Cell(cdRow, 2).Value = chienDich.TenChienDich;
+                    worksheetChienDich.Cell(cdRow, 3).Value = brandName;
+                    worksheetChienDich.Cell(cdRow, 4).Value = totalSms;
+                    worksheetChienDich.Cell(cdRow, 5).Value = successSms;
+                    worksheetChienDich.Cell(cdRow, 6).Value = failedSms;
+                    worksheetChienDich.Cell(cdRow, 7).Value = tongSoLuongTinNhan;
+                    worksheetChienDich.Cell(cdRow, 8).Value = isSuperAdmin ? tongChiPhi : 0;
+                    worksheetChienDich.Cell(cdRow, 9).Value = chienDich.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");
+
+                    cdRow++;
+                    sttChienDich++;
+                }
+
+                // Set column widths cho sheet Thống Kê Chiến Dịch
+                worksheetChienDich.Column(1).Width = 10;
+                worksheetChienDich.Column(2).Width = 40;
+                worksheetChienDich.Column(3).Width = 20;
+                worksheetChienDich.Column(4).Width = 20;
+                worksheetChienDich.Column(5).Width = 35;
+                worksheetChienDich.Column(6).Width = 35;
+                worksheetChienDich.Column(7).Width = 25;
+                worksheetChienDich.Column(8).Width = 20;
+                worksheetChienDich.Column(9).Width = 25;
+
+                // ===== SHEET 2: THỐNG KÊ (CODE GỐC - GIỮ NGUYÊN) =====
                 var worksheet = workbook.Worksheets.Add("Thống Kê");
 
                 int currentRow = 1;
@@ -376,7 +479,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     {
                         workbook.SaveAs(memoryStream);
                         return memoryStream.ToArray();
-                    };
+                    }
+                    ;
                 }
 
                 var groupByChienDich = chienDichLogsTheoThang.GroupBy(x => x.IdChienDich);
@@ -385,7 +489,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 {
                     var idChienDich = chienDichGroup.Key;
                     var chienDich = await _smDbContext.ChienDiches
-                        .FirstOrDefaultAsync(x => x.Id == idChienDich&& (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
+                        .FirstOrDefaultAsync(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
 
                     if (chienDich == null)
                         continue;
@@ -502,6 +606,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     return memoryStream.ToArray();
                 }
             }
-        }
+        
+    }
     }
 }

@@ -6,11 +6,13 @@ import { Component, inject, Input, ViewChild } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
 import { Button } from 'primeng/button';
+import { CampaginStatuses } from '@/shared/constants/channel.constants';
 
 export const TblActionTypes = {
     duplicate: 'duplicate',
     detail: 'detail',
     delete: 'delete',
+    cancel: 'cancel',
 }
 
 @Component({
@@ -35,6 +37,10 @@ export class TblAction extends BaseComponent {
     menuItems: MenuItem[] = [];
 
     override ngOnInit(): void {
+        this.buildMenuItems();
+    }
+
+    buildMenuItems(): void {
         this.menuItems = [
             {
                 label: 'Nhân bản',
@@ -47,6 +53,15 @@ export class TblAction extends BaseComponent {
                 command: () => this.onClick(TblActionTypes.delete)
             }
         ];
+
+        // Chỉ hiển thị nút Hủy khi trạng thái là DangGui hoặc LenLich
+        if (this.row.trangThai === CampaginStatuses.DANG_GUI || this.row.trangThai === CampaginStatuses.LEN_LICH) {
+            this.menuItems.push({
+                label: 'Hủy',
+                icon: 'pi pi-times-circle',
+                command: () => this.onClick(TblActionTypes.cancel)
+            });
+        }
     }
 
     onClick(customType: string): void {
@@ -63,6 +78,9 @@ export class TblAction extends BaseComponent {
         if (TblAction.currentOpenMenu && TblAction.currentOpenMenu !== this.menu) {
             TblAction.currentOpenMenu.hide();
         }
+
+        // Rebuild menu items mỗi khi mở menu để cập nhật trạng thái
+        this.buildMenuItems();
 
         this.menu?.toggle(event);
         

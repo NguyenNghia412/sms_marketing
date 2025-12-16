@@ -62,7 +62,7 @@ export class DsDanhBa extends BaseComponent {
     } else if (data.type === 'cellClick' && data.field === 'tenDanhBa') {
         this.navigateToDetail(data.data); 
     }
-}
+    }
 
     navigateToDetail(danhBa: IViewRowDanhBa) {
         //console.log('Navigating with:', danhBa?.id);
@@ -73,7 +73,10 @@ export class DsDanhBa extends BaseComponent {
             }
         });
     }
-}
+    }
+    onError(message: string) {
+        this.messageError(message);
+    }
 
     getData() {
         this.loading = true;

@@ -12,10 +12,12 @@ import { PaginatorState } from "primeng/paginator";
 import { ActivatedRoute } from "@angular/router";
 import { Breadcrumb } from "primeng/breadcrumb";
 import { MenuItem } from "primeng/api";
+import { Popover } from 'primeng/popover';
+import { ReportStatus } from "@/shared/constants/report.constants";
 
 @Component({
     selector: 'app-thong-ke-chien-dich-chi-tiet',
-    imports: [...SharedImports, DataTable,Breadcrumb],
+    imports: [...SharedImports, DataTable,Breadcrumb,Popover],
     templateUrl: './chi-tiet-report.html',
     styleUrl: './chi-tiet-report.scss'
 })
@@ -25,15 +27,16 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
     private route = inject(ActivatedRoute);
     items: MenuItem[] = [{ label: 'Thống kê', routerLink: '/report/chien-dich-report'  }, { label: 'Thống kê chi tiết ' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
-    statusList = CampaginStatuses.List;
+    statusList = ReportStatus.List;
     idChienDich: number = 0;
-    idDanhBa: number = 0;
+    idDanhBa: number = 0; 
     
     searchForm: FormGroup = new FormGroup({
         search: new FormControl(''),
         createdTime: new FormControl(''),
         sendTime: new FormControl(''),
-        status: new FormControl('')
+        status: new FormControl(''),
+        trangThai: new FormControl(''),
     });
 
     columns: IColumn[] = [
@@ -60,9 +63,9 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
     override ngOnInit(): void {
         this.route.queryParams.subscribe(params => {
             this.idChienDich = +params['idChienDich'];
-            this.idDanhBa = +params['idDanhBa'];
+            this.idDanhBa = params['idDanhBa'] ? +params['idDanhBa'] : 0;
             
-            if (this.idChienDich && this.idDanhBa) {
+            if (this.idChienDich ) {
                 this.getData();
             }
         });
@@ -83,7 +86,7 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
     }
 
     getData() {
-        if (!this.idChienDich || !this.idDanhBa) {
+        if (!this.idChienDich ) {
         
             return;
         }
@@ -91,10 +94,11 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
         this.loading = true;
         this._reportSmsService.findPagingChiTietChienDich(
             this.idChienDich, 
-            this.idDanhBa,
+            this.idDanhBa ??  0,
             { 
                 ...this.query, 
-                keyword: this.searchForm.get('search')?.value 
+                keyword: this.searchForm.get('search')?.value,
+                trangThai: this.searchForm.get('trangThai')?.value || ''
             }
         ).subscribe({
             next: (res) => {

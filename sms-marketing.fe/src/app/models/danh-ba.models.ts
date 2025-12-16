@@ -97,6 +97,18 @@ export interface IViewRowNguoiNhan {
   //maSoNguoiDung?: string,
   //soLuongNguoiNhan: number,
   soDienThoai?: string,
+  items: IDataNguoiNhan[],
+}
+
+export interface IDataItem{
+  id?: number,
+  data?: string,
+}
+
+export interface IDataNguoiNhan{
+  id?: number,
+  tenTruong?: string,
+  data:IDataItem,
 }
 export interface ICreateDanhBaChienDichQuick{
   tenDanhBa? : string, 

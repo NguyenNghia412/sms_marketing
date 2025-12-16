@@ -14,6 +14,7 @@ import { Popover } from "primeng/popover";
 import { ConfirmDialog } from "primeng/confirmdialog";
 import { ConfirmationService } from "primeng/api";
 import { DatePicker } from "primeng/datepicker";
+import { OrderByStatus } from "@/shared/constants/report.constants";
 
 @Component({
     selector: 'app-thong-ke-chien-dich',
@@ -25,11 +26,12 @@ import { DatePicker } from "primeng/datepicker";
 export class ChienDichReport extends BaseComponent {
     @ViewChild('exportPopover') exportPopover!: Popover;
     @ViewChild('monthPopover') monthPopover!: Popover;
+    @ViewChild('filterPanel') filterPanel!: Popover;
     
     _reportSmsService = inject(ReportSmsService);
     override router = inject(Router);
     confirmationService = inject(ConfirmationService);
-    
+    orderByList = OrderByStatus.List;
     statusList = CampaginStatuses.List;
     isExportMode = false;
     selectedChienDichs: number[] = [];
@@ -39,7 +41,10 @@ export class ChienDichReport extends BaseComponent {
         search: new FormControl(''),
         createdTime: new FormControl(''),
         sendTime: new FormControl(''),
-        status: new FormControl('')
+        status: new FormControl(''),
+        fromDate: new FormControl(null),
+        toDate: new FormControl(null),
+        sapXepTheo: new FormControl(''),
     });
     
     columns: IColumn[] = [
@@ -57,7 +62,6 @@ export class ChienDichReport extends BaseComponent {
         { header: 'Gửi thành công', field: 'smsSentSuccess', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center' },
         { header: 'Gửi thất bại', field: 'smsSentFailed', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center' },
         { header: 'Tổng chi phí', field: 'tongChiPhi', headerContainerStyle: 'min-width: 6rem', cellStyle: 'text-align:center', cellViewType: CellViewTypes.CURRENCY },
-        //{ header: 'Trạng Thái', field: 'trangThaiText', headerContainerStyle: 'width: 10rem' },
         { header: 'Người gửi', field: 'users.fullName', headerContainerStyle: 'min-width: 12rem', cellStyle: 'text-align:center' },
         { header: 'Thời gian gửi', field: 'ngayGui', headerContainerStyle: 'width: 20rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss', cellStyle: 'text-align:center' }
     ];
@@ -65,7 +69,9 @@ export class ChienDichReport extends BaseComponent {
     data: IViewChienDichReport[] = [];
     query: IFindPagingChienDichReport = {
         pageNumber: 1,
-        pageSize: this.MAX_PAGE_SIZE
+        pageSize: this.MAX_PAGE_SIZE,
+        fromDate: null!,
+        toDate: null!
     };
 
     override ngOnInit(): void {
@@ -74,6 +80,7 @@ export class ChienDichReport extends BaseComponent {
 
     onSearch() {
         this.query.pageNumber = 1;
+        this.filterPanel?.hide();
         this.getData();
     }
 
@@ -93,11 +100,11 @@ export class ChienDichReport extends BaseComponent {
     }
 
     navigateToDetail(chienDich: IViewChienDichReport) {
-        if (chienDich.idChienDich && chienDich.danhBa?.idDanhBa) {
-            this.router.navigate(['/report/chi-tiet-chien-dich-report'], {
+        if (chienDich.idChienDich) {
+            this.router.navigate(['report/sms/chi-tiet-report'], {
                 queryParams: {
                     idChienDich: chienDich.idChienDich,
-                    idDanhBa: chienDich.danhBa?.idDanhBa
+                    idDanhBa: chienDich.danhBa?.idDanhBa ?? 0
                 }
             });
         }
@@ -226,9 +233,16 @@ export class ChienDichReport extends BaseComponent {
 
     getData() {
         this.loading = true;
+        
+        const fromDate = this.searchForm.get('fromDate')?.value;
+        const toDate = this.searchForm.get('toDate')?.value;
+        
         this._reportSmsService.findPaging({
             ...this.query,
-            keyword: this.searchForm.get('search')?.value
+            keyword: this.searchForm.get('search')?.value,
+            sapXepTheo: this.searchForm.get('sapXepTheo')?.value || '',
+            fromDate: fromDate ? fromDate : null,
+            toDate: toDate ? toDate : null
         }).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, false)) {

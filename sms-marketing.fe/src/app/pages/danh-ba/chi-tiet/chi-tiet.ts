@@ -48,14 +48,8 @@ export class ChiTiet extends BaseComponent {
         search: new FormControl('')
     });
 
-    columns: IColumn[] = [
-        { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem', cellStyle: 'text-align:center' },
-        //{ header: 'Mã số', field: 'maSoNguoiDung', headerContainerStyle: 'min-width: 10rem' },
-        { header: 'Họ tên', field: 'hoVaTen', headerContainerStyle: 'min-width: 10rem', cellStyle: 'text-align:center' },
-        { header: 'SĐT', field: 'soDienThoai', headerContainerStyle: 'min-width: 10rem', cellStyle: 'text-align:center' },
-        //{ header: 'Email', field: 'emailHuce', headerContainerStyle: 'min-width: 10rem' },
-        { header: 'Thao tác', headerContainerStyle: 'width: 8rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction }
-    ];
+    columns: IColumn[] = []
+    
 
     data: IViewRowNguoiNhan[] = [];
     query: IFindPagingNguoiNhan = {
@@ -70,6 +64,9 @@ export class ChiTiet extends BaseComponent {
             this.query.idDanhBa = this.idDanhBa;
             this.getData();
         });
+    }
+    onError(message:string){
+        this.messageError(message);
     }
 
     openImportDialog() {
@@ -105,14 +102,70 @@ export class ChiTiet extends BaseComponent {
             .subscribe({
                 next: (res) => {
                     if (this.isResponseSucceed(res, false)) {
-                        this.data = res.data.items;
+                        const rawItems = res.data.items as IViewRowNguoiNhan[];
+
+                        if(rawItems.length > 0){
+                            this.columns = this.buildColumns(rawItems[0]);
+                            this.data = this.mapDataForCols(rawItems);
+                        }else{
+                            this.columns = [];
+                            this.data = [];
+                        }
+
                         this.totalRecords = res.data.totalItems;
+
+                      
                     }
                 }
             })
             .add(() => {
                 this.loading = false;
             });
+    }
+
+    private buildColumns(firstItem: IViewRowNguoiNhan): IColumn[] {
+        const cols: IColumn[]= [
+            { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width:5rem',cellStyle:' text-align:center'}
+        ];
+        if(firstItem.items && firstItem.items.length > 0){
+            firstItem.items.forEach((item) => {
+                cols.push({
+                    header: item.tenTruong || '',
+                    field: `field_${item.id}`,
+                    headerContainerStyle: 'width: 10rem',
+                    cellStyle: 'text-align: center'
+                });
+            });
+        }
+
+        cols.push({
+            header: 'Thao Tác',
+            headerContainerStyle: 'width:6rem',
+            cellStyle: 'text-align:center',
+            cellViewType: CellViewTypes.CUSTOM_COMP,
+            customComponent: TblAction,
+        });
+
+        return cols;
+    }
+
+
+    private mapDataForCols(items: IViewRowNguoiNhan[]): any[]{
+        return items.map((row) =>{
+            const mapData: any ={
+                id: row.id,
+                hoVaTen: row.hoVaTen,
+                soDienThoai: row.soDienThoai,
+            };
+
+            if(row.items){
+                row.items.forEach((item)=>{
+                    mapData[`field_${item.id}`] = item.data.data || '';
+                });
+            }
+
+            return mapData;
+        })
     }
     onDelete(data: IViewRowNguoiNhan) {
             this.confirmDelete(

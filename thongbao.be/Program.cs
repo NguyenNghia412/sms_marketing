@@ -253,6 +253,7 @@ builder.Services.AddScoped<IToChucService, ToChucService>();
 builder.Services.AddScoped<IMauNoiDungSmsService, MauNoiDungSmsService>();
 builder.Services.AddScoped<IMauNoiDungEmailService, MauNoiDungEmailService>();
 builder.Services.AddScoped<IGuiTinNhanJobService, GuiTinNhanJobService>();
+builder.Services.AddScoped<IGuiTinNhanSchedulerJobService, GuiTinNhanSchedulerJobService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISendSmsService, SendSmsService>();
 builder.Services.AddScoped<IGuiTinNhanLogService, GuiTinNhanLogService>();

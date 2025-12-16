@@ -7,6 +7,16 @@ export interface ISaveConfigChienDich {
     isAccented: boolean;
     noiDung: string;
 }
+export interface ISaveConfigChienDichLenLich {
+    idChienDich: number;
+    idDanhBa?: number | null;
+    danhSachSoDienThoai?: IListSoDienThoai[];
+    idBrandName: number;
+    isFlashSms?: boolean;
+    isAccented: boolean;
+    noiDung: string;
+    lichGui: string | null;
+}
 
 export interface ISendSms {
     idChienDich: number;
@@ -16,6 +26,17 @@ export interface ISendSms {
     isFlashSms?: boolean;
     isAccented: boolean;
     noiDung?: string;
+}
+
+export interface ISendSmsLenLich {
+    idChienDich: number;
+    idDanhBa?: number | null;
+    danhSachSoDienThoai?: IListSoDienThoai[];
+    idBrandName?: number;
+    isFlashSms?: boolean;
+    isAccented: boolean;
+    noiDung?: string;
+    lichGui: string | null;
 }
 
 export interface IPreviewSendSms {
@@ -39,6 +60,17 @@ export interface IVerifySendSms {
     noiDung: string;
 }
 
+export interface IVerifySendSmsLenLich {
+    idChienDich: number;
+    idDanhBa?: number | null;
+    danhSachSoDienThoai?: IListSoDienThoai[];
+    idBrandName: number;
+    isFlashSms?: boolean;
+    isAccented: boolean;
+    noiDung: string;
+    lichGui: string | null;
+}
+
 export interface IListSoDienThoai {
     soDienThoai: string;
 }
@@ -55,3 +87,4 @@ export interface IViewVerifySendSms {
     soLuongNguoiNhan?: number
     tongSoLuongTinNhan?: number
 }
+

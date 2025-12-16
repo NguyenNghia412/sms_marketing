@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace thongbao.be.application.GuiTinNhan.Dtos
 {
-    public class GuiTinNhanDto
+    public class GuiTinNhanCoLichGuiDto
     {
         public int IdChienDich { get; set; }
         public int? IdDanhBa { get; set; }
-        public List<ListSoDienThoaiDto>? DanhSachSoDienThoai { get; set; } = new List<ListSoDienThoaiDto>();
+        public List<ListSoDienThoaiCoLichGuiDto>? DanhSachSoDienThoai { get; set; } = new List<ListSoDienThoaiCoLichGuiDto>();
         public int? IdBrandName { get; set; }
         public bool IsFlashSms { get; set; }
         public bool IsAccented { get; set; }
@@ -18,8 +18,8 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public DateTime LichGui { get; set; }
     }
 
-    public class ListSoDienThoaiDto
+    public class ListSoDienThoaiCoLichGuiDto
     {
-       public string SoDienThoai { get; set; } = string.Empty;
+        public string SoDienThoai { get; set; } = string.Empty;
     }
 }

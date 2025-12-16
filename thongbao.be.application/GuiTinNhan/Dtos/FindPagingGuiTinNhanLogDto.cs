@@ -10,5 +10,6 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
     public class FindPagingGuiTinNhanLogDto : BaseRequestPagingDto
     {
         public int? idDanhBa { get; set; }
+        public string? TrangThai { get; set; }
     }
 }

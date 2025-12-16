@@ -24,5 +24,6 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public DateTime NgayBatDau { get; set; }
         public DateTime NgayKetThuc { get;set; }
         public List<ViewDanhBaChienDichDto> DanhBas { get;set;} = new List<ViewDanhBaChienDichDto> ();
+        public DateTime? LichGui { get; set; }
     }
 }

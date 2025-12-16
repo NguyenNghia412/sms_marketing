@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using DocumentFormat.OpenXml.Drawing.Diagrams;
-using DocumentFormat.OpenXml.VariantTypes;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -8,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NLog.Targets.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -29,9 +26,8 @@ using thongbao.be.shared.HttpRequest.Exception;
 
 namespace thongbao.be.application.GuiTinNhan.Implements
 {
-    public class GuiTinNhanJobService : BaseService, IGuiTinNhanJobService
+    public class GuiTinNhanSchedulerJobService: BaseService,IGuiTinNhanSchedulerJobService
     {
-
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IProfileService _profileService;
         private readonly ISendSmsService _sendSmsService;
@@ -39,9 +35,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         private const int BATCH_SIZE = 400;
         private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
-        public GuiTinNhanJobService(
+        public GuiTinNhanSchedulerJobService(
             SmDbContext smDbContext,
-            ILogger<GuiTinNhanJobService> logger,
+            ILogger<GuiTinNhanSchedulerJobService> logger,
             IHttpContextAccessor httpContextAccessor,
             IMapper mapper,
             IBackgroundJobClient backgroundJobClient,
@@ -54,46 +50,47 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _userManager = userManager;
             _sendSmsService = sendSmsService;
         }
-
-        public async Task ProcessGuiTinNhanBackground(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung, string currentUserId, bool isSuperAdmin)
+       
+        public async Task ProcessGuiTinNhanBackgroundSchedulerJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiCoLichGuiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung, string currentUserId, bool isSuperAdmin, DateTime lichGui)
         {
-            _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackground)} - START - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
+            _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - START - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
 
             bool hasProcessedSuccessfully = false;
 
             try
 
             {
-                _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackground)} - DELAYING 1 minute - idChienDich: {idChienDich}");
-                await Task.Delay(TimeSpan.FromSeconds(30));
-                var chienDichTrangThai = await _smDbContext.ChienDiches.FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
-                if (chienDichTrangThai.TrangThai == ChienDichConstants.Huy)
+                var chienDichLenLich = await _smDbContext.ChienDiches.FirstOrDefaultAsync( x => x.Id == idChienDich  && !x.Deleted);
+                if(chienDichLenLich != null && chienDichLenLich.TrangThai == ChienDichConstants.LenLich)
                 {
-                    return;
+                    chienDichLenLich.TrangThai = ChienDichConstants.DangGui;
+                    _smDbContext.ChienDiches.Update(chienDichLenLich);
+                    await _smDbContext.SaveChangesAsync();
+                    _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - Changed status from LenLich to DangGui - idChienDich: {idChienDich}");
+                
                 }
-                else
+                _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - DELAYING 1 minute - idChienDich: {idChienDich}");
+                await Task.Delay(TimeSpan.FromSeconds(30));
+                _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - DEBUG - idChienDich: {idChienDich}");
+                var result = await ProcessGuiTinNhanSchedulerJob(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung, currentUserId, isSuperAdmin);
+
+                hasProcessedSuccessfully = true;
+
+                _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - COMPLETED - idChienDich: {idChienDich}, Total SMS: {result.Count}");
+                var chienDich = await _smDbContext.ChienDiches.FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
+                if (chienDich != null)
                 {
-                    _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackground)} - DEBUG - idChienDich: {idChienDich}");
-                    var result = await ProcessGuiTinNhanJob(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung, currentUserId, isSuperAdmin);
+                    chienDich.TrangThai = ChienDichConstants.DaGui;
+                    _smDbContext.ChienDiches.Update(chienDich);
+                    await _smDbContext.SaveChangesAsync();
 
-                    hasProcessedSuccessfully = true;
-
-                    _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackground)} - COMPLETED - idChienDich: {idChienDich}, Total SMS: {result.Count}");
-                    var chienDich = await _smDbContext.ChienDiches.FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
-                    if (chienDich != null && chienDich.TrangThai != ChienDichConstants.Huy)
-                    {
-                        chienDich.TrangThai = ChienDichConstants.DaGui;
-                        _smDbContext.ChienDiches.Update(chienDich);
-                        await _smDbContext.SaveChangesAsync();
-
-                        _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackground)} - Updated status to DaGui - idChienDich: {idChienDich}");
-                    }
+                    _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - Updated status to DaGui - idChienDich: {idChienDich}");
                 }
 
             }
             catch (Exception ex)
             {
-                _logger.LogError($"{nameof(ProcessGuiTinNhanBackground)} - ERROR - idChienDich: {idChienDich}, Error: {ex.Message}, StackTrace: {ex.StackTrace}");
+                _logger.LogError($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - ERROR - idChienDich: {idChienDich}, Error: {ex.Message}, StackTrace: {ex.StackTrace}");
 
                 if (!hasProcessedSuccessfully)
                 {
@@ -109,16 +106,17 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     }
                     catch (Exception rollbackEx)
                     {
-                        _logger.LogError($"{nameof(ProcessGuiTinNhanBackground)} - ROLLBACK ERROR - idChienDich: {idChienDich}, Error: {rollbackEx.Message}");
+                        _logger.LogError($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - ROLLBACK ERROR - idChienDich: {idChienDich}, Error: {rollbackEx.Message}");
                     }
 
                     throw;
                 }
             }
+
         }
-        public async Task SendSmsLog(object smsResponse, int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool isAccented, string noiDung, string currentUserId, bool isSuperAdmin)
+        public async Task SendSmsSchedulerJobLog(object smsResponse, int idChienDich, int? idDanhBa, List<ListSoDienThoaiCoLichGuiDto> danhSachSoDienThoai, int idBrandName, bool isAccented, string noiDung, string currentUserId, bool isSuperAdmin)
         {
-            _logger.LogInformation($"{nameof(SendSmsLog)} - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
+            _logger.LogInformation($"{nameof(SendSmsSchedulerJobLog)} - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
             try
             {
 
@@ -249,7 +247,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     var chienDichLog = new ChienDichLogTrangThaiGui
                     {
                         IdChienDich = idChienDich,
-                         
+                        IdDanhBa = idDanhBa,
                         IdBrandName = idBrandName,
                         TongSoSms = danhBaCount,
                         SmsSendSuccess = smsSuccess,
@@ -262,17 +260,17 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     };
 
                     _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
-    
-               
-                    var chienDich = await _smDbContext.ChienDiches
-                        .FirstOrDefaultAsync(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
-
-                    if (chienDich != null)
+                    if (smsSuccess > 0)
                     {
+                        var chienDich = await _smDbContext.ChienDiches
+                            .FirstOrDefaultAsync(x => x.Id == idChienDich && (isSuperAdmin || x.CreatedBy == currentUserId) && !x.Deleted);
+
+                        if (chienDich != null)
+                        {
                             chienDich.TrangThai = ChienDichConstants.DaGui;
                             _smDbContext.ChienDiches.Update(chienDich);
+                        }
                     }
-                    
 
                     await _smDbContext.SaveChangesAsync();
                 }
@@ -315,7 +313,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                         var length = personalizedText.Length;
                         int smsCount;
-                        
 
                         if (isAccented)
                         {
@@ -411,7 +408,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             }
         }
 
-        private async Task<List<object>> ProcessGuiTinNhanJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung, string currentUserId, bool isSuperAdmin)
+        private async Task<List<object>> ProcessGuiTinNhanSchedulerJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiCoLichGuiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung, string currentUserId, bool isSuperAdmin)
         {
             var brandName = await GetBrandNameByChienDich(idBrandName);
             var allSmsMessages = new List<object>();
@@ -427,7 +424,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                     if (IsFlashSms)
                     {
-                        if (await IsChienDichCancelled(idChienDich)) return allSmsMessages;
                         var allMessages = await ProcessAllData(idChienDich, idDanhBa.Value, noiDung, brandName, IsAccented);
 
                         if (allMessages.Any())
@@ -435,7 +431,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             try
                             {
                                 var result = await _sendSmsService.SendSmsAsync(allMessages);
-                                await SendSmsLog(result, idChienDich, idDanhBa, null, idBrandName, IsAccented, noiDung, currentUserId,  isSuperAdmin);
+                                await SendSmsSchedulerJobLog(result, idChienDich, idDanhBa, null, idBrandName, IsAccented, noiDung, currentUserId, isSuperAdmin);
                             }
                             catch (Exception ex)
                             {
@@ -453,14 +449,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                         for (int batchIndex = 0; batchIndex < totalBatches; batchIndex++)
                         {
-                            if (await IsChienDichCancelled(idChienDich))
-                            {
-                                _logger.LogInformation($"[ProcessGuiTinNhanJob] CANCELLED at batch {batchIndex} - idChienDich: {idChienDich}");
-                                break;
-                            }
                             try
                             {
-                                var (batchMessages, batchSuccess, batchFailed, batchCost) = await ProcessBatch(idChienDich, idDanhBa.Value, noiDung, batchIndex, brandName, IsAccented, idBrandName, currentUserId,  isSuperAdmin);
+                                var (batchMessages, batchSuccess, batchFailed, batchCost) = await ProcessBatch(idChienDich, idDanhBa.Value, noiDung, batchIndex, brandName, IsAccented, idBrandName, currentUserId, isSuperAdmin);
                                 allSmsMessages.AddRange(batchMessages);
 
                                 totalSuccessAll += batchSuccess;
@@ -474,7 +465,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             }
                         }
 
-                        if (!await IsChienDichCancelled(idChienDich) && (totalSuccessAll > 0 || totalFailedAll > 0))
+                        if (totalSuccessAll > 0 || totalFailedAll > 0)
                         {
                             //var isSuperAdmin = IsSuperAdmin();
                             //var currentUserId = getCurrentUserId();
@@ -516,7 +507,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 // Mode: List số điện thoại
                 else
                 {
-                    if (await IsChienDichCancelled(idChienDich)) return allSmsMessages;
                     var personalizedText = IsAccented ? noiDung : RemoveAccents(noiDung);
 
                     foreach (var item in danhSachSoDienThoai)
@@ -535,11 +525,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                     if (allSmsMessages.Any())
                     {
-                        if (await IsChienDichCancelled(idChienDich)) return allSmsMessages;
                         try
                         {
                             var result = await _sendSmsService.SendSmsAsync(allSmsMessages);
-                            await SendSmsLog(result, idChienDich, null, danhSachSoDienThoai, idBrandName, IsAccented, noiDung, currentUserId, isSuperAdmin);
+                            await SendSmsSchedulerJobLog(result, idChienDich, null, danhSachSoDienThoai, idBrandName, IsAccented, noiDung, currentUserId, isSuperAdmin);
                         }
                         catch (Exception ex)
                         {
@@ -981,17 +970,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 else return (int)Math.Ceiling((double)length / 153);
             }
         }
-        private async Task<bool> IsChienDichCancelled(int idChienDich)
-        {
-            var chienDich = await _smDbContext.ChienDiches
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
 
-            return chienDich == null || chienDich.TrangThai == ChienDichConstants.Huy;
-        }
         private static DateTime GetVietnamTime()
         {
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);
         }
     }
 }
+    

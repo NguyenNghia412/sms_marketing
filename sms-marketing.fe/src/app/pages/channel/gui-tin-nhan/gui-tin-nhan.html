@@ -81,6 +81,12 @@
                     }
                 </div>
 
+                <div class="mb-3">
+                    <label for="lichGui" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Lên lịch</label>
+                    <p-datepicker formControlName="lichGui" id="lichGui" [showTime]="true" [showIcon]="true" 
+                        placeholder="Chọn thời gian gửi" class="w-full mb-2" appendTo="body" />
+                </div>
+
                 <div class="flex items-center mb-3">
                     <p-checkbox inputId="isAccented" name="isAccented" formControlName="isAccented" [binary]="true" />
                     <label for="isAccented" class="ml-2 cursor-pointer">Gửi có dấu</label>
@@ -88,7 +94,11 @@
                 <div class="mt-5 flex flex-row justify-end space-x-3">
                     <p-button label="Lưu" icon="pi pi-save" type="button" severity="secondary" (onClick)="onClickSave()"
                         [loading]="loading" [disabled]="trangThaiChienDich" />
+                    <p-button label="Đặt lịch" icon="pi pi-calendar" type="button" (onClick)="onClickDatLich()"
+                        [loading]="loading" [disabled]="trangThaiChienDich" severity="success" />
                     <p-button label="Gửi" icon="pi pi-send" type="submit" [loading]="loading" [disabled]="trangThaiChienDich" />
+                    
+   
                 </div>
             </form>
         </div>

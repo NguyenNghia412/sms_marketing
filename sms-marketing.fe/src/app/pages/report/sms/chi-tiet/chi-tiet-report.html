@@ -1,22 +1,34 @@
 <div class="card">
     <div class="flex flex-row justify-between items-center mb-4">
-        <div class="font-semibold text-xl uppercase">Thống kê  chi tiết chiến dịch gửi SMS</div>
+        <div class="font-semibold text-xl uppercase">Thống kê chi tiết chiến dịch gửi SMS</div>
     </div>
     <p-breadcrumb [home]="home" [model]="items" />
     <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
-        <div class="flex flex-row justify-between items-end space-x-2">
-            <div class="flex flex-row justify-between align-items-end space-x-2 flex-1">
-                <div class="flex flex-col justify-end flex-1 max-w-xl">
+        <div class="flex flex-row justify-between items-center space-x-2">
+            <div class="flex flex-row justify-between items-center space-x-2 flex-1">
+                <div class="flex flex-row items-center space-x-2 flex-1 max-w-2xl">
                     <p-iconfield class="w-full">
                         <p-inputicon class="pi pi-search" />
                         <input formControlName="search" pInputText type="text" placeholder="Tìm kiếm ..." class="w-full" />
                     </p-iconfield>
+                    <p-button type="button" icon="pi pi-filter" label="Tìm kiếm theo" (onClick)="filterPanel.toggle($event)" [outlined]="true" styleClass="whitespace-nowrap" />
                 </div>
             </div>
             <p-button label="Tìm kiếm" type="submit" styleClass="w-32 flex-shrink-0" />
         </div>
+        <p-popover #filterPanel [style]="{ width: '320px' }">
+            <div class="flex flex-col space-y-4 p-4">
+                <div>
+                    <label for="trangThai" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Trạng thái</label>
+                    <p-select formControlName="trangThai" id="trangThai" [options]="statusList" optionLabel="name" optionValue="code" placeholder="Tất cả" [showClear]="true" styleClass="w-full" [appendTo]="'body'" />
+                </div>
+            </div>
+        </p-popover>
     </form>
-    <div class="mt-4">
+    <div class="mt-4 relative">
         <app-data-table [columns]="columns" [data]="data" [loading]="loading" (onCustomComp)="onCustomEmit($event)" [total]="totalRecords" [pageNumber]="query.pageNumber" [pageSize]="query.pageSize" (onPageChanged)="onPageChanged($event)" />
+        <div class="absolute bottom-0 right-0 text-base text-surface-600 dark:text-surface-400 border border-surface-300 dark:border-surface-600 rounded px-4 py-2">
+            Thống kê: <span class="font-semibold">{{ totalRecords }}</span>
+        </div>
     </div>
 </div>

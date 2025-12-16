@@ -1,13 +1,14 @@
 import { CellViewTypes } from '@/shared/constants/data-table.constants';
 import { IColumn } from '@/shared/models/data-table.models';
 import { CommonModule, DatePipe, NgClass, NgComponentOutlet } from '@angular/common';
-import { Component, EventEmitter, inject, InjectionToken, Injector, input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, InjectionToken, Injector, input, OnInit, Output, ViewChild } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { PaginatorModule } from 'primeng/paginator';
+import { Paginator, PaginatorModule } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { Toast } from 'primeng/toast';
 
 export const TBL_CUSTOM_COMP_EMIT = new InjectionToken<EventEmitter<any>>('TBL_CUSTOM_COMP_EMIT');
 
@@ -30,10 +31,13 @@ export class DataTable implements OnInit {
     @Output() onPageChanged = new EventEmitter<any>();
     @Output() customEmit = new EventEmitter<any>();
     @Output() onCustomComp = new EventEmitter<any>();
+    @Output() onError = new EventEmitter<any>();
 
     cellViewTypes = CellViewTypes;
     sanitizer = inject(DomSanitizer);
     customInjector!: Injector;
+
+     @ViewChild(Paginator) paginator!: Paginator;
 
     ngOnInit(): void {
         this.customInjector = Injector.create({
@@ -66,7 +70,7 @@ export class DataTable implements OnInit {
             this.onCustomComp.emit({
                 type: 'cellClick',
                 field: col.field,
-                data: row // Đổi từ rowData thành data để consistent với các emit khác
+                data: row 
             });
         }
     }
@@ -78,5 +82,34 @@ export class DataTable implements OnInit {
     formatVND(value: number | string | null | undefined): string {
         if (value == null || value === '' || value === undefined) return '';
         return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    getIndexValue( rowIndex:number):number{
+        const currentPage = this.pageNumber();
+        const pageSize = this.pageSize();
+        return (currentPage * pageSize) - (pageSize - rowIndex) + 1;
+    }
+
+    goToPageNumber( pageNumber:number):void{
+        const totalPages = Math.ceil(this.total()/this.pageSize());
+        
+        if(pageNumber < 1 || pageNumber > totalPages){
+            this.onError.emit(`Số trang không hợp lệ! Vui lòng nhập từ 1 đến ${totalPages}`);
+            return;
+        }
+
+        const first = (pageNumber - 1)* this.pageSize();
+
+         if (this.paginator) {
+            this.paginator.changePage(pageNumber - 1);
+        }
+
+
+        this.onPageChanged.emit({
+            first: first,
+            rows: this.pageSize(),
+            page: pageNumber - 1,
+            pageCount : totalPages
+        })
     }
 }

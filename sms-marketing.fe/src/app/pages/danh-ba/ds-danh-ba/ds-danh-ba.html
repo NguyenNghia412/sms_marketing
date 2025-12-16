@@ -26,11 +26,14 @@
         <app-data-table
             [columns]="columns"
             [data]="data"
-            [loading]="loading"
-            (onCustomComp)="onCustomEmit($event)"
-            [pageSize]="query.pageSize"
             [pageNumber]="query.pageNumber"
+            [pageSize]="query.pageSize"
             [total]="totalRecords"
-            (onPageChanged)="onPageChanged($event)" />
+            [loading]="loading"
+            (onPageChanged)="onPageChanged($event)"
+            (onCustomComp)="onCustomEmit($event)"
+            (onError)="onError($event)">
+            </app-data-table>
     </div>
+    
 </div>
