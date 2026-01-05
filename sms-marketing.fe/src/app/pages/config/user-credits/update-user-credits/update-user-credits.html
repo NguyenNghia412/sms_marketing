@@ -1,0 +1,36 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <div class="mb-3">
+        <label for="userId" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Người dùng <span class="text-red-500">*</span></label>
+        <p-select id="userId" formControlName="userId" [options]="listUsers" optionLabel="fullName" optionValue="id" [filter]="true" placeholder="Chọn người dùng" styleClass="w-full" class="mb-2" appendTo="body" />
+        @if (form.get('userId')?.hasError('required') && form.get('userId')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('userId') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="hanMucCredit" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Hạn mức credit <span class="text-red-500">*</span></label>
+        <p-inputNumber formControlName="hanMucCredit" inputId="hanMucCredit" styleClass="w-full" [useGrouping]="true" locale="vi-VN" suffix=" VNĐ" />
+        @if (form.get('hanMucCredit')?.hasError('required') && form.get('hanMucCredit')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('hanMucCredit') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="thoiGianBatDauApDungHanMuc" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Thời gian bắt đầu áp dụng <span class="text-red-500">*</span></label>
+        <p-datePicker formControlName="thoiGianBatDauApDungHanMuc" inputId="thoiGianBatDauApDungHanMuc" styleClass="w-full" [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" [showOnFocus]="false" />
+        @if (form.get('thoiGianBatDauApDungHanMuc')?.hasError('required') && form.get('thoiGianBatDauApDungHanMuc')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('thoiGianBatDauApDungHanMuc') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="thoiGianKetThucApDungHanMuc" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Thời gian kết thúc áp dụng</label>
+        <p-datePicker formControlName="thoiGianKetThucApDungHanMuc" inputId="thoiGianKetThucApDungHanMuc" styleClass="w-full" [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" [showOnFocus]="false" />
+    </div>
+
+    <div class="flex gap-2 mt-4" style="justify-content: flex-end;">
+        <p-button label="Hủy" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" />
+        <p-button label="Lưu" icon="pi pi-save" type="submit" [loading]="loading" />
+    </div>
+</form>

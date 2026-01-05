@@ -140,5 +140,24 @@ namespace thongbao.be.Controllers.Auth
                 return OkException(ex);
             }
         }
+
+        /// <summary>
+        /// Lấy list user
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("list-users")]
+        [Permission(PermissionKeys.UserView)]
+        public ApiResponse GetListUsers()
+        {
+            try
+            {
+                var data = _usersService.GetListUser();
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

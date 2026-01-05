@@ -99,6 +99,13 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int TraoBangErrorSinhVienTraoBangNotFound = 1008;
         public const int TraoBangErrorSinhVienTraoBangKhongThuocKhoaDangTrao = 1009;
 
+        public const int ConfigErrorNhaMangNotFound = 1101;
+        public const int ConfigErrorCauHinhDonGiaNotFound = 1102;
+        public const int ConfigErrorUserCreditsExist = 1103;
+        public const int ConfigErrorCauHinhDonGiaExists = 1104;
+        public const int ConfigErrorUserCreditsExceedAmountStringee = 1105;
+        public const int ConfigErrorUserCreditsQuaHanGiaHanHanMuc = 1106;
+
 
 
 

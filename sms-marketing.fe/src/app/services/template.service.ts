@@ -1,4 +1,4 @@
-import { ICreateSMSTempalte, IFindPagingSMSTempalte, IUpdateSMSTempalte, SMSTempalte } from '@/pages/template/models/sms-template.models';
+import { ICreateSMSTempalte, IFindPagingSMSTempalte, IUpdateSMSTempalte, SMSTempalte } from '@/models/sms-template.models';
 import { IBaseResponse, IBaseResponsePaging } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';

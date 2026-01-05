@@ -1,0 +1,207 @@
+﻿using AutoMapper;
+using DocumentFormat.OpenXml.Vml.Spreadsheet;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using thongbao.be.application.Base;
+using thongbao.be.application.Config.Dtos.NhaMang;
+using thongbao.be.application.Config.Interfaces;
+using thongbao.be.application.GuiTinNhan.Interfaces;
+using thongbao.be.domain.Auth;
+using thongbao.be.infrastructure.data;
+using thongbao.be.shared.HttpRequest.BaseRequest;
+using thongbao.be.shared.HttpRequest.Error;
+using thongbao.be.shared.HttpRequest.Exception;
+
+namespace thongbao.be.application.Config.Implements
+{
+    public class NhaMangService : BaseService, INhaMangService
+    {
+        private readonly UserManager<AppUser> _userManager;
+        private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        public NhaMangService(
+            SmDbContext smDbContext,
+            ILogger<NhaMangService> logger,
+            IHttpContextAccessor httpContextAccessor,
+            UserManager<AppUser> userManager,
+            IMapper mapper
+        )
+            : base(smDbContext, logger, httpContextAccessor, mapper)
+        {
+            _userManager = userManager;
+        }
+
+
+        public void AddNhaMang(AddNhaMangDto dto)
+        {
+            _logger.LogInformation($"{nameof(AddNhaMang)} dto = {JsonSerializer.Serialize(dto)}");
+            var vietNamNow = GetVietnamTime();
+            var currentUserId = getCurrentUserId();
+
+
+            var nhaMang = new domain.Config.NhaMang
+            {
+                TenNhaMang = dto.TenNhaMang,
+                Prefix = dto.Prefix,
+                CreatedDate = vietNamNow,
+                CreatedBy = currentUserId
+            };
+            _smDbContext.NhaMangs.Add(nhaMang);
+            _smDbContext.SaveChanges();
+
+            var nhaMangId = nhaMang.Id;
+            _logger.LogInformation($"nhaMangId = {nhaMangId}");
+
+            var nhaMangExists = _smDbContext.CauHinhDonGias.Any(x => x.IdNhaMang == nhaMangId && x.IdBrandName == dto.IdBrandName && !x.Deleted);
+            if (nhaMangExists)
+            {
+                nhaMang.Deleted = true;
+                nhaMang.DeletedBy = currentUserId;
+                nhaMang.DeletedDate = vietNamNow;
+                _smDbContext.NhaMangs.Update(nhaMang);
+                _smDbContext.SaveChanges();
+                throw new UserFriendlyException(ErrorCodes.ConfigErrorCauHinhDonGiaExists);
+            }else { 
+                var cauHinhDonGia = new domain.Config.CauHinhDonGia
+                {
+                    IdBrandName = dto.IdBrandName,
+                    IdNhaMang = nhaMangId,
+                    DonGia = dto.DonGia,
+                    ThoiHan = dto.ThoiHan,
+                    CreatedDate = vietNamNow,
+                    CreatedBy = currentUserId
+                };
+                _smDbContext.CauHinhDonGias.Add(cauHinhDonGia);
+                _smDbContext.SaveChanges();
+             }
+        }
+
+        public void UpdateNhaMang(UpdateNhaMangDto dto)
+        {
+            _logger.LogInformation($"{nameof(UpdateNhaMang)} dto = {JsonSerializer.Serialize(dto)}");
+            var vietNamNow = GetVietnamTime();
+            var currentUserId = getCurrentUserId();
+            var nhaMang = _smDbContext.NhaMangs.FirstOrDefault(x => x.Id == dto.Id && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.ConfigErrorNhaMangNotFound);
+            var brandName = _smDbContext.BrandName.FirstOrDefault(x => x.Id == dto.IdBrandName && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.ChienDichErrorBrandNameNotFound);
+            var cauHinhDonGia = _smDbContext.CauHinhDonGias.FirstOrDefault(x => x.IdNhaMang == dto.Id && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.ConfigErrorCauHinhDonGiaNotFound);
+
+            nhaMang.TenNhaMang = dto.TenNhaMang;
+            nhaMang.Prefix = dto.Prefix;
+            nhaMang.ModifiedDate = vietNamNow;
+            nhaMang.ModifiedBy = currentUserId;
+            _smDbContext.NhaMangs.Update(nhaMang);
+
+            cauHinhDonGia.IdBrandName = dto.IdBrandName;
+            cauHinhDonGia.DonGia = dto.DonGia;
+            cauHinhDonGia.ThoiHan = dto.ThoiHan;
+            cauHinhDonGia.ModifiedDate = vietNamNow;
+            cauHinhDonGia.ModifiedBy = currentUserId;
+            _smDbContext.CauHinhDonGias.Update(cauHinhDonGia);
+            _smDbContext.SaveChanges();
+        }
+
+        public void DeleteNhaMang(int id)
+        {
+            _logger.LogInformation($"{nameof(DeleteNhaMang)} id = {id}");
+            var vietNamNow = GetVietnamTime();
+            var currentUserId = getCurrentUserId();
+            var nhaMang = _smDbContext.NhaMangs.FirstOrDefault(x => x.Id == id && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.ConfigErrorNhaMangNotFound);
+            var cauHinhDonGia = _smDbContext.CauHinhDonGias.FirstOrDefault(x => x.IdNhaMang == id && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.ConfigErrorCauHinhDonGiaNotFound);
+            nhaMang.Deleted = true;
+            nhaMang.DeletedBy = currentUserId;
+            nhaMang.DeletedDate = vietNamNow;
+            _smDbContext.NhaMangs.Update(nhaMang);
+            cauHinhDonGia.Deleted = true;
+            cauHinhDonGia.DeletedBy = currentUserId;
+            cauHinhDonGia.DeletedDate = vietNamNow;
+            _smDbContext.CauHinhDonGias.Update(cauHinhDonGia);
+            _smDbContext.SaveChanges();
+        }
+
+        public BaseResponsePagingDto<ViewNhaMangDto> FindPaging (FindPagingNhaMangDto dto)
+        {
+            _logger.LogInformation($"{nameof(FindPaging)} dto = {JsonSerializer.Serialize(dto)}");
+            var query = from nm in _smDbContext.NhaMangs
+                        join chdg in _smDbContext.CauHinhDonGias
+                        on nm.Id equals chdg.IdNhaMang
+                        join br in _smDbContext.BrandName
+                        on chdg.IdBrandName equals br.Id
+                        where !nm.Deleted
+                        && !chdg.Deleted
+                        && !br.Deleted
+                        orderby nm.Id
+                        select new ViewNhaMangDto
+                        {
+                            Id = nm.Id,
+                            TenNhaMang = nm.TenNhaMang,
+                            Prefix = nm.Prefix,
+                            DonGia = new DonGiaDto
+                            {
+                                Id = chdg.Id,
+                                //IdBrandName = chdg.IdBrandName,
+                                //IdNhaMang = chdg.IdNhaMang,
+                                DonGia = chdg.DonGia,
+                                ThoiHan = chdg.ThoiHan,
+                            },
+                            BrandName = new BrandNameDto
+                            {
+                                Id = br.Id,
+                                TenBrandName = br.TenBrandName,
+                            }
+                        };
+            var data = query.Paging(dto).ToList();
+            return new BaseResponsePagingDto<ViewNhaMangDto>
+            {
+                Items = data,
+                TotalItems = query.Count(),
+            };
+        }
+
+        public ViewNhaMangDto GetById(int id)
+        {
+            _logger.LogInformation($"{nameof(GetById)} id = {id}");
+            var query = from nm in _smDbContext.NhaMangs
+                        join chdg in _smDbContext.CauHinhDonGias
+                        on nm.Id equals chdg.IdNhaMang
+                        join br in _smDbContext.BrandName
+                        on chdg.IdBrandName equals br.Id
+                        where !nm.Deleted
+                        && !chdg.Deleted
+                        && !br.Deleted
+                        && nm.Id == id
+                        select new ViewNhaMangDto
+                        {
+                            Id = nm.Id,
+                            TenNhaMang = nm.TenNhaMang,
+                            Prefix = nm.Prefix,
+                            DonGia = new DonGiaDto
+                            {
+                                Id = chdg.Id,
+                                //IdBrandName = chdg.IdBrandName,
+                                //IdNhaMang = chdg.IdNhaMang,
+                                DonGia = chdg.DonGia,
+                                ThoiHan = chdg.ThoiHan,
+                            },
+                            BrandName = new BrandNameDto
+                            {
+                                Id = br.Id,
+                                TenBrandName = br.TenBrandName,
+                            }
+                        };
+            var result = query.FirstOrDefault()
+                ?? throw new UserFriendlyException(ErrorCodes.ConfigErrorNhaMangNotFound);
+            return result;
+        }
+        }
+}

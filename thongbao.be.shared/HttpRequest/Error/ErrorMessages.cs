@@ -85,6 +85,12 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.GuiTinNhanErrorSmsCountExceeded, "Tin nhắn quá dài.Yêu cầu xóa bớt nội dung để quá trình gửi được hoàn tất.Xin cảm ơn!" },
             { ErrorCodes.GuiTinNhanErrorLichGuiKhongHopLe, "Lịch gửi không hợp lê, lịch gửi phải lớn hơn thời điểm hiện tại" },
             { ErrorCodes.ChienDichErrorChuaDuocDatLenhKhongTheHuy, "Chiến dịch chưa được đặt lệnh không thể đặt lệnh hủy" },
+            { ErrorCodes.ConfigErrorNhaMangNotFound, "Nhà mạng không tồn tại" },
+            { ErrorCodes.ConfigErrorCauHinhDonGiaNotFound, "Cấu hình đơn giá không tồn tại" },
+            { ErrorCodes.ConfigErrorUserCreditsExist, "Hạn mức người dùng đã tồn tại" },
+            { ErrorCodes.ConfigErrorCauHinhDonGiaExists, "Cấu hình đơn giá  đã tồn tại" },
+            { ErrorCodes.ConfigErrorUserCreditsExceedAmountStringee, "Hạn mức người dùng đang vượt quá lượng tiền trong tài khoản Stringee" },
+            { ErrorCodes.ConfigErrorUserCreditsQuaHanGiaHanHanMuc, "Đã quá hạn gia hạn hạn mức cho người dùng này! Vui lòng tạo mới hạn mức cho tháng tiếp theo"  }
         };
 
         public static string GetMessage(int code)

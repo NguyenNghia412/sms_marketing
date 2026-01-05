@@ -1,5 +1,5 @@
-import { EmailTempalte, ICreateEmailTempalte, IFindPagingEmailTempalte, IUpdateEmailTempalte } from '@/pages/template/models/data-email-template.models';
-import { ICreateSMSTempalte, IFindPagingSMSTempalte, IUpdateSMSTempalte, SMSTempalte } from '@/pages/template/models/sms-template.models';
+import { EmailTempalte, ICreateEmailTempalte, IFindPagingEmailTempalte, IUpdateEmailTempalte } from '@/models/data-email-template.models';
+import { ICreateSMSTempalte, IFindPagingSMSTempalte, IUpdateSMSTempalte, SMSTempalte } from '@/models/sms-template.models';
 import { IBaseResponse, IBaseResponsePaging, IBaseResponseWithData } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';

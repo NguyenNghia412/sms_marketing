@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ICreateSMSTempalte, IUpdateSMSTempalte, SMSTempalte } from '../../models/sms-template.models';
+import { ICreateSMSTempalte, IUpdateSMSTempalte, SMSTempalte } from '../../../../models/sms-template.models';
 import { TextareaModule } from 'primeng/textarea';
 import { TemplateService } from '@/services/template.service';
 

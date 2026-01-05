@@ -21,6 +21,8 @@ using System.Text;
 using thongbao.be.application.Auth.Implements;
 using thongbao.be.application.Auth.Interfaces;
 using thongbao.be.application.Base;
+using thongbao.be.application.Config.Implements;
+using thongbao.be.application.Config.Interfaces;
 using thongbao.be.application.DanhBa.Implements;
 using thongbao.be.application.DanhBa.Interfaces;
 using thongbao.be.application.DiemDanh.Implements;
@@ -259,6 +261,8 @@ builder.Services.AddScoped<ISendSmsService, SendSmsService>();
 builder.Services.AddScoped<IGuiTinNhanLogService, GuiTinNhanLogService>();
 builder.Services.AddScoped<IGuiTinNhanService, GuiTinNhanService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<INhaMangService, NhaMangService>();
+builder.Services.AddScoped<IUserCreditsService, UserCreditsService>();
 #endregion
 
 builder.Services.AddHttpClient();
@@ -347,6 +351,7 @@ app.MapControllers();
 app.MapHub<DemoHub>("/hub/sms").RequireCors("SignalRPolicy");
 
 app.UseHangfireDashboard();
+
 app.MapHealthChecks("/health");
 app.Run();
 

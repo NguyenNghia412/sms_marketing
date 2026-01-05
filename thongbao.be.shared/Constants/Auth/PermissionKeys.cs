@@ -23,6 +23,7 @@ namespace thongbao.be.shared.Constants.Auth
         public const string MenuContact = Menu + "Contact";
         public const string MenuTemplate = Menu + "Template";
         public const string MenuReport = Menu + "Report";
+        public const string MenuConfig = Menu + "Config";
 
         public const string CategoryUser = "QL User";
         public const string UserAdd = Function + "UserAdd";
@@ -79,7 +80,20 @@ namespace thongbao.be.shared.Constants.Auth
 
         public const string CategoryGuiTinNhan = "QL Gửi tin nhắn";
         public const string GuiTinNhanAdd = Function + "GuiTinNhanAdd";
-        
+
+        public const string CategoryNhaMang = "QL Nhà Mạng";
+        public const string NhaMangAdd = Function + "NhaMangAdd";
+        public const string NhaMangUpdate = Function + "NhaMangUpdate";
+        public const string NhaMangDelete = Function + "NhaMangDelete";
+        public const string NhaMangView = Function + "NhaMangView";
+
+        public const string CategoryUserCredits = "QL Hạn mức người dùng";
+        public const string UserCreditsAdd = Function + "UserCreditsAdd";
+        public const string UserCreditsUpdate = Function + "UserCreditsUpdate";
+        public const string UserCreditsDelete = Function + "UserCreditsDelete";
+        public const string UserCreditsView = Function + "UserCreditsView";
+        public const string UserCreditsViewForUser = Function + "UserCreditsViewForUser";
+
 
 
 
@@ -102,6 +116,7 @@ namespace thongbao.be.shared.Constants.Auth
             (MenuContact, "Menu Danh bạ", "Menu"),
             (MenuTemplate, "Menu Template", "Menu"),
             (MenuReport, "Menu Báo cáo", "Menu"),
+            (MenuConfig, "Menu Cấu hình", "Menu"),
 
 
             (UserAdd, "Thêm user", CategoryUser),
@@ -148,7 +163,17 @@ namespace thongbao.be.shared.Constants.Auth
             (MauNoiDungEmailDelete, "Xoá Mẫu Nội Dung Email", CategoryMauNoiDungEmail),
             (MauNoiDungEmailView, "Xem Mẫu Nội Dung Email", CategoryMauNoiDungEmail),
 
+            (NhaMangAdd, "Thêm Nhà mạng ", CategoryNhaMang),
+            (NhaMangUpdate, "Cập nhật Nhà mạng", CategoryNhaMang),
+            (NhaMangDelete, "Xoá Nhà mạng", CategoryNhaMang),
+            (NhaMangView, "Xem Nhà mạng", CategoryNhaMang),
 
+
+            (UserCreditsAdd, "Thêm Hạn mức người dùng ", CategoryUserCredits),
+            (UserCreditsUpdate, "Cập nhật Hạn mức người dùng", CategoryUserCredits),
+            (UserCreditsDelete, "Xoá Hạn mức người dùng", CategoryUserCredits),
+            (UserCreditsView, "Xem Hạn mức người dùng", CategoryUserCredits),
+            (UserCreditsViewForUser, "Xem Cước phí hàng tháng", CategoryUserCredits),
 
 
             (GuiTinNhanAdd,"Gửi tin nhắn", CategoryGuiTinNhan),

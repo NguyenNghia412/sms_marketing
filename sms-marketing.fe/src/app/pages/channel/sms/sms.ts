@@ -75,7 +75,7 @@ export class Sms extends BaseComponent {
         this.getData();
     }
 
-      getData() {
+    getData() {
         this.loading = true;
         this._chienDichService.findPaging({ ...this.query, keyword: this.searchForm.get('search')?.value }).subscribe({
             next: (res) => {

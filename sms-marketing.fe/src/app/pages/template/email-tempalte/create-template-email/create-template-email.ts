@@ -1,4 +1,4 @@
-import { EmailTempalte, ICreateEmailTempalte } from './../../models/data-email-template.models';
+import { EmailTempalte, ICreateEmailTempalte } from '../../../../models/data-email-template.models';
 import { SharedImports } from '@/shared/import.shared';
 import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { MenuItem } from 'primeng/api';

@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using thongbao.be.shared.HttpRequest.BaseRequest;
+
+namespace thongbao.be.application.Config.Dtos.UserCredits
+{
+    public class FindPagingByUserIdDto: BaseRequestPagingDto
+    {
+        //public string UserId { get; set; } = String.Empty;
+    }
+}

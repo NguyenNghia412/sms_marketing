@@ -19,6 +19,7 @@ export const appRoutes: Routes = [
             { path: 'danh-ba', loadChildren: () => import('./app/pages/danh-ba/danh-ba.routes') },
             { path: 'template', loadChildren: () => import('./app/pages/template/template.routes') },
             { path: 'report', loadChildren: () => import('./app/pages/report/sms/sms-report.routers') },
+            { path: 'config', loadChildren: () => import('./app/pages/config/config.routers') },
             { path: 'meeting', loadChildren: () => import('./app/pages/meeting/meetings.routes') },
             { path: 'user-management', loadChildren: () => import('./app/pages/user-management/user-management.routes') },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },

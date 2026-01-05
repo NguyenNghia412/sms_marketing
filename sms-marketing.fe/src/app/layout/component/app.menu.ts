@@ -61,6 +61,19 @@ export class AppMenu {
     loading = false;
 
     ngOnInit() {
+        const isSuperAdmin = this._sharedService.isSuperAdmin();
+
+        const configItems = [];
+        if (isSuperAdmin) {
+            configItems.push(
+                { label: 'Nhà mạng', heroIcon: 'heroWifi', routerLink: ['/config/nha-mang'] },
+                { label: 'Hạn mức người dùng', heroIcon: 'heroCreditCard', routerLink: ['/config/user-credits'] }
+            );
+        } else {
+            configItems.push(
+                { label: 'Cước phí hàng tháng', heroIcon: 'heroCreditCard', routerLink: ['/config/user-credits-for-user'] }
+            );
+        }
         this.model = [
             // {
             //     items:[
@@ -122,6 +135,21 @@ export class AppMenu {
                     }
                 ],
                 visible: this._sharedService.isGranted(PermissionConstants.MenuReport),
+
+            },
+            {
+                items: [
+                    {
+                        label: 'Cấu hình',
+                        visible: this._sharedService.isGranted(PermissionConstants.MenuConfig),
+                        items: [
+                            { label: 'Nhà mạng', heroIcon: 'heroWifi', routerLink: ['/config/nha-mang'], visible:this._sharedService.isSuperAdmin() },
+                            { label: 'Hạn mức người dùng', heroIcon: 'heroCreditCard', routerLink: ['/config/user-credits'] , visible:this._sharedService.isSuperAdmin()},
+                            { label: 'Cước phí hàng tháng', heroIcon: 'heroCreditCard', routerLink: ['/config/user-credits-for-user'] , visible: !this._sharedService.isSuperAdmin() },
+                        ]
+                    }
+                ],
+                visible: this._sharedService.isGranted(PermissionConstants.MenuConfig),
 
             },
 

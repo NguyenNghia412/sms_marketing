@@ -9,7 +9,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { PaginatorState } from 'primeng/paginator';
 import { TblAction, TblActionTypes } from './tbl-action/tbl-action';
-import { EmailTempalte } from '../../models/data-email-template.models';
+import { EmailTempalte } from '../../../../models/data-email-template.models';
 import { TemplateEmailService } from '@/services/template-email.service';
 
 @Component({

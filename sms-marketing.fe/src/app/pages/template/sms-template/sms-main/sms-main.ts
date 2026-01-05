@@ -5,7 +5,7 @@ import { IColumn } from '@/shared/models/data-table.models';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { TblAction, TblActionTypes } from './tbl-action/tbl-action';
-import { SMSTempalte } from '../../models/sms-template.models';
+import { SMSTempalte } from '../../../../models/sms-template.models';
 import { IFindPagingMauNoiDung } from '@/models/template.models';
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { PaginatorState } from 'primeng/paginator';
