@@ -87,6 +87,14 @@ namespace thongbao.be.shared.Constants.Auth
         public const string NhaMangDelete = Function + "NhaMangDelete";
         public const string NhaMangView = Function + "NhaMangView";
 
+
+        public const string CategoryNhaCungCapDichVu = "QL Nhà Cung Cấp Dịch Vụ";
+        public const string NhaCungCapDichVuAdd = Function + "NhaCungCapDichVuAdd";
+        public const string NhaCungCapDichVuUpdate = Function + "NhaCungCapDichVuUpdate";
+        public const string NhaCungCapDichVuDelete = Function + "NhaCungCapDichVuDelete";
+        public const string NhaCungCapDichVuView = Function + "NhaCungCapDichVuView";
+
+
         public const string CategoryUserCredits = "QL Hạn mức người dùng";
         public const string UserCreditsAdd = Function + "UserCreditsAdd";
         public const string UserCreditsUpdate = Function + "UserCreditsUpdate";
@@ -167,6 +175,11 @@ namespace thongbao.be.shared.Constants.Auth
             (NhaMangUpdate, "Cập nhật Nhà mạng", CategoryNhaMang),
             (NhaMangDelete, "Xoá Nhà mạng", CategoryNhaMang),
             (NhaMangView, "Xem Nhà mạng", CategoryNhaMang),
+
+            (NhaCungCapDichVuAdd, "Thêm Nhà cung cấp dịch vụ ", CategoryNhaCungCapDichVu),
+            (NhaCungCapDichVuUpdate, "Cập nhật Nhà cung cấp dịch vụ", CategoryNhaCungCapDichVu),
+            (NhaCungCapDichVuDelete, "Xoá Nhà cung cấp dịch vụ", CategoryNhaCungCapDichVu),
+            (NhaCungCapDichVuView, "Xem Nhà cung cấp dịch vụ", CategoryNhaCungCapDichVu),
 
 
             (UserCreditsAdd, "Thêm Hạn mức người dùng ", CategoryUserCredits),

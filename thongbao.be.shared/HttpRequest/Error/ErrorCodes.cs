@@ -105,6 +105,12 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int ConfigErrorCauHinhDonGiaExists = 1104;
         public const int ConfigErrorUserCreditsExceedAmountStringee = 1105;
         public const int ConfigErrorUserCreditsQuaHanGiaHanHanMuc = 1106;
+        public const int ConfigErrorNhaCungCapDichVuNotFound = 1107;
+        public const int ConfigErrorNhaCungCapDichVuExists = 1108;  
+        public const int ConfigErrorBrandNameExitsted = 1109;
+        public const int ConfigErrorUserNhaCungCapDichVuExisted = 1110;
+        public const int ConfigErrorUserNhaCungCapDichVuNotFound = 1111;
+        public const int ConfigErrorThoiGianKhongHopLe = 1112;
 
 
 

@@ -12,27 +12,22 @@ using thongbao.be.shared.Interfaces;
 
 namespace thongbao.be.domain.Config
 {
-    [Table(nameof(UserCredits), Schema = DbSchemas.Core)]
+    [Table(nameof(NhaCungCapDichVu), Schema = DbSchemas.Core)]
     [Index(
      nameof(Id),
      IsUnique = false,
-     Name = $"IX_{nameof(UserCredits)}"
+     Name = $"IX_{nameof(NhaCungCapDichVu)}"
    )]
-    public class UserCredits : ISoftDelted
+    public class NhaCungCapDichVu: ISoftDelted
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string UserId { get; set; } = String.Empty;
-        //public int IdNhaCungCapDichVu { get; set; } 
-        public string HanMucCredit {  get; set; } = String.Empty ;
-        public DateTime ThoiGianBatDauApDungHanMuc {  get; set; }
-        public DateTime ThoiGianKetThucApDungHanMuc { get; set; }
-        public string? CreditDaSuDung { get; set; }= String.Empty;
-        public string? CreditChuaSuDung { get; set; } = String.Empty;
-        public string? CreditConSauKhiKetThucThoiGianApDungHanMuc { get; set; } = String.Empty;
-        public string DonVi { get; set; } = "VND";
-
+        public string Name { get; set; } = String.Empty;
+        public string ApiKey { get; set; } = String.Empty;
+        public string ApiSecret { get; set; } = String.Empty; 
+        public string BaseUrl { get; set; } = String.Empty;
+        public bool IsConfigAuthReq { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public string? ModifiedBy { get; set; }

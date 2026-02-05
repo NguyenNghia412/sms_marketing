@@ -267,22 +267,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
         }
 
-        public List<GetListBrandNameResponseDto> GetListBrandName()
-        {
-            _logger.LogInformation($"{nameof(GetListBrandName)}");
-            var isSuperAdmin = IsSuperAdmin();
-            var currentUserId = getCurrentUserId();
-
-            var query = from bn in _smDbContext.BrandName
-                        where !bn.Deleted 
-                        orderby bn.CreatedDate descending
-                        select bn;
-
-            var data = query.ToList();
-            var result = _mapper.Map<List<GetListBrandNameResponseDto>>(data);
-
-            return result;
-        }
+     
         public void DuplicateChienDich(int idChienDich)
         {
             _logger.LogInformation($"{nameof(DuplicateChienDich)}, idChienDich={idChienDich}");

@@ -23,6 +23,7 @@ namespace thongbao.be.domain.Config
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+        public int IdNhaCungCapDichVu { get; set; }
         public int IdBrandName { get; set; }
         public int IdNhaMang {  get; set; } 
         public int DonGia {  get; set; }

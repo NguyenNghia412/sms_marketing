@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using thongbao.be.application.Auth.Dtos.Role;
 using thongbao.be.application.Auth.Dtos.User;
+using thongbao.be.application.Config.Dtos.NhaCungCapDichVu;
 using thongbao.be.application.DanhBa.Dtos;
 using thongbao.be.application.DiemDanh.Dtos;
 using thongbao.be.application.GuiTinNhan.Dtos;
@@ -45,6 +46,11 @@ namespace thongbao.be.application.Base
             CreateMap<ChienDichLogTrangThaiGui, ViewChienDichLogDto>();
             CreateMap<domain.MauNoiDung.MauNoiDungEmail, ViewMauNoiDungEmailDto>();
             CreateMap<domain.MauNoiDung.MauNoiDungEmail, GetListMauNoiDungEmailResponseDto>();
+            CreateMap<domain.Config.NhaCungCapDichVu, ViewNhaCungCapDichVuDto>();
+            CreateMap<domain.Config.NhaCungCapDichVu, GetDropDownNhaCungCapDichVuDto>();
+            CreateMap<domain.Config.NhaCungCapDichVu, ViewNhaCungCapByIdDto>();
+            CreateMap<domain.Config.UserNhaCungCapDichVu, ViewUserNhaCungCapDto>();
+            CreateMap<domain.Config.UserNhaCungCapDichVu, ViewUserToNhaCungCapDichVuByIdDto>();
 
 
         }

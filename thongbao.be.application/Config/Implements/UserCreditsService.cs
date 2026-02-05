@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.VariantTypes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -43,11 +44,10 @@ namespace thongbao.be.application.Config.Implements
             _profileService = profileService;
         }
 
-        public async Task AddUserCredits(AddUserCreditsDto dto)
+        public void AddUserCredits(AddUserCreditsDto dto)
         {
             _logger.LogInformation($"{nameof(AddUserCreditsDto)} dto = {JsonSerializer.Serialize(dto)}");
-            var profileInfo = await _profileService.GetProfileStringeeInfor();
-            var amount = Convert.ToInt32(profileInfo?.Data?.Amount ?? 0);
+            //dto.HanMucCredit = SoTienMacDinhConstants.SoTienMacDinh;
             var vietNamNow = GetVietnamTime();
             var currentUserId = getCurrentUserId();
             var user = _smDbContext.Users.FirstOrDefault(x => x.Id == dto.UserId)
@@ -73,17 +73,14 @@ namespace thongbao.be.application.Config.Implements
                 }
             }
 
-            if (hanMucCredit > amount)
-            {
-                throw new UserFriendlyException(ErrorCodes.ConfigErrorUserCreditsExceedAmountStringee);
-            }
+            
             var userCredits = new domain.Config.UserCredits
             {
                 UserId = dto.UserId,
                 HanMucCredit = hanMucCredit.ToString(),
                 ThoiGianBatDauApDungHanMuc = dto.ThoiGianBatDauApDungHanMuc,
                 ThoiGianKetThucApDungHanMuc = dto.ThoiGianKetThucApDungHanMuc ?? dto.ThoiGianBatDauApDungHanMuc.AddMonths(1),
-                LoaiApiCredit = ConfigConstants.StringeeApi,
+                //LoaiApiCredit = ConfigConstants.StringeeApi,
                 CreatedBy = currentUserId,
                 CreatedDate = vietNamNow,
             };
@@ -91,11 +88,80 @@ namespace thongbao.be.application.Config.Implements
             _smDbContext.SaveChanges();
         }
 
-        public async Task UpdateUserCredits(UpdateUserCreditsDto dto)
+        public async Task AddCreditToUserCredits()
+        {
+            _logger.LogInformation($"{nameof(AddCreditToUserCredits)}");
+            var vietNamNow = GetVietnamTime();
+            //var hanMucCredit = SoTienMacDinhConstants.SoTienMacDinh;
+            using var transaction = await _smDbContext.Database.BeginTransactionAsync();
+            try
+            {
+                var userCreditsDistinct = await _smDbContext.UserCredits
+                .Where( x=>!x.Deleted)
+                .Select(x => x.UserId)
+                .Distinct()
+                .ToListAsync();
+
+            var latestUserCredit = await _smDbContext.UserCredits
+                .Where( x => !x.Deleted 
+                && x.ThoiGianKetThucApDungHanMuc < vietNamNow)
+                .GroupBy( x => x.UserId)
+                .Select( g => new
+                {
+                    UserId = g.Key,
+                    LastestCredit = g.OrderByDescending( x=> x.ThoiGianKetThucApDungHanMuc).FirstOrDefault(),
+
+                })
+                .ToListAsync();
+            var newCredits = new List<domain.Config.UserCredits>();
+            foreach (var userCredits in latestUserCredit)
+            {
+                var hanMucCredit = SoTienMacDinhConstants.SoTienMacDinh;
+                if(userCredits != null)
+                {
+                    var creditConLai = Convert.ToInt64(userCredits.LastestCredit.CreditConSauKhiKetThucThoiGianApDungHanMuc ?? "0");
+                    if (creditConLai > 0)
+                    {
+                        hanMucCredit += creditConLai;
+                    }
+                }
+                    var newUserCredits = new domain.Config.UserCredits
+                    {
+                        UserId = userCredits.UserId,
+                        HanMucCredit = hanMucCredit.ToString(),
+                        ThoiGianBatDauApDungHanMuc = vietNamNow,
+                        ThoiGianKetThucApDungHanMuc = vietNamNow.AddMonths(1),
+                        CreatedDate = vietNamNow,
+                        CreatedBy = "CronJob"
+                    };
+                    newCredits.Add(newUserCredits);
+                
+            }
+                if (newCredits.Any())
+                {
+                    await _smDbContext.UserCredits.AddRangeAsync(newCredits);
+                    await _smDbContext.SaveChangesAsync();
+                }
+                await transaction.CommitAsync();
+            
+
+
+
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+
+
+
+        }
+
+        public void UpdateUserCredits(UpdateUserCreditsDto dto)
         {
             _logger.LogInformation($"{nameof(AddUserCreditsDto)} dto = {JsonSerializer.Serialize(dto)}");
-            var profileInfo = await _profileService.GetProfileStringeeInfor();
-            var amount = Convert.ToInt32(profileInfo?.Data?.Amount ?? 0);
+           
             var vietNamNow = GetVietnamTime();
             var currentUserId = getCurrentUserId();
 
@@ -103,10 +169,7 @@ namespace thongbao.be.application.Config.Implements
                 ?? throw new UserFriendlyException(ErrorCodes.AuthErrorUserNotFound);
             var userCredits = _smDbContext.UserCredits.FirstOrDefault(x => x.Id == dto.Id && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.NotFound);
-            if (Convert.ToInt32(dto.HanMucCredit) > amount)
-            {
-                throw new UserFriendlyException(ErrorCodes.ConfigErrorUserCreditsExceedAmountStringee);
-            }
+            
 
             if(vietNamNow > userCredits.ThoiGianKetThucApDungHanMuc)
             {
@@ -158,7 +221,7 @@ namespace thongbao.be.application.Config.Implements
                             HanMucCredit = uc.HanMucCredit,
                             ThoiGianBatDauApDungHanMuc = uc.ThoiGianBatDauApDungHanMuc,
                             ThoiGianKetThucApDungHanMuc = uc.ThoiGianKetThucApDungHanMuc,
-                            LoaiApiCredit = uc.LoaiApiCredit,
+                            //LoaiApiCredit = uc.LoaiApiCredit,
                             CreditDaSuDung = uc.CreditDaSuDung,
                             CreditChuaSuDung = uc.CreditChuaSuDung,
                             CreditConSauKhiKetThucThoiGianApDungHanMuc = uc.CreditConSauKhiKetThucThoiGianApDungHanMuc,
@@ -192,7 +255,7 @@ namespace thongbao.be.application.Config.Implements
                             HanMucCredit = uc.HanMucCredit,
                             ThoiGianBatDauApDungHanMuc = uc.ThoiGianBatDauApDungHanMuc,
                             ThoiGianKetThucApDungHanMuc = uc.ThoiGianKetThucApDungHanMuc,
-                            LoaiApiCredit = uc.LoaiApiCredit,
+                            //LoaiApiCredit = uc.LoaiApiCredit,
                             CreditDaSuDung = uc.CreditDaSuDung,
                             CreditChuaSuDung = uc.CreditChuaSuDung,
                             CreditConSauKhiKetThucThoiGianApDungHanMuc = uc.CreditConSauKhiKetThucThoiGianApDungHanMuc,
@@ -235,7 +298,7 @@ namespace thongbao.be.application.Config.Implements
                             HanMucCredit = uc.HanMucCredit,
                             ThoiGianBatDauApDungHanMuc = uc.ThoiGianBatDauApDungHanMuc,
                             ThoiGianKetThucApDungHanMuc = uc.ThoiGianKetThucApDungHanMuc,
-                            LoaiApiCredit = uc.LoaiApiCredit,
+                            //LoaiApiCredit = uc.LoaiApiCredit,
                             CreditDaSuDung = uc.CreditDaSuDung,
                             CreditChuaSuDung = uc.CreditChuaSuDung,
                             CreditConSauKhiKetThucThoiGianApDungHanMuc = uc.CreditConSauKhiKetThucThoiGianApDungHanMuc,

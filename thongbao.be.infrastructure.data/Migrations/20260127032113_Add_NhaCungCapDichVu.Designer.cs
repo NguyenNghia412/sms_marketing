@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using thongbao.be.infrastructure.data;
 
@@ -11,9 +12,11 @@ using thongbao.be.infrastructure.data;
 namespace thongbao.be.infrastructure.data.Migrations
 {
     [DbContext(typeof(SmDbContext))]
-    partial class SmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260127032113_Add_NhaCungCapDichVu")]
+    partial class Add_NhaCungCapDichVu
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -475,9 +478,6 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.Property<int>("IdBrandName")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdNhaCungCapDichVu")
-                        .HasColumnType("int");
-
                     b.Property<int>("IdNhaMang")
                         .HasColumnType("int");
 
@@ -648,6 +648,9 @@ namespace thongbao.be.infrastructure.data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("LoaiApiCredit")
+                        .HasColumnType("int");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -669,62 +672,6 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.HasIndex(new[] { "Id" }, "IX_UserCredits");
 
                     b.ToTable("UserCredits", "core");
-                });
-
-            modelBuilder.Entity("thongbao.be.domain.Config.UserNhaCungCapDichVu", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("CreatedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getdate()");
-
-                    b.Property<bool>("Deleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("IdBrandName")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdNhaCungCapDichVu")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ThoiGianBatDauSuDungDichVu")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ThoiGianKetThucSuDungDichVu")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "Id" }, "IX_UserNhaCungCapDichVu");
-
-                    b.ToTable("UserNhaCungCapDichVu", "core");
                 });
 
             modelBuilder.Entity("thongbao.be.domain.DanhBa.DanhBa", b =>
@@ -1325,9 +1272,6 @@ namespace thongbao.be.infrastructure.data.Migrations
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdNhaCungCapDichVu")
-                        .HasColumnType("int");
-
                     b.Property<string>("Mota")
                         .HasColumnType("nvarchar(max)");
 
@@ -1335,10 +1279,10 @@ namespace thongbao.be.infrastructure.data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("ThoiGianBatDauHoatDong")
+                    b.Property<DateTime?>("ThoiGianKetThuc")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("ThoiGianKetThucHoatDong")
+                    b.Property<DateTime?>("ThoiGianTao")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");

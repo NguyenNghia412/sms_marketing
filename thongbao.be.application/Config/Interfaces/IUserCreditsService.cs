@@ -11,9 +11,9 @@ namespace thongbao.be.application.Config.Interfaces
 {
     public interface IUserCreditsService
     {
-        public Task AddUserCredits(AddUserCreditsDto dto);
+        public void AddUserCredits(AddUserCreditsDto dto);
 
-        public Task UpdateUserCredits(UpdateUserCreditsDto dto);
+        public void UpdateUserCredits(UpdateUserCreditsDto dto);
         public void DeleteUserCredits(int id);
 
         public BaseResponsePagingDto<ViewUserCreditsDto> Find(FindPagingDto dto);
@@ -21,5 +21,6 @@ namespace thongbao.be.application.Config.Interfaces
         public ViewUserCreditsDto FindById(int id);
         public GetDonViDto GetDonVi(int id);
         public BaseResponsePagingDto<ViewUserCreditsDto> FindPagingByUserId(FindPagingByUserIdDto dto);
+        public  Task AddCreditToUserCredits();
     }
 }

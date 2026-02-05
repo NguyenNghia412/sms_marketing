@@ -70,6 +70,7 @@ namespace thongbao.be.application.Config.Implements
             }else { 
                 var cauHinhDonGia = new domain.Config.CauHinhDonGia
                 {
+                    IdNhaCungCapDichVu = dto.IdNhaCungCapDichVu,
                     IdBrandName = dto.IdBrandName,
                     IdNhaMang = nhaMangId,
                     DonGia = dto.DonGia,
@@ -89,7 +90,9 @@ namespace thongbao.be.application.Config.Implements
             var currentUserId = getCurrentUserId();
             var nhaMang = _smDbContext.NhaMangs.FirstOrDefault(x => x.Id == dto.Id && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.ConfigErrorNhaMangNotFound);
-            var brandName = _smDbContext.BrandName.FirstOrDefault(x => x.Id == dto.IdBrandName && !x.Deleted)
+            var nhaCungCapDichVu = _smDbContext.NhaCungCapDichVus.FirstOrDefault(x => x.Id == dto.IdNhaCungCapDichVu && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.ConfigErrorNhaCungCapDichVuNotFound);
+            var brandName = _smDbContext.BrandName.FirstOrDefault(x => x.Id == dto.IdBrandName && x.IdNhaCungCapDichVu == dto.IdNhaCungCapDichVu && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.ChienDichErrorBrandNameNotFound);
             var cauHinhDonGia = _smDbContext.CauHinhDonGias.FirstOrDefault(x => x.IdNhaMang == dto.Id && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.ConfigErrorCauHinhDonGiaNotFound);
@@ -99,7 +102,7 @@ namespace thongbao.be.application.Config.Implements
             nhaMang.ModifiedDate = vietNamNow;
             nhaMang.ModifiedBy = currentUserId;
             _smDbContext.NhaMangs.Update(nhaMang);
-
+            cauHinhDonGia.IdNhaCungCapDichVu = dto.IdNhaCungCapDichVu;
             cauHinhDonGia.IdBrandName = dto.IdBrandName;
             cauHinhDonGia.DonGia = dto.DonGia;
             cauHinhDonGia.ThoiHan = dto.ThoiHan;
@@ -135,11 +138,11 @@ namespace thongbao.be.application.Config.Implements
             var query = from nm in _smDbContext.NhaMangs
                         join chdg in _smDbContext.CauHinhDonGias
                         on nm.Id equals chdg.IdNhaMang
-                        join br in _smDbContext.BrandName
-                        on chdg.IdBrandName equals br.Id
+                        join ncc in _smDbContext.NhaCungCapDichVus
+                        on chdg.IdNhaCungCapDichVu equals ncc.Id
                         where !nm.Deleted
                         && !chdg.Deleted
-                        && !br.Deleted
+                        && !ncc.Deleted
                         orderby nm.Id
                         select new ViewNhaMangDto
                         {
@@ -154,11 +157,18 @@ namespace thongbao.be.application.Config.Implements
                                 DonGia = chdg.DonGia,
                                 ThoiHan = chdg.ThoiHan,
                             },
-                            BrandName = new BrandNameDto
+                            NhaCungCapDichVu = ncc != null ? new NhaCungCapDichVu
                             {
-                                Id = br.Id,
-                                TenBrandName = br.TenBrandName,
-                            }
+                                IdNhaCungCapDichVu = ncc.Id,
+                                TenNhaCungCapDichVu = ncc.Name,
+                                BrandNames = _smDbContext.BrandName
+                                .Where( x => x.IdNhaCungCapDichVu == ncc.Id && !x.Deleted)
+                                .Select( x => new BrandNameDto
+                                {
+                                    Id = x.Id,
+                                    TenBrandName = x.TenBrandName,
+                                }).ToList()
+                            } : null
                         };
             var data = query.Paging(dto).ToList();
             return new BaseResponsePagingDto<ViewNhaMangDto>
@@ -174,11 +184,11 @@ namespace thongbao.be.application.Config.Implements
             var query = from nm in _smDbContext.NhaMangs
                         join chdg in _smDbContext.CauHinhDonGias
                         on nm.Id equals chdg.IdNhaMang
-                        join br in _smDbContext.BrandName
-                        on chdg.IdBrandName equals br.Id
+                        join ncc in _smDbContext.NhaCungCapDichVus
+                        on chdg.IdNhaCungCapDichVu equals ncc.Id
                         where !nm.Deleted
                         && !chdg.Deleted
-                        && !br.Deleted
+                        && !ncc.Deleted
                         && nm.Id == id
                         select new ViewNhaMangDto
                         {
@@ -193,10 +203,17 @@ namespace thongbao.be.application.Config.Implements
                                 DonGia = chdg.DonGia,
                                 ThoiHan = chdg.ThoiHan,
                             },
-                            BrandName = new BrandNameDto
+                            NhaCungCapDichVu = new NhaCungCapDichVu
                             {
-                                Id = br.Id,
-                                TenBrandName = br.TenBrandName,
+                                IdNhaCungCapDichVu = ncc.Id,
+                                TenNhaCungCapDichVu = ncc.Name,
+                                BrandNames = _smDbContext.BrandName
+                                .Where(x => x.IdNhaCungCapDichVu == ncc.Id && !x.Deleted)
+                                .Select(x => new BrandNameDto
+                                {
+                                    Id = x.Id,
+                                    TenBrandName = x.TenBrandName,
+                                }).ToList()
                             }
                         };
             var result = query.FirstOrDefault()

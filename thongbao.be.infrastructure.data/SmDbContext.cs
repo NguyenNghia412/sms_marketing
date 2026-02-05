@@ -50,8 +50,11 @@ namespace thongbao.be.infrastructure.data
         public DbSet<ChienDichBackgroundJob> ChienDichBackgroundJobs { get; set; }
         public DbSet<ChienDichListSoDienThoai> ChienDichListSoDienThoais { get; set; }
         public DbSet<NhaMang> NhaMangs { get; set; }
+        public DbSet<NhaCungCapDichVu> NhaCungCapDichVus { get; set; }
 
         public DbSet<UserCredits> UserCredits { get; set; }
+        public DbSet<UserNhaCungCapDichVu> UserNhaCungCapDichVus { get; set; }
+
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -199,6 +202,17 @@ namespace thongbao.be.infrastructure.data
             });
 
             modelBuilder.Entity<UserCredits>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<NhaCungCapDichVu>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+      
+            modelBuilder.Entity<UserNhaCungCapDichVu>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");

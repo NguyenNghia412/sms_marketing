@@ -263,6 +263,8 @@ builder.Services.AddScoped<IGuiTinNhanService, GuiTinNhanService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<INhaMangService, NhaMangService>();
 builder.Services.AddScoped<IUserCreditsService, UserCreditsService>();
+builder.Services.AddScoped<INhaCungCapDichVuService, NhaCungCapDichVuService>();
+builder.Services.AddScoped<IUserCreditsJobService, UserCreditsJobService>();
 #endregion
 
 builder.Services.AddHttpClient();
@@ -351,6 +353,13 @@ app.MapControllers();
 app.MapHub<DemoHub>("/hub/sms").RequireCors("SignalRPolicy");
 
 app.UseHangfireDashboard();
+using (var scope = app.Services.CreateScope())
+{
+    var jobService = scope.ServiceProvider.GetRequiredService<IUserCreditsJobService>();
+    jobService.CronJobCreateUserCreditsMoiThang();
+    
+    
+}
 
 app.MapHealthChecks("/health");
 app.Run();

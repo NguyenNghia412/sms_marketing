@@ -26,11 +26,11 @@ namespace thongbao.be.Controllers.Config
 
         [Permission(PermissionKeys.UserCreditsAdd)]
         [HttpPost("")]
-        public async Task<ApiResponse> AddNhaMang(AddUserCreditsDto dto)
+        public ApiResponse AddNhaMang(AddUserCreditsDto dto)
         {
             try
             {
-                await _userCreditsService.AddUserCredits(dto);
+                _userCreditsService.AddUserCredits(dto);
                 return new();
             }
             catch (Exception ex)
@@ -42,11 +42,11 @@ namespace thongbao.be.Controllers.Config
 
         [Permission(PermissionKeys.UserCreditsUpdate)]
         [HttpPut("")]
-        public async Task<ApiResponse> UpdateNhaMang(UpdateUserCreditsDto dto)
+        public ApiResponse UpdateNhaMang(UpdateUserCreditsDto dto)
         {
             try
             {
-                await _userCreditsService.UpdateUserCredits(dto);
+                _userCreditsService.UpdateUserCredits(dto);
                 return new();
             }
             catch (Exception ex)
