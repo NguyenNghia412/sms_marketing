@@ -1197,7 +1197,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 .CountAsync();
             var result = await (from dbd in _smDbContext.DanhBaDatas
                                 where danhBaChiTietIds.Contains(dbd.IdDanhBaChiTiet)
-                                      && dbd.IdDanhBaChienDich == idChienDich
+                                      && dbd.IdDanhBa == idChienDich
                                       && !dbd.Deleted
                                 select new DanhBaDataInfoDto
                                 {

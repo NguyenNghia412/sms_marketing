@@ -64,5 +64,21 @@ namespace thongbao.be.Controllers.DashBoard
                 return OkException(ex);
             }
         }
+
+        [Permission(PermissionKeys.DashBoardView)]
+        [HttpGet("thong-ke-credits-theo-thang-by-user")]
+        public ApiResponse GetStatisticsUserCreditsTheoThangByUser([FromQuery] string userId, [FromQuery] int nam)
+        {
+            try
+            {
+                var result = _dashBoardService.GetStatisticsUserCreditsTheoThangByUser(userId, nam);
+                return new(result);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+
+        }
     }
 }

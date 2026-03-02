@@ -33,6 +33,10 @@ namespace thongbao.be.application.DanhBa.Interfaces
         public  Task<GetFileExcelInforResponseDto> GetFileExcelInfor(GetFileExcelInforDto dto);
         public  Task<GetTruongDataDanhBaSmsResponseDto> GetTruongData(int idDanhBa);
         public  Task<FileImportFailedCache> GetFileImportFailed(string fileKey);
+        public ViewChiTietThueBaoNguoiNhanDto GetChiTietThueBaoNguoiNhanById(int idDanhBa, int idThueBao);
+        public void UpdateDataChiTietThueBao(UpdateDataChiTietThueBaoRequestDto dto);
+        public ViewChiTietDanhBaSmsDto GetChiTietDanhBaSms(int idDanhBa, int idThueBao);
+        public void UpdateDanhBaSms(UpdateDanhBaSmsRequestDto dto);
 
     }
 }

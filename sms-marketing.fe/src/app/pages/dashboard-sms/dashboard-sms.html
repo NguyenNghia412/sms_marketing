@@ -85,4 +85,19 @@
             <p-chart type="bar" [data]="smsChartData" [options]="smsChartOptions" height="450" />
         </div>
     </div>
+
+    <!-- Biểu đồ Credits theo tháng -->
+    <div class="col-span-12">
+        <div class="card">
+            <div class="flex justify-between items-center mb-4">
+                <div class="font-semibold text-lg white-space-nowrap">Thống kê Credits theo tháng của từng người dùng</div>
+                <div class="chart-filter flex items-center gap-1">
+                    <p-select [(ngModel)]="selectedUserId" [options]="listUsers" optionLabel="fullName" optionValue="userId" placeholder="Chọn người dùng" [filter]="true" filterBy="fullName" [showClear]="true" styleClass="w-60" [appendTo]="'body'" (onChange)="onUserChanged()" />
+                    <p-select [(ngModel)]="creditsByMonthNam" [options]="yearOptions" optionLabel="label" optionValue="value" placeholder="Năm" styleClass="w-28" [appendTo]="'body'" />
+                    <button pButton icon="pi pi-search" class="p-button-sm" (click)="onSearchCreditsByMonth()" pTooltip="Tìm kiếm"></button>
+                </div>
+            </div>
+            <p-chart type="bar" [data]="creditsByMonthChartData" [options]="creditsByMonthChartOptions" height="450" />
+        </div>
+    </div>
 </div>

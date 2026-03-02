@@ -27,5 +27,6 @@ namespace thongbao.be.application.Config.Interfaces
         public List<GetListBrandNameResDto> GetListBrandName(int idNhaCungCapDichVu);
         public List<GetListDropDownUserNhaCungCapDichVuDto> GetListDropDownUserNhaCungCapDichVu(int idNhaCungCapDichVu);
         public List<GetListBrandNameResDto> GetListBrandNameByCurrentUser();
+        public List<GetDropDownListUserSuDungDichVuDto> GetDropDownListUserSuDungDichVu();
     }
 }

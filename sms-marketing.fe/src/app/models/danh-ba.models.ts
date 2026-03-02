@@ -89,7 +89,7 @@ export interface IFindPagingNguoiNhan extends IBaseRequestPaging {
   idDanhBa: number,
 }
 
-export interface IViewRowNguoiNhan {
+export type IViewRowNguoiNhan = {
   id?: number,
   //emailHuce?: string,
   hoVaTen?: string,
@@ -97,7 +97,7 @@ export interface IViewRowNguoiNhan {
   //maSoNguoiDung?: string,
   //soLuongNguoiNhan: number,
   soDienThoai?: string,
-  items: IDataNguoiNhan[],
+  items?: IDataNguoiNhan[],
 }
 
 export interface IDataItem{
@@ -138,4 +138,38 @@ export interface TruongDataItem{
 }
 export interface GetTruongDataDanhBaSmsResponse{
   truongData: TruongDataItem[]
+}
+
+export interface IViewChiTietThueBaoNguoiNhan {
+  items: IViewChiTietThueBaoNguoiNhanDataById[];
+}
+
+export interface IViewChiTietThueBaoNguoiNhanDataById {
+  idTruong: number;
+  tenTruong: string;
+  idData: number;
+  data: string;
+}
+
+export interface IUpdateDataChiTietThueBaoRequest {
+  idDanhBa: number;
+  idThueBao: number;
+  items: IDataChiTietThueBao[];
+}
+
+export interface IDataChiTietThueBao {
+  idData: number;
+  data: string;
+}
+
+export interface IViewChiTietDanhBaSms {
+  hoVaTen: string;
+  soDienThoai: string;
+}
+
+export interface IUpdateDanhBaSmsRequest {
+  idDanhBa: number;
+  id: number;
+  hoVaTen: string;
+  soDienThoai: string;
 }

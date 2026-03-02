@@ -14,7 +14,7 @@ export const appRoutes: Routes = [
         component: AppLayout,
         canActivate: [authGuard],
         children: [
-            { path: '', redirectTo: 'dashboard-sms', pathMatch: 'full' },
+            { path: '', redirectTo: 'dashboard-sms/dashboard-sms', pathMatch: 'full' },
             { path: 'channel', loadChildren: () => import('./app/pages/channel/channel.routes') },
             { path: 'danh-ba', loadChildren: () => import('./app/pages/danh-ba/danh-ba.routes') },
             { path: 'template', loadChildren: () => import('./app/pages/template/template.routes') },

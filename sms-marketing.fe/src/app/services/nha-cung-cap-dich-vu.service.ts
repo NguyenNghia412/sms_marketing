@@ -1,4 +1,4 @@
-import { IAddBrandNameToNhaCungCapDichVu, IAddUserToNhaCungCapDichVuDto, ICreateNhaCungCapDichVu, IDeleteBrandNameToNhaCungCapDichVuDto, IDropDownNhaCungCapDichVu, IUpdateNhaCungCapDichVu, IUpdateUserToNhaCungCapDichVuDto, IViewNhaCungCapDichVuById } from "@/models/nha-cung-cap-dich-vu.models";
+import { IAddBrandNameToNhaCungCapDichVu, IAddUserToNhaCungCapDichVuDto, ICreateNhaCungCapDichVu, IDeleteBrandNameToNhaCungCapDichVuDto, IDropDownNhaCungCapDichVu, IGetListDropDownUserNhaCungCapDichVuDto, IUpdateNhaCungCapDichVu, IUpdateUserToNhaCungCapDichVuDto, IViewNhaCungCapDichVuById } from "@/models/nha-cung-cap-dich-vu.models";
 import { IBaseResponseWithData } from "@/shared/models/request-paging.base.models";
 import { HttpClient } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
@@ -75,6 +75,9 @@ export class NhaCungCapDichVuService {
     }
     getListBrandNameByCurrentUser() {
         return this.http.get<IBaseResponseWithData<any>>(`${this.api}/drop-down-brand-names-by-current-user`);
+    }
+    getListUserSuDungDichVu(){
+        return this.http.get<IBaseResponseWithData<IGetListDropDownUserNhaCungCapDichVuDto>>(`${this.api}/drop-down-user-su-dung-dich-vu`);
     }
 
 }

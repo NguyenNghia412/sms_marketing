@@ -537,5 +537,25 @@ namespace thongbao.be.application.Config.Implements
             var data = query.Distinct().ToList();
             return data;
         }
+
+        public List<GetDropDownListUserSuDungDichVuDto> GetDropDownListUserSuDungDichVu()
+        {
+            _logger.LogInformation($"{nameof(GetDropDownListUserSuDungDichVu)} ");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+
+            var query = from unc in _smDbContext.UserNhaCungCapDichVus
+                        where !unc.Deleted
+                        join u in _smDbContext.Users on unc.UserId equals u.Id
+                        
+                        select new GetDropDownListUserSuDungDichVuDto
+                        {
+                            UserId = u.Id,
+                            FullName = u.FullName,
+                            //UserName = u.UserName
+                        };
+            var data = query.Distinct().ToList();
+            return data;
+        }
     }
 }

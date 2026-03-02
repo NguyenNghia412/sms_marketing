@@ -262,5 +262,20 @@ namespace thongbao.be.Controllers.Config
                 return OkException(ex);
             }
         }
+
+        [Permission(PermissionKeys.NhaCungCapDichVuView)]
+        [HttpGet("drop-down-user-su-dung-dich-vu")]
+        public ApiResponse GetDropDownListUserSuDungDichVu()
+        {
+            try
+            {
+                var result = _nhaCungCapDichVuService.GetDropDownListUserSuDungDichVu();
+                return new(result);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

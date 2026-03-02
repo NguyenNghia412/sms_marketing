@@ -114,7 +114,7 @@ export class AppMenu {
                     {
                         label: 'Dashboard',
                         heroIcon: 'heroChartBarSquare',
-                        routerLink: ['/dashboard-sms'],
+                        routerLink: ['/dashboard-sms/dashboard-sms'],
                     }
                 ],
                 visible: isSuperAdmin,

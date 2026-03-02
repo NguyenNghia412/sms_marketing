@@ -19,14 +19,107 @@
             <div class="flex flex-row space-x-2">
                 <p-button label="Tìm kiếm" type="submit" styleClass="w-32" />
                 <div class="flex flex-col items-end space-y-4">
-                    <p-button icon="pi pi-cog" label="Thao tác" (onClick)="menu.toggle($event)" />
-                    <p-menu #menu [model]="menuItems" [popup]="true" />
+                    <p-button icon="pi pi-cog" label="Thao tác" (onClick)="actionMenu.toggle($event)" />
+                    <p-menu #actionMenu [model]="menuItems" [popup]="true" />
                 </div>
             </div>
         </div>
     </form>
 
     <div class="mt-4">
-        <app-data-table [columns]="columns" [data]="data" [loading]="loading" (onCustomComp)="onCustomEmit($event)" [pageSize]="query.pageSize" [pageNumber]="query.pageNumber" [total]="totalRecords" (onPageChanged)="onPageChanged($event)" (onError)="onError($event)" />
+        <p-table [value]="data" dataKey="id" [rows]="query.pageSize" [loading]="loading" [rowHover]="true"
+            [showGridlines]="true" [paginator]="false" responsiveLayout="scroll"
+            [resizableColumns]="true" columnResizeMode="expand">
+            <ng-template #header>
+                <tr>
+                    @for (item of displayItems; track $index) {
+                        @if (item.type === 'column' && item.col) {
+                            <th [style]="item.col.headerContainerStyle" pResizableColumn
+                                (contextmenu)="onHeaderRightClick($event, item.col)"
+                                [class.cursor-context-menu]="!isFixedColumn(item.col)">
+                                <div class="flex justify-center items-center">
+                                    {{ item.col.header }}
+                                </div>
+                            </th>
+                        } @else if (item.type === 'separator') {
+                            <th class="col-separator-th" (click)="onSeparatorClick($event, item.hiddenCols!)">
+                                <div class="separator-bar" [title]="'Hiện ' + item.hiddenCols!.length + ' cột'">
+                                    <i class="pi pi-arrows-h"></i>
+                                </div>
+                            </th>
+                        }
+                    }
+                </tr>
+            </ng-template>
+            <ng-template #body let-row let-rowIndex="rowIndex">
+                <tr>
+                    @for (item of displayItems; track $index) {
+                        @if (item.type === 'column' && item.col) {
+                            <td [style]="item.col.cellStyle">
+                                @if (item.col.cellViewType === cellViewTypes.CUSTOM_COMP) {
+                                    <ng-container *ngComponentOutlet="item.col.customComponent; injector: customInjector; inputs: { row, rowIndex, data: row[item.col.field || ''] }"></ng-container>
+                                } @else if (item.col.cellViewType === cellViewTypes.INDEX) {
+                                    <span>{{ getIndexValue(rowIndex) }}</span>
+                                } @else if (item.col.field) {
+                                    <span>{{ row[item.col.field] }}</span>
+                                }
+                            </td>
+                        } @else if (item.type === 'separator') {
+                            <td class="col-separator-td">
+                                <div class="separator-bar"></div>
+                            </td>
+                        }
+                    }
+                </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+                <tr>
+                    <td [attr.colspan]="displayItems.length">Không có dữ liệu</td>
+                </tr>
+            </ng-template>
+            <ng-template #loadingbody>
+                <tr>
+                    <td [attr.colspan]="displayItems.length">Đang tải dữ liệu...</td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <div class="w-full flex flex-row justify-center items-center gap-4">
+            <div class="flex items-center gap-2">
+                <label>Đi đến trang:</label>
+                <input type="number" #pageInput min="1" class="border rounded px-2 py-1 w-20" (keyup.enter)="goToPageNumber(+pageInput.value)" />
+                <button class="px-3 py-1 bg-blue-500 text-white rounded" (click)="goToPageNumber(+pageInput.value)">Đi</button>
+            </div>
+            <p-paginator #paginator (onPageChange)="onPageChanged($event)" [rows]="query.pageSize" [totalRecords]="totalRecords" />
+        </div>
     </div>
 </div>
+
+<!-- Context Menu: Ẩn cột -->
+@if (contextMenuVisible) {
+<div class="context-menu-overlay" (click)="closeAllMenus()" (contextmenu)="$event.preventDefault(); closeAllMenus()">
+    <div class="context-menu" [style.left.px]="contextMenuX" [style.top.px]="contextMenuY" (click)="$event.stopPropagation()">
+        <div class="context-menu-item" (click)="hideColumn()">
+            <i class="pi pi-eye-slash mr-2"></i> Ẩn cột
+        </div>
+    </div>
+</div>
+}
+
+<!-- Show Column Menu: Hiện cột -->
+@if (showColMenuVisible) {
+<div class="context-menu-overlay" (click)="closeAllMenus()">
+    <div class="context-menu" [style.left.px]="showColMenuX" [style.top.px]="showColMenuY" (click)="$event.stopPropagation()">
+        @for (col of showColTargetCols; track $index) {
+        <div class="context-menu-item" (click)="showColumn(col)">
+            <i class="pi pi-eye mr-2"></i> Hiện "{{ col.header }}"
+        </div>
+        }
+        @if (showColTargetCols.length > 1) {
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" (click)="showAllHiddenColumns(showColTargetCols)">
+            <i class="pi pi-eye mr-2"></i> Hiện tất cả
+        </div>
+        }
+    </div>
+</div>
+}

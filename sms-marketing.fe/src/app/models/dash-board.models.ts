@@ -30,3 +30,15 @@ export type IUser = {
 	userId?: string,
 	fullName?: string,
 }
+
+export interface IGetStatisticsUserCreditsTheoThangByUser{
+	userCreditsTheoThangByUsers?: IGetStatisticsUserCreditsByUser[],
+}
+
+export interface IGetStatisticsUserCreditsByUser{
+	tuNgay : Date,
+	denNgay: Date,
+	user?: IUser,
+	creditDaSuDung?: string,
+	donVi?: string,
+}

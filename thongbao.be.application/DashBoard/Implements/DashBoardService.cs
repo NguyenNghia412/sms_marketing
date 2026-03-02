@@ -148,6 +148,54 @@ namespace thongbao.be.application.DashBoard.Implements
             };
         }
 
+        public GetStatisticsUserCreditsTheoThangByUser GetStatisticsUserCreditsTheoThangByUser( string userId, int nam)
+        {
+            _logger.LogInformation($"{nameof(GetStatisticsUserCreditsTheoThangByUser)}   userId = {userId}; nam = {nam}");
+
+            var user = _userManager.Users.FirstOrDefault(u => u.Id == userId);
+
+
+            var listTheoThang = new List<GetStatisticsUserCreditsByUser>();
+
+            for (int thang = 1; thang <= 12; thang++)
+            {
+                var tuNgay = new DateTime(nam, thang, 1);
+                var denNgay = new DateTime(nam, thang, DateTime.DaysInMonth(nam, thang));
+
+                var creditDaSuDung = _smDbContext.UserCredits
+                    .Where(x => x.UserId == userId
+                                && !x.Deleted
+                                && x.ThoiGianBatDauApDungHanMuc <= denNgay
+                                && x.ThoiGianBatDauApDungHanMuc >= tuNgay)
+                    .Select(x => x.CreditDaSuDung)
+                    .ToList();
+
+                var tongCreditDaSuDung = creditDaSuDung
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .Sum(x => double.Parse(x));
+
+                listTheoThang.Add(new GetStatisticsUserCreditsByUser
+                {
+                    TuNgay = tuNgay,
+                    DenNgay = denNgay,
+                    User = new UserTheoThang
+                    {
+                        UserId = userId,
+                        FullName = user != null ? user.FullName : string.Empty
+                    },
+                    CreditDaSuDung = tongCreditDaSuDung.ToString(),
+                    DonVi = "VND"
+                });
+            }
+            return new GetStatisticsUserCreditsTheoThangByUser
+            {
+                UserCreditsTheoThangByUsers = listTheoThang
+            };
+
+            
+            
+        }
+
 
     }
 }
