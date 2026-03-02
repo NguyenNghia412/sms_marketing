@@ -112,7 +112,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     }
 
                     await _smDbContext.SaveChangesAsync();
-                    _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackground)} - Updated status to DaGui - idChienDich: {idChienDich}");
+                    //_logger.LogInformation($"{nameof(ProcessGuiTinNhanBackground)} - Updated status to DaGui - idChienDich: {idChienDich}");
                 }
             }
             catch (Exception ex)
