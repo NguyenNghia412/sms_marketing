@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace thongbao.be.application.Config.Dtos.NhaCungCapDichVu
 {
-    public class GetListBrandNameResponseDto
+    public class GetListBrandNameResDto
     {
         public int Id { get; set; }
         public string TenBrandName { get; set; } = string.Empty;
