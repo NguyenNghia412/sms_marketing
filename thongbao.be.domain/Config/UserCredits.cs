@@ -24,8 +24,9 @@ namespace thongbao.be.domain.Config
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string UserId { get; set; } = String.Empty;
-        //public int IdNhaCungCapDichVu { get; set; } 
+        public int IdNhaCungCapDichVu { get; set; } 
         public string HanMucCredit {  get; set; } = String.Empty ;
+        //public string? ToiDaHanMucCreditGiaHan {  get; set; } = String.Empty;
         public DateTime ThoiGianBatDauApDungHanMuc {  get; set; }
         public DateTime ThoiGianKetThucApDungHanMuc { get; set; }
         public string? CreditDaSuDung { get; set; }= String.Empty;

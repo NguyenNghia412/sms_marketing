@@ -7,6 +7,8 @@ import { SharedService } from '@/services/shared.service';
 import { PermissionConstants } from '@/shared/constants/permission.constants';
 import { ProfileStringeeService } from '@/services/profile-stringee';
 import { IAccountProfileStringee, IResponseProfileStringee } from '@/models/profile-stringee.models';
+import { UserCreditsService } from '@/services/user-credits.service';
+import { IViewUserCreditsByUser } from '@/models/user-credits.models';
 
 @Component({
     selector: 'app-menu',
@@ -20,7 +22,8 @@ import { IAccountProfileStringee, IResponseProfileStringee } from '@/models/prof
                 <li *ngIf="item.separator" class="menu-separator"></li>
             </ng-container>
         </ul>
-        <div *ngIf="profileData" class="px-4 py-3 mt-4 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+        <!-- Admin: hiển thị thông tin tài khoản Stringee -->
+        <div *ngIf="isSuperAdmin && profileData" class="px-4 py-3 mt-4 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
             <div class="font-semibold text-sm mb-3 text-surface-900 dark:text-surface-0">Thông tin tài khoản</div>
             <div class="space-y-2">
                 <div class="flex justify-between items-center text-sm">
@@ -41,6 +44,33 @@ import { IAccountProfileStringee, IResponseProfileStringee } from '@/models/prof
                 </div>
             </div>
         </div>
+
+        <!-- User: hiển thị thông tin credit -->
+        <div *ngIf="!isSuperAdmin && userCreditsData" class="px-4 py-3 mt-4 mb-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+            <div class="font-semibold text-sm mb-3 text-surface-900 dark:text-surface-0">Thông tin tài khoản</div>
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-surface-600 dark:text-surface-400">Tài khoản:</span>
+                    <span class="font-medium text-surface-900 dark:text-surface-0 truncate max-w-[160px]" [title]="userCreditsData.userCredit.fullName">{{ userCreditsData.userCredit.fullName }}</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-surface-600 dark:text-surface-400">Email:</span>
+                    <span class="font-medium text-surface-900 dark:text-surface-0">{{ userCreditsData.userCredit.email }}</span>
+                </div>
+                <div class="flex justify-between items-center text-sm pt-2 border-t border-surface-200 dark:border-surface-700">
+                    <span class="text-surface-600 dark:text-surface-400">Hạn mức:</span>
+                    <span class="font-semibold text-surface-900 dark:text-surface-0">{{ +userCreditsData.hanMucCredit | number:'1.0-0' }} {{ userCreditsData.donVi }}</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-surface-600 dark:text-surface-400">Đã sử dụng:</span>
+                    <span class="font-medium text-surface-900 dark:text-surface-0">{{ +(userCreditsData.creditDaSuDung ?? 0) | number:'1.0-0' }} {{ userCreditsData.donVi }}</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-surface-600 dark:text-surface-400">Còn lại:</span>
+                    <span class="font-semibold text-surface-900 dark:text-surface-0">{{ +(userCreditsData.creditChuaSuDung ?? 0) | number:'1.0-0' }} {{ userCreditsData.donVi }}</span>
+                </div>
+            </div>
+        </div>
         <!--
         <div *ngIf="profileData" class="mx-4 mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
             <div class="text-blue-600 dark:text-blue-400 text-xs font-medium mb-2">Tin dụng SMS</div>
@@ -55,13 +85,17 @@ export class AppMenu {
 
     _sharedService = inject(SharedService);
     _profileStringeeService = inject(ProfileStringeeService);
+    _userCreditsService = inject(UserCreditsService);
 
     model: IAppMenuItem[] = [];
     profileData?: IResponseProfileStringee;
+    userCreditsData?: IViewUserCreditsByUser;
+    isSuperAdmin = false;
     loading = false;
 
     ngOnInit() {
-        const isSuperAdmin = this._sharedService.isSuperAdmin();
+        this.isSuperAdmin = this._sharedService.isSuperAdmin();
+        const isSuperAdmin = this.isSuperAdmin;
 
         const configItems = [];
         if (isSuperAdmin) {
@@ -69,20 +103,22 @@ export class AppMenu {
                 { label: 'Nhà mạng', heroIcon: 'heroWifi', routerLink: ['/config/nha-mang'] },
                 { label: 'Hạn mức người dùng', heroIcon: 'heroCreditCard', routerLink: ['/config/user-credits'] }
             );
-        } else {
+        }/* else {
             configItems.push(
                 { label: 'Cước phí hàng tháng', heroIcon: 'heroCreditCard', routerLink: ['/config/user-credits-for-user'] }
             );
-        }
+        }*/
         this.model = [
-            // {
-            //     items:[
-            //         {
-            //             label: 'Dashboard',
-            //             routerLink: ['/']
-            //         }
-            //     ]
-            // },
+            {
+                items: [
+                    {
+                        label: 'Dashboard',
+                        heroIcon: 'heroChartBarSquare',
+                        routerLink: ['/dashboard-sms'],
+                    }
+                ],
+                visible: isSuperAdmin,
+            },
             {
                 items: [
                     {
@@ -143,9 +179,10 @@ export class AppMenu {
                         label: 'Cấu hình',
                         visible: this._sharedService.isGranted(PermissionConstants.MenuConfig),
                         items: [
+                            { label: 'Nhà cung cấp dịch vụ', heroIcon: 'heroUserGroup', routerLink: ['/config/nha-cung-cap-dich-vu'], visible:this._sharedService.isSuperAdmin() },
                             { label: 'Nhà mạng', heroIcon: 'heroWifi', routerLink: ['/config/nha-mang'], visible:this._sharedService.isSuperAdmin() },
                             { label: 'Hạn mức người dùng', heroIcon: 'heroCreditCard', routerLink: ['/config/user-credits'] , visible:this._sharedService.isSuperAdmin()},
-                            { label: 'Cước phí hàng tháng', heroIcon: 'heroCreditCard', routerLink: ['/config/user-credits-for-user'] , visible: !this._sharedService.isSuperAdmin() },
+                            //{ label: 'Cước phí hàng tháng', heroIcon: 'heroCreditCard', routerLink: ['/config/user-credits-for-user'] , visible: !this._sharedService.isSuperAdmin() },
                         ]
                     }
                 ],
@@ -208,15 +245,28 @@ export class AppMenu {
     }
     getData() {
         this.loading = true;
-        this._profileStringeeService.getProfileStringee().subscribe({
-            next: (res) => {
-                if (res.status === 1 && res.data) {
-                    this.profileData = res.data;
+        if (this.isSuperAdmin) {
+            this._profileStringeeService.getProfileStringee().subscribe({
+                next: (res) => {
+                    if (res.status === 1 && res.data) {
+                        this.profileData = res.data;
+                    }
+                },
+                complete: () => {
+                    this.loading = false;
                 }
-            },
-            complete: () => {
-                this.loading = false;
-            }
-        });
+            });
+        } else {
+            this._userCreditsService.getCurrentUserCredits().subscribe({
+                next: (res) => {
+                    if (res.status === 1 && res.data) {
+                        this.userCreditsData = res.data;
+                    }
+                },
+                complete: () => {
+                    this.loading = false;
+                }
+            });
+        }
     }
 }

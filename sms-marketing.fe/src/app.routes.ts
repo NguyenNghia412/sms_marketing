@@ -14,7 +14,7 @@ export const appRoutes: Routes = [
         component: AppLayout,
         canActivate: [authGuard],
         children: [
-            { path: '', redirectTo: 'channel/sms', pathMatch: 'full' },
+            { path: '', redirectTo: 'dashboard-sms', pathMatch: 'full' },
             { path: 'channel', loadChildren: () => import('./app/pages/channel/channel.routes') },
             { path: 'danh-ba', loadChildren: () => import('./app/pages/danh-ba/danh-ba.routes') },
             { path: 'template', loadChildren: () => import('./app/pages/template/template.routes') },
@@ -22,6 +22,7 @@ export const appRoutes: Routes = [
             { path: 'config', loadChildren: () => import('./app/pages/config/config.routers') },
             { path: 'meeting', loadChildren: () => import('./app/pages/meeting/meetings.routes') },
             { path: 'user-management', loadChildren: () => import('./app/pages/user-management/user-management.routes') },
+            { path: 'dashboard-sms', loadChildren: () => import('./app/pages/dashboard-sms/dashboard-sms.routes') },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'documentation', component: Documentation },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }

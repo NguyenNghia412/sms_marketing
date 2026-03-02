@@ -17,6 +17,7 @@ import { CreateQuick } from './create-quick/create-quick';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { DialogPreview } from './dialog-preview/dialog-preview';
 import {  DialogLichGuiPreview } from './dialog-preview-lich-gui/dialog-preview-lich-gui';
+import { NhaCungCapDichVuService } from '@/services/nha-cung-cap-dich-vu.service';
 
 @Component({
     selector: 'app-gui-tin-nhan',
@@ -28,6 +29,7 @@ export class GuiTinNhan extends BaseComponent {
     private _danhBaService = inject(DanhBaService);
     private _chienDichService = inject(ChienDichService);
     private _guiTinNhanService = inject(GuiTinNhanService);
+    private _nhaCungCapDichVuService = inject(NhaCungCapDichVuService);
 
     items: MenuItem[] = [{ label: 'Danh sách chiến dịch', routerLink: '/channel/sms' }, { label: 'Gửi tin nhắn sms' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
@@ -73,7 +75,7 @@ export class GuiTinNhan extends BaseComponent {
                 this.listDanhBa = value.data;
             }
         });
-        this._chienDichService.getListBrandname().subscribe({
+        this._nhaCungCapDichVuService.getListBrandNameByCurrentUser().subscribe({
             next: (value) => {
                 this.listBrandname = value.data;
             }

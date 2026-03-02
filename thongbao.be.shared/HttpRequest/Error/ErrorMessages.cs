@@ -90,7 +90,13 @@ namespace thongbao.be.shared.HttpRequest.Error
             { ErrorCodes.ConfigErrorUserCreditsExist, "Hạn mức người dùng đã tồn tại" },
             { ErrorCodes.ConfigErrorCauHinhDonGiaExists, "Cấu hình đơn giá  đã tồn tại" },
             { ErrorCodes.ConfigErrorUserCreditsExceedAmountStringee, "Hạn mức người dùng đang vượt quá lượng tiền trong tài khoản Stringee" },
-            { ErrorCodes.ConfigErrorUserCreditsQuaHanGiaHanHanMuc, "Đã quá hạn gia hạn hạn mức cho người dùng này! Vui lòng tạo mới hạn mức cho tháng tiếp theo"  }
+            { ErrorCodes.ConfigErrorUserCreditsQuaHanGiaHanHanMuc, "Đã quá hạn gia hạn hạn mức cho người dùng này! Vui lòng tạo mới hạn mức cho tháng tiếp theo"  },
+            { ErrorCodes.ConfigErrorNhaCungCapDichVuNotFound, "Nhà cung cấp dịch vụ không tồn tại" },
+            { ErrorCodes.ConfigErrorNhaCungCapDichVuExists, "Nhà cung cấp dịch vụ đã tồn tại" },
+            { ErrorCodes.ConfigErrorBrandNameExitsted, "BrandName đã tồn tại" },
+            { ErrorCodes.ConfigErrorUserNhaCungCapDichVuExisted, "Người dùng đã được thêm vào nhà cung cấp dịch vụ với BrandName này" },
+            { ErrorCodes.ConfigErrorUserNhaCungCapDichVuNotFound, "Người dùng chưa được thêm vào nhà cung cấp dịch vụ" },
+            { ErrorCodes.ConfigErrorThoiGianKhongHopLe, "Thời gian sử dụng dịch vụ không hợp lệ" },
         };
 
         public static string GetMessage(int code)

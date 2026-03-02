@@ -9,6 +9,6 @@ namespace thongbao.be.application.Config.Dtos.UserCredits
 {
     public class FindPagingByUserIdDto: BaseRequestPagingDto
     {
-        //public string UserId { get; set; } = String.Empty;
+        public string UserId { get; set; } = String.Empty;
     }
 }

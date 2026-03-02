@@ -1,7 +1,7 @@
 import { ICreateUserCredits } from "@/models/user-credits.models";
-import { IViewRowUser } from "@/models/user.models";
+import { IDropDownNhaCungCapDichVu, IGetListDropDownUserNhaCungCapDichVuDto } from "@/models/nha-cung-cap-dich-vu.models";
+import { NhaCungCapDichVuService } from "@/services/nha-cung-cap-dich-vu.service";
 import { UserCreditsService } from "@/services/user-credits.service";
-import { UserService } from "@/services/user.service";
 import { BaseComponent } from "@/shared/components/base/base-component";
 import { SharedImports } from "@/shared/import.shared";
 import { Component, inject } from "@angular/core";
@@ -19,19 +19,23 @@ import { DynamicDialogRef } from "primeng/dynamicdialog";
 export class CreateUserCredits extends BaseComponent{
     private _ref = inject(DynamicDialogRef);
     private _userCreditsService = inject(UserCreditsService);
-    private _userService = inject(UserService);
+    private _nhaCungCapDichVuService = inject(NhaCungCapDichVuService);
 
-    listUsers : IViewRowUser[] = [];
-    donVi: string = 'VNĐ';
+    listNhaCungCapDichVu: IDropDownNhaCungCapDichVu[] = [];
+    listUsers: IGetListDropDownUserNhaCungCapDichVuDto[] = [];
 
     override form: FormGroup = new FormGroup({
-        userId: new FormControl('', [Validators.required]),
+        idNhaCungCapDichVu: new FormControl(null, [Validators.required]),
+        userId: new FormControl(null, [Validators.required]),
         hanMucCredit: new FormControl('', [Validators.required]),
-        thoiGianBatDauApDungHanMuc: new FormControl('', [Validators.required]),
+        thoiGianBatDauApDungHanMuc: new FormControl(null, [Validators.required]),
         thoiGianKetThucApDungHanMuc: new FormControl(null),
     });
 
     override ValidationMessages: Record<string, Record<string, string>> = {
+        idNhaCungCapDichVu: {
+            required: 'Không được bỏ trống'
+        },
         userId: {
             required: 'Không được bỏ trống'
         },
@@ -44,7 +48,35 @@ export class CreateUserCredits extends BaseComponent{
     };
 
     override ngOnInit(): void {
-        this.getListUsers();
+        this.getListNhaCungCapDichVu();
+    }
+
+    getListNhaCungCapDichVu() {
+        this._nhaCungCapDichVuService.getDropdown().subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, false)) {
+                    this.listNhaCungCapDichVu = res.data;
+                }
+            }
+        });
+    }
+
+    onNhaCungCapChange(idNhaCungCapDichVu: number) {
+        this.form.get('userId')?.reset();
+        this.listUsers = [];
+        if (idNhaCungCapDichVu) {
+            this.getListUsers(idNhaCungCapDichVu);
+        }
+    }
+
+    getListUsers(idNhaCungCapDichVu: number) {
+        this._nhaCungCapDichVuService.getListDropDownUserNhaCungCapDichVu(idNhaCungCapDichVu).subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, false)) {
+                    this.listUsers = res.data;
+                }
+            }
+        });
     }
 
     onSubmit() {
@@ -55,14 +87,20 @@ export class CreateUserCredits extends BaseComponent{
         this.onSubmitCreate();
     }
 
-    
+    toLocalISOString(date: Date | null): string | null {
+        if (!date) return null;
+        const offset = date.getTimezoneOffset();
+        const local = new Date(date.getTime() - offset * 60000);
+        return local.toISOString().slice(0, 19);
+    }
 
     onSubmitCreate() {
             const body: ICreateUserCredits = {
                 userId: this.form.value.userId,
+                idNhaCungCapDichVu: this.form.value.idNhaCungCapDichVu,
                 hanMucCredit: this.form.value.hanMucCredit?.toString() || '',
-                thoiGianBatDauApDungHanMuc: this.form.value.thoiGianBatDauApDungHanMuc,
-                thoiGianKetThucApDungHanMuc: this.form.value.thoiGianKetThucApDungHanMuc,
+                thoiGianBatDauApDungHanMuc: this.toLocalISOString(this.form.value.thoiGianBatDauApDungHanMuc) as any,
+                thoiGianKetThucApDungHanMuc: this.toLocalISOString(this.form.value.thoiGianKetThucApDungHanMuc) as any,
             };
             this.loading = true;
             this._userCreditsService.createUserCredits(body).subscribe({
@@ -81,22 +119,5 @@ export class CreateUserCredits extends BaseComponent{
     }
     onCancel() {
             this._ref.close();
-    }
-
-    getListUsers() {
-        this.loading = true;
-        this._userService.getListUsers().subscribe({
-            next: (res) => {
-                if (this.isResponseSucceed(res)) {
-                    this.listUsers = res.data || [];
-                }
-            },
-            error: (err) => {
-                this.messageError(err?.message);
-            },
-            complete: () => {
-                this.loading = false;
-            }
-        });
     }
 }

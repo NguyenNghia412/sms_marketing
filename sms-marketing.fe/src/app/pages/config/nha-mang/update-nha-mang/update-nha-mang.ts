@@ -1,6 +1,6 @@
 import { IUpdateNhaMang, IViewNhaMang } from "@/models/nha-mang.models";
-import { IViewBrandname } from "@/models/sms.models";
-import { ChienDichService } from "@/services/chien-dich.service";
+import { IDropDownNhaCungCapDichVu, IGetListBrandNameResponseDto } from "@/models/nha-cung-cap-dich-vu.models";
+import { NhaCungCapDichVuService } from "@/services/nha-cung-cap-dich-vu.service";
 import { NhaMangService } from "@/services/nha-mang.service";
 import { BaseComponent } from "@/shared/components/base/base-component";
 import { SharedImports } from "@/shared/import.shared";
@@ -18,13 +18,15 @@ export class UpdateNhaMang extends BaseComponent {
     private _ref = inject(DynamicDialogRef);
     private _config = inject(DynamicDialogConfig);
     private _nhaMangService = inject(NhaMangService);
-    private _chienDichService = inject(ChienDichService);
+    private _nhaCungCapDichVuService = inject(NhaCungCapDichVuService);
 
-    listBrandName: IViewBrandname[] = [];
+    listBrandName: IGetListBrandNameResponseDto[] = [];
+    listNhaCungCapDichVu: IDropDownNhaCungCapDichVu[] = [];
     data: IViewNhaMang;
     nhaMangId: number;
 
     override form: FormGroup = new FormGroup({
+        idNhaCungCapDichVu: new FormControl(null, [Validators.required]),
         tenNhaMang: new FormControl('', [Validators.required]),
         prefix: new FormControl('', [Validators.required]),
         idBrandName: new FormControl('', [Validators.required]),
@@ -32,6 +34,9 @@ export class UpdateNhaMang extends BaseComponent {
         thoiHan: new FormControl(null),
     });
     override ValidationMessages: Record<string, Record<string, string>> = {
+        idNhaCungCapDichVu: {
+            required: 'Không được bỏ trống'
+        },
         tenNhaMang: {
             required: 'Không được bỏ trống'
         },
@@ -47,12 +52,30 @@ export class UpdateNhaMang extends BaseComponent {
     };
     override ngOnInit(): void {
         this.nhaMangId = this._config.data?.id;
-        this.getListBrandName();
+        this.getListNhaCungCapDichVu();
         this.getNhaMangData();
     }
 
-    getListBrandName() {
-        this._chienDichService.getListBrandname().subscribe({
+    getListNhaCungCapDichVu() {
+        this._nhaCungCapDichVuService.getDropdown().subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, false)) {
+                    this.listNhaCungCapDichVu = res.data;
+                }
+            }
+        });
+    }
+
+    onNhaCungCapChange(idNhaCungCapDichVu: number) {
+        this.form.get('idBrandName')?.reset();
+        this.listBrandName = [];
+        if (idNhaCungCapDichVu) {
+            this.getListBrandName(idNhaCungCapDichVu);
+        }
+    }
+
+    getListBrandName(idNhaCungCapDichVu: number) {
+        this._nhaCungCapDichVuService.getListBrandName(idNhaCungCapDichVu).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, false)) {
                     this.listBrandName = res.data;
@@ -67,12 +90,24 @@ export class UpdateNhaMang extends BaseComponent {
                 if (this.isResponseSucceed(res, false)) {
                     this.data = res.data;
                     this.form.patchValue({
+                        idNhaCungCapDichVu: this.data.nhaCungCapDichVu?.idNhaCungCapDichVu,
                         tenNhaMang: this.data.tenNhaMang,
                         prefix: this.data.prefix,
-                        idBrandName: this.data.brandName?.id,
                         donGia: this.data.donGia?.donGia,
-                        thoiHan: this.data.donGia?.thoiHan
+                        thoiHan: this.data.donGia?.thoiHan ? new Date(this.data.donGia.thoiHan) : null
                     });
+                    if (this.data.nhaCungCapDichVu?.idNhaCungCapDichVu) {
+                        this._nhaCungCapDichVuService.getListBrandName(this.data.nhaCungCapDichVu.idNhaCungCapDichVu).subscribe({
+                            next: (res) => {
+                                if (this.isResponseSucceed(res, false)) {
+                                    this.listBrandName = res.data;
+                                    this.form.patchValue({
+                                        idBrandName: this.data.nhaCungCapDichVu?.brandNames?.[0]?.id
+                                    });
+                                }
+                            }
+                        });
+                    }
                 }
             },
             complete: () => {

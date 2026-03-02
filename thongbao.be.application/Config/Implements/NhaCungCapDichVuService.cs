@@ -306,28 +306,24 @@ namespace thongbao.be.application.Config.Implements
             _logger.LogInformation($"{nameof(AddUserToNhaCungCapDichVu)} dto = {JsonSerializer.Serialize(dto)}");
             var currentUserId = getCurrentUserId();
             var vietNamNow = GetVietnamTime();
-
-
             var nhaCungCapDichVu = _smDbContext.NhaCungCapDichVus.FirstOrDefault(x => x.Id == dto.IdNhaCungCapDichVu && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.ConfigErrorNhaCungCapDichVuNotFound);
             var user = _userManager.FindByIdAsync(dto.IdUser).Result
                 ?? throw new UserFriendlyException(ErrorCodes.AuthErrorUserNotFound);
-
             var brandNameIds = dto.IdBrandName.Distinct().ToList();
             var brandNames = await _smDbContext.BrandName
                 .Where(x => brandNameIds.Contains(x.Id)
                     && x.IdNhaCungCapDichVu == dto.IdNhaCungCapDichVu
                     && !x.Deleted)
                 .ToListAsync();
-
             if (brandNames.Count != brandNameIds?.Count)
             {
                 throw new UserFriendlyException(ErrorCodes.ChienDichErrorBrandNameNotFound);
             }
-
             var userNhaCungCapDichVuExisted = await _smDbContext.UserNhaCungCapDichVus
                 .Where(x => x.IdNhaCungCapDichVu == dto.IdNhaCungCapDichVu
-                    && brandNameIds.Contains(x.Id)
+                    && x.UserId == dto.IdUser
+                    && brandNameIds.Contains(x.IdBrandName)
                     && !x.Deleted)
                 .Select(x => x.IdBrandName)
                 .ToListAsync();
@@ -335,7 +331,6 @@ namespace thongbao.be.application.Config.Implements
             {
                 throw new UserFriendlyException(ErrorCodes.ConfigErrorUserNhaCungCapDichVuExisted);
             }
-
             if (dto.ThoiGianBatDauSuDungDichVu != null && dto.ThoiGianKetThucSuDungDichVu != null)
             {
                 if (dto.ThoiGianBatDauSuDungDichVu >= dto.ThoiGianKetThucSuDungDichVu || dto.ThoiGianBatDauSuDungDichVu <= vietNamNow || dto.ThoiGianKetThucSuDungDichVu <= vietNamNow)
@@ -344,10 +339,9 @@ namespace thongbao.be.application.Config.Implements
                 }
             }
             using var transaction = await _smDbContext.Database.BeginTransactionAsync();
-            try {
-
-
-                var userNhaCungCapDichVu = brandNameIds.Select(brId =>new domain.Config.UserNhaCungCapDichVu
+            try
+            {
+                var userNhaCungCapDichVu = brandNameIds.Select(brId => new domain.Config.UserNhaCungCapDichVu
                 {
                     UserId = dto.IdUser,
                     IdNhaCungCapDichVu = dto.IdNhaCungCapDichVu,
@@ -357,7 +351,6 @@ namespace thongbao.be.application.Config.Implements
                     CreatedBy = currentUserId,
                     CreatedDate = vietNamNow
                 }).ToList();
-
                 await _smDbContext.UserNhaCungCapDichVus.AddRangeAsync(userNhaCungCapDichVu);
                 await _smDbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -367,9 +360,6 @@ namespace thongbao.be.application.Config.Implements
                 await transaction.RollbackAsync();
                 throw;
             }
-            
-
-            
         }
 
         public void UpdateUserToNhaCungCapDichVu(UpdateUserToNhaCungCapDichVuDto dto)
@@ -416,6 +406,7 @@ namespace thongbao.be.application.Config.Implements
             _logger.LogInformation($"{nameof(FindPagingUserNhaCungCapDichVu)}, dto ={JsonSerializer.Serialize(dto)}");
             var query = from unc in _smDbContext.UserNhaCungCapDichVus
                         where !unc.Deleted
+                        where unc.IdNhaCungCapDichVu == dto.IdNhaCungCapDichVu
                         orderby unc.Id
                         select new ViewUserNhaCungCapDto
                         {
@@ -448,7 +439,7 @@ namespace thongbao.be.application.Config.Implements
             };
         }
 
-        public ViewUserToNhaCungCapDichVuByIdDto FindById (int idUserNhaCungCapDichVu)
+        public ViewUserToNhaCungCapDichVuByIdDto FindById(int idUserNhaCungCapDichVu)
         {
             _logger.LogInformation($"{nameof(FindById)}, idUserNhaCungCapDichVu ={idUserNhaCungCapDichVu}");
             var query = from unc in _smDbContext.UserNhaCungCapDichVus
@@ -464,13 +455,13 @@ namespace thongbao.be.application.Config.Implements
                                 IdUser = u.Id,
                                 FullName = u.FullName,
                                 UserName = u.UserName,
-                                
+
                             },
                             NhaCungCapDichVu = new ViewNhaCungCapDichVu
                             {
                                 Id = ncc.Id,
                                 Name = ncc.Name,
-                               
+
                             },
                             BrandName = new ViewBrandNameNhaCungCapDichVu
                             {
@@ -501,6 +492,50 @@ namespace thongbao.be.application.Config.Implements
             var result = _mapper.Map<List<GetListBrandNameResponseDto>>(data);
 
             return result;
+        }
+
+        public List<GetListBrandNameResponseDto> GetListBrandNameByCurrentUser()
+        {
+            _logger.LogInformation($"{nameof(GetListBrandName)}");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+
+            var listBrandNameId = _smDbContext.UserNhaCungCapDichVus
+                .Where(unc => unc.UserId == currentUserId && !unc.Deleted)
+                .Select(unc => unc.IdBrandName)
+                .Distinct()
+                .ToList();
+
+            var query = from bn in _smDbContext.BrandName
+                        where !bn.Deleted
+                        && (isSuperAdmin || listBrandNameId.Contains(bn.Id))
+                        orderby bn.CreatedDate descending
+                        select bn;
+
+            var data = query.ToList();
+            var result = _mapper.Map<List<GetListBrandNameResponseDto>>(data);
+            return result;
+        }
+
+        public List<GetListDropDownUserNhaCungCapDichVuDto> GetListDropDownUserNhaCungCapDichVu(int idNhaCungCapDichVu)
+        {
+            _logger.LogInformation($"{nameof(GetListDropDownUserNhaCungCapDichVu)} idNhaCungCapDichVu = ${idNhaCungCapDichVu}");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var query = from unc in _smDbContext.UserNhaCungCapDichVus
+                        where !unc.Deleted
+                        && unc.IdNhaCungCapDichVu == idNhaCungCapDichVu
+                        join u in _smDbContext.Users on unc.UserId equals u.Id
+                        
+                        select new GetListDropDownUserNhaCungCapDichVuDto
+                        {
+                            
+                            UserId = u.Id,
+                            FullName = u.FullName,
+                            //UserName = u.UserName
+                        };
+            var data = query.Distinct().ToList();
+            return data;
         }
     }
 }

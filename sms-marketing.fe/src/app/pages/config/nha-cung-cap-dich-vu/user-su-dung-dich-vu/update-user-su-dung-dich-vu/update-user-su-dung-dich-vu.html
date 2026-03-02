@@ -1,0 +1,31 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+        <label class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Người dùng</label>
+        <input pInputText [value]="fullName" type="text" class="w-full mb-2" [disabled]="true" />
+    </div>
+
+    <div class="mb-3">
+        <label class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên đăng nhập</label>
+        <input pInputText [value]="userName" type="text" class="w-full mb-2" [disabled]="true" />
+    </div>
+
+    <div class="mb-3">
+        <label class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Brand Name</label>
+        <input pInputText [value]="brandName" type="text" class="w-full mb-2" [disabled]="true" />
+    </div>
+
+    <div class="mb-3">
+        <label for="thoiGianBatDauSuDungDichVu" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Thời gian bắt đầu sử dụng</label>
+        <p-datePicker formControlName="thoiGianBatDauSuDungDichVu" inputId="thoiGianBatDauSuDungDichVu" styleClass="w-full" [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" [showOnFocus]="false" />
+    </div>
+
+    <div class="mb-3">
+        <label for="thoiGianKetThucSuDungDichVu" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Thời gian kết thúc sử dụng</label>
+        <p-datePicker formControlName="thoiGianKetThucSuDungDichVu" inputId="thoiGianKetThucSuDungDichVu" styleClass="w-full" [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" [showOnFocus]="false" />
+    </div>
+
+    <div class="flex gap-2 mt-4" style="justify-content: flex-end;">
+        <p-button label="Hủy" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" />
+        <p-button label="Lưu" icon="pi pi-save" type="submit" [loading]="loading" />
+    </div>
+</form>

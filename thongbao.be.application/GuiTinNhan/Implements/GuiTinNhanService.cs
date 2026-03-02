@@ -396,12 +396,24 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             await SaveThongTinChienDich(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
            
             var estimatedAmount = await GetChiPhiDuTruChienDich(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung);
-            var profileInfo = await _profileService.GetProfileStringeeInfor();
-            var amount = Convert.ToInt32(profileInfo?.Data?.Amount ?? 0);
-            if (estimatedAmount > amount)
+            //var profileInfo = await _profileService.GetProfileStringeeInfor();
+            //var amount = Convert.ToInt32(profileInfo?.Data?.Amount ?? 0);
+            if (!isSuperAdmin)
             {
-                await SendWarningToAdmin(idChienDich, estimatedAmount, amount);
-                throw new UserFriendlyException(ErrorCodes.GuiTinNhanErrorNotEnoughBalance);
+                var userCredit = await _smDbContext.UserCredits
+                    .Where(x => x.UserId == currentUserId && !x.Deleted)
+                    .OrderByDescending(x => x.CreatedDate)
+                    .FirstOrDefaultAsync();
+
+                var hanMuc = Convert.ToInt32(userCredit?.HanMucCredit ?? "0");
+                var daSuDung = Convert.ToInt32(userCredit?.CreditDaSuDung ?? "0");
+                var creditHienTai = hanMuc - daSuDung;
+
+                if (estimatedAmount > creditHienTai)
+                {
+                    await SendWarningToAdmin(idChienDich, estimatedAmount, creditHienTai);
+                    throw new UserFriendlyException(ErrorCodes.GuiTinNhanErrorNotEnoughBalance);
+                }
             }
             var chienDich = await _smDbContext.ChienDiches.FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
             if (chienDich != null)
@@ -443,12 +455,24 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             await SaveThongTinChienDichCoLichGui(idChienDich, idDanhBa.Value, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung, lichGui);
 
             var estimatedAmount = await GetChiPhiDuTruChienDichSchedulerJob(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung,lichGui);
-            var profileInfo = await _profileService.GetProfileStringeeInfor();
-            var amount = Convert.ToInt32(profileInfo?.Data?.Amount ?? 0);
-            if (estimatedAmount > amount)
+            //var profileInfo = await _profileService.GetProfileStringeeInfor();
+            //var amount = Convert.ToInt32(profileInfo?.Data?.Amount ?? 0);
+            if (!isSuperAdmin)
             {
-                await SendWarningToAdmin(idChienDich, estimatedAmount, amount);
-                throw new UserFriendlyException(ErrorCodes.GuiTinNhanErrorNotEnoughBalance);
+                var userCredit = await _smDbContext.UserCredits
+                    .Where(x => x.UserId == currentUserId && !x.Deleted)
+                    .OrderByDescending(x => x.CreatedDate)
+                    .FirstOrDefaultAsync();
+
+                var hanMuc = Convert.ToInt32(userCredit?.HanMucCredit ?? "0");
+                var daSuDung = Convert.ToInt32(userCredit?.CreditDaSuDung ?? "0");
+                var creditHienTai = hanMuc - daSuDung;
+
+                if (estimatedAmount > creditHienTai)
+                {
+                    await SendWarningToAdmin(idChienDich, estimatedAmount, creditHienTai);
+                    throw new UserFriendlyException(ErrorCodes.GuiTinNhanErrorNotEnoughBalance);
+                }
             }
             var chienDich = await _smDbContext.ChienDiches.FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
             if (chienDich != null)
@@ -987,13 +1011,27 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         private async Task SendWarningToAdmin(int idChienDich, int estimatedAmount, int amount)
         {
             _logger.LogInformation($"{nameof(SendWarningToAdmin)}");
+            var currentUserId = getCurrentUserId();
             var admins = await _userManager.GetUsersInRoleAsync("SuperAdmin");
+            var currentUser = await _userManager.FindByIdAsync(currentUserId);
             var chienDich = _smDbContext.ChienDiches.FirstOrDefault(x => x.Id == idChienDich && !x.Deleted);
             var brandName = _smDbContext.BrandName.FirstOrDefault(x => x.TenBrandName == "HUCE" && !x.Deleted);
             var idBrandName = brandName.Id;
             var IsAccented = true;
             var amountNeeded = estimatedAmount - amount;
-            var noiDung = $"Chiến dịch \"{chienDich.TenChienDich}\" yêu cầu vượt mức chi phí hiện có từ Stringee. Xin vui lòng chuyển khoản thêm vào tài khoản Stringee số tiền là {amountNeeded:N0}VND để khách hàng thực hiện tiếp dịch vụ. Xin cảm ơn!";
+
+            
+            var userCredit = await _smDbContext.UserCredits
+                .Where(x => x.UserId == currentUserId && !x.Deleted)
+                .OrderByDescending(x => x.CreatedDate)
+                .FirstOrDefaultAsync();
+            var hanMuc = Convert.ToInt32(userCredit?.HanMucCredit ?? "0");
+            var daSuDung = Convert.ToInt32(userCredit?.CreditDaSuDung ?? "0");
+            var creditHienTai = hanMuc - daSuDung;
+
+            
+            var noiDung = $"Chiến dịch \"{chienDich.TenChienDich}\" của người dùng \"{currentUser?.FullName ?? currentUserId}\" yêu cầu vượt mức chi phí hiện có. Chi phí chiến dịch: {estimatedAmount:N0}VND, Credits hiện tại của user: {creditHienTai:N0}VND, Cần thêm: {amountNeeded:N0}VND. Xin vui lòng kiểm tra và xử lý. Xin cảm ơn!";
+
             var smsMessages = new List<object>();
             foreach (var admin in admins)
             {

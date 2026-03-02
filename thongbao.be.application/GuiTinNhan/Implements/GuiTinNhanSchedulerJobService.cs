@@ -26,7 +26,7 @@ using thongbao.be.shared.HttpRequest.Exception;
 
 namespace thongbao.be.application.GuiTinNhan.Implements
 {
-    public class GuiTinNhanSchedulerJobService: BaseService,IGuiTinNhanSchedulerJobService
+    public class GuiTinNhanSchedulerJobService : BaseService, IGuiTinNhanSchedulerJobService
     {
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IProfileService _profileService;
@@ -50,7 +50,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             _userManager = userManager;
             _sendSmsService = sendSmsService;
         }
-       
+
         public async Task ProcessGuiTinNhanBackgroundSchedulerJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiCoLichGuiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung, string currentUserId, bool isSuperAdmin, DateTime lichGui)
         {
             _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - START - idChienDich: {idChienDich}, idDanhBa: {idDanhBa}");
@@ -58,35 +58,60 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             bool hasProcessedSuccessfully = false;
 
             try
-
             {
-                var chienDichLenLich = await _smDbContext.ChienDiches.FirstOrDefaultAsync( x => x.Id == idChienDich  && !x.Deleted);
-                if(chienDichLenLich != null && chienDichLenLich.TrangThai == ChienDichConstants.LenLich)
+                var chienDichLenLich = await _smDbContext.ChienDiches.FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
+                if (chienDichLenLich != null && chienDichLenLich.TrangThai == ChienDichConstants.LenLich)
                 {
                     chienDichLenLich.TrangThai = ChienDichConstants.DangGui;
                     _smDbContext.ChienDiches.Update(chienDichLenLich);
                     await _smDbContext.SaveChangesAsync();
                     _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - Changed status from LenLich to DangGui - idChienDich: {idChienDich}");
-                
                 }
-                _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - DELAYING 1 minute - idChienDich: {idChienDich}");
-                await Task.Delay(TimeSpan.FromSeconds(30));
+
+                //_logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - DELAYING 1 minute - idChienDich: {idChienDich}");
+                //await Task.Delay(TimeSpan.FromSeconds(30));
                 _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - DEBUG - idChienDich: {idChienDich}");
                 var result = await ProcessGuiTinNhanSchedulerJob(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, IsFlashSms, IsAccented, noiDung, currentUserId, isSuperAdmin);
 
                 hasProcessedSuccessfully = true;
 
                 _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - COMPLETED - idChienDich: {idChienDich}, Total SMS: {result.Count}");
+
+                
+                if (!isSuperAdmin)
+                {
+                    var chiPhiThucTe = await _smDbContext.ChienDichLogTrangThaiGuis
+                        .Where(x => x.IdChienDich == idChienDich && !x.Deleted)
+                        .SumAsync(x => x.TongChiPhi);
+
+                    var userCredit = await _smDbContext.UserCredits
+                        .Where(x => x.UserId == currentUserId && !x.Deleted)
+                        .OrderByDescending(x => x.CreatedDate)
+                        .FirstOrDefaultAsync();
+
+                    if (userCredit != null)
+                    {
+                        var creditDaSuDung = Convert.ToInt32(userCredit.CreditDaSuDung ?? "0");
+                        var hanMucCredit = Convert.ToInt32(userCredit.HanMucCredit ?? "0");
+                        var tongCreditDaSuDung = creditDaSuDung + chiPhiThucTe;
+
+                        userCredit.CreditDaSuDung = tongCreditDaSuDung.ToString();
+                        userCredit.CreditChuaSuDung = (hanMucCredit - tongCreditDaSuDung).ToString();
+                        _smDbContext.UserCredits.Update(userCredit);
+                        _smDbContext.UserCredits.Update(userCredit);
+                        _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - Updated CreditDaSuDung for user {currentUserId}, chiPhiThucTe: {chiPhiThucTe}");
+                    }
+                }
+
                 var chienDich = await _smDbContext.ChienDiches.FirstOrDefaultAsync(x => x.Id == idChienDich && !x.Deleted);
                 if (chienDich != null)
                 {
                     chienDich.TrangThai = ChienDichConstants.DaGui;
                     _smDbContext.ChienDiches.Update(chienDich);
-                    await _smDbContext.SaveChangesAsync();
-
-                    _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - Updated status to DaGui - idChienDich: {idChienDich}");
                 }
 
+                await _smDbContext.SaveChangesAsync();
+                _logger.LogInformation($"{nameof(ProcessGuiTinNhanBackgroundSchedulerJob)} - Updated status to DaGui - idChienDich: {idChienDich}");
             }
             catch (Exception ex)
             {
@@ -112,7 +137,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     throw;
                 }
             }
-
         }
         public async Task SendSmsSchedulerJobLog(object smsResponse, int idChienDich, int? idDanhBa, List<ListSoDienThoaiCoLichGuiDto> danhSachSoDienThoai, int idBrandName, bool isAccented, string noiDung, string currentUserId, bool isSuperAdmin)
         {
@@ -173,6 +197,23 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     var vietnamobile = new[] { "92", "56", "58", "52" };
                     var gmobile = new[] { "99", "59" };
                     int tongChiPhi = 0;
+
+                    var chienDichLog = new ChienDichLogTrangThaiGui
+                    {
+                        IdChienDich = idChienDich,
+                        IdDanhBa = idDanhBa,
+                        IdBrandName = idBrandName,
+                        TongSoSms = danhBaCount,
+                        SmsSendSuccess = 0,
+                        SmsSendFailed = 0,
+                        TrangThai = "Đang thực hiện lệnh gửi",
+                        NoiDung = noiDung,
+                        TongChiPhi = 0,
+                        CreatedDate = vietnamNow,
+                        CreatedBy = currentUserId
+                    };
+                    _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
+                    await _smDbContext.SaveChangesAsync();
 
                     for (int i = 0; i < resultArray.Length && i < danhBaSmsList.Count; i++)
                     {
@@ -243,23 +284,16 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         };
 
                         _smDbContext.GuiTinNhanLogChiTiets.Add(logChiTiet);
+                        
+                        await _smDbContext.SaveChangesAsync();
                     }
-                    var chienDichLog = new ChienDichLogTrangThaiGui
-                    {
-                        IdChienDich = idChienDich,
-                        IdDanhBa = idDanhBa,
-                        IdBrandName = idBrandName,
-                        TongSoSms = danhBaCount,
-                        SmsSendSuccess = smsSuccess,
-                        SmsSendFailed = smsFailed,
-                        TrangThai = trangThaiChienDich,
-                        NoiDung = noiDung,
-                        TongChiPhi = tongChiPhi,
-                        CreatedDate = vietnamNow,
-                        CreatedBy = currentUserId
-                    };
 
-                    _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
+                    chienDichLog.SmsSendSuccess = smsSuccess;
+                    chienDichLog.SmsSendFailed = smsFailed;
+                    chienDichLog.TrangThai = trangThaiChienDich;
+                    chienDichLog.TongChiPhi = tongChiPhi;
+                    _smDbContext.ChienDichLogTrangThaiGuis.Update(chienDichLog);
+
                     if (smsSuccess > 0)
                     {
                         var chienDich = await _smDbContext.ChienDiches
@@ -292,6 +326,25 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     var vietnamobile = new[] { "92", "56", "58", "52" };
                     var gmobile = new[] { "99", "59" };
                     int tongChiPhi = 0;
+
+                
+                    var chienDichLog = new ChienDichLogTrangThaiGui
+                    {
+                        IdChienDich = idChienDich,
+                        //IdDanhBa = idDanhBa,
+                        IdBrandName = idBrandName,
+                        TongSoSms = listsmsCount,
+                        SmsSendSuccess = 0,
+                        SmsSendFailed = 0,
+                        TrangThai = "Đang thực hiện lệnh gửi",
+                        NoiDung = noiDung,
+                        TongChiPhi = 0,
+                        CreatedDate = vietnamNow,
+                        CreatedBy = currentUserId
+                    };
+                    _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
+                    await _smDbContext.SaveChangesAsync();
+
                     for (int i = 0; i < resultArray.Length && i < danhSachSoDienThoai.Count; i++)
                     {
                         var resultItem = resultArray[i];
@@ -363,23 +416,17 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         };
 
                         _smDbContext.GuiTinNhanLogChiTiets.Add(logChiTiet);
+                 
+                        await _smDbContext.SaveChangesAsync();
                     }
-                    var chienDichLog = new ChienDichLogTrangThaiGui
-                    {
-                        IdChienDich = idChienDich,
-                        //IdDanhBa = idDanhBa,
-                        IdBrandName = idBrandName,
-                        TongSoSms = listsmsCount,
-                        SmsSendSuccess = smsSuccess,
-                        SmsSendFailed = smsFailed,
-                        TrangThai = trangThaiChienDich,
-                        NoiDung = noiDung,
-                        TongChiPhi = tongChiPhi,
-                        CreatedDate = vietnamNow,
-                        CreatedBy = currentUserId
-                    };
 
-                    _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
+                   
+                    chienDichLog.SmsSendSuccess = smsSuccess;
+                    chienDichLog.SmsSendFailed = smsFailed;
+                    chienDichLog.TrangThai = trangThaiChienDich;
+                    chienDichLog.TongChiPhi = tongChiPhi;
+                    _smDbContext.ChienDichLogTrangThaiGuis.Update(chienDichLog);
+
                     if (smsSuccess > 0)
                     {
                         var chienDich = await _smDbContext.ChienDiches
@@ -447,6 +494,25 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         int totalFailedAll = 0;
                         int totalCostAll = 0;
 
+    
+                        var vietnamNow = GetVietnamTime();
+                        var chienDichLog = new ChienDichLogTrangThaiGui
+                        {
+                            IdChienDich = idChienDich,
+                            IdDanhBa = idDanhBa,
+                            IdBrandName = idBrandName,
+                            TongSoSms = 0,
+                            SmsSendSuccess = 0,
+                            SmsSendFailed = 0,
+                            TrangThai = "Đang thực hiện lệnh gửi",
+                            NoiDung = noiDung,
+                            TongChiPhi = 0,
+                            CreatedDate = vietnamNow,
+                            CreatedBy = currentUserId
+                        };
+                        _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
+                        await _smDbContext.SaveChangesAsync();
+
                         for (int batchIndex = 0; batchIndex < totalBatches; batchIndex++)
                         {
                             try
@@ -469,24 +535,14 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         {
                             //var isSuperAdmin = IsSuperAdmin();
                             //var currentUserId = getCurrentUserId();
-                            var vietnamNow = GetVietnamTime();
 
-                            var chienDichLog = new ChienDichLogTrangThaiGui
-                            {
-                                IdChienDich = idChienDich,
-                                IdDanhBa = idDanhBa,
-                                IdBrandName = idBrandName,
-                                TongSoSms = totalSuccessAll + totalFailedAll,
-                                SmsSendSuccess = totalSuccessAll,
-                                SmsSendFailed = totalFailedAll,
-                                TrangThai = totalSuccessAll > 0 ? "Success" : "Failed",
-                                NoiDung = noiDung,
-                                TongChiPhi = totalCostAll,
-                                CreatedDate = vietnamNow,
-                                CreatedBy = currentUserId
-                            };
-
-                            _smDbContext.ChienDichLogTrangThaiGuis.Add(chienDichLog);
+                     
+                            chienDichLog.TongSoSms = totalSuccessAll + totalFailedAll;
+                            chienDichLog.SmsSendSuccess = totalSuccessAll;
+                            chienDichLog.SmsSendFailed = totalFailedAll;
+                            chienDichLog.TrangThai = totalSuccessAll > 0 ? "Success" : "Failed";
+                            chienDichLog.TongChiPhi = totalCostAll;
+                            _smDbContext.ChienDichLogTrangThaiGuis.Update(chienDichLog);
 
                             if (totalSuccessAll > 0)
                             {
@@ -715,6 +771,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                     _smDbContext.GuiTinNhanLogChiTiets.Add(logChiTiet);
 
+                    await _smDbContext.SaveChangesAsync();
+
                     smsMessages.Add(smsObject);
                 }
                 catch (System.Exception ex)
@@ -739,13 +797,14 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     };
 
                     _smDbContext.GuiTinNhanLogChiTiets.Add(logChiTiet);
+    
+                    await _smDbContext.SaveChangesAsync();
+
                     totalFailed++;
 
                     continue;
                 }
             }
-
-            await _smDbContext.SaveChangesAsync();
 
             return (smsMessages, totalSuccess, totalFailed, totalCost);
         }
@@ -977,4 +1036,3 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         }
     }
 }
-    

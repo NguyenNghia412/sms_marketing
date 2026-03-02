@@ -103,6 +103,10 @@ namespace thongbao.be.shared.Constants.Auth
         public const string UserCreditsViewForUser = Function + "UserCreditsViewForUser";
 
 
+        public const string CategoryDashBoard = "QL Dashboard";
+        public const string DashBoardView = Function + "DashBoardView";
+
+
 
 
 
@@ -191,7 +195,9 @@ namespace thongbao.be.shared.Constants.Auth
 
             (GuiTinNhanAdd,"Gửi tin nhắn", CategoryGuiTinNhan),
 
-            (StringeeProfileView, "Xem Stringee Profile", CategoryStringeeProfile)
+            (StringeeProfileView, "Xem Stringee Profile", CategoryStringeeProfile),
+
+            (DashBoardView, "Xem Dashboard", CategoryDashBoard),
 
 
         };

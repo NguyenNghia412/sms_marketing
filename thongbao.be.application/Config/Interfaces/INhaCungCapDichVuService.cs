@@ -25,5 +25,7 @@ namespace thongbao.be.application.Config.Interfaces
         public BaseResponsePagingDto<ViewUserNhaCungCapDto> FindPagingUserNhaCungCapDichVu(FindPagingUserToNhaCungCapDichVuDto dto);
         public ViewUserToNhaCungCapDichVuByIdDto FindById(int idUserNhaCungCapDichVu);
         public List<GetListBrandNameResponseDto> GetListBrandName(int idNhaCungCapDichVu);
+        public List<GetListDropDownUserNhaCungCapDichVuDto> GetListDropDownUserNhaCungCapDichVu(int idNhaCungCapDichVu);
+        public List<GetListBrandNameResponseDto> GetListBrandNameByCurrentUser();
     }
 }

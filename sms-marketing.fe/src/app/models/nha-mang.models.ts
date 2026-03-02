@@ -3,6 +3,7 @@ import { IBaseRequestPaging } from "@/shared/models/request-paging.base.models";
 export interface IFindPagingNhaMang extends IBaseRequestPaging {}
 
 export interface ICreateNhaMang {
+    idNhaCungCapDichVu: number,
     tenNhaMang: string,
     prefix: string,
     idBrandName: number,
@@ -12,6 +13,7 @@ export interface ICreateNhaMang {
 
 export interface IUpdateNhaMang {
     id: number,
+    idNhaCungCapDichVu: number,
     tenNhaMang: string,
     prefix: string,
     idBrandName: number,
@@ -25,7 +27,10 @@ export type IViewNhaMang ={
     tenNhaMang?: string,
     prefix?: string,
     donGia?: IDonGia,
-    brandName?: IBrandName,
+    //brandName?: IBrandName,
+    nhaCungCapDichVu?: IViewNhaCungCapDichVu,
+    _tenBrandName?: string,
+    _tenNhaCungCapDichVu?: string
 }
 
 export type IDonGia = {
@@ -39,4 +44,11 @@ export type IDonGia = {
 export type IBrandName = {
     id?: number,
     tenBrandName?: string,
+}
+
+
+export type IViewNhaCungCapDichVu = {
+    idNhaCungCapDichVu: number,
+    tenNhaCungCapDichVu: string,
+    brandNames?: IBrandName[],
 }

@@ -9,5 +9,6 @@ namespace thongbao.be.application.Config.Dtos.NhaCungCapDichVu
 {
     public class FindPagingUserToNhaCungCapDichVuDto : BaseRequestPagingDto
     {
+        public int IdNhaCungCapDichVu { get; set; }
     }
 }

@@ -38,7 +38,7 @@ namespace thongbao.be.application.Config.Implements
             RecurringJob.AddOrUpdate(
                 "create-user-credits-moi-thang",
                 () => _userCreditsService.AddCreditToUserCredits(),
-                Cron.Monthly(1,0, 5),
+                Cron.Daily(0, 5),
                 new RecurringJobOptions
                 {
                     TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")

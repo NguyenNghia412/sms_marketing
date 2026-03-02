@@ -1,11 +1,23 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
     <div class="mb-3">
-        <label for="userId" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Người dùng <span class="text-red-500">*</span></label>
-        <p-select id="userId" formControlName="userId" [options]="listUsers" optionLabel="fullName" optionValue="id" [filter]="true" placeholder="Chọn người dùng" styleClass="w-full" class="mb-2" appendTo="body" />
-        @if (form.get('userId')?.hasError('required') && form.get('userId')?.touched) {
-        <p-message severity="error" variant="simple" size="small">{{ getError('userId') }} </p-message>
-        }
+        <label class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Người dùng</label>
+        <input pInputText [value]="fullName" type="text" class="w-full mb-2" [disabled]="true" />
+    </div>
+
+    <div class="mb-3">
+        <label class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên đăng nhập</label>
+        <input pInputText [value]="userName" type="text" class="w-full mb-2" [disabled]="true" />
+    </div>
+
+    <div class="mb-3">
+        <label class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Nhà cung cấp dịch vụ</label>
+        <input pInputText [value]="tenNhaCungCapDichVu" type="text" class="w-full mb-2" [disabled]="true" />
+    </div>
+
+    <div class="mb-3">
+        <label class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Brand Name</label>
+        <input pInputText [value]="tenBrandName" type="text" class="w-full mb-2" [disabled]="true" />
     </div>
 
     <div class="mb-3">
@@ -31,6 +43,6 @@
 
     <div class="flex gap-2 mt-4" style="justify-content: flex-end;">
         <p-button label="Hủy" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" />
-        <p-button label="Lưu" icon="pi pi-save" type="submit" [loading]="loading" />
+        <p-button label="Lưu" icon="pi pi-save" type="submit" (onClick)="onSubmit()" [loading]="loading" />
     </div>
 </form>

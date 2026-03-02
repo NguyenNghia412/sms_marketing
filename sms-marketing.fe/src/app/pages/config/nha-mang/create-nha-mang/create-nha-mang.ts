@@ -1,6 +1,6 @@
 import { ICreateNhaMang } from "@/models/nha-mang.models";
-import { IViewBrandname } from "@/models/sms.models";
-import { ChienDichService } from "@/services/chien-dich.service";
+import { IDropDownNhaCungCapDichVu, IGetListBrandNameResponseDto } from "@/models/nha-cung-cap-dich-vu.models";
+import { NhaCungCapDichVuService } from "@/services/nha-cung-cap-dich-vu.service";
 import { NhaMangService } from "@/services/nha-mang.service";
 import { BaseComponent } from "@/shared/components/base/base-component";
 import { SharedImports } from "@/shared/import.shared";
@@ -18,11 +18,13 @@ import { DynamicDialogRef } from "primeng/dynamicdialog";
 export class CreateNhaMang extends BaseComponent {
     private _ref = inject(DynamicDialogRef);
     private _nhaMangService = inject(NhaMangService);
-    private _chienDichService = inject(ChienDichService);
+    private _nhaCungCapDichVuService = inject(NhaCungCapDichVuService);
 
-    listBrandName :IViewBrandname[] = [];
+    listBrandName: IGetListBrandNameResponseDto[] = [];
+    listNhaCungCapDichVu: IDropDownNhaCungCapDichVu[] = [];
 
     override form: FormGroup = new FormGroup({
+        idNhaCungCapDichVu: new FormControl(null, [Validators.required]),
         tenNhaMang: new FormControl('', [Validators.required]),
         prefix: new FormControl('', [Validators.required]),
         idBrandName: new FormControl('', [Validators.required]),
@@ -30,6 +32,9 @@ export class CreateNhaMang extends BaseComponent {
         thoiHan: new FormControl(null),
     });
     override ValidationMessages: Record<string, Record<string, string>> = {
+        idNhaCungCapDichVu: {
+            required: 'Không được bỏ trống'
+        },
         tenNhaMang: {
             required: 'Không được bỏ trống'
         },
@@ -44,7 +49,35 @@ export class CreateNhaMang extends BaseComponent {
         },
     };
     override ngOnInit(): void {
-        this.getListBrandName();
+        this.getListNhaCungCapDichVu();
+    }
+
+    getListNhaCungCapDichVu() {
+        this._nhaCungCapDichVuService.getDropdown().subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, false)) {
+                    this.listNhaCungCapDichVu = res.data;
+                }
+            }
+        });
+    }
+
+    onNhaCungCapChange(idNhaCungCapDichVu: number) {
+        this.form.get('idBrandName')?.reset();
+        this.listBrandName = [];
+        if (idNhaCungCapDichVu) {
+            this.getListBrandName(idNhaCungCapDichVu);
+        }
+    }
+
+    getListBrandName(idNhaCungCapDichVu: number) {
+        this._nhaCungCapDichVuService.getListBrandName(idNhaCungCapDichVu).subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, false)) {
+                    this.listBrandName = res.data;
+                }
+            }
+        });
     }
     onSubmit() {
         if (this.isFormInvalid()) {
@@ -76,15 +109,5 @@ export class CreateNhaMang extends BaseComponent {
         onCancel() {
             this._ref.close();
         }
-        getListBrandName() {
-            this._chienDichService.getListBrandname().subscribe({
-                next: (res) => {
-                    if (this.isResponseSucceed(res, false)) {
-                        this.listBrandName = res.data;
-                    }
-                }
-            });
-        }
 
 }
-    

@@ -1,0 +1,66 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+        <label for="name" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên Nhà Cung Cấp <span class="text-red-500">*</span></label>
+        <input pInputText formControlName="name" id="name" type="text" class="w-full mb-2" autocomplete="off" />
+        @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('name') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="apiKey" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">API Key <span class="text-red-500">*</span></label>
+        <p-inputGroup>
+            <input pInputText formControlName="apiKey" id="apiKey" type="text" [class]="'w-full' + (showApiKey ? '' : ' secret-mask')" autocomplete="off" />
+            <p-inputGroupAddon>
+                <i [class]="showApiKey ? 'pi pi-eye' : 'pi pi-eye-slash'" class="cursor-pointer" (click)="showApiKey = !showApiKey"></i>
+            </p-inputGroupAddon>
+        </p-inputGroup>
+        @if (form.get('apiKey')?.hasError('required') && form.get('apiKey')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('apiKey') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="apiSecret" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">API Secret <span class="text-red-500">*</span></label>
+        <p-inputGroup>
+            <input pInputText formControlName="apiSecret" id="apiSecret" type="text" [class]="'w-full' + (showApiSecret ? '' : ' secret-mask')" autocomplete="off" />
+            <p-inputGroupAddon>
+                <i [class]="showApiSecret ? 'pi pi-eye' : 'pi pi-eye-slash'" class="cursor-pointer" (click)="showApiSecret = !showApiSecret"></i>
+            </p-inputGroupAddon>
+        </p-inputGroup>
+        @if (form.get('apiSecret')?.hasError('required') && form.get('apiSecret')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('apiSecret') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="baseUrl" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Base URL <span class="text-red-500">*</span></label>
+        <input pInputText formControlName="baseUrl" id="baseUrl" type="text" class="w-full mb-2" />
+        @if (form.get('baseUrl')?.hasError('required') && form.get('baseUrl')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('baseUrl') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="brandNames" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">
+            Brand Names
+            <i class="pi pi-info-circle ml-1 text-surface-500" pTooltip="Nhập nhiều brand name, phân cách bởi dấu ;" tooltipPosition="top"></i>
+        </label>
+        <input pInputText formControlName="brandNames" id="brandNames" type="text" placeholder="VD: Brand1;Brand2;Brand3" class="w-full mb-2" />
+    </div>
+
+    <div class="mb-3">
+        <label class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Cấu hình Proxy</label>
+        <div class="flex align-items-center gap-4">
+            <p-radioButton formControlName="isConfigAuthReq" inputId="proxyTrue" [value]="true" />
+            <label for="proxyTrue" class="mr-3">Có</label>
+            <p-radioButton formControlName="isConfigAuthReq" inputId="proxyFalse" [value]="false" />
+            <label for="proxyFalse">Không</label>
+        </div>
+    </div>
+
+    <div class="flex gap-2 mt-4" style="justify-content: flex-end;">
+        <p-button label="Hủy" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" />
+        <p-button label="Lưu" icon="pi pi-save" type="submit" [loading]="loading" />
+    </div>
+</form>

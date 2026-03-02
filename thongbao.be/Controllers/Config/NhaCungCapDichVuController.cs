@@ -233,5 +233,34 @@ namespace thongbao.be.Controllers.Config
                 return OkException(ex);
             }
         }
+        //[Permission(PermissionKeys.NhaCungCapDichVuView)]
+        [HttpGet("drop-down-brand-names-by-current-user")]
+        public ApiResponse GetListBrandNameByCurrentUser()
+        {
+            try
+            {
+                var result = _nhaCungCapDichVuService.GetListBrandNameByCurrentUser();
+                return new(result);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        [Permission(PermissionKeys.NhaCungCapDichVuView)]
+        [HttpGet("{idNhaCungCapDichVu}/drop-down-user")]
+        public ApiResponse GetListDropDownUserNhaCungCapDichVu([FromRoute] int idNhaCungCapDichVu)
+        {
+            try
+            {
+                var result = _nhaCungCapDichVuService.GetListDropDownUserNhaCungCapDichVu(idNhaCungCapDichVu);
+                return new(result);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

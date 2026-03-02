@@ -129,5 +129,18 @@ namespace thongbao.be.Controllers.Config
                 return OkException(ex);
             }
         }
+        [HttpGet("user-credits")]
+        public ApiResponse GetCurrentUserCredits()
+        {
+            try
+            {
+                var data = _userCreditsService.GetCurrentUserCredits();
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

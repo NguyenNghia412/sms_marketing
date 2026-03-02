@@ -54,6 +54,7 @@ namespace thongbao.be.infrastructure.data
 
         public DbSet<UserCredits> UserCredits { get; set; }
         public DbSet<UserNhaCungCapDichVu> UserNhaCungCapDichVus { get; set; }
+        public DbSet<ToiDaHanMucCreditsGiaHan> ToiDaHanMucCreditsGiaHan { get; set; }
 
 
 
@@ -213,6 +214,11 @@ namespace thongbao.be.infrastructure.data
             });
       
             modelBuilder.Entity<UserNhaCungCapDichVu>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<ToiDaHanMucCreditsGiaHan>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");

@@ -36,8 +36,8 @@ export class DataTable implements OnInit {
     cellViewTypes = CellViewTypes;
     sanitizer = inject(DomSanitizer);
     customInjector!: Injector;
-
-     @ViewChild(Paginator) paginator!: Paginator;
+    revealedSecrets = new Set<string>();
+    @ViewChild(Paginator) paginator!: Paginator;
 
     ngOnInit(): void {
         this.customInjector = Injector.create({
@@ -112,4 +112,18 @@ export class DataTable implements OnInit {
             pageCount : totalPages
         })
     }
+    isSecretVisible(rowIndex: number, field?: string): boolean {
+        return this.revealedSecrets.has(`${rowIndex}-${field}`);
+    }
+    toggleSecret(rowIndex: number, field?: string): void {
+        const key = `${rowIndex}-${field}`;
+        if (this.revealedSecrets.has(key)) {
+            this.revealedSecrets.delete(key);
+        } else {
+            this.revealedSecrets.add(key);
+        }
+    }
+
+
+
 }

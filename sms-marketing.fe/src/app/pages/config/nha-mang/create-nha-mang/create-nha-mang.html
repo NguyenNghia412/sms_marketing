@@ -1,5 +1,13 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="mb-3">
+        <label for="idNhaCungCapDichVu" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Nhà cung cấp dịch vụ <span class="text-red-500">*</span></label>
+        <p-select id="idNhaCungCapDichVu" formControlName="idNhaCungCapDichVu" [options]="listNhaCungCapDichVu" optionLabel="name" optionValue="id" [filter]="true" placeholder="Chọn nhà cung cấp dịch vụ" styleClass="w-full" class="mb-2" appendTo="body" (onChange)="onNhaCungCapChange($event.value)" />
+        @if (form.get('idNhaCungCapDichVu')?.hasError('required') && form.get('idNhaCungCapDichVu')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('idNhaCungCapDichVu') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
         <label for="tenNhaMang" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên nhà mạng <span class="text-red-500">*</span></label>
         <input pInputText formControlName="tenNhaMang" id="tenNhaMang" type="text" class="w-full mb-2" />
         @if (form.get('tenNhaMang')?.hasError('required') && form.get('tenNhaMang')?.touched) {

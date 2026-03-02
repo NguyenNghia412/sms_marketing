@@ -1,9 +1,10 @@
 <p-table #dt1 [value]="data() || []" dataKey="id" [rows]="pageSize()" [loading]="loading()" [rowHover]="true"
-    [showGridlines]="true" [paginator]="false" responsiveLayout="scroll">
+    [showGridlines]="true" [paginator]="false" responsiveLayout="scroll"
+    [resizableColumns]="true" columnResizeMode="expand">
     <ng-template #header>
         <tr>
             @for (col of (columns()); track $index) {
-            <th [style]="col.headerContainerStyle" [pSortableColumn]="col.field">
+            <th [style]="col.headerContainerStyle" [pSortableColumn]="col.field" pResizableColumn>
                 <div class="flex justify-center cols-center">
                     {{ col.header }}
                     @if (col.field) {
@@ -41,8 +42,28 @@
                         <p-tag [value]="get(row, col.field || '')" [severity]="col.statusSeverityFunction(row)"></p-tag>
                     </div>
                 }
+                @else if (col.cellViewType === cellViewTypes.SECRET) {
+                    <div class="flex items-center justify-center gap-2">
+                        <span>{{ isSecretVisible(rowIndex, col.field) ? get(row, col.field || '') : '****' }}</span>
+                            <button type="button" 
+                                (click)="toggleSecret(rowIndex, col.field); $event.stopPropagation()" 
+                                class="p-1 cursor-pointer">
+                                <i [class]="isSecretVisible(rowIndex, col.field) ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+                            </button>
+                    </div>
+                }
+                @else if (col.cellViewType === cellViewTypes.BOOL_CHECK) {
+                    <div class="flex justify-center">
+                        <span class="inline-flex items-center justify-center w-5 h-5 border-2 rounded"
+                        [ngClass]="get(row, col.field || '') ? 'border-green-500 bg-green-500 text-white' : 'border-gray-400 bg-white'">
+                    @if (get(row, col.field || '')) {
+                        <i class="pi pi-check" style="font-size: 0.75rem"></i>
+                    }
+                    </span>
+                </div>
+                }
                 @else if ('field' in col) {
-                <span [class.cursor-pointer]="isCellClickable(col)" (click)="onCellClick(col, row)">{{ get(row, col.field || '') }}</span>
+                    <span [class.cursor-pointer]="isCellClickable(col)" (click)="onCellClick(col, row)">{{ get(row, col.field || '') }}</span>
                 }
             </td>
             }

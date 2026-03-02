@@ -2,7 +2,6 @@ import { IFindPagingUserCredits, IViewUserCredits } from "@/models/user-credits.
 import { UserCreditsService } from "@/services/user-credits.service";
 import { BaseComponent } from "@/shared/components/base/base-component";
 import { DataTable } from "@/shared/components/data-table/data-table";
-import { LoaiApiCreditStatuses } from "@/shared/constants/config.constants";
 import { CellViewTypes } from "@/shared/constants/data-table.constants";
 import { SharedImports } from "@/shared/import.shared";
 import { IColumn } from "@/shared/models/data-table.models";
@@ -44,14 +43,11 @@ export class UserCredits extends BaseComponent{
         { header: 'Hạn mức credit', field: 'hanMucCredit', headerContainerStyle: 'min-width: 12rem' ,cellStyle: 'text-align:center'},
         { header: 'Thời gian bắt đầu áp dụng hạn mức', field: 'thoiGianBatDauApDungHanMuc', headerContainerStyle: 'min-width: 12rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss' ,cellStyle: 'text-align:center'},
         { header: 'Thời gian kết thúc áp dụng hạn mức', field: 'thoiGianKetThucApDungHanMuc', headerContainerStyle: 'min-width: 12rem', cellViewType: CellViewTypes.DATE, dateFormat: 'dd/MM/yyyy HH:mm:ss' ,cellStyle: 'text-align:center'},
-        { header: 'Loại API Credit', field: 'loaiApiCreditText', headerContainerStyle: 'width: 12rem', cellViewType: CellViewTypes.STATUS,
-            statusSeverityFunction: (rowData: IViewUserCredits) => {
-                return LoaiApiCreditStatuses.getSeverity(rowData.loaiApiCredit ?? 0);
-            } ,cellStyle: 'text-align:center'
-        },
+        { header: 'Nhà cung cấp', field: '_tenNhaCungCapDichVu', headerContainerStyle: 'min-width: 12rem', cellStyle: 'text-align:center' },
+        { header: 'BrandName', field: '_tenBrandName', headerContainerStyle: 'min-width: 12rem', cellStyle: 'text-align:center' },
         { header: 'Credit đã sử dụng', field: 'creditDaSuDung', headerContainerStyle: 'min-width: 12rem' ,cellStyle: 'text-align:center'},
         { header: 'Credit còn lại', field: 'creditChuaSuDung', headerContainerStyle: 'min-width: 12rem' ,cellStyle: 'text-align:center'},
-        { header: 'Creadit còn lại sau khi hết thời gian áp dụng hạn mức', field: 'creditConSauKhiKetThucThoiGianApDungHanMuc', headerContainerStyle: 'min-width: 12rem' ,cellStyle: 'text-align:center'},
+        { header: 'Credit còn lại sau khi hết thời gian áp dụng hạn mức', field: 'creditConSauKhiKetThucThoiGianApDungHanMuc', headerContainerStyle: 'min-width: 12rem' ,cellStyle: 'text-align:center'},
         { header: 'Đơn vị', field: 'donVi', headerContainerStyle: 'min-width: 12rem' ,cellStyle: 'text-align:center'},
         { header: 'Thao tác', headerContainerStyle: 'width: 6rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction ,cellStyle: 'text-align:center'}
     ];
@@ -74,12 +70,12 @@ export class UserCredits extends BaseComponent{
         this.loading = true;
         this._userCreditsService.findPaging({...this.query,keyword: this.searchForm.get('search')?.value}).subscribe({
             next: (res) => {
-                if( this.isResponseSucceed(res, false)){    
-                    this.data = res.data.items.map((item: { loaiApiCredit: number; }) => ({
-                        
-                            ...item,
-                            loaiApiCreditText: this.getLoaiApiCreditText(item.loaiApiCredit ?? 0)
-                        }));
+                if( this.isResponseSucceed(res, false)){
+                    this.data = res.data.items.map((item: IViewUserCredits) => ({
+                        ...item,
+                        _tenNhaCungCapDichVu: item.nhaCungCapDichVus?.map(ncc => ncc.tenNhaCungCapDichVu).join('; ') || '',
+                        _tenBrandName: item.nhaCungCapDichVus?.flatMap(ncc => ncc.brandNames?.map(bn => bn.tenBrandName) || []).join('; ') || '',
+                    }));
                     this.totalRecords = res.data.totalItems;
                 }
             },
@@ -87,17 +83,6 @@ export class UserCredits extends BaseComponent{
                 this.loading = false;
             }
         });
-    }
-
-    getLoaiApiCreditText(loaiApiCredit: number): string {
-        switch (loaiApiCredit) {
-            case LoaiApiCreditStatuses.STRINGEE:
-                return 'Stringee';
-            case LoaiApiCreditStatuses.VIETTEL:
-                return 'Viettel';
-            default:
-                return 'Không xác định';
-        }
     }
     onPageChanged($event: PaginatorState) {
         this.query.pageNumber = ($event.page ?? 0) + 1;
@@ -113,7 +98,7 @@ export class UserCredits extends BaseComponent{
     }
 
     onOpenUpdate(data: IViewUserCredits) {
-                const ref = this._dialogService.open(UpdateUserCredits, { header: 'Cập nhật thông tin hạn mức người dùng', closable: true, modal: true, styleClass: 'w-96', focusOnShow: false, data: data });
+                const ref = this._dialogService.open(UpdateUserCredits, { header: 'Cập nhật thông tin hạn mức người dùng', closable: true, modal: true, styleClass: 'w-[600px]', focusOnShow: false, data: { id: data.id } });
                 ref.onClose.subscribe((result) => {
                     if (result) {
                         this.getData();
@@ -147,8 +132,20 @@ export class UserCredits extends BaseComponent{
         } else if (data.type === TblActionTypes.update) {
                 this.onOpenUpdate(data.data);
                   
-        }   
+        }
+         else if (data.type === 'cellClick' && data.field === 'user.userName') {
+                this.navigateToDetail(data.data); 
     }
+    }
+    navigateToDetail(user: IViewUserCredits) {
+                if (user?.user?.userId) {
+                        this.router.navigate(['/config/user-credits/user-credits-for-user'], {
+                                queryParams: {
+                                    userId: user.user.userId
+                                }
+                            });
+                        }
+                    }
 
 
 }

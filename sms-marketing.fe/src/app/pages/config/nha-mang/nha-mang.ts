@@ -38,7 +38,9 @@ export class NhaMang extends BaseComponent {
             { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem', cellStyle: 'text-align:center' },
             { header: 'Tên Nhà mạng', field: 'tenNhaMang', headerContainerStyle: 'min-width: 12rem', cellClass: 'cursor-pointer hover:text-blue-800 hover:underline', clickable: true ,cellStyle: 'text-align:center' },
             { header: 'Prefix đầu số', field: 'prefix', headerContainerStyle: 'min-width: 30rem',cellStyle: 'text-align:center' },
-            { header: 'BrandName', field: 'brandName.tenBrandName', headerContainerStyle: 'min-width: 12rem',cellStyle: 'text-align:center' },
+            //{ header: 'BrandName', field: 'nhaCungCapDichVu.brandName.tenBrandName', headerContainerStyle: 'min-width: 12rem',cellStyle: 'text-align:center' },
+            { header: 'Nhà cung cấp', field: '_tenNhaCungCapDichVu', headerContainerStyle: 'min-width: 12rem', cellStyle: 'text-align:center' },  
+            { header: 'BrandName', field: '_tenBrandName', headerContainerStyle: 'min-width: 12rem', cellStyle: 'text-align:center' },             
             { header: 'Đơn giá', field: 'donGia.donGia', headerContainerStyle: 'min-width: 12rem' ,cellStyle: 'text-align:center'},
             { header: 'Thao tác', headerContainerStyle: 'width: 6rem', cellViewType: CellViewTypes.CUSTOM_COMP, customComponent: TblAction ,cellStyle: 'text-align:center'}
         ];
@@ -57,20 +59,23 @@ export class NhaMang extends BaseComponent {
   
    
 
-    getData(){
-        this.loading = true;
-        this._nhaMangService.findPaging({...this.query,keyword: this.searchForm.value.search}).subscribe({
-            next: (res) => {
-                if( this.isResponseSucceed(res, false)){
-                    this.data = res.data.items;
-                    this.totalRecords = res.data.totalItems;
-                }
+    getData() {
+    this.loading = true;
+    this._nhaMangService.findPaging({ ...this.query, keyword: this.searchForm.value.search }).subscribe({
+        next: (res) => {
+            if (this.isResponseSucceed(res, false)) {
+                this.data = res.data.items.map((item: IViewNhaMang) => ({
+                    ...item,
+                    _tenNhaCungCapDichVu: item.nhaCungCapDichVu?.tenNhaCungCapDichVu || '',
+                    _tenBrandName: item.nhaCungCapDichVu?.brandNames?.map(bn => bn.tenBrandName).join('; ') || '',
+                }));
+                this.totalRecords = res.data.totalItems;
             }
-        })
-        .add(() => {
-            this.loading = false;
-        });
-    }
+        }
+    }).add(() => {
+        this.loading = false;
+    });
+}
     onPageChanged($event: PaginatorState) {
         this.query.pageNumber = ($event.page ?? 0) + 1;
         this.getData();
@@ -88,7 +93,7 @@ export class NhaMang extends BaseComponent {
             
     }
     onOpenUpdate(data: IViewNhaMang) {
-            const ref = this._dialogService.open(UpdateNhaMang, { header: 'Cập nhật thông tin nhà mạng', closable: true, modal: true, styleClass: 'w-96', focusOnShow: false, data: data });
+            const ref = this._dialogService.open(UpdateNhaMang, { header: 'Cập nhật thông tin nhà mạng', closable: true, modal: true, styleClass: 'w-[600px]', focusOnShow: false, data: data });
             ref.onClose.subscribe((result) => {
                 if (result) {
                     this.getData();

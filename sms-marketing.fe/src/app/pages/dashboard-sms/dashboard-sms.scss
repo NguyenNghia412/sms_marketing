@@ -1,0 +1,14 @@
+:host ::ng-deep {
+    .chart-filter .p-datepicker {
+        width: 8rem;
+    }
+    .chart-filter .p-datepicker input {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.85rem;
+    }
+}
+
+.chart-row {
+    display: flex;
+    align-items: stretch;
+}
