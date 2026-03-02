@@ -476,7 +476,7 @@ namespace thongbao.be.application.Config.Implements
 
         }
 
-        public List<GetListBrandNameResponseDto> GetListBrandName(int idNhaCungCapDichVu)
+        public List<GetListBrandNameResDto> GetListBrandName(int idNhaCungCapDichVu)
         {
             _logger.LogInformation($"{nameof(GetListBrandName)} idNhaCungCapDichVu = ${idNhaCungCapDichVu}");
             var isSuperAdmin = IsSuperAdmin();
@@ -489,12 +489,12 @@ namespace thongbao.be.application.Config.Implements
                         select bn;
 
             var data = query.ToList();
-            var result = _mapper.Map<List<GetListBrandNameResponseDto>>(data);
+            var result = _mapper.Map<List<GetListBrandNameResDto>>(data);
 
             return result;
         }
 
-        public List<GetListBrandNameResponseDto> GetListBrandNameByCurrentUser()
+        public List<GetListBrandNameResDto> GetListBrandNameByCurrentUser()
         {
             _logger.LogInformation($"{nameof(GetListBrandName)}");
             var isSuperAdmin = IsSuperAdmin();
@@ -513,7 +513,7 @@ namespace thongbao.be.application.Config.Implements
                         select bn;
 
             var data = query.ToList();
-            var result = _mapper.Map<List<GetListBrandNameResponseDto>>(data);
+            var result = _mapper.Map<List<GetListBrandNameResDto>>(data);
             return result;
         }
 
