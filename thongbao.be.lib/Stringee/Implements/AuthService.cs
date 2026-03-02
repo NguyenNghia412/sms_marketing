@@ -82,7 +82,7 @@ namespace thongbao.be.lib.Stringee.Implements
             var message = $"{headerEncoded}.{payloadEncoded}";
             var signature = CreateHmacSha256Signature(message, _apiSecretKey ?? "");
             var signatureEncoded = Base64UrlEncode(signature);
-
+            //
             var jwt = $"{headerEncoded}.{payloadEncoded}.{signatureEncoded}";
 
             return await Task.FromResult(jwt);
