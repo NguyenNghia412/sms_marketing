@@ -363,7 +363,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             using (var workbook = new XLWorkbook())
             {
                 // ===== SHEET 1: THỐNG KÊ CHIẾN DỊCH =====
-                var worksheetChienDich = workbook.Worksheets.Add("Thống Kê Chiến Dịch");
+                var worksheetChienDich = workbook.Worksheets.Add("Thống Kê");
 
                 int cdRow = 1;
                 var cdTitleCell = worksheetChienDich.Cell(cdRow, 1);
@@ -454,7 +454,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 worksheetChienDich.Column(9).Width = 25;
 
                 // ===== SHEET 2: THỐNG KÊ (CODE GỐC - GIỮ NGUYÊN) =====
-                var worksheet = workbook.Worksheets.Add("Thống Kê");
+                var worksheet = workbook.Worksheets.Add("Thống Kê Chi Tiết");
 
                 int currentRow = 1;
 
