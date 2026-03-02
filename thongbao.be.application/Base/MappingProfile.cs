@@ -38,7 +38,7 @@ namespace thongbao.be.application.Base
             CreateMap<DotDiemDanh, ViewDotDiemDanhDto>();
             CreateMap<domain.DanhBa.DanhBa, ViewDanhBaDto>();
             CreateMap<domain.ToChuc.ToChuc, ViewToChucDto>();
-            CreateMap<domain.GuiTinNhan.BrandName, GetListBrandNameResponseDto>();
+            CreateMap<domain.GuiTinNhan.BrandName, GetListBrandNameResDto>();
             CreateMap<domain.DanhBa.DanhBa, GetListDanhBaResponseDto>();
             CreateMap<domain.DanhBa.DanhBaSms, ViewDanhBaChiTietDto>();
             CreateMap<domain.MauNoiDung.MauNoiDungSms, ViewMauNoiDungDto>();
