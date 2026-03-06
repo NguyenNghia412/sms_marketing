@@ -154,7 +154,7 @@ namespace thongbao.be.application.DashBoard.Implements
 
             var user = _userManager.Users.FirstOrDefault(u => u.Id == userId);
 
-
+            
             var listTheoThang = new List<GetStatisticsUserCreditsByUser>();
 
             for (int thang = 1; thang <= 12; thang++)
@@ -162,17 +162,24 @@ namespace thongbao.be.application.DashBoard.Implements
                 var tuNgay = new DateTime(nam, thang, 1);
                 var denNgay = new DateTime(nam, thang, DateTime.DaysInMonth(nam, thang));
 
-                var creditDaSuDung = _smDbContext.UserCredits
+                var credits = _smDbContext.UserCredits
                     .Where(x => x.UserId == userId
                                 && !x.Deleted
                                 && x.ThoiGianBatDauApDungHanMuc <= denNgay
                                 && x.ThoiGianBatDauApDungHanMuc >= tuNgay)
-                    .Select(x => x.CreditDaSuDung)
+                    .Select(x => new
+                    {
+                        x.CreditDaSuDung,
+                        x.HanMucCredit,
+                    })
                     .ToList();
 
-                var tongCreditDaSuDung = creditDaSuDung
-                    .Where(x => !string.IsNullOrEmpty(x))
-                    .Sum(x => double.Parse(x));
+                var tongCreditDaSuDung = credits
+                    .Where(x => !string.IsNullOrEmpty(x.CreditDaSuDung))
+                    .Sum(x => double.Parse(x.CreditDaSuDung));
+                var tongHanMucCredit = credits
+                    .Where(x => !string.IsNullOrEmpty(x.HanMucCredit))
+                    .Sum(x => double.Parse(x.HanMucCredit));
 
                 listTheoThang.Add(new GetStatisticsUserCreditsByUser
                 {
@@ -184,6 +191,7 @@ namespace thongbao.be.application.DashBoard.Implements
                         FullName = user != null ? user.FullName : string.Empty
                     },
                     CreditDaSuDung = tongCreditDaSuDung.ToString(),
+                    HanMucCredit = tongHanMucCredit.ToString(),
                     DonVi = "VND"
                 });
             }

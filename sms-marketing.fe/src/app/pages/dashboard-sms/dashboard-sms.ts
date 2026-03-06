@@ -247,21 +247,32 @@ export class DashboardSms implements OnInit, OnDestroy {
     private buildCreditsByMonthChart(data?: any): void {
         const documentStyle = getComputedStyle(document.documentElement);
         const thangLabels = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
-        const values = new Array(12).fill(0);
+        const daSuDung = new Array(12).fill(0);
+        const chuaSuDung = new Array(12).fill(0);
         const items = Array.isArray(data) ? data : data?.userCreditsTheoThangByUsers || [];
 
         items.forEach((item: any) => {
             const month = new Date(item.tuNgay).getMonth();
-            values[month] = Number(item.creditDaSuDung) || 0;
+            const used = Number(item.creditDaSuDung) || 0;
+            const hanMuc = Number(item.hanMucCredit) || 0;
+            daSuDung[month] = used;
+            chuaSuDung[month] = Math.max(hanMuc - used, 0);
         });
 
         this.creditsByMonthChartData = {
             labels: thangLabels,
             datasets: [
                 {
-                    label: 'Credit đã sử dụng',
+                    label: 'Credits đã sử dụng',
                     backgroundColor: documentStyle.getPropertyValue('--p-primary-400'),
-                    data: values,
+                    data: daSuDung,
+                    barThickness: 32,
+                    borderSkipped: false
+                },
+                {
+                    label: 'Credits chưa sử dụng',
+                    backgroundColor: '#f59e0b',
+                    data: chuaSuDung,
                     barThickness: 32,
                     borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 0, bottomRight: 0 },
                     borderSkipped: false
@@ -282,14 +293,26 @@ export class DashboardSms implements OnInit, OnDestroy {
             maintainAspectRatio: false,
             aspectRatio: 0.8,
             plugins: {
-                legend: { labels: { color: textColor } }
+                legend: { labels: { color: textColor } },
+                tooltip: {
+                    callbacks: {
+                        afterBody: (context: any) => {
+                            const idx = context[0].dataIndex;
+                            const datasets = context[0].chart.data.datasets;
+                            const total = datasets.reduce((sum: number, ds: any) => sum + (ds.data[idx] || 0), 0);
+                            return `Hạn mức: ${total.toLocaleString()}`;
+                        }
+                    }
+                }
             },
             scales: {
                 x: {
+                    stacked: true,
                     ticks: { color: textMutedColor },
                     grid: { color: 'transparent', borderColor: 'transparent' }
                 },
                 y: {
+                    stacked: true,
                     ticks: { color: textMutedColor },
                     grid: { color: borderColor, borderColor: 'transparent', drawTicks: false }
                 }

@@ -24,6 +24,7 @@ namespace thongbao.be.application.DashBoard.Dto
         public DateTime DenNgay { get; set; }
         public UserTheoThang User { get; set; } = new UserTheoThang();
         public string CreditDaSuDung { get; set; } = String.Empty;
+        public string HanMucCredit { get; set; } = String.Empty;
         public string DonVi { get; set; } = "VND";
     }
 }

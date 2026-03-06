@@ -40,5 +40,6 @@ export interface IGetStatisticsUserCreditsByUser{
 	denNgay: Date,
 	user?: IUser,
 	creditDaSuDung?: string,
+	hanMucCredit?: string,
 	donVi?: string,
 }
