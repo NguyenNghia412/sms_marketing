@@ -11,18 +11,13 @@ import { MenuItem } from 'primeng/api';
 import { Menu, MenuModule } from 'primeng/menu';
 import { Breadcrumb } from '@/shared/components/breadcrumb/breadcrumb';
 import { CreateQuickSms } from './create-quick-sms/create-quick-sms';
+import { AnHienTruong } from './an-hien-truong/an-hien-truong';
 import { TblAction } from './tbl-action/tbl-action';
 import { UpdateThueBao } from './update-thue-bao/update-thue-bao';
 import { UpdateChiTietDuLieuThueBao } from './update-chi-tiet-du-lieu-thue-bao/update-chi-tiet-du-lieu-thue-bao';
 import { TableModule } from 'primeng/table';
 import { Paginator, PaginatorModule } from 'primeng/paginator';
 import { TBL_CUSTOM_COMP_EMIT } from '@/shared/components/data-table/data-table';
-
-interface IDisplayItem {
-    type: 'column' | 'separator';
-    col?: IColumn;
-    hiddenCols?: IColumn[];
-}
 
 @Component({
     selector: 'app-chi-tiet',
@@ -46,6 +41,11 @@ export class ChiTiet extends BaseComponent {
             label: 'Thêm nhanh người nhận',
             icon: 'pi pi-user-plus',
             command: () => this.themNhanhNguoiNhan()
+        },
+        {
+            label: 'Ẩn/Hiện trường',
+            icon: 'pi pi-eye',
+            command: () => this.openAnHienTruong()
         }
     ];
 
@@ -58,7 +58,6 @@ export class ChiTiet extends BaseComponent {
     });
 
     columns: IColumn[] = [];
-    displayItems: IDisplayItem[] = [];
     data: IViewRowNguoiNhan[] = [];
     query: IFindPagingNguoiNhan = {
         pageNumber: 1,
@@ -70,17 +69,7 @@ export class ChiTiet extends BaseComponent {
     customEmit = new EventEmitter<any>();
     customInjector!: Injector;
 
-    hiddenColumns = new Set<string>();
-
-    contextMenuVisible = false;
-    contextMenuX = 0;
-    contextMenuY = 0;
-    contextMenuTargetCol: IColumn | null = null;
-
-    showColMenuVisible = false;
-    showColMenuX = 0;
-    showColMenuY = 0;
-    showColTargetCols: IColumn[] = [];
+    hiddenFieldIds: number[] = [];
 
     override ngOnInit(): void {
         this.customInjector = Injector.create({
@@ -118,6 +107,23 @@ export class ChiTiet extends BaseComponent {
         });
     }
 
+    openAnHienTruong(): void {
+        const ref = this._dialogService.open(AnHienTruong, {
+            header: 'Ẩn/Hiện trường',
+            closable: true,
+            modal: true,
+            styleClass: 'w-[500px]',
+            focusOnShow: false,
+            data: { idDanhBa: this.idDanhBa, hiddenFieldIds: [...this.hiddenFieldIds] }
+        });
+        ref.onClose.subscribe((result: number[] | null) => {
+            if (result !== null && result !== undefined) {
+                this.hiddenFieldIds = result;
+                this.getData();
+            }
+        });
+    }
+
     onSearch() {
         this.getData();
     }
@@ -129,8 +135,9 @@ export class ChiTiet extends BaseComponent {
 
     getData() {
         this.loading = true;
+        const items = this.hiddenFieldIds.map(id => ({ idDanhBaTruongData: id }));
         this._danhBaService
-            .findPagingNguoiNhan({ ...this.query, keyword: this.searchForm.get('search')?.value })
+            .findPagingNguoiNhan({ ...this.query, keyword: this.searchForm.get('search')?.value, items })
             .subscribe({
                 next: (res) => {
                     if (this.isResponseSucceed(res, false)) {
@@ -143,7 +150,6 @@ export class ChiTiet extends BaseComponent {
                             this.data = [];
                         }
                         this.totalRecords = res.data.totalItems;
-                        this.buildDisplayItems();
                     }
                 }
             })
@@ -192,92 +198,6 @@ export class ChiTiet extends BaseComponent {
             }
             return mapData;
         });
-    }
-
-    // ---- Column hide/show ----
-
-    buildDisplayItems(): void {
-        const items: IDisplayItem[] = [];
-        let pendingHidden: IColumn[] = [];
-        for (const col of this.columns) {
-            const key = this.getColumnKey(col);
-            if (this.hiddenColumns.has(key)) {
-                pendingHidden.push(col);
-            } else {
-                if (pendingHidden.length > 0) {
-                    items.push({ type: 'separator', hiddenCols: [...pendingHidden] });
-                    pendingHidden = [];
-                }
-                items.push({ type: 'column', col });
-            }
-        }
-        if (pendingHidden.length > 0) {
-            items.push({ type: 'separator', hiddenCols: [...pendingHidden] });
-        }
-        this.displayItems = items;
-    }
-
-    getColumnKey(col: IColumn): string {
-        return col.field || col.header;
-    }
-
-    isFixedColumn(col: IColumn): boolean {
-        if (col.cellViewType === CellViewTypes.INDEX) return true;
-        if (col.cellViewType === CellViewTypes.CUSTOM_COMP) return true;
-        if (col.field === 'hoVaTen') return true;
-        if (col.field === 'soDienThoai') return true;
-        return false;
-    }
-
-    onHeaderRightClick(event: MouseEvent, col: IColumn): void {
-        if (this.isFixedColumn(col)) return;
-        event.preventDefault();
-        event.stopPropagation();
-        this.closeAllMenus();
-        this.contextMenuTargetCol = col;
-        this.contextMenuX = event.clientX;
-        this.contextMenuY = event.clientY;
-        this.contextMenuVisible = true;
-    }
-
-    hideColumn(): void {
-        if (!this.contextMenuTargetCol) return;
-        const key = this.getColumnKey(this.contextMenuTargetCol);
-        this.hiddenColumns.add(key);
-        this.contextMenuVisible = false;
-        this.contextMenuTargetCol = null;
-        this.buildDisplayItems();
-    }
-
-    onSeparatorClick(event: MouseEvent, hiddenCols: IColumn[]): void {
-        event.stopPropagation();
-        this.closeAllMenus();
-        this.showColTargetCols = hiddenCols;
-        this.showColMenuX = event.clientX;
-        this.showColMenuY = event.clientY;
-        this.showColMenuVisible = true;
-    }
-
-    showColumn(col: IColumn): void {
-        const key = this.getColumnKey(col);
-        this.hiddenColumns.delete(key);
-        this.showColMenuVisible = false;
-        this.showColTargetCols = [];
-        this.buildDisplayItems();
-    }
-
-    showAllHiddenColumns(cols: IColumn[]): void {
-        for (const col of cols) {
-            this.hiddenColumns.delete(this.getColumnKey(col));
-        }
-        this.showColMenuVisible = false;
-        this.showColTargetCols = [];
-        this.buildDisplayItems();
-    }
-
-    closeAllMenus(): void {
-        this.contextMenuVisible = false;
-        this.showColMenuVisible = false;
     }
 
     getIndexValue(rowIndex: number): number {

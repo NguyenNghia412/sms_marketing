@@ -4,11 +4,15 @@
     <ng-template #header>
         <tr>
             @for (col of (columns()); track $index) {
-            <th [style]="col.headerContainerStyle" [pSortableColumn]="col.field" pResizableColumn>
+            <th [style]="col.headerContainerStyle" [pSortableColumn]="col.cellViewType === cellViewTypes.CHECKBOX ? undefined : col.field" pResizableColumn>
                 <div class="flex justify-center cols-center">
+                    @if (col.cellViewType === cellViewTypes.CHECKBOX) {
+                    <input type="checkbox" [checked]="isAllChecked(col.field || '')" (click)="$event.stopPropagation()" (change)="onHeaderCheckboxClick(col)" />
+                    } @else {
                     {{ col.header }}
                     @if (col.field) {
                     <p-sortIcon [field]="col.field"></p-sortIcon>
+                    }
                     }
                 </div>
             </th>
@@ -20,8 +24,10 @@
             @for (col of (columns()); track $index) {
             <td [style]="col.cellStyle" [ngClass]="col.cellClass" (click)="onCellClick(col, row)">
                 @if (col.cellViewType === cellViewTypes.CUSTOM_COMP) {
-                <ng-container
-                    *ngComponentOutlet="col.customComponent; injector: customInjector ; inputs: {row, rowIndex, data: get(row, col.field || '') }"></ng-container>
+                <div class="flex items-center justify-center w-full">
+                    <ng-container
+                        *ngComponentOutlet="col.customComponent; injector: customInjector ; inputs: {row, rowIndex, data: get(row, col.field || '') }"></ng-container>
+                </div>
                 } @else if (col.cellViewType === cellViewTypes.INDEX) {
                 <span>{{ getIndexValue(rowIndex) }}</span>
                 } @else if (col.cellRender) {

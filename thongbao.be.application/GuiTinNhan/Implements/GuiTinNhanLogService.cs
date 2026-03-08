@@ -132,6 +132,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             {
                                 Id = dbs.Id,
                                 HoVaTen = dbs.HoVaTen,
+                                IdDanhBa = dbs.IdDanhBa,
+                                IdDanhBaSms = dbs.Id,
                                 //SoDienThoai = dbs.SoDienThoai,
                                 BrandName = new BrandNameDto
                                 {
@@ -140,6 +142,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                                 },
                                 Log = new ViewGuiTinNhanLogDto
                                 {
+                                
                                     SoDienThoai = log.SoDienThoai,
                                     NoiDungChiTiet = log.NoiDungChiTiet,
                                     Price = isSuperAdmin ? log.Price : null,
@@ -218,15 +221,38 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                 int currentRow = 1;
 
-
                 var titleCell = worksheet.Cell(currentRow, 1);
                 titleCell.Value = "THỐNG KÊ CÁC CHIẾN DỊCH GỬI TIN NHẮN";
                 titleCell.Style.Font.Bold = true;
                 titleCell.Style.Font.FontSize = 16;
                 titleCell.Style.Fill.BackgroundColor = XLColor.LightGray;
                 titleCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                worksheet.Range(currentRow, 1, currentRow, 10).Merge();
+                worksheet.Range(currentRow, 1, currentRow, 11).Merge();
                 currentRow += 3;
+
+                
+                worksheet.Cell(currentRow, 1).Value = "Tháng";
+                worksheet.Cell(currentRow, 2).Value = "STT";
+                worksheet.Cell(currentRow, 3).Value = "Tên Chiến Dịch";
+                worksheet.Cell(currentRow, 4).Value = "Họ và Tên";
+                worksheet.Cell(currentRow, 5).Value = "Số điện thoại";
+                worksheet.Cell(currentRow, 6).Value = "BrandName";
+                worksheet.Cell(currentRow, 7).Value = "Nội Dung Chi Tiết";
+                worksheet.Cell(currentRow, 8).Value = "Trạng Thái";
+                worksheet.Cell(currentRow, 9).Value = "Số Lượng Tin Nhắn";
+                worksheet.Cell(currentRow, 10).Value = "Người Đặt Lệnh";
+                worksheet.Cell(currentRow, 11).Value = "Thời Gian Gửi";
+
+                for (int col = 1; col <= 11; col++)
+                {
+                    var headerCell = worksheet.Cell(currentRow, col);
+                    headerCell.Style.Fill.BackgroundColor = XLColor.LightGray;
+                    headerCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    headerCell.Style.Font.Bold = true;
+                }
+                currentRow++;
+
+                int sttTong = 1;
 
                 foreach (var idChienDich in dto.idChienDichs)
                 {
@@ -235,8 +261,9 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                     if (chienDich == null)
                         continue;
+
                     var chienDichLogs = await _smDbContext.ChienDichLogTrangThaiGuis
-                        .Where(x => x.IdChienDich == idChienDich   && !x.Deleted)
+                        .Where(x => x.IdChienDich == idChienDich && !x.Deleted)
                         .ToListAsync();
 
                     if (!chienDichLogs.Any())
@@ -247,106 +274,44 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         .Join(_smDbContext.BrandName, log => log.IdBrandName, bn => bn.Id, (log, bn) => new { log, bn })
                         .ToListAsync();
 
-                    
+                    if (!chiTietLogs.Any())
+                        continue;
 
-                    var headerRow = currentRow;
-                    worksheet.Cell(currentRow, 1).Value = "Stt";
-                    worksheet.Cell(currentRow, 2).Value = "Tên Chiến Dịch";
-                    worksheet.Cell(currentRow, 3).Value = "Họ và Tên";
-                    worksheet.Cell(currentRow, 4).Value = "Số điện thoại";
-                    worksheet.Cell(currentRow, 5).Value = "BrandName";
-                    worksheet.Cell(currentRow, 6).Value = "Nội Dung Chi Tiết";
-                    worksheet.Cell(currentRow, 7).Value = "Trạng Thái";
-                    worksheet.Cell(currentRow, 8).Value = "Số Lượng Tin Nhắn";
-                    worksheet.Cell(currentRow, 9).Value = "Người Đặt Lệnh";
-                    worksheet.Cell(currentRow, 10).Value = "Thời Gian Gửi";
-
-
-                    for (int col = 1; col <= 10; col++)
-                    {
-                        var headerCell = worksheet.Cell(headerRow, col);
-                        headerCell.Style.Fill.BackgroundColor = XLColor.LightGray;
-                        headerCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    }
-
-                    currentRow++;
-
-                    int stt = 1;
                     foreach (var chiTiet in chiTietLogs)
                     {
-                        worksheet.Cell(currentRow, 1).Value = stt;
-                        worksheet.Cell(currentRow, 2).Value = chienDich.TenChienDich;
-                        worksheet.Cell(currentRow, 3).Value = chiTiet.log.IdDanhBaSms.HasValue ?
+                        worksheet.Cell(currentRow, 1).Value = chiTiet.log.CreatedDate.HasValue
+                            ? $"Tháng {chiTiet.log.CreatedDate.Value.Month}/{chiTiet.log.CreatedDate.Value.Year}"
+                            : "";
+                        worksheet.Cell(currentRow, 2).Value = sttTong;
+                        worksheet.Cell(currentRow, 3).Value = chienDich.TenChienDich;
+                        worksheet.Cell(currentRow, 4).Value = chiTiet.log.IdDanhBaSms.HasValue ?
                             _smDbContext.DanhBaSms.FirstOrDefault(x => x.Id == chiTiet.log.IdDanhBaSms)?.HoVaTen ?? "" : "";
-                        worksheet.Cell(currentRow, 4).Value = chiTiet.log.SoDienThoai;
-                        worksheet.Cell(currentRow, 5).Value = chiTiet.bn.TenBrandName;
-                        worksheet.Cell(currentRow, 6).Value = chiTiet.log.NoiDungChiTiet;
-                        worksheet.Cell(currentRow, 7).Value = chiTiet.log.TrangThai;
-                        worksheet.Cell(currentRow, 8).Value = chiTiet.log.SoLuongTinNhan;
-                        worksheet.Cell(currentRow, 9).Value = !string.IsNullOrEmpty(chiTiet.log.CreatedBy) ?
+                        worksheet.Cell(currentRow, 5).Value = chiTiet.log.SoDienThoai;
+                        worksheet.Cell(currentRow, 6).Value = chiTiet.bn.TenBrandName;
+                        worksheet.Cell(currentRow, 7).Value = chiTiet.log.NoiDungChiTiet;
+                        worksheet.Cell(currentRow, 8).Value = chiTiet.log.TrangThai;
+                        worksheet.Cell(currentRow, 9).Value = chiTiet.log.SoLuongTinNhan;
+                        worksheet.Cell(currentRow, 10).Value = !string.IsNullOrEmpty(chiTiet.log.CreatedBy) ?
                             _smDbContext.Users.FirstOrDefault(x => x.Id == chiTiet.log.CreatedBy)?.FullName ?? "" : "";
-                        worksheet.Cell(currentRow, 10).Value = chiTiet.log.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");
+                        worksheet.Cell(currentRow, 11).Value = chiTiet.log.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");
 
                         currentRow++;
-                        stt++;
+                        sttTong++;
                     }
-
-                    currentRow++;
-
-
-                    var totalSms = chienDichLogs.Sum(x => x.TongSoSms);
-                    var successSms = chienDichLogs.Sum(x => x.SmsSendSuccess);
-                    var failedSms = chienDichLogs.Sum(x => x.SmsSendFailed);
-                    var danhBa = chienDichLogs.FirstOrDefault()?.IdDanhBa;
-                    var danhBaName = danhBa.HasValue ?
-                        _smDbContext.DanhBas.FirstOrDefault(x => x.Id == danhBa)?.TenDanhBa : null;
-
-                    var statsHeaderCell = worksheet.Cell(currentRow, 1);
-                    statsHeaderCell.Value = "THỐNG KÊ";
-                    statsHeaderCell.Style.Font.Bold = true;
-                    statsHeaderCell.Style.Font.FontSize = 14;
-                    statsHeaderCell.Style.Fill.BackgroundColor = XLColor.FromArgb(70, 130, 180);
-                    statsHeaderCell.Style.Font.FontColor = XLColor.White;
-                    statsHeaderCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    worksheet.Range(currentRow, 1, currentRow, 2).Merge();
-                    currentRow++;
-                    worksheet.Cell(currentRow, 1).Value = "Chiến dịch :";
-                    worksheet.Cell(currentRow, 1).Style.Font.Bold = true;
-                    worksheet.Cell(currentRow, 2).Value = chienDich.TenChienDich;
-                    currentRow++;
-
-                    worksheet.Cell(currentRow, 1).Value = "Danh Bạ :";
-                    worksheet.Cell(currentRow, 1).Style.Font.Bold = true;
-                    worksheet.Cell(currentRow, 2).Value = danhBaName ?? "NULL";
-                    currentRow++;
-
-                    worksheet.Cell(currentRow, 1).Value = "Tổng số thuê bao :";
-                    worksheet.Cell(currentRow, 1).Style.Font.Bold = true;
-                    worksheet.Cell(currentRow, 2).Value = totalSms;
-                    currentRow++;
-
-                    worksheet.Cell(currentRow, 1).Value = "Tổng số thuê bao gửi thành công :";
-                    worksheet.Cell(currentRow, 1).Style.Font.Bold = true;
-                    worksheet.Cell(currentRow, 2).Value = successSms;
-                    currentRow++;
-
-                    worksheet.Cell(currentRow, 1).Value = "Tổng số thuê bao gửi không thành công :";
-                    worksheet.Cell(currentRow, 1).Style.Font.Bold = true;
-                    worksheet.Cell(currentRow, 2).Value = failedSms;
-                    currentRow += 3;
-
                 }
 
-                worksheet.Column(1).Width = 30;
-                worksheet.Column(2).Width = 45;
-                worksheet.Column(3).Width = 30;
+                // Column widths
+                worksheet.Column(1).Width = 15;
+                worksheet.Column(2).Width = 8;
+                worksheet.Column(3).Width = 40;
                 worksheet.Column(4).Width = 25;
-                worksheet.Column(5).Width = 15;
-                worksheet.Column(6).Width = 45;
-                worksheet.Column(7).Width = 15;
+                worksheet.Column(5).Width = 18;
+                worksheet.Column(6).Width = 18;
+                worksheet.Column(7).Width = 45;
                 worksheet.Column(8).Width = 15;
                 worksheet.Column(9).Width = 20;
-                worksheet.Column(10).Width = 20;
+                worksheet.Column(10).Width = 22;
+                worksheet.Column(11).Width = 22;
 
                 using (var memoryStream = new System.IO.MemoryStream())
                 {
@@ -375,16 +340,16 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 worksheetChienDich.Range(cdRow, 1, cdRow, 9).Merge();
                 cdRow += 2;
 
-                // Header
+                // Header Sheet 1
                 worksheetChienDich.Cell(cdRow, 1).Value = "STT";
-                worksheetChienDich.Cell(cdRow, 2).Value = "Tên Chiến Dịch";
-                worksheetChienDich.Cell(cdRow, 3).Value = "BrandName";
-                worksheetChienDich.Cell(cdRow, 4).Value = "Tổng số thuê bao";
-                worksheetChienDich.Cell(cdRow, 5).Value = "Tổng số thuê bao gửi thành công";
-                worksheetChienDich.Cell(cdRow, 6).Value = "Tổng số thuê bao gửi thất bại";
-                worksheetChienDich.Cell(cdRow, 7).Value = "Tổng số lượng tin nhắn";
-                worksheetChienDich.Cell(cdRow, 8).Value = "Tổng chi phí";
-                worksheetChienDich.Cell(cdRow, 9).Value = "Ngày tạo";
+                worksheetChienDich.Cell(cdRow, 2).Value = "Nội dung chiến dịch";
+                worksheetChienDich.Cell(cdRow, 3).Value = "Thời gian";
+                worksheetChienDich.Cell(cdRow, 4).Value = "Người gửi";
+                worksheetChienDich.Cell(cdRow, 5).Value = "Số lượt gửi";
+                worksheetChienDich.Cell(cdRow, 6).Value = "Số lượng tin nhắn";
+                worksheetChienDich.Cell(cdRow, 7).Value = "Đơn giá";
+                worksheetChienDich.Cell(cdRow, 8).Value = "Chi phí";
+                worksheetChienDich.Cell(cdRow, 9).Value = "Ghi chú";
 
                 for (int col = 1; col <= 9; col++)
                 {
@@ -395,7 +360,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 }
                 cdRow++;
 
-                // Lấy dữ liệu thống kê chiến dịch theo tháng
+                // Lấy dữ liệu Sheet 1
                 var chienDichLogsTheoThangForSheet1 = await _smDbContext.ChienDichLogTrangThaiGuis
                     .Where(x => x.CreatedDate.HasValue && x.CreatedDate.Value.Month == dto.Thang && x.CreatedDate.Value.Year == dto.Nam && !x.Deleted)
                     .ToListAsync();
@@ -403,6 +368,10 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 var groupByChienDichForSheet1 = chienDichLogsTheoThangForSheet1.GroupBy(x => x.IdChienDich);
 
                 int sttChienDich = 1;
+                long tongChiPhiTatCa = 0;
+                long tongSoLuotGuiTatCa = 0;
+                long tongSoLuongTinNhanTatCa = 0;
+
                 foreach (var chienDichGroup in groupByChienDichForSheet1)
                 {
                     var idChienDich = chienDichGroup.Key;
@@ -414,47 +383,67 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
                     var chienDichLogs = chienDichGroup.ToList();
                     var totalSms = chienDichLogs.Sum(x => x.TongSoSms);
-                    var successSms = chienDichLogs.Sum(x => x.SmsSendSuccess);
-                    var failedSms = chienDichLogs.Sum(x => x.SmsSendFailed);
-                    var tongChiPhi = chienDichLogs.Sum(x => x.TongChiPhi);
+                    var tongChiPhi = chienDichLogs.Sum(x => (long)x.TongChiPhi);
 
-                    // Lấy tổng số lượng tin nhắn từ GuiTinNhanLogChiTiets
                     var tongSoLuongTinNhan = await _smDbContext.GuiTinNhanLogChiTiets
                         .Where(x => x.IdChienDich == idChienDich && x.CreatedDate.HasValue && x.CreatedDate.Value.Month == dto.Thang && x.CreatedDate.Value.Year == dto.Nam && !x.Deleted)
                         .SumAsync(x => x.SoLuongTinNhan);
 
-                    // Lấy BrandName
-                    var brandNameId = chienDichLogs.FirstOrDefault()?.IdBrandName;
-                    var brandName = brandNameId.HasValue ?
-                        _smDbContext.BrandName.FirstOrDefault(x => x.Id == brandNameId)?.TenBrandName ?? "" : "";
+                    var idBrandName = chienDichLogs.FirstOrDefault()?.IdBrandName ?? 0;
+                    var donGia = _smDbContext.CauHinhDonGias
+                        .Where(x => x.IdBrandName == idBrandName && !x.Deleted)
+                        .OrderByDescending(x => x.CreatedDate)
+                        .Select(x => x.DonGia)
+                        .FirstOrDefault();
+
+                    var nguoiGui = !string.IsNullOrEmpty(chienDich.CreatedBy)
+                        ? _smDbContext.Users.FirstOrDefault(x => x.Id == chienDich.CreatedBy)?.FullName ?? ""
+                        : "";
 
                     worksheetChienDich.Cell(cdRow, 1).Value = sttChienDich;
                     worksheetChienDich.Cell(cdRow, 2).Value = chienDich.TenChienDich;
-                    worksheetChienDich.Cell(cdRow, 3).Value = brandName;
-                    worksheetChienDich.Cell(cdRow, 4).Value = totalSms;
-                    worksheetChienDich.Cell(cdRow, 5).Value = successSms;
-                    worksheetChienDich.Cell(cdRow, 6).Value = failedSms;
-                    worksheetChienDich.Cell(cdRow, 7).Value = tongSoLuongTinNhan;
-                    worksheetChienDich.Cell(cdRow, 8).Value = isSuperAdmin ? tongChiPhi : 0;
-                    worksheetChienDich.Cell(cdRow, 9).Value = chienDich.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");
+                    worksheetChienDich.Cell(cdRow, 3).Value = chienDich.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");
+                    worksheetChienDich.Cell(cdRow, 4).Value = nguoiGui;
+                    worksheetChienDich.Cell(cdRow, 5).Value = totalSms;
+                    worksheetChienDich.Cell(cdRow, 6).Value = tongSoLuongTinNhan;
+                    worksheetChienDich.Cell(cdRow, 7).Value = donGia;
+                    worksheetChienDich.Cell(cdRow, 8).Value = tongChiPhi;
+                    worksheetChienDich.Cell(cdRow, 9).Value = "";
+
+                    tongSoLuotGuiTatCa += totalSms;
+                    tongSoLuongTinNhanTatCa += tongSoLuongTinNhan;
+                    tongChiPhiTatCa += tongChiPhi;
 
                     cdRow++;
                     sttChienDich++;
                 }
 
-                // Set column widths cho sheet Thống Kê Chiến Dịch
-                worksheetChienDich.Column(1).Width = 10;
-                worksheetChienDich.Column(2).Width = 40;
-                worksheetChienDich.Column(3).Width = 20;
-                worksheetChienDich.Column(4).Width = 20;
-                worksheetChienDich.Column(5).Width = 35;
-                worksheetChienDich.Column(6).Width = 35;
-                worksheetChienDich.Column(7).Width = 25;
-                worksheetChienDich.Column(8).Width = 20;
-                worksheetChienDich.Column(9).Width = 25;
+                // Dòng Tổng cộng - màu vàng
+                worksheetChienDich.Cell(cdRow, 1).Value = "Tổng cộng";
+                worksheetChienDich.Cell(cdRow, 5).Value = tongSoLuotGuiTatCa;
+                worksheetChienDich.Cell(cdRow, 6).Value = tongSoLuongTinNhanTatCa;
+                worksheetChienDich.Cell(cdRow, 8).Value = tongChiPhiTatCa;
 
-                // ===== SHEET 2: THỐNG KÊ (CODE GỐC - GIỮ NGUYÊN) =====
-                var worksheet = workbook.Worksheets.Add("Thống Kê Chi Tiết");
+                for (int col = 1; col <= 9; col++)
+                {
+                    var totalCell = worksheetChienDich.Cell(cdRow, col);
+                    totalCell.Style.Fill.BackgroundColor = XLColor.Yellow;
+                    totalCell.Style.Font.Bold = true;
+                }
+
+                // Column widths Sheet 1
+                worksheetChienDich.Column(1).Width = 8;
+                worksheetChienDich.Column(2).Width = 40;
+                worksheetChienDich.Column(3).Width = 22;
+                worksheetChienDich.Column(4).Width = 25;
+                worksheetChienDich.Column(5).Width = 15;
+                worksheetChienDich.Column(6).Width = 20;
+                worksheetChienDich.Column(7).Width = 12;
+                worksheetChienDich.Column(8).Width = 18;
+                worksheetChienDich.Column(9).Width = 20;
+
+                // ===== SHEET 2: THỐNG KÊ CHI TIẾT THEO LỆNH =====
+                var worksheet = workbook.Worksheets.Add("Thống Kê Chi Tiết Theo Lệnh");
 
                 int currentRow = 1;
 
@@ -464,7 +453,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 titleCell.Style.Font.FontSize = 16;
                 titleCell.Style.Fill.BackgroundColor = XLColor.LightGray;
                 titleCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                worksheet.Range(currentRow, 1, currentRow, 10).Merge();
+                worksheet.Range(currentRow, 1, currentRow, 11).Merge();
                 currentRow += 3;
 
                 var chienDichLogsTheoThang = await _smDbContext.ChienDichLogTrangThaiGuis
@@ -480,10 +469,33 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         workbook.SaveAs(memoryStream);
                         return memoryStream.ToArray();
                     }
-                    ;
                 }
 
                 var groupByChienDich = chienDichLogsTheoThang.GroupBy(x => x.IdChienDich);
+
+                // Header 1 lần duy nhất - ngoài foreach
+                worksheet.Cell(currentRow, 1).Value = "Tháng";
+                worksheet.Cell(currentRow, 2).Value = "STT";
+                worksheet.Cell(currentRow, 3).Value = "Tên Chiến Dịch";
+                worksheet.Cell(currentRow, 4).Value = "Họ và Tên";
+                worksheet.Cell(currentRow, 5).Value = "Số điện thoại";
+                worksheet.Cell(currentRow, 6).Value = "BrandName";
+                worksheet.Cell(currentRow, 7).Value = "Nội Dung Chi Tiết";
+                worksheet.Cell(currentRow, 8).Value = "Trạng Thái";
+                worksheet.Cell(currentRow, 9).Value = "Số Lượng Tin Nhắn";
+                worksheet.Cell(currentRow, 10).Value = "Người Đặt Lệnh";
+                worksheet.Cell(currentRow, 11).Value = "Thời Gian Gửi";
+
+                for (int col = 1; col <= 11; col++)
+                {
+                    var headerCell = worksheet.Cell(currentRow, col);
+                    headerCell.Style.Fill.BackgroundColor = XLColor.LightGray;
+                    headerCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    headerCell.Style.Font.Bold = true;
+                }
+                currentRow++;
+
+                int sttTong = 1;
 
                 foreach (var chienDichGroup in groupByChienDich)
                 {
@@ -502,103 +514,39 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     if (!chiTietLogs.Any())
                         continue;
 
-                    var headerRow = currentRow;
-                    worksheet.Cell(currentRow, 1).Value = "Stt";
-                    worksheet.Cell(currentRow, 2).Value = "Tên Chiến Dịch";
-                    worksheet.Cell(currentRow, 3).Value = "Họ và Tên";
-                    worksheet.Cell(currentRow, 4).Value = "Số điện thoại";
-                    worksheet.Cell(currentRow, 5).Value = "BrandName";
-                    worksheet.Cell(currentRow, 6).Value = "Nội Dung Chi Tiết";
-                    worksheet.Cell(currentRow, 7).Value = "Trạng Thái";
-                    worksheet.Cell(currentRow, 8).Value = "Số Lượng Tin Nhắn";
-                    worksheet.Cell(currentRow, 9).Value = "Người Đặt Lệnh";
-                    worksheet.Cell(currentRow, 10).Value = "Thời Gian Gửi";
-
-                    for (int col = 1; col <= 9; col++)
-                    {
-                        var headerCell = worksheet.Cell(headerRow, col);
-                        headerCell.Style.Fill.BackgroundColor = XLColor.LightGray;
-                        headerCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    }
-
-                    currentRow++;
-
-                    int stt = 1;
                     foreach (var chiTiet in chiTietLogs)
                     {
-                        worksheet.Cell(currentRow, 1).Value = stt;
-                        worksheet.Cell(currentRow, 2).Value = chienDich.TenChienDich;
-                        worksheet.Cell(currentRow, 3).Value = chiTiet.log.IdDanhBaSms.HasValue ?
+                        worksheet.Cell(currentRow, 1).Value = $"Tháng {chiTiet.log.CreatedDate?.Month}/{chiTiet.log.CreatedDate?.Year}";
+                        worksheet.Cell(currentRow, 2).Value = sttTong;
+                        worksheet.Cell(currentRow, 3).Value = chienDich.TenChienDich;
+                        worksheet.Cell(currentRow, 4).Value = chiTiet.log.IdDanhBaSms.HasValue ?
                             _smDbContext.DanhBaSms.FirstOrDefault(x => x.Id == chiTiet.log.IdDanhBaSms)?.HoVaTen ?? "" : "";
-                        worksheet.Cell(currentRow, 4).Value = chiTiet.log.SoDienThoai;
-                        worksheet.Cell(currentRow, 5).Value = chiTiet.bn.TenBrandName;
-                        worksheet.Cell(currentRow, 6).Value = chiTiet.log.NoiDungChiTiet;
-                        worksheet.Cell(currentRow, 7).Value = chiTiet.log.TrangThai;
-                        worksheet.Cell(currentRow, 8).Value = chiTiet.log.SoLuongTinNhan;
-                        worksheet.Cell(currentRow, 9).Value = !string.IsNullOrEmpty(chiTiet.log.CreatedBy) ?
+                        worksheet.Cell(currentRow, 5).Value = chiTiet.log.SoDienThoai;
+                        worksheet.Cell(currentRow, 6).Value = chiTiet.bn.TenBrandName;
+                        worksheet.Cell(currentRow, 7).Value = chiTiet.log.NoiDungChiTiet;
+                        worksheet.Cell(currentRow, 8).Value = chiTiet.log.TrangThai;
+                        worksheet.Cell(currentRow, 9).Value = chiTiet.log.SoLuongTinNhan;
+                        worksheet.Cell(currentRow, 10).Value = !string.IsNullOrEmpty(chiTiet.log.CreatedBy) ?
                             _smDbContext.Users.FirstOrDefault(x => x.Id == chiTiet.log.CreatedBy)?.FullName ?? "" : "";
-                        worksheet.Cell(currentRow, 10).Value = chiTiet.log.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");
+                        worksheet.Cell(currentRow, 11).Value = chiTiet.log.CreatedDate?.ToString("dd/MM/yyyy HH:mm:ss");
 
                         currentRow++;
-                        stt++;
+                        sttTong++;
                     }
-
-                    currentRow++;
-
-                    var chienDichLogsOfMonth = chienDichGroup.ToList();
-                    var totalSms = chienDichLogsOfMonth.Sum(x => x.TongSoSms);
-                    var successSms = chienDichLogsOfMonth.Sum(x => x.SmsSendSuccess);
-                    var failedSms = chienDichLogsOfMonth.Sum(x => x.SmsSendFailed);
-                    var danhBa = chienDichLogsOfMonth.FirstOrDefault()?.IdDanhBa;
-                    var danhBaName = danhBa.HasValue ?
-                        _smDbContext.DanhBas.FirstOrDefault(x => x.Id == danhBa)?.TenDanhBa : null;
-
-                    var statsHeaderCell = worksheet.Cell(currentRow, 1);
-                    statsHeaderCell.Value = "THỐNG KÊ";
-                    statsHeaderCell.Style.Font.Bold = true;
-                    statsHeaderCell.Style.Font.FontSize = 14;
-                    statsHeaderCell.Style.Fill.BackgroundColor = XLColor.FromArgb(70, 130, 180);
-                    statsHeaderCell.Style.Font.FontColor = XLColor.White;
-                    statsHeaderCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    worksheet.Range(currentRow, 1, currentRow, 2).Merge();
-                    currentRow++;
-
-                    worksheet.Cell(currentRow, 1).Value = "Chiến dịch :";
-                    worksheet.Cell(currentRow, 1).Style.Font.Bold = true;
-                    worksheet.Cell(currentRow, 2).Value = chienDich.TenChienDich;
-                    currentRow++;
-
-                    worksheet.Cell(currentRow, 1).Value = "Danh Bạ :";
-                    worksheet.Cell(currentRow, 1).Style.Font.Bold = true;
-                    worksheet.Cell(currentRow, 2).Value = danhBaName ?? "NULL";
-                    currentRow++;
-
-                    worksheet.Cell(currentRow, 1).Value = "Tổng số thuê bao :";
-                    worksheet.Cell(currentRow, 1).Style.Font.Bold = true;
-                    worksheet.Cell(currentRow, 2).Value = totalSms;
-                    currentRow++;
-
-                    worksheet.Cell(currentRow, 1).Value = "Tổng số thuê bao gửi thành công :";
-                    worksheet.Cell(currentRow, 1).Style.Font.Bold = true;
-                    worksheet.Cell(currentRow, 2).Value = successSms;
-                    currentRow++;
-
-                    worksheet.Cell(currentRow, 1).Value = "Tổng số thuê bao gửi không thành công :";
-                    worksheet.Cell(currentRow, 1).Style.Font.Bold = true;
-                    worksheet.Cell(currentRow, 2).Value = failedSms;
-                    currentRow += 3;
                 }
 
-                worksheet.Column(1).Width = 30;
-                worksheet.Column(2).Width = 45;
-                worksheet.Column(3).Width = 30;
+                // Column widths Sheet 2
+                worksheet.Column(1).Width = 15;
+                worksheet.Column(2).Width = 8;
+                worksheet.Column(3).Width = 40;
                 worksheet.Column(4).Width = 25;
-                worksheet.Column(5).Width = 15;
-                worksheet.Column(6).Width = 45;
-                worksheet.Column(7).Width = 15;
+                worksheet.Column(5).Width = 18;
+                worksheet.Column(6).Width = 18;
+                worksheet.Column(7).Width = 45;
                 worksheet.Column(8).Width = 15;
                 worksheet.Column(9).Width = 20;
-                worksheet.Column(10).Width = 20;
+                worksheet.Column(10).Width = 22;
+                worksheet.Column(11).Width = 22;
 
                 using (var memoryStream = new System.IO.MemoryStream())
                 {
@@ -606,7 +554,6 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     return memoryStream.ToArray();
                 }
             }
-        
-    }
+        }
     }
 }

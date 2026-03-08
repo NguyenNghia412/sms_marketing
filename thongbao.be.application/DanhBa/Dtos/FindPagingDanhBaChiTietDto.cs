@@ -9,5 +9,11 @@ namespace thongbao.be.application.DanhBa.Dtos
 {
     public class FindPagingDanhBaChiTietDto: BaseRequestPagingDto
     {
+        public List<ListFieldIsHidden>? Items {  get; set; } 
+    }
+
+    public class ListFieldIsHidden
+    {
+        public int IdDanhBaTruongData { get; set; }
     }
 }

@@ -87,6 +87,11 @@ export interface IFileFailedImportCache{
 }
 export interface IFindPagingNguoiNhan extends IBaseRequestPaging {
   idDanhBa: number,
+  items?: IListFieldIsHidden[],
+}
+
+export interface IListFieldIsHidden{
+  idDanhBaTruongData: number
 }
 
 export type IViewRowNguoiNhan = {
@@ -172,4 +177,14 @@ export interface IUpdateDanhBaSmsRequest {
   id: number;
   hoVaTen: string;
   soDienThoai: string;
+}
+
+export interface ICreateDanhBaFromTinNhanError {
+  idChienDich: number,
+  items: IListTinNhanError[],
+}
+
+export interface IListTinNhanError {
+  idDanhBa: number,
+  idDanhBaSms: number,
 }

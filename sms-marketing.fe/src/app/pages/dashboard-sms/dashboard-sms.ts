@@ -112,7 +112,7 @@ export class DashboardSms implements OnInit, OnDestroy {
             next: (res) => {
                 this.buildSmsChart(res?.data);
             }
-        });
+        });     
     }
 
     private loadListUsers(): void {
@@ -264,14 +264,16 @@ export class DashboardSms implements OnInit, OnDestroy {
             datasets: [
                 {
                     label: 'Credits đã sử dụng',
-                    backgroundColor: documentStyle.getPropertyValue('--p-primary-400'),
+                    backgroundColor: '#f59e0b',
+                    
                     data: daSuDung,
                     barThickness: 32,
                     borderSkipped: false
                 },
                 {
                     label: 'Credits chưa sử dụng',
-                    backgroundColor: '#f59e0b',
+                    //backgroundColor: '#f59e0b',
+                    backgroundColor: documentStyle.getPropertyValue('--p-primary-400'),
                     data: chuaSuDung,
                     barThickness: 32,
                     borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 0, bottomRight: 0 },

@@ -3,33 +3,51 @@ import { SharedImports } from "@/shared/import.shared";
 import { Component, inject, OnInit } from "@angular/core";
 import { BaseComponent } from '@/shared/components/base/base-component';
 import { ReportSmsService } from "@/services/report-sms.service";
+import { DanhBaService } from "@/services/danh-ba.service";
 import { CampaginStatuses } from "@/shared/constants/channel.constants";
 import { FormGroup, FormControl } from "@angular/forms";
 import { IColumn } from "@/shared/models/data-table.models";
 import { CellViewTypes } from "@/shared/constants/data-table.constants";
 import { IFindPagingChiTietChienDichReport, IViewChiTietChienDichReport } from "@/models/report-sms.models";
+import { IListTinNhanError } from "@/models/danh-ba.models";
 import { PaginatorState } from "primeng/paginator";
 import { ActivatedRoute } from "@angular/router";
 import { Breadcrumb } from "primeng/breadcrumb";
 import { MenuItem } from "primeng/api";
 import { Popover } from 'primeng/popover';
 import { ReportStatus } from "@/shared/constants/report.constants";
+import { MenuModule } from "primeng/menu";
+import { ConfirmDialog } from "primeng/confirmdialog";
+import { ConfirmationService } from "primeng/api";
 
 @Component({
     selector: 'app-thong-ke-chien-dich-chi-tiet',
-    imports: [...SharedImports, DataTable,Breadcrumb,Popover],
+    imports: [...SharedImports, DataTable, Breadcrumb, Popover, MenuModule, ConfirmDialog],
     templateUrl: './chi-tiet-report.html',
-    styleUrl: './chi-tiet-report.scss'
+    styleUrl: './chi-tiet-report.scss',
+    providers: [ConfirmationService]
 })
 export class ChiTietChienDichReport extends BaseComponent implements OnInit {
     
     _reportSmsService = inject(ReportSmsService);
+    _danhBaService = inject(DanhBaService);
     private route = inject(ActivatedRoute);
+    confirmationService = inject(ConfirmationService);
     items: MenuItem[] = [{ label: 'Thống kê', routerLink: '/report/chien-dich-report'  }, { label: 'Thống kê chi tiết ' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
     statusList = ReportStatus.List;
     idChienDich: number = 0;
-    idDanhBa: number = 0; 
+    idDanhBa: number = 0;
+    isSelectMode = false;
+    isAllSelected = false;
+    selectedItems: IListTinNhanError[] = [];
+    actionMenuItems: MenuItem[] = [
+        {
+            label: 'Tạo nhanh danh bạ mới',
+            icon: 'pi pi-plus',
+            command: () => this.onToggleSelectMode()
+        }
+    ];
     
     searchForm: FormGroup = new FormGroup({
         search: new FormControl(''),
@@ -82,7 +100,128 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
     }
 
     onCustomEmit($event: any) {
-    
+        if ($event.type === 'cellClick' && $event.field === 'checked' && this.isSelectMode) {
+            this.onCheckboxChange($event.data);
+        }
+        if ($event.type === 'headerCheckbox' && $event.field === 'checked' && this.isSelectMode) {
+            this.onSelectAll();
+        }
+    }
+
+    onToggleSelectMode(): void {
+        this.isSelectMode = !this.isSelectMode;
+        this.isAllSelected = false;
+        this.selectedItems = [];
+        if (this.isSelectMode) {
+            this.addCheckboxColumn();
+        } else {
+            this.removeCheckboxColumn();
+        }
+    }
+
+    addCheckboxColumn(): void {
+        if (!this.columns.some(c => c.field === 'checked')) {
+            this.columns.unshift({
+                header: 'Chọn',
+                field: 'checked',
+                headerContainerStyle: 'width: 5rem',
+                cellViewType: CellViewTypes.CHECKBOX
+            });
+        }
+    }
+
+    removeCheckboxColumn(): void {
+        this.columns = this.columns.filter(c => c.field !== 'checked');
+        this.data = this.data.map(item => {
+            const { checked, ...rest } = item as any;
+            return rest;
+        });
+    }
+
+    onCheckboxChange(row: any): void {
+        const item: IListTinNhanError = { idDanhBa: row.idDanhBa, idDanhBaSms: row.idDanhBaSms };
+        const index = this.selectedItems.findIndex(i => i.idDanhBa === item.idDanhBa && i.idDanhBaSms === item.idDanhBaSms);
+        if (index > -1) {
+            this.selectedItems.splice(index, 1);
+            row.checked = false;
+            this.isAllSelected = false;
+        } else {
+            this.selectedItems.push(item);
+            row.checked = true;
+        }
+        this.data = [...this.data];
+    }
+
+    onSelectAll(): void {
+        if (this.isAllSelected) {
+            this.isAllSelected = false;
+            this.selectedItems = [];
+            this.data = this.data.map(item => ({ ...item, checked: false } as any));
+            return;
+        }
+
+        this.loading = true;
+        this._reportSmsService.findPagingChiTietChienDich(
+            this.idChienDich,
+            this.idDanhBa ?? 0,
+            {
+                pageNumber: 1,
+                pageSize: this.totalRecords,
+                keyword: this.searchForm.get('search')?.value,
+                trangThai: this.searchForm.get('trangThai')?.value || ''
+            }
+        ).subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, false)) {
+                    this.selectedItems = res.data.items.map(item => ({
+                        idDanhBa: item.idDanhBa!,
+                        idDanhBaSms: item.idDanhBaSms!
+                    }));
+                    this.isAllSelected = true;
+                    this.data = this.data.map(item => ({ ...item, checked: true } as any));
+                }
+            },
+            complete: () => {
+                this.loading = false;
+            }
+        });
+    }
+
+    onConfirmCreateDanhBa(): void {
+        if (this.selectedItems.length === 0) {
+            return;
+        }
+        this.confirmationService.confirm({
+            message: `Bạn có chắc chắn muốn tạo danh bạ mới từ ${this.selectedItems.length} thuê bao đã chọn?`,
+            header: 'Xác nhận',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                this.createDanhBa();
+            }
+        });
+    }
+
+    createDanhBa(): void {
+        this.loading = true;
+        this._danhBaService.createDanhBaThueBaoLoiGuiTinNhan({
+            idChienDich: this.idChienDich,
+            items: this.selectedItems
+        }).subscribe({
+            next: (res) => {
+                if (this.isResponseSucceed(res, true, 'Tạo danh bạ thành công')) {
+                    this.selectedItems = [];
+                    this.isSelectMode = false;
+                    this.removeCheckboxColumn();
+                    this.getData();
+                }
+            },
+            error: (err) => {
+                this.messageError(err?.message || 'Có lỗi xảy ra');
+            },
+            complete: () => {
+                this.loading = false;
+            }
+        });
     }
 
     getData() {
@@ -108,7 +247,8 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
                         tenBrandName: item.brandName?.tenBrandName || '',
                         gia: item.log?.price || 0,
                         messageText: item.log?.message || '',
-                        ngayGui : item.log?.ngayGui || ''
+                        ngayGui : item.log?.ngayGui || '',
+                        ...(this.isSelectMode ? { checked: this.isAllSelected || this.selectedItems.some(s => s.idDanhBa === item.idDanhBa && s.idDanhBaSms === item.idDanhBaSms) } : {})
                     }));
                     this.totalRecords = res.data.totalItems;
                     

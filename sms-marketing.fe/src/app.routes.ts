@@ -5,6 +5,7 @@ import { Documentation } from './app/pages/documentation/documentation';
 import { Landing } from './app/pages/landing/landing';
 import { Notfound } from './app/pages/notfound/notfound';
 import { authGuard } from '@/shared/guard/auth-guard';
+import { homeRedirectGuard } from '@/shared/guard/home-redirect.guard';
 import { diemDanhGuard } from '@/shared/guard/diem-danh-guard';
 
 
@@ -14,7 +15,7 @@ export const appRoutes: Routes = [
         component: AppLayout,
         canActivate: [authGuard],
         children: [
-            { path: '', redirectTo: 'dashboard-sms/dashboard-sms', pathMatch: 'full' },
+            { path: '', canActivate: [homeRedirectGuard], children: [] },
             { path: 'channel', loadChildren: () => import('./app/pages/channel/channel.routes') },
             { path: 'danh-ba', loadChildren: () => import('./app/pages/danh-ba/danh-ba.routes') },
             { path: 'template', loadChildren: () => import('./app/pages/template/template.routes') },

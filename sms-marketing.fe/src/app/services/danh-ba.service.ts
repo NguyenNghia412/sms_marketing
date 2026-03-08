@@ -1,6 +1,6 @@
-import { GetFileExcelInforResponseDto, GetTruongDataDanhBaSmsResponse, ICreateDanhBa, ICreateDanhBaChienDichQuick, ICreateDanhBaSmsQuick, IDataChiTietThueBao, IFindPagingDanhBa, IFindPagingNguoiNhan, IGetExcelInfor, IImportCreateDanhBa, IUpdateDanhBa, IUpdateDanhBaSmsRequest, IUpdateDataChiTietThueBaoRequest, IUploadFileImportDanhBa, IVerifyImportCreateDanhBa, IVerifyImportDanhBa, IViewChiTietDanhBaSms, IViewChiTietThueBaoNguoiNhan, IViewRowDanhBa, IViewRowNguoiNhan, IViewVerifyImportDanhBa } from '@/models/danh-ba.models';
+import { GetFileExcelInforResponseDto, GetTruongDataDanhBaSmsResponse, ICreateDanhBa, ICreateDanhBaChienDichQuick, ICreateDanhBaFromTinNhanError, ICreateDanhBaSmsQuick, IDataChiTietThueBao, IFindPagingDanhBa, IFindPagingNguoiNhan, IGetExcelInfor, IImportCreateDanhBa, IUpdateDanhBa, IUpdateDanhBaSmsRequest, IUpdateDataChiTietThueBaoRequest, IUploadFileImportDanhBa, IVerifyImportCreateDanhBa, IVerifyImportDanhBa, IViewChiTietDanhBaSms, IViewChiTietThueBaoNguoiNhan, IViewRowDanhBa, IViewRowNguoiNhan, IViewVerifyImportDanhBa } from '@/models/danh-ba.models';
 import { IBaseResponse, IBaseResponseWithData, IBaseResponsePaging } from '@/shared/models/request-paging.base.models';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -136,9 +136,20 @@ export class DanhBaService {
     findPagingNguoiNhan(query: IFindPagingNguoiNhan) {
         const uri = `${this.api}/paging-danh-ba-chi-tiet`;
 
-        return this.http.get<IBaseResponsePaging<IViewRowNguoiNhan>>(uri, {
-            params: { ...query }
+        let params = new HttpParams()
+            .set('pageNumber', query.pageNumber)
+            .set('pageSize', query.pageSize)
+            .set('idDanhBa', query.idDanhBa);
+
+        if (query.keyword) {
+            params = params.set('keyword', query.keyword);
+        }
+
+        query.items?.forEach((item, i) => {
+            params = params.set(`Items[${i}].IdDanhBaTruongData`, item.idDanhBaTruongData);
         });
+
+        return this.http.get<IBaseResponsePaging<IViewRowNguoiNhan>>(uri, { params });
     }
 
     createDanhBaChienDichQuick(body:ICreateDanhBaChienDichQuick){
@@ -184,5 +195,10 @@ export class DanhBaService {
     updateThueBaoById(body: IUpdateDanhBaSmsRequest) {
         const uri = `${this.api}/${body.idDanhBa}/thue-bao/${body.id}/thue-bao`;
         return this.http.put<IBaseResponse>(uri, body);
+    }
+
+    createDanhBaThueBaoLoiGuiTinNhan(body: ICreateDanhBaFromTinNhanError) {
+        const uri = `${this.api}/danh-ba-thue-bao-loi-gui-tin-nhan`;
+        return this.http.post<IBaseResponse>(uri, body);
     }
 }

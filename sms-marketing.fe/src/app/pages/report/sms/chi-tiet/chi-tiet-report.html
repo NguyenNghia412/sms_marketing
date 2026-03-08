@@ -14,7 +14,16 @@
                     <p-button type="button" icon="pi pi-filter" label="Tìm kiếm theo" (onClick)="filterPanel.toggle($event)" [outlined]="true" styleClass="whitespace-nowrap" />
                 </div>
             </div>
-            <p-button label="Tìm kiếm" type="submit" styleClass="w-32 flex-shrink-0" />
+            <div class="flex flex-row items-center space-x-2 flex-shrink-0">
+                <p-button label="Tìm kiếm" type="submit" styleClass="w-32" />
+                @if (isSelectMode) {
+                    <p-button label="Tạo danh bạ" icon="pi pi-check" (onClick)="onConfirmCreateDanhBa()" [disabled]="selectedItems.length === 0" />
+                    <p-button label="Hủy" icon="pi pi-times" severity="secondary" (onClick)="onToggleSelectMode()" />
+                } @else {
+                    <p-button icon="pi pi-cog" label="Thao tác" (onClick)="actionMenu.toggle($event)" />
+                    <p-menu #actionMenu [model]="actionMenuItems" [popup]="true" />
+                }
+            </div>
         </div>
         <p-popover #filterPanel [style]="{ width: '320px' }">
             <div class="flex flex-col space-y-4 p-4">
@@ -32,3 +41,4 @@
         </div>
     </div>
 </div>
+<p-confirmDialog />

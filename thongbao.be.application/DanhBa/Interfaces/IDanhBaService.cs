@@ -37,6 +37,7 @@ namespace thongbao.be.application.DanhBa.Interfaces
         public void UpdateDataChiTietThueBao(UpdateDataChiTietThueBaoRequestDto dto);
         public ViewChiTietDanhBaSmsDto GetChiTietDanhBaSms(int idDanhBa, int idThueBao);
         public void UpdateDanhBaSms(UpdateDanhBaSmsRequestDto dto);
+        public  Task CreateDanhBaFromGuiTinNhanLoi(CreateDanhBaFromTinNhanErrorDto dto);
 
     }
 }

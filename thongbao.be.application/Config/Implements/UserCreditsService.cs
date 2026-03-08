@@ -524,5 +524,10 @@ namespace thongbao.be.application.Config.Implements
 
             return result;
         }
+
+        public void UpdateToiDaHanMucCreditsGiaHan (UpdateToiDaHanMucCreditsGiaHanDto dto)
+        {
+            _logger.LogInformation($"{nameof(UpdateToiDaHanMucCreditsGiaHan)} dto = {JsonSerializer.Serialize(dto)}");
+        }
     }
 }

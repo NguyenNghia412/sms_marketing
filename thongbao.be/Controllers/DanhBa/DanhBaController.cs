@@ -434,5 +434,19 @@ namespace thongbao.be.Controllers.DanhBa
             }
         }
 
+        [Permission(PermissionKeys.DanhBaAdd)]
+        [HttpPost("danh-ba-thue-bao-loi-gui-tin-nhan")]
+        public async Task<ApiResponse> CreateDanhBaThueBaoLoiGuiTinNhan([FromBody] CreateDanhBaFromTinNhanErrorDto dto)
+        {
+            try
+            {
+                await _danhBaService.CreateDanhBaFromGuiTinNhanLoi(dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

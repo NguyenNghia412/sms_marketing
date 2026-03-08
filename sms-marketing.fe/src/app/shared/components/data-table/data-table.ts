@@ -79,6 +79,18 @@ export class DataTable implements OnInit {
         return col.clickable === true;
     }
 
+    isAllChecked(field: string): boolean {
+        const dataArr = this.data();
+        return dataArr.length > 0 && dataArr.every(row => this.get<boolean>(row, field));
+    }
+
+    onHeaderCheckboxClick(col: IColumn): void {
+        this.onCustomComp.emit({
+            type: 'headerCheckbox',
+            field: col.field
+        });
+    }
+
     formatVND(value: number | string | null | undefined): string {
         if (value == null || value === '' || value === undefined) return '';
         return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');

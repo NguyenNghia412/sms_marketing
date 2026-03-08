@@ -85,6 +85,124 @@ namespace thongbao.be.application.DanhBa.Implements
             _smDbContext.DanhBas.Add(danhBa);
             _smDbContext.SaveChanges();
         }
+        // Đây là hàm tạo danh bạ từ các tin nhắn bị lỗi khi gửi 
+        public async Task CreateDanhBaFromGuiTinNhanLoi(CreateDanhBaFromTinNhanErrorDto dto)
+        {
+            var currentUserId = getCurrentUserId();
+            var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            const int BATCH_SIZE = 100;
+
+            var chienDich = await _smDbContext.ChienDiches
+                .FirstOrDefaultAsync(x => x.Id == dto.IdChienDich && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
+
+            var tenDanhBa = $"Danh sách các thuê bao gặp lỗi trong quá trình gửi tin nhắn của chiến dịch {chienDich.TenChienDich}";
+
+            var newDanhBa = new thongbao.be.domain.DanhBa.DanhBa
+            {
+                TenDanhBa = tenDanhBa,
+                Mota = tenDanhBa,
+                Type = 0,
+                CreatedBy = currentUserId,
+                CreatedDate = now
+            };
+            _smDbContext.DanhBas.Add(newDanhBa);
+            await _smDbContext.SaveChangesAsync();
+
+            var uniqueDanhBaIds = dto.Items.Select(x => x.IdDanhBa).Distinct().ToList();
+
+            var sourceTruongDatas = await _smDbContext.DanhBaTruongDatas
+                .Where(x => uniqueDanhBaIds.Contains(x.IdDanhBa) && !x.Deleted)
+                .ToListAsync();
+
+            var newTruongDatas = sourceTruongDatas
+                .GroupBy(x => x.TenTruong)
+                .Select(g => new DanhBaTruongData
+                {
+                    IdDanhBa = newDanhBa.Id,
+                    TenTruong = g.Key,
+                    Type = g.First().Type,
+                    CreatedBy = currentUserId,
+                    CreatedDate = now
+                })
+                .ToList();
+
+            _smDbContext.DanhBaTruongDatas.AddRange(newTruongDatas);
+            await _smDbContext.SaveChangesAsync();
+
+            var oldTruongIdToNewId = new Dictionary<int, int>();
+            foreach (var sourceTruong in sourceTruongDatas)
+            {
+                var matched = newTruongDatas.FirstOrDefault(x => x.TenTruong == sourceTruong.TenTruong);
+                if (matched != null)
+                    oldTruongIdToNewId[sourceTruong.Id] = matched.Id;
+            }
+
+            var allSourceSmsIds = dto.Items.Select(x => x.IdDanhBaSms).Distinct().ToList();
+
+            var allSourceSmsList = await _smDbContext.DanhBaSms
+                .Where(x => allSourceSmsIds.Contains(x.Id) && !x.Deleted)
+                .ToDictionaryAsync(x => x.Id);
+
+            var allSourceDanhBaDatas = await _smDbContext.DanhBaDatas
+                .Where(x => allSourceSmsIds.Contains(x.IdDanhBaChiTiet) && !x.Deleted)
+                .ToListAsync();
+
+            var sourceDanhBaDataLookup = allSourceDanhBaDatas
+                .GroupBy(x => x.IdDanhBaChiTiet)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var items = dto.Items.ToList();
+            for (int i = 0; i < items.Count; i += BATCH_SIZE)
+            {
+                var batch = items.Skip(i).Take(BATCH_SIZE).ToList();
+                var smsToInsert = new List<(ListTinNhanError item, DanhBaSms newSms)>();
+
+                foreach (var item in batch)
+                {
+                    if (!allSourceSmsList.TryGetValue(item.IdDanhBaSms, out var sourceSms))
+                        continue;
+
+                    smsToInsert.Add((item, new DanhBaSms
+                    {
+                        IdDanhBa = newDanhBa.Id,
+                        HoVaTen = sourceSms.HoVaTen,
+                        SoDienThoai = sourceSms.SoDienThoai,
+                        CreatedBy = currentUserId,
+                        CreatedDate = now
+                    }));
+                }
+
+                _smDbContext.DanhBaSms.AddRange(smsToInsert.Select(x => x.newSms));
+                await _smDbContext.SaveChangesAsync();
+
+                var dataToInsert = new List<DanhBaData>();
+                foreach (var (item, newSms) in smsToInsert)
+                {
+                    if (!sourceDanhBaDataLookup.TryGetValue(item.IdDanhBaSms, out var sourceDataList))
+                        continue;
+
+                    foreach (var sourceData in sourceDataList)
+                    {
+                        if (!oldTruongIdToNewId.TryGetValue(sourceData.IdTruongData, out int newTruongId))
+                            continue;
+
+                        dataToInsert.Add(new DanhBaData
+                        {
+                            IdDanhBa = newDanhBa.Id,
+                            IdDanhBaChiTiet = newSms.Id,
+                            IdTruongData = newTruongId,
+                            Data = sourceData.Data,
+                            CreatedBy = currentUserId,
+                            CreatedDate = now
+                        });
+                    }
+                }
+
+                _smDbContext.DanhBaDatas.AddRange(dataToInsert);
+                await _smDbContext.SaveChangesAsync();
+            }
+        }
 
         public void Update(int idDanhBa, UpdateDanhBaDto dto)
         {
@@ -179,17 +297,20 @@ namespace thongbao.be.application.DanhBa.Implements
             var idDanhBaChiTiets = items.Select(x => x.Id).ToList();
             var danhBaTruongDatas = _smDbContext.DanhBaTruongDatas.Where(x => x.IdDanhBa == idDanhBa && !x.Deleted).ToList();
             var danhBaDatas = _smDbContext.DanhBaDatas.Where(x => idDanhBaChiTiets.Contains(x.IdDanhBaChiTiet) && !x.Deleted).ToList();
+            var hiddenIds = dto.Items?.Select(x => x.IdDanhBaTruongData).ToHashSet() ?? new HashSet<int>();
 
             foreach (var item in items)
             {
-                item.Items = danhBaTruongDatas.Select(truong => new ViewDanhBaChiTietTruongDto
-                {
-                    Id = truong.Id,
-                    TenTruong = truong.TenTruong,
-                    Data = danhBaDatas.Where(d => d.IdTruongData == truong.Id && d.IdDanhBaChiTiet == item.Id)
+                item.Items = danhBaTruongDatas
+                    .Where(truong => !hiddenIds.Contains(truong.Id))
+                    .Select(truong => new ViewDanhBaChiTietTruongDto
+                    {
+                        Id = truong.Id,
+                        TenTruong = truong.TenTruong,
+                        Data = danhBaDatas.Where(d => d.IdTruongData == truong.Id && d.IdDanhBaChiTiet == item.Id)
                                       .Select(d => new ViewDanhBaChiTietDataDto { Id = d.Id, Data = d.Data })
                                       .FirstOrDefault()
-                }).ToList();
+                    }).ToList();
             }
 
             var response = new BaseResponsePagingDto<ViewDanhBaChiTietDto>

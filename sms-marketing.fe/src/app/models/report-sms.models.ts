@@ -41,6 +41,8 @@ export interface IViewChiTietChienDichReport {
     id?: number;
     hoVaTen?: string;
     //maSoNguoiDung?: string;
+    idDanhBa?: number;
+    idDanhBaSms?: number;
     soDienThoai?: string;
     brandName?: IBrandName;
     log?: ILogReport;
