@@ -23,5 +23,8 @@ namespace thongbao.be.application.Config.Interfaces
         public BaseResponsePagingDto<ViewUserCreditsDto> FindPagingByUserId(FindPagingByUserIdDto dto);
         public  Task AddCreditToUserCredits();
         public ViewUserCreditsByUserDto? GetCurrentUserCredits();
+
+        public void UpdateToiDaHanMucCreditsGiaHan(UpdateToiDaHanMucCreditsGiaHanDto dto);
+        public GetToiDaHanMucCreditsGiaHanDto GetToiDaHanMucCreditsGiaHan(int id);
     }
 }

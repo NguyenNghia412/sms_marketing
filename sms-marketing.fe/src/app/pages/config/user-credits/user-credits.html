@@ -15,7 +15,8 @@
           
             <div class="flex flex-row items-center space-x-2">
                 <p-button label="Tìm kiếm" type="submit" styleClass="w-32" />
-                <p-button label="Thêm mới" styleClass="w-32" (onClick)="onOpenCreate()" type="button" />
+                <p-button icon="pi pi-cog" label="Thao tác" (onClick)="actionMenu.toggle($event)" type="button" />
+                <p-menu #actionMenu [model]="actionMenuItems" [popup]="true" />
             </div>
         </div>
        

@@ -1,5 +1,5 @@
-import { ICreateUserCredits, IFindPagingUserCredits, IFindPagingUserCreditsForUser, IUpdateUserCredits, IViewUserCreditsByUser } from "@/models/user-credits.models";
-import { IBaseResponseWithData } from "@/shared/models/request-paging.base.models";
+import { ICreateUserCredits, IFindPagingUserCredits, IFindPagingUserCreditsForUser, IUpdateToiDaHanMucCreditsGiaHan, IUpdateUserCredits, IViewUserCreditsByUser } from "@/models/user-credits.models";
+import { IBaseResponse, IBaseResponseWithData } from "@/shared/models/request-paging.base.models";
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 
@@ -61,6 +61,11 @@ export class UserCreditsService {
         return this.http.get<IBaseResponseWithData<IViewUserCreditsByUser>>(`${this.api}/user-credits`);
     }
 
+    getToiDaHanMucCreditsGiaHan(id: number) {
+        return this.http.get<IBaseResponseWithData<any>>(`${this.api}/${id}/toi-da-han-muc-credits-gia-han`);
+    }
 
-    
+    updateToiDaHanMucCreditsGiaHan(body: IUpdateToiDaHanMucCreditsGiaHan) {
+        return this.http.put<IBaseResponse>(`${this.api}/toi-da-han-muc-credits-gia-han`, body);
+    }
 }

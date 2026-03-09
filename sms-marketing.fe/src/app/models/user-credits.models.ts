@@ -76,3 +76,9 @@ export interface IViewUserCreditDto {
     fullName: string;
     email: string;
 }
+
+export interface IUpdateToiDaHanMucCreditsGiaHan {
+    id: number;
+    toiDaHanMucCreditGiaHan: string;
+    donVi: string;
+}

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.VariantTypes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -528,6 +529,29 @@ namespace thongbao.be.application.Config.Implements
         public void UpdateToiDaHanMucCreditsGiaHan (UpdateToiDaHanMucCreditsGiaHanDto dto)
         {
             _logger.LogInformation($"{nameof(UpdateToiDaHanMucCreditsGiaHan)} dto = {JsonSerializer.Serialize(dto)}");
+            var isSuperAdmin = IsSuperAdmin();
+            var currentUserId = getCurrentUserId();
+            var vietNamNow = GetVietnamTime();
+            var toiDaHanMuc = _smDbContext.ToiDaHanMucCreditsGiaHan.FirstOrDefault(x => x.Id == dto.Id && !x.Deleted);
+
+            toiDaHanMuc.ToiDaHanMucCreditGiaHan = dto.ToiDaHanMucCreditGiaHan;
+            toiDaHanMuc.ModifiedBy = currentUserId;
+            toiDaHanMuc.ModifiedDate = vietNamNow;
+            _smDbContext.ToiDaHanMucCreditsGiaHan.Update(toiDaHanMuc);
+            _smDbContext.SaveChanges();
+        }
+
+        public GetToiDaHanMucCreditsGiaHanDto GetToiDaHanMucCreditsGiaHan (int id)
+        {
+            _logger.LogInformation($"{nameof(GetToiDaHanMucCreditsGiaHan)} id ={id}");
+            var toiDaHanMuc = _smDbContext.ToiDaHanMucCreditsGiaHan.FirstOrDefault(x => x.Id == id && !x.Deleted);
+
+            return new GetToiDaHanMucCreditsGiaHanDto
+            {
+                Id = toiDaHanMuc.Id,
+                ToiDaHanMucCreditGiaHan = toiDaHanMuc.ToiDaHanMucCreditGiaHan,
+                DonVi =toiDaHanMuc.DonVi,
+            };
         }
     }
 }

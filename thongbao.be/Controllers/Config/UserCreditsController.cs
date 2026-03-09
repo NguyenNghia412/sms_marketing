@@ -142,5 +142,36 @@ namespace thongbao.be.Controllers.Config
                 return OkException(ex);
             }
         }
+
+        [Permission(PermissionKeys.UserCreditsView)]
+        [HttpGet("{id}/toi-da-han-muc-credits-gia-han")]
+        public ApiResponse GetToiDaHanMucCreditsGiaHan([FromRoute] int id)
+        {
+            try
+            {
+                var data = _userCreditsService.GetToiDaHanMucCreditsGiaHan(id);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+
+        [Permission(PermissionKeys.UserCreditsUpdate)]
+        [HttpPut("toi-da-han-muc-credits-gia-han")]
+        public ApiResponse UpdateToiDaHanMucCreditsGiaHan([FromBody] UpdateToiDaHanMucCreditsGiaHanDto dto)
+        {
+            try
+            {
+                _userCreditsService.UpdateToiDaHanMucCreditsGiaHan(dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

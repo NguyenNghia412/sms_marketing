@@ -11,12 +11,15 @@ import { TblAction, TblActionTypes } from "./tbl-action/tbl-action";
 import { PaginatorState } from "primeng/paginator";
 import { CreateUserCredits } from "./create-user-credits/create-user-credits";
 import { UpdateUserCredits } from "./update-user-credits/update-user-credits";
+import { UpdateToiDaHanMuc } from "./update-toi-da-han-muc/update-toi-da-han-muc";
+import { MenuItem } from "primeng/api";
+import { MenuModule } from "primeng/menu";
 
 
 
 @Component({
     selector: 'app-user-credits',
-    imports: [...SharedImports, DataTable],
+    imports: [...SharedImports, DataTable, MenuModule],
     templateUrl: './user-credits.html',
     styleUrl: './user-credits.scss'
 })
@@ -24,6 +27,19 @@ import { UpdateUserCredits } from "./update-user-credits/update-user-credits";
 export class UserCredits extends BaseComponent{
 
     _userCreditsService = inject(UserCreditsService);
+
+    actionMenuItems: MenuItem[] = [
+        {
+            label: 'Thêm mới',
+            icon: 'pi pi-plus',
+            command: () => this.onOpenCreate()
+        },
+        {
+            label: 'Nâng tối đa hạn mức gia hạn',
+            icon: 'pi pi-arrow-up',
+            command: () => this.onOpenUpdateToiDaHanMuc()
+        }
+    ];
 
     searchForm: FormGroup = new FormGroup({
         search: new FormControl(''),
@@ -146,6 +162,22 @@ export class UserCredits extends BaseComponent{
                             });
                         }
                     }
+
+    onOpenUpdateToiDaHanMuc() {
+        const ref = this._dialogService.open(UpdateToiDaHanMuc, {
+            header: 'Nâng tối đa hạn mức gia hạn credits',
+            closable: true,
+            modal: true,
+            styleClass: 'w-[600px]',
+            focusOnShow: false,
+            data: { id: 1 }
+        });
+        ref.onClose.subscribe((result) => {
+            if (result) {
+                this.getData();
+            }
+        });
+    }
 
 
 }
