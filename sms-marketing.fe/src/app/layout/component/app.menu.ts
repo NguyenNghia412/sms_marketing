@@ -67,7 +67,7 @@ import { IViewUserCreditsByUser } from '@/models/user-credits.models';
                 </div>
                 <div class="flex justify-between items-center text-sm">
                     <span class="text-surface-600 dark:text-surface-400">Còn lại:</span>
-                    <span class="font-semibold text-surface-900 dark:text-surface-0">{{ +(userCreditsData.creditChuaSuDung ?? 0) | number:'1.0-0' }} {{ userCreditsData.donVi }}</span>
+                    <span class="font-semibold text-lg text-primary">{{ +(userCreditsData.creditChuaSuDung ?? 0) | number:'1.0-0' }} {{ userCreditsData.donVi }}</span>
                 </div>
             </div>
         </div>
