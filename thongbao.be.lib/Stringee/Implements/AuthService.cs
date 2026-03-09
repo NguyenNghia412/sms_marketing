@@ -40,7 +40,7 @@ namespace thongbao.be.lib.Stringee.Implements
             _accountSecretKey = _configuration["Stringee:AccountSecretKey"];
 
 
-            if (string.IsNullOrEmpty(_apiSidKey) || string.IsNullOrEmpty(_apiSecretKey) || string.IsNullOrEmpty(_accountSidKey) || string.IsNullOrEmpty(_accountSecretKey))
+            /*if (string.IsNullOrEmpty(_apiSidKey) || string.IsNullOrEmpty(_apiSecretKey) || string.IsNullOrEmpty(_accountSidKey) || string.IsNullOrEmpty(_accountSecretKey))
             {
                    _logger.LogError("Stringee Configuration Missing - ApiSIDKey: {ApiSIDKey}, ApiSecretKey: {ApiSecretKey}, AccountSIDKey: {AccountSIDKey}, AccountSecretKey: {AccountSecretKey}",
                     string.IsNullOrEmpty(_apiSidKey) ? "MISSING" : "OK",
@@ -48,7 +48,7 @@ namespace thongbao.be.lib.Stringee.Implements
                     string.IsNullOrEmpty(_accountSidKey) ? "MISSING" : "OK",
                     string.IsNullOrEmpty(_accountSecretKey) ? "MISSING" : "OK");
                 throw new UserFriendlyException(ErrorCodes.System);
-            }
+            }*/
         }
 
         public async Task<string> GenerateJwtTokenAsync(int expirationInMinutes = 60)

@@ -161,8 +161,8 @@ export class ChiTiet extends BaseComponent {
     private buildColumns(firstItem: IViewRowNguoiNhan): IColumn[] {
         const cols: IColumn[] = [
             { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width:5rem', cellStyle: 'text-align:center' },
-            { header: 'Họ và tên được lưu', field: 'hoVaTen', headerContainerStyle: 'width: 12rem', cellStyle: 'text-align: center' },
-            { header: 'Số điện thoại được lưu', field: 'soDienThoai', headerContainerStyle: 'width: 12rem', cellStyle: 'text-align: center' },
+            //{ header: 'Họ và tên được lưu', field: 'hoVaTen', headerContainerStyle: 'width: 12rem', cellStyle: 'text-align: center' },
+            //{ header: 'Số điện thoại được lưu', field: 'soDienThoai', headerContainerStyle: 'width: 12rem', cellStyle: 'text-align: center' },
         ];
         if (firstItem.items && firstItem.items.length > 0) {
             firstItem.items.forEach((item) => {

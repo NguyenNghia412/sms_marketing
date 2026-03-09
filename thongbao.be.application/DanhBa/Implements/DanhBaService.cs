@@ -96,12 +96,12 @@ namespace thongbao.be.application.DanhBa.Implements
                 .FirstOrDefaultAsync(x => x.Id == dto.IdChienDich && !x.Deleted)
                 ?? throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
 
-            var tenDanhBa = $"Danh sách các thuê bao gặp lỗi trong quá trình gửi tin nhắn của chiến dịch {chienDich.TenChienDich}";
+            //var tenDanhBa = $"Danh sách các thuê bao gặp lỗi trong quá trình gửi tin nhắn của chiến dịch {chienDich.TenChienDich}";
 
             var newDanhBa = new thongbao.be.domain.DanhBa.DanhBa
             {
-                TenDanhBa = tenDanhBa,
-                Mota = tenDanhBa,
+                TenDanhBa = dto.TenDanhBa,
+                //Mota = tenDanhBa,
                 Type = 0,
                 CreatedBy = currentUserId,
                 CreatedDate = now
