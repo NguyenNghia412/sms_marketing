@@ -9,6 +9,7 @@ namespace thongbao.be.application.DanhBa.Dtos
     public class CreateDanhBaFromTinNhanErrorDto
     {
         public int IdChienDich {get;set;}
+        public string TenDanhBa { get; set; } = String.Empty;
         public List<ListTinNhanError> Items { get; set; } = new List<ListTinNhanError>();
     }
     public class ListTinNhanError

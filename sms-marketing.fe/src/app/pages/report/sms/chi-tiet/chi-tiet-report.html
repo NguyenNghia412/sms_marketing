@@ -11,13 +11,13 @@
                         <p-inputicon class="pi pi-search" />
                         <input formControlName="search" pInputText type="text" placeholder="Tìm kiếm ..." class="w-full" />
                     </p-iconfield>
-                    <p-button type="button" icon="pi pi-filter" label="Tìm kiếm theo" (onClick)="filterPanel.toggle($event)" [outlined]="true" styleClass="whitespace-nowrap" />
+                    <p-button type="button" icon="pi pi-filter" [label]="filterButtonLabel" (onClick)="filterPanel.toggle($event)" [outlined]="!hasActiveFilters" [severity]="hasActiveFilters ? 'info' : undefined" styleClass="whitespace-nowrap" />
                 </div>
             </div>
             <div class="flex flex-row items-center space-x-2 flex-shrink-0">
                 <p-button label="Tìm kiếm" type="submit" styleClass="w-32" />
                 @if (isSelectMode) {
-                    <p-button label="Tạo danh bạ" icon="pi pi-check" (onClick)="onConfirmCreateDanhBa()" [disabled]="selectedItems.length === 0" />
+                    <p-button label="Tạo danh bạ" icon="pi pi-check" (onClick)="showCreateDanhBaDialog()" [disabled]="selectedItems.length === 0" />
                     <p-button label="Hủy" icon="pi pi-times" severity="secondary" (onClick)="onToggleSelectMode()" />
                 } @else {
                     <p-button icon="pi pi-cog" label="Thao tác" (onClick)="actionMenu.toggle($event)" />
@@ -29,7 +29,7 @@
             <div class="flex flex-col space-y-4 p-4">
                 <div>
                     <label for="trangThai" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Trạng thái</label>
-                    <p-select formControlName="trangThai" id="trangThai" [options]="statusList" optionLabel="name" optionValue="code" placeholder="Tất cả" [showClear]="true" styleClass="w-full" [appendTo]="'body'" />
+                    <p-select formControlName="trangThai" id="trangThai" [options]="statusList" optionLabel="name" optionValue="code" placeholder="Tất cả" [showClear]="true" styleClass="w-full" [appendTo]="'body'" (onChange)="onSearch(); filterPanel.hide()" />
                 </div>
             </div>
         </p-popover>
@@ -41,4 +41,15 @@
         </div>
     </div>
 </div>
-<p-confirmDialog />
+<p-dialog header="Tạo danh bạ mới" [(visible)]="createDanhBaDialogVisible" [modal]="true" [style]="{ width: '400px' }">
+    <div class="flex flex-col space-y-4">
+        <div>
+            <label for="tenDanhBa" class="block font-medium mb-2">Tên danh bạ</label>
+            <input pInputText id="tenDanhBa" [(ngModel)]="tenDanhBaMoi" placeholder="Nhập tên danh bạ" class="w-full" />
+        </div>
+    </div>
+    <ng-template #footer>
+        <p-button label="Hủy" icon="pi pi-times" severity="secondary" (onClick)="createDanhBaDialogVisible = false" />
+        <p-button label="Lưu" icon="pi pi-check" (onClick)="createDanhBa()" [disabled]="!tenDanhBaMoi.trim()" />
+    </ng-template>
+</p-dialog>

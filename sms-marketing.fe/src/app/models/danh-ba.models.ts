@@ -181,6 +181,7 @@ export interface IUpdateDanhBaSmsRequest {
 
 export interface ICreateDanhBaFromTinNhanError {
   idChienDich: number,
+  tenDanhBa: string,
   items: IListTinNhanError[],
 }
 

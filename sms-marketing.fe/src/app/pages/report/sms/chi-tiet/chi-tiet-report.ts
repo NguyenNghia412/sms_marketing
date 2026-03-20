@@ -17,30 +17,42 @@ import { MenuItem } from "primeng/api";
 import { Popover } from 'primeng/popover';
 import { ReportStatus } from "@/shared/constants/report.constants";
 import { MenuModule } from "primeng/menu";
-import { ConfirmDialog } from "primeng/confirmdialog";
-import { ConfirmationService } from "primeng/api";
 
 @Component({
     selector: 'app-thong-ke-chien-dich-chi-tiet',
-    imports: [...SharedImports, DataTable, Breadcrumb, Popover, MenuModule, ConfirmDialog],
+    imports: [...SharedImports, DataTable, Breadcrumb, Popover, MenuModule],
     templateUrl: './chi-tiet-report.html',
     styleUrl: './chi-tiet-report.scss',
-    providers: [ConfirmationService]
 })
 export class ChiTietChienDichReport extends BaseComponent implements OnInit {
     
     _reportSmsService = inject(ReportSmsService);
     _danhBaService = inject(DanhBaService);
     private route = inject(ActivatedRoute);
-    confirmationService = inject(ConfirmationService);
     items: MenuItem[] = [{ label: 'Thống kê', routerLink: '/report/chien-dich-report'  }, { label: 'Thống kê chi tiết ' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
     statusList = ReportStatus.List;
     idChienDich: number = 0;
+
+    get filterButtonLabel(): string {
+        const trangThai = this.searchForm.get('trangThai')?.value;
+        const parts: string[] = [];
+        if (trangThai) {
+            const found = this.statusList.find(s => s.code === trangThai);
+            if (found) parts.push(`Trạng thái: ${found.name}`);
+        }
+        return parts.length > 0 ? parts.join(' | ') : 'Tìm kiếm theo';
+    }
+
+    get hasActiveFilters(): boolean {
+        return !!this.searchForm.get('trangThai')?.value;
+    }
     idDanhBa: number = 0;
     isSelectMode = false;
     isAllSelected = false;
     selectedItems: IListTinNhanError[] = [];
+    createDanhBaDialogVisible = false;
+    tenDanhBaMoi = '';
     actionMenuItems: MenuItem[] = [
         {
             label: 'Tạo nhanh danh bạ mới',
@@ -187,24 +199,19 @@ export class ChiTietChienDichReport extends BaseComponent implements OnInit {
         });
     }
 
-    onConfirmCreateDanhBa(): void {
-        if (this.selectedItems.length === 0) {
-            return;
-        }
-        this.confirmationService.confirm({
-            message: `Bạn có chắc chắn muốn tạo danh bạ mới từ ${this.selectedItems.length} thuê bao đã chọn?`,
-            header: 'Xác nhận',
-            icon: 'pi pi-exclamation-triangle',
-            accept: () => {
-                this.createDanhBa();
-            }
-        });
+    showCreateDanhBaDialog(): void {
+        if (this.selectedItems.length === 0) return;
+        this.tenDanhBaMoi = '';
+        this.createDanhBaDialogVisible = true;
     }
 
     createDanhBa(): void {
+        if (!this.tenDanhBaMoi.trim()) return;
         this.loading = true;
+        this.createDanhBaDialogVisible = false;
         this._danhBaService.createDanhBaThueBaoLoiGuiTinNhan({
             idChienDich: this.idChienDich,
+            tenDanhBa: this.tenDanhBaMoi.trim(),
             items: this.selectedItems
         }).subscribe({
             next: (res) => {
