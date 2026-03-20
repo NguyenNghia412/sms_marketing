@@ -22,6 +22,6 @@
        
     </form>
     <div class="mt-4">
-        <app-data-table [columns]="columns" [data]="data" [loading]="loading"  [total]="totalRecords" [pageNumber]="query.pageNumber" [pageSize]="query.pageSize" (onPageChanged)="onPageChanged($event)"    (onCustomComp)="onCustomEmit($event)" />
+        <app-data-table tableKey="user-credits"  [columns]="columns" [data]="data" [loading]="loading"  [total]="totalRecords" [pageNumber]="query.pageNumber" [pageSize]="query.pageSize" (onPageChanged)="onPageChanged($event)"    (onCustomComp)="onCustomEmit($event)" />
     </div>
 </div>

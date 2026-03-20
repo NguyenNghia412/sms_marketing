@@ -1,6 +1,7 @@
 <p-table #dt1 [value]="data() || []" dataKey="id" [rows]="pageSize()" [loading]="loading()" [rowHover]="true"
     [showGridlines]="true" [paginator]="false" responsiveLayout="scroll"
-    [resizableColumns]="true" columnResizeMode="expand">
+    [resizableColumns]="true" columnResizeMode="expand"
+    (onColResize)="onColResize($event)">
     <ng-template #header>
         <tr>
             @for (col of (columns()); track $index) {

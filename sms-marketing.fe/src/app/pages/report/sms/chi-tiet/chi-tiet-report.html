@@ -35,7 +35,7 @@
         </p-popover>
     </form>
     <div class="mt-4 relative">
-        <app-data-table [columns]="columns" [data]="data" [loading]="loading" (onCustomComp)="onCustomEmit($event)" [total]="totalRecords" [pageNumber]="query.pageNumber" [pageSize]="query.pageSize" (onPageChanged)="onPageChanged($event)" />
+        <app-data-table tableKey="chi-tiet-chien-dich-report" [columns]="columns" [data]="data" [loading]="loading" (onCustomComp)="onCustomEmit($event)" [total]="totalRecords" [pageNumber]="query.pageNumber" [pageSize]="query.pageSize" (onPageChanged)="onPageChanged($event)" />
         <div class="absolute bottom-0 right-0 text-base text-surface-600 dark:text-surface-400 border border-surface-300 dark:border-surface-600 rounded px-4 py-2">
             Thống kê: <span class="font-semibold">{{ totalRecords }}</span>
         </div>

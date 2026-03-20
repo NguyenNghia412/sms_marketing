@@ -29,11 +29,12 @@
     <div class="mt-4">
         <p-table [value]="data" dataKey="id" [rows]="query.pageSize" [loading]="loading" [rowHover]="true"
             [showGridlines]="true" [paginator]="false" responsiveLayout="scroll"
-            [resizableColumns]="true" columnResizeMode="expand">
+            [resizableColumns]="true" columnResizeMode="expand"
+            (onColResize)="onColResize($event)">
             <ng-template #header>
                 <tr>
                     @for (col of columns; track $index) {
-                        <th [style]="col.headerContainerStyle" pResizableColumn>
+                        <th [style]="getColStyle(col, $index)" pResizableColumn>
                             <div class="flex justify-center items-center">
                                 {{ col.header }}
                             </div>
@@ -44,7 +45,7 @@
             <ng-template #body let-row let-rowIndex="rowIndex">
                 <tr>
                     @for (col of columns; track $index) {
-                        <td [style]="col.cellStyle">
+                        <td [style]="getCellStyle(col, $index)">
                             @if (col.cellViewType === cellViewTypes.CUSTOM_COMP) {
                                 <div class="flex items-center justify-center w-full">
                                     <ng-container *ngComponentOutlet="col.customComponent; injector: customInjector; inputs: { row, rowIndex, data: row[col.field || ''] }"></ng-container>

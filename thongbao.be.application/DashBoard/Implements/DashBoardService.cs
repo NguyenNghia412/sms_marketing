@@ -148,25 +148,27 @@ namespace thongbao.be.application.DashBoard.Implements
             };
         }
 
-        public GetStatisticsUserCreditsTheoThangByUser GetStatisticsUserCreditsTheoThangByUser( string userId, int nam)
+        public GetStatisticsUserCreditsTheoThangByUser GetStatisticsUserCreditsTheoThangByUser(string userId, DateTime tuThang, DateTime denThang)
         {
-            _logger.LogInformation($"{nameof(GetStatisticsUserCreditsTheoThangByUser)}   userId = {userId}; nam = {nam}");
+            _logger.LogInformation($"{nameof(GetStatisticsUserCreditsTheoThangByUser)} userId = {userId}; tuThang = {tuThang:MM/yyyy}; denThang = {denThang:MM/yyyy}");
 
             var user = _userManager.Users.FirstOrDefault(u => u.Id == userId);
 
-            
+            var thangBatDau = new DateTime(tuThang.Year, tuThang.Month, 1);
+            var thangKetThuc = new DateTime(denThang.Year, denThang.Month, 1);
+
             var listTheoThang = new List<GetStatisticsUserCreditsByUser>();
 
-            for (int thang = 1; thang <= 12; thang++)
+            for (var thang = thangBatDau; thang <= thangKetThuc; thang = thang.AddMonths(1))
             {
-                var tuNgay = new DateTime(nam, thang, 1);
-                var denNgay = new DateTime(nam, thang, DateTime.DaysInMonth(nam, thang));
+                var tuNgay = thang;
+                var denNgay = new DateTime(thang.Year, thang.Month, DateTime.DaysInMonth(thang.Year, thang.Month));
 
                 var credits = _smDbContext.UserCredits
                     .Where(x => x.UserId == userId
-                                && !x.Deleted
-                                && x.ThoiGianBatDauApDungHanMuc <= denNgay
-                                && x.ThoiGianBatDauApDungHanMuc >= tuNgay)
+                             && !x.Deleted
+                             && x.ThoiGianBatDauApDungHanMuc >= tuNgay
+                             && x.ThoiGianBatDauApDungHanMuc <= denNgay)
                     .Select(x => new
                     {
                         x.CreditDaSuDung,
@@ -177,6 +179,7 @@ namespace thongbao.be.application.DashBoard.Implements
                 var tongCreditDaSuDung = credits
                     .Where(x => !string.IsNullOrEmpty(x.CreditDaSuDung))
                     .Sum(x => double.Parse(x.CreditDaSuDung));
+
                 var tongHanMucCredit = credits
                     .Where(x => !string.IsNullOrEmpty(x.HanMucCredit))
                     .Sum(x => double.Parse(x.HanMucCredit));
@@ -195,15 +198,16 @@ namespace thongbao.be.application.DashBoard.Implements
                     DonVi = "VND"
                 });
             }
+
             return new GetStatisticsUserCreditsTheoThangByUser
             {
                 UserCreditsTheoThangByUsers = listTheoThang
             };
-
-            
-            
         }
 
 
+
     }
-}
+
+
+ }

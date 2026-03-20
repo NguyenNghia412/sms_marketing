@@ -37,6 +37,6 @@
         </p-popover>
     </form>
     <div class="mt-4">
-        <app-data-table [columns]="columns" [data]="data" [loading]="loading" (onCustomComp)="onCustomEmit($event)" [total]="totalRecords" [pageNumber]="query.pageNumber" [pageSize]="query.pageSize" (onPageChanged)="onPageChanged($event)" />
+        <app-data-table tableKey="sms-chien-dich" [columns]="columns" [data]="data" [loading]="loading" (onCustomComp)="onCustomEmit($event)" [total]="totalRecords" [pageNumber]="query.pageNumber" [pageSize]="query.pageSize" (onPageChanged)="onPageChanged($event)" />
     </div>
 </div>

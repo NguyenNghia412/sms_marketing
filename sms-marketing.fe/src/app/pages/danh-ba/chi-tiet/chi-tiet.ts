@@ -71,7 +71,51 @@ export class ChiTiet extends BaseComponent {
 
     hiddenFieldIds: number[] = [];
 
+    // ─── Column resize cache ───────────────────────────────────────────────
+    private readonly STORAGE_PREFIX = 'tbl_col_widths_';
+    private readonly TABLE_KEY = 'chi-tiet-danh-sach-nguoi-nhan';
+    private colWidths: Record<number, number> = {};
+
+    private loadColWidths(): void {
+        try {
+            const saved = localStorage.getItem(this.STORAGE_PREFIX + this.TABLE_KEY);
+            this.colWidths = saved ? JSON.parse(saved) : {};
+        } catch {
+            this.colWidths = {};
+        }
+    }
+
+    private saveColWidths(): void {
+        localStorage.setItem(this.STORAGE_PREFIX + this.TABLE_KEY, JSON.stringify(this.colWidths));
+    }
+
+    onColResize(event: any): void {
+        const th = event.element as HTMLElement;
+        const index = Array.from(th.parentElement?.children ?? []).indexOf(th);
+        if (index >= 0) {
+            this.colWidths[index] = th.offsetWidth;
+            this.saveColWidths();
+        }
+    }
+
+    getColStyle(col: IColumn, index: number): string {
+        const base = (col.headerContainerStyle as string) ?? '';
+        const cached = this.colWidths[index];
+        if (!cached) return base;
+        return `${base}; width: ${cached}px; min-width: ${cached}px;`;
+    }
+
+    getCellStyle(col: IColumn, index: number): string {
+        const base = (col.cellStyle as string) ?? '';
+        const cached = this.colWidths[index];
+        if (!cached) return base;
+        return `${base}; width: ${cached}px; min-width: ${cached}px;`;
+    }
+  
+
     override ngOnInit(): void {
+        this.loadColWidths();
+
         this.customInjector = Injector.create({
             providers: [{ provide: TBL_CUSTOM_COMP_EMIT, useValue: this.customEmit }],
             parent: this._injector
@@ -161,8 +205,8 @@ export class ChiTiet extends BaseComponent {
     private buildColumns(firstItem: IViewRowNguoiNhan): IColumn[] {
         const cols: IColumn[] = [
             { header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width:5rem', cellStyle: 'text-align:center' },
-            { header: 'Họ và tên được lưu', field: 'hoVaTen', headerContainerStyle: 'width: 12rem', cellStyle: 'text-align: center' },
-            { header: 'Số điện thoại được lưu', field: 'soDienThoai', headerContainerStyle: 'width: 12rem', cellStyle: 'text-align: center' },
+            //{ header: 'Họ và tên được lưu', field: 'hoVaTen', headerContainerStyle: 'width: 12rem', cellStyle: 'text-align: center' },
+            //{ header: 'Số điện thoại được lưu', field: 'soDienThoai', headerContainerStyle: 'width: 12rem', cellStyle: 'text-align: center' },
         ];
         if (firstItem.items && firstItem.items.length > 0) {
             firstItem.items.forEach((item) => {
@@ -216,8 +260,6 @@ export class ChiTiet extends BaseComponent {
         this.query.pageNumber = pageNumber;
         this.getData();
     }
-
-
 
     onDelete(data: IViewRowNguoiNhan) {
         this.confirmDelete(

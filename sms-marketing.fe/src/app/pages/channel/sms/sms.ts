@@ -39,7 +39,7 @@ export class Sms extends BaseComponent {
 
     columns: IColumn[] = [
         //{ header: 'STT', cellViewType: CellViewTypes.INDEX, headerContainerStyle: 'width: 6rem', cellStyle:'text-align:center' },
-        { header: 'Tên chiến dịch', field: 'tenChienDich', headerContainerStyle: 'min-width: 12rem', cellClass: 'cursor-pointer hover:text-blue-800 hover:underline', clickable: true },
+        { header: 'Tên chiến dịch', field: 'tenChienDich', headerContainerStyle: 'width: 12rem', cellClass: 'cursor-pointer hover:text-blue-800 hover:underline', clickable: true },
         { header: 'Nội dung', field: 'noiDung', headerContainerStyle: 'min-width: 12rem' },
         { header: 'Người tạo', field: 'users.fullName', headerContainerStyle: 'min-width:9rem' },
         { header: 'Số thuê bao', field: 'soLuongThueBao', headerContainerStyle: 'min-width: 8rem', cellStyle: 'text-align:center' },
