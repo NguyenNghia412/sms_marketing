@@ -33,7 +33,7 @@ namespace thongbao.be.domain.GuiTinNhan
         [MaxLength(4000)]
         public string? NoiDung { get; set; } = String.Empty;
         public bool IsAccented { get; set; } 
-
+        public DateTime? LichGui { get; set; }
         public bool IsFlashSms { get; set; }
         public int TrangThai { get; set; }
         public int? SoLuongThueBao { get; set; }

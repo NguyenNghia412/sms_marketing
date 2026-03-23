@@ -14,6 +14,13 @@ export class PermissionConstants {
     static MenuContact = this.Menu + "Contact";
     static MenuTemplate = this.Menu + "Template";
     static MenuReport = this.Menu + "Report";
+    static MenuConfig = this.Menu + "Config";
+
+    static MenuConfigNhaMang = this.MenuConfig + "_NhaMang";
+    static MenuConfigUserCredits = this.MenuConfig + "_UserCredits";
+    static MenuConfigUserCreditsForUser = this.MenuConfig + "_UserCreditsForUser";
+
+
 
 
     static CategoryUser = "QL User";
@@ -55,4 +62,18 @@ export class PermissionConstants {
     static ToChucUpdate = this.Function + "ToChucUpdate";
     static ToChucDelete = this.Function + "ToChucDelete";
     static ToChucView = this.Function + "ToChucView";
+
+    static CategoryNhaMang = "QL Nhà mạng";
+    static NhaMangAdd = this.Function + "NhaMangAdd";
+    static NhaMangUpdate = this.Function + "NhaMangUpdate";
+    static NhaMangDelete = this.Function + "NhaMangDelete";
+    static NhaMangView = this.Function + "NhaMangView";
+
+    static CategoryUserCredits = "QL Hạn mức người dùng ";
+    static UserCreditsAdd = this.Function + "UserCreditsAdd";
+    static UserCreditsUpdate = this.Function + "UserCreditsUpdate";
+    static UserCreditsDelete = this.Function + "UserCreditsDelete";
+    static UserCreditsView = this.Function + "UserCreditsView";
+    static UserCreditsViewForUser = this.Function + "UserCreditsViewForUser";
+
 }

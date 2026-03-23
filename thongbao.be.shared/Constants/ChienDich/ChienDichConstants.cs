@@ -11,5 +11,7 @@ namespace thongbao.be.shared.Constants.ChienDich
         public const int DaGui = 1;
         public const int Nhap = 0;
         public const int DangGui = 2;
+        public const int LenLich = 3;
+        public const int Huy = 4;
     }
 }

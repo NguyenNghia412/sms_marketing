@@ -8,5 +8,5 @@ import { permissionGuard } from "@/shared/guard/permission-guard";
 
 export default [
     { path: 'chien-dich-report',data: { breadcrumb: 'chien-dich-report', permission: PermissionConstants.MenuReport}, component: ChienDichReport, canActivate: [permissionGuard]},
-    { path: 'chi-tiet-chien-dich-report', data: { breadcrumb: 'chi-tiet-chien-dich-report', permission: PermissionConstants.MenuReport }, component: ChiTietChienDichReport, canActivate: [permissionGuard]},
+    { path: 'sms/chi-tiet-report', data: { breadcrumb: 'chi-tiet-report', permission: PermissionConstants.MenuReport }, component: ChiTietChienDichReport, canActivate: [permissionGuard]},
 ] as Routes

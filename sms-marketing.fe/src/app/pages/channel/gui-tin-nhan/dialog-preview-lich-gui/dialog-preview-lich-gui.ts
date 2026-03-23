@@ -1,0 +1,67 @@
+import { ISendSms, ISendSmsLenLich, IViewPreviewSendSms, IViewVerifySendSms } from '@/models/gui-tin-nhan.models';
+import { GuiTinNhanService } from '@/services/gui-tin-nhan.service';
+import { BaseComponent } from '@/shared/components/base/base-component';
+import { SharedImports } from '@/shared/import.shared';
+import { Component, inject, input } from '@angular/core';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { MessageModule } from 'primeng/message';
+
+@Component({
+  selector: 'app-dialog-preview-lich-gui',
+  imports: [SharedImports, MessageModule],
+  templateUrl: './dialog-preview-lich-gui.html',
+})
+export class DialogLichGuiPreview extends BaseComponent {
+
+  private _guiTinNhanService = inject(GuiTinNhanService);
+  private _ref = inject(DynamicDialogRef);
+  private _config = inject(DynamicDialogConfig);
+
+  sendStatusList = {
+    idle: 'idle',
+    sending: 'sending',
+    success: 'success',
+    error: 'error'
+  }
+  verifyData: IViewVerifySendSms = {};
+  showMsg = true;
+  sendStatus: string = this.sendStatusList.idle;
+  errorMessage: string = '';
+
+  override ngOnInit(): void {
+    this.sendStatus = this.sendStatusList.idle;
+    this.verifyData = { ...this._config.data?.verifyData };
+  }
+
+  onSendSmsLenLich() {
+    const body: ISendSmsLenLich = this._config.data?.bodySendSmsLenLich;
+
+    this.sendStatus = this.sendStatusList.sending;
+    this._guiTinNhanService.sendSmsLenLich(body).subscribe({
+     next: (res) => {
+        if (this.isResponseSucceed(res, true, 'Đã đặt lệnh lên lịch gửi')) {
+          this.sendStatus = this.sendStatusList.success;
+          setTimeout(() => {
+            this._ref.close('success');
+          }, 2000);
+        } else {
+          this.sendStatus = this.sendStatusList.error;
+          this.errorMessage = res?.message || 'Có lỗi xảy ra';
+        }
+      },
+      error: (err) => {
+        this.errorMessage = err?.message || 'Có lỗi xảy ra';
+        this.messageError(this.errorMessage);
+        this.sendStatus = this.sendStatusList.error;
+      }
+    });
+  }
+
+
+  onSubmit() {
+    this.onSendSmsLenLich();
+  }
+  onClose() {
+    this._ref.close();
+  }
+}

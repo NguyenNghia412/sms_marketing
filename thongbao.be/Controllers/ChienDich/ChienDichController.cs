@@ -94,20 +94,7 @@ namespace thongbao.be.Controllers.ChienDich
                 return OkException(ex);
             }
         }
-        [Permission(PermissionKeys.ChienDichView)]
-        [HttpGet("list-brand-name")]
-        public ApiResponse GetListBrandName()
-        {
-            try
-            {
-                var data = _chienDichService.GetListBrandName();
-                return new(data);
-            }
-            catch (Exception ex)
-            {
-                return OkException(ex);
-            }
-        }
+        
 
         [Permission(PermissionKeys.ChienDichView)]
         [HttpGet("{idChienDich}")]

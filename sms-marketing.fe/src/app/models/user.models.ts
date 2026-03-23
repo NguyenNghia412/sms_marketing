@@ -32,4 +32,11 @@ export interface IUpdateUser extends ICreateUser {
   id: string
 }
 
+export interface IGetListUsers {
+  id: string,
+  userName: string,
+  email: string,
+  fullName: string,
+}
+
 export interface IFindPagingUser extends IBaseRequestPaging {}

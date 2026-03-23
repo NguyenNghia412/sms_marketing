@@ -24,6 +24,10 @@ export class SharedService {
         this._permissions = data
     }
 
+    public isSuperAdmin(): boolean{
+        return this._roles.includes(AuthConstants.SUPER_ADMIN_ROLE);
+    } 
+
     public setRoles(data: string[]) {
         this._roles = data
     }

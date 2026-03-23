@@ -7,10 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using thongbao.be.application.Auth.Dtos.Role;
 using thongbao.be.application.Auth.Dtos.User;
+using thongbao.be.application.Config.Dtos.NhaCungCapDichVu;
 using thongbao.be.application.DanhBa.Dtos;
 using thongbao.be.application.DiemDanh.Dtos;
 using thongbao.be.application.GuiTinNhan.Dtos;
-using thongbao.be.application.MauNoiDung.Dtos;
+using thongbao.be.application.MauNoiDung.Dtos.MauNoiDungEmail;
+using thongbao.be.application.MauNoiDung.Dtos.MauNoiDungSms;
 using thongbao.be.application.ToChuc.Dtos;
 
 using thongbao.be.domain.Auth;
@@ -36,12 +38,19 @@ namespace thongbao.be.application.Base
             CreateMap<DotDiemDanh, ViewDotDiemDanhDto>();
             CreateMap<domain.DanhBa.DanhBa, ViewDanhBaDto>();
             CreateMap<domain.ToChuc.ToChuc, ViewToChucDto>();
-            CreateMap<domain.GuiTinNhan.BrandName, GetListBrandNameResponseDto>();
+            CreateMap<domain.GuiTinNhan.BrandName, GetListBrandNameResDto>();
             CreateMap<domain.DanhBa.DanhBa, GetListDanhBaResponseDto>();
             CreateMap<domain.DanhBa.DanhBaSms, ViewDanhBaChiTietDto>();
-            CreateMap<domain.MauNoiDung.MauNoiDung, ViewMauNoiDungDto>();
-            CreateMap<domain.MauNoiDung.MauNoiDung, GetListMauNoiDungResponseDto>();
+            CreateMap<domain.MauNoiDung.MauNoiDungSms, ViewMauNoiDungDto>();
+            CreateMap<domain.MauNoiDung.MauNoiDungSms, GetListMauNoiDungResponseDto>();
             CreateMap<ChienDichLogTrangThaiGui, ViewChienDichLogDto>();
+            CreateMap<domain.MauNoiDung.MauNoiDungEmail, ViewMauNoiDungEmailDto>();
+            CreateMap<domain.MauNoiDung.MauNoiDungEmail, GetListMauNoiDungEmailResponseDto>();
+            CreateMap<domain.Config.NhaCungCapDichVu, ViewNhaCungCapDichVuDto>();
+            CreateMap<domain.Config.NhaCungCapDichVu, GetDropDownNhaCungCapDichVuDto>();
+            CreateMap<domain.Config.NhaCungCapDichVu, ViewNhaCungCapByIdDto>();
+            CreateMap<domain.Config.UserNhaCungCapDichVu, ViewUserNhaCungCapDto>();
+            CreateMap<domain.Config.UserNhaCungCapDichVu, ViewUserToNhaCungCapDichVuByIdDto>();
 
 
         }

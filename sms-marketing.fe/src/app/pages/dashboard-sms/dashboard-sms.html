@@ -1,0 +1,153 @@
+<div class="grid grid-cols-12 gap-4">
+    <!-- 4 Stat Cards -->
+    <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+        <div class="card mb-0 p-5">
+            <div class="flex justify-between mb-4">
+                <div>
+                    <span class="block text-muted-color font-medium mb-2">Tin nhắn gửi thành công</span>
+                    <div class="text-surface-900 dark:text-surface-0 font-bold text-3xl">{{ stats.tongSoLuongTinNhanGuiThanhCong | number }}</div>
+                </div>
+                <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border" style="width: 3rem; height: 3rem">
+                    <i class="pi pi-envelope text-blue-500 text-2xl!"></i>
+                </div>
+            </div>
+            <span class="text-muted-color text-sm">Tổng số tin nhắn đã gửi thành công</span>
+        </div>
+    </div>
+    <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+        <div class="card mb-0 p-5">
+            <div class="flex justify-between mb-4">
+                <div>
+                    <span class="block text-muted-color font-medium mb-2">Người dùng sử dụng dịch vụ</span>
+                    <div class="text-surface-900 dark:text-surface-0 font-bold text-3xl">{{ stats.tongSoUserSuDungDichVu | number }}</div>
+                </div>
+                <div class="flex items-center justify-center bg-orange-100 dark:bg-orange-400/10 rounded-border" style="width: 3rem; height: 3rem">
+                    <i class="pi pi-users text-orange-500 text-2xl!"></i>
+                </div>
+            </div>
+            <span class="text-muted-color text-sm">Tổng số người dùng đang sử dụng</span>
+        </div>
+    </div>
+    <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+        <div class="card mb-0 p-5">
+            <div class="flex justify-between mb-4">
+                <div>
+                    <span class="block text-muted-color font-medium mb-2">Chiến dịch gửi tin nhắn</span>
+                    <div class="text-surface-900 dark:text-surface-0 font-bold text-3xl">{{ stats.tongSoChienDichGuiTinNhan | number }}</div>
+                </div>
+                <div class="flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border" style="width: 3rem; height: 3rem">
+                    <i class="pi pi-megaphone text-cyan-500 text-2xl!"></i>
+                </div>
+            </div>
+            <span class="text-muted-color text-sm">Tổng số chiến dịch đã tạo</span>
+        </div>
+    </div>
+    <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+        <div class="card mb-0 p-5">
+            <div class="flex justify-between mb-4">
+                <div>
+                    <span class="block text-muted-color font-medium mb-2">Nhà cung cấp dịch vụ</span>
+                    <div class="text-surface-900 dark:text-surface-0 font-bold text-3xl">{{ stats.tongSoNhaCungCapDichVu | number }}</div>
+                </div>
+                <div class="flex items-center justify-center bg-purple-100 dark:bg-purple-400/10 rounded-border" style="width: 3rem; height: 3rem">
+                    <i class="pi pi-building text-purple-500 text-2xl!"></i>
+                </div>
+            </div>
+            <span class="text-muted-color text-sm">Tổng số nhà cung cấp</span>
+        </div>
+    </div>
+
+    <!-- Thống kê Credits -->
+    <div class="col-span-12 xl:col-span-6">
+        <div class="card h-full">
+            <div class="flex justify-between items-center mb-4">
+                <div class="font-semibold text-lg white-space-nowrap">Thống kê Credits</div>
+                <div class="chart-filter flex items-center gap-1">
+                    <p-datepicker [(ngModel)]="creditsTuNgay" [showIcon]="true" dateFormat="dd/mm/yy" placeholder="Từ ngày" [appendTo]="'body'" />
+                    <p-datepicker [(ngModel)]="creditsDenNgay" [showIcon]="true" dateFormat="dd/mm/yy" placeholder="Đến ngày" [appendTo]="'body'" />
+                    <button pButton icon="pi pi-search" class="p-button-sm" (click)="onSearchCredits()" pTooltip="Tìm kiếm"></button>
+                    <button pButton icon="pi pi-cog" class="p-button-sm" (click)="creditsOp.toggle($event)" pTooltip="Tùy chọn"></button>
+                    <p-popover #creditsOp>
+                        <div style="min-width:210px;display:flex;flex-direction:column;gap:2px;padding:4px 0">
+                            <button pButton class="p-button-text" icon="pi pi-download" label="Download ảnh biểu đồ"
+                                style="justify-content:flex-start;padding:8px 14px;width:100%"
+                                (click)="downloadChart('credits'); creditsOp.hide()">
+                            </button>
+                            <hr style="margin:2px 0;border:none;border-top:1px solid var(--surface-border)"/>
+                            <button pButton class="p-button-text" icon="pi pi-copy" label="Copy ảnh biểu đồ"
+                                style="justify-content:flex-start;padding:8px 14px;width:100%"
+                                (click)="copyChart('credits'); creditsOp.hide()">
+                            </button>
+                        </div>
+                    </p-popover>
+                </div>
+            </div>
+            <p-chart #creditsChartRef type="bar" [data]="creditsChartData" [options]="creditsChartOptions" height="450" />
+        </div>
+    </div>
+
+    <!-- Thống kê tin nhắn -->
+    <div class="col-span-12 xl:col-span-6">
+        <div class="card h-full">
+            <div class="flex justify-between items-center mb-4">
+                <div class="font-semibold text-lg white-space-nowrap">Thống kê tin nhắn</div>
+                <div class="chart-filter flex items-center gap-1">
+                    <p-datepicker [(ngModel)]="smsTuNgay" [showIcon]="true" dateFormat="dd/mm/yy" placeholder="Từ ngày" [appendTo]="'body'" />
+                    <p-datepicker [(ngModel)]="smsDenNgay" [showIcon]="true" dateFormat="dd/mm/yy" placeholder="Đến ngày" [appendTo]="'body'" />
+                    <button pButton icon="pi pi-search" class="p-button-sm" (click)="onSearchSms()" pTooltip="Tìm kiếm"></button>
+                    <button pButton icon="pi pi-cog" class="p-button-sm" (click)="smsOp.toggle($event)" pTooltip="Tùy chọn"></button>
+                    <p-popover #smsOp>
+                        <div style="min-width:210px;display:flex;flex-direction:column;gap:2px;padding:4px 0">
+                            <button pButton class="p-button-text" icon="pi pi-download" label="Download ảnh biểu đồ"
+                                style="justify-content:flex-start;padding:8px 14px;width:100%"
+                                (click)="downloadChart('sms'); smsOp.hide()">
+                            </button>
+                            <hr style="margin:2px 0;border:none;border-top:1px solid var(--surface-border)"/>
+                            <button pButton class="p-button-text" icon="pi pi-copy" label="Copy ảnh biểu đồ"
+                                style="justify-content:flex-start;padding:8px 14px;width:100%"
+                                (click)="copyChart('sms'); smsOp.hide()">
+                            </button>
+                        </div>
+                    </p-popover>
+                </div>
+            </div>
+            <p-chart #smsChartRef type="bar" [data]="smsChartData" [options]="smsChartOptions" height="450" />
+        </div>
+    </div>
+
+    <!-- Biểu đồ Credits theo tháng -->
+    <div class="col-span-12">
+        <div class="card">
+            <div class="flex justify-between items-center mb-4">
+                <div class="font-semibold text-lg white-space-nowrap">Thống kê Credits theo tháng của từng người dùng</div>
+                <div class="chart-filter flex items-center gap-1">
+                    <p-select [(ngModel)]="selectedUserId" [options]="listUsers" optionLabel="fullName" optionValue="userId"
+                        placeholder="Chọn người dùng" [filter]="true" filterBy="fullName" [showClear]="true"
+                        styleClass="w-60" [appendTo]="'body'" (onChange)="onUserChanged()" />
+                    <p-datepicker [(ngModel)]="creditsByMonthTuThang" view="month" dateFormat="mm/yy" [showIcon]="true"
+                        placeholder="Từ tháng" [appendTo]="'body'" [panelStyle]="{'min-width':'20rem'}"
+                        (onSelect)="onSearchCreditsByMonth()" />
+                    <p-datepicker [(ngModel)]="creditsByMonthDenThang" view="month" dateFormat="mm/yy" [showIcon]="true"
+                        placeholder="Đến tháng" [appendTo]="'body'" [panelStyle]="{'min-width':'20rem'}"
+                        (onSelect)="onSearchCreditsByMonth()" />
+                    <button pButton icon="pi pi-search" class="p-button-sm" (click)="onSearchCreditsByMonth()" pTooltip="Tìm kiếm"></button>
+                    <button pButton icon="pi pi-cog" class="p-button-sm" (click)="creditsByMonthOp.toggle($event)" pTooltip="Tùy chọn"></button>
+                    <p-popover #creditsByMonthOp>
+                        <div style="min-width:210px;display:flex;flex-direction:column;gap:2px;padding:4px 0">
+                            <button pButton class="p-button-text" icon="pi pi-download" label="Download ảnh biểu đồ"
+                                style="justify-content:flex-start;padding:8px 14px;width:100%"
+                                (click)="downloadChart('creditsByMonth'); creditsByMonthOp.hide()">
+                            </button>
+                            <hr style="margin:2px 0;border:none;border-top:1px solid var(--surface-border)"/>
+                            <button pButton class="p-button-text" icon="pi pi-copy" label="Copy ảnh biểu đồ"
+                                style="justify-content:flex-start;padding:8px 14px;width:100%"
+                                (click)="copyChart('creditsByMonth'); creditsByMonthOp.hide()">
+                            </button>
+                        </div>
+                    </p-popover>
+                </div>
+            </div>
+            <p-chart #creditsByMonthChartRef type="bar" [data]="creditsByMonthChartData" [options]="creditsByMonthChartOptions" height="450" />
+        </div>
+    </div>
+</div>

@@ -11,11 +11,30 @@ export class ReportSmsService {
     api = '/api/core/report-sms';
     http = inject(HttpClient);
     findPaging(query: IFindPagingChienDichReport) {
-            return this.http.get<IBaseResponsePaging<IViewChienDichReport>>(`${this.api}/chien-dich`, {
-                params: { ...query }
-            });
+        const params: any = {
+            pageNumber: query.pageNumber,
+            pageSize: query.pageSize,
+            keyword: query.keyword || ''
+        };
+    
+        if (query.fromDate) {
+            const fromDate = new Date(query.fromDate);
+            params.fromDate = `${fromDate.getFullYear()}-${String(fromDate.getMonth() + 1).padStart(2, '0')}-${String(fromDate.getDate()).padStart(2, '0')}`;
         }
+        if (query.toDate) {
+            const toDate = new Date(query.toDate);
+            params.toDate = `${toDate.getFullYear()}-${String(toDate.getMonth() + 1).padStart(2, '0')}-${String(toDate.getDate()).padStart(2, '0')}`;
+        }
+        if (query.sapXepTheo) {
+             params.sapXepTheo = query.sapXepTheo;
+        }
+    
+        return this.http.get<IBaseResponsePaging<IViewChienDichReport>>(`${this.api}/chien-dich`, {
+            params
+        });
+    }
     findPagingChiTietChienDich(idChienDich: number, idDanhBa: number, query: IFindPagingChiTietChienDichReport) {
+        
             return this.http.get<IBaseResponsePaging<IViewChiTietChienDichReport>>(`${this.api}/chien-dich/${idChienDich}`, {
                 params: { ...query, idDanhBa: idDanhBa }
             });

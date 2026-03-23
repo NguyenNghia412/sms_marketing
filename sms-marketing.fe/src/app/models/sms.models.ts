@@ -41,6 +41,7 @@ export type IViewChienDich = {
   isAccented?: boolean
   createdDate?: string
   trangThai?: number
+  lichGui?: Date
 }
 
 export type ICreateChienDich = {
@@ -64,3 +65,11 @@ export interface IFindPagingChienDich extends IBaseRequestPaging {}
 export interface IViewBrandname {
 
 }
+
+export interface IHuyJobSendSms{
+    idChienDich: number;
+
+    idBrandName: number;
+}
+
+

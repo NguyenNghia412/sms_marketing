@@ -87,9 +87,14 @@ export interface IFileFailedImportCache{
 }
 export interface IFindPagingNguoiNhan extends IBaseRequestPaging {
   idDanhBa: number,
+  items?: IListFieldIsHidden[],
 }
 
-export interface IViewRowNguoiNhan {
+export interface IListFieldIsHidden{
+  idDanhBaTruongData: number
+}
+
+export type IViewRowNguoiNhan = {
   id?: number,
   //emailHuce?: string,
   hoVaTen?: string,
@@ -97,6 +102,18 @@ export interface IViewRowNguoiNhan {
   //maSoNguoiDung?: string,
   //soLuongNguoiNhan: number,
   soDienThoai?: string,
+  items?: IDataNguoiNhan[],
+}
+
+export interface IDataItem{
+  id?: number,
+  data?: string,
+}
+
+export interface IDataNguoiNhan{
+  id?: number,
+  tenTruong?: string,
+  data:IDataItem,
 }
 export interface ICreateDanhBaChienDichQuick{
   tenDanhBa? : string, 
@@ -126,4 +143,49 @@ export interface TruongDataItem{
 }
 export interface GetTruongDataDanhBaSmsResponse{
   truongData: TruongDataItem[]
+}
+
+export interface IViewChiTietThueBaoNguoiNhan {
+  items: IViewChiTietThueBaoNguoiNhanDataById[];
+}
+
+export interface IViewChiTietThueBaoNguoiNhanDataById {
+  idTruong: number;
+  tenTruong: string;
+  idData: number;
+  data: string;
+}
+
+export interface IUpdateDataChiTietThueBaoRequest {
+  idDanhBa: number;
+  idThueBao: number;
+  items: IDataChiTietThueBao[];
+}
+
+export interface IDataChiTietThueBao {
+  idData: number;
+  data: string;
+}
+
+export interface IViewChiTietDanhBaSms {
+  hoVaTen: string;
+  soDienThoai: string;
+}
+
+export interface IUpdateDanhBaSmsRequest {
+  idDanhBa: number;
+  id: number;
+  hoVaTen: string;
+  soDienThoai: string;
+}
+
+export interface ICreateDanhBaFromTinNhanError {
+  idChienDich: number,
+  tenDanhBa: string,
+  items: IListTinNhanError[],
+}
+
+export interface IListTinNhanError {
+  idDanhBa: number,
+  idDanhBaSms: number,
 }

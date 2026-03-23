@@ -18,5 +18,6 @@ namespace thongbao.be.application.Auth.Interfaces
         public Task<ViewUserDto> FindByMsAccount(string msAccount);
         public Task SetRoleForUser(SetRoleForUserDto dto);
         public Task<ViewMeDto> GetMe();
+        public List<GetListUserDto> GetListUser();
     }
 }

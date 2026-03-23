@@ -25,10 +25,12 @@ namespace thongbao.be.domain.DanhBa
         public string Data { get; set; } = string.Empty;
         public int IdTruongData { get; set; }
         public int IdDanhBaChiTiet {  get; set; }
-        public int IdDanhBaChienDich { get; set; }
+        public int IdDanhBa { get; set; }
         public string? CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
+        public string? ModifiedBy { get; set; }
+        public DateTime? ModifiedDate { get; set; }
         public bool Deleted { get; set; }
         public string? DeletedBy { get; set; }
     

@@ -1,0 +1,15 @@
+<form (ngSubmit)="onSubmit()">
+
+    @for (item of items; track item.idData) {
+    <div class="mb-3">
+        <label [for]="'field_' + item.idTruong" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">{{ item.tenTruong }}</label>
+        <input pInputText [(ngModel)]="item.data" [name]="'field_' + item.idTruong" [id]="'field_' + item.idTruong" type="text" class="w-full" />
+    </div>
+    }
+
+    <div class="flex gap-2 mt-4" style="justify-content: flex-end;">
+        <p-button label="Hủy" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" />
+        <p-button label="Lưu" icon="pi pi-save" type="submit" (onClick)="onSubmit()" [loading]="loading" />
+    </div>
+
+</form>

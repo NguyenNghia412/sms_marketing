@@ -14,5 +14,10 @@ namespace thongbao.be.application.GuiTinNhan.Interfaces
         public  Task<string> StartGuiTinNhanJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung);
         public Task<object> GetSoLuongNguoiNhanVaTinNhan(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool isFlashSms, bool isAccented, string noiDung);
         public  Task SaveThongTinChienDich(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int? idBrandName, bool IsFlashSms, bool IsAccented, string? noiDung);
+        public  Task<string> StartGuiTinNhanSchedulerJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiCoLichGuiDto> danhSachSoDienThoai, bool IsFlashSms, int idBrandName, bool IsAccented, string noiDung, DateTime lichGui);
+        public  Task SaveThongTinChienDichCoLichGui(int idChienDich, int? idDanhBa, List<ListSoDienThoaiCoLichGuiDto> danhSachSoDienThoai, int? idBrandName, bool IsFlashSms, bool IsAccented, string? noiDung, DateTime lichGui);
+        public Task<int> GetChiPhiDuTruChienDichSchedulerJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiCoLichGuiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung, DateTime lichgui);
+        public  Task<object> GetSoLuongNguoiNhanVaTinNhanSchedulerJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiCoLichGuiDto> danhSachSoDienThoai, int idBrandName, bool isFlashSms, bool isAccented, string noiDung, DateTime lichGui);
+        public  Task HuyChienDich(HuyJobSendSmsDto dto);
     }
 }

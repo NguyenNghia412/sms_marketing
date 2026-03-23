@@ -45,6 +45,32 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IsFlashSms,
                     dto.IsAccented,
                     dto.NoiDung ?? ""
+                    
+                );
+
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        [Permission(PermissionKeys.GuiTinNhanAdd)]
+        [HttpPost("save-config-chien-dich-scheduler-job")]
+        public async Task<ApiResponse> SaveThongTinChienDichCoLichGui([FromBody] GuiTinNhanCoLichGuiDto dto)
+        {
+            try
+            {
+                await _guiTinNhanService.SaveThongTinChienDichCoLichGui(
+                    dto.IdChienDich,
+                    dto.IdDanhBa ?? 0,
+                    dto.DanhSachSoDienThoai ?? [],
+                    dto.IdBrandName ?? 0,
+                    dto.IsFlashSms,
+                    dto.IsAccented,
+                    dto.NoiDung ?? "",
+                    dto.LichGui 
                 );
 
                 return new();
@@ -69,6 +95,33 @@ namespace thongbao.be.Controllers.GuiTinNhan
                     dto.IdBrandName ?? 0,
                     dto.IsAccented,
                     dto.NoiDung
+                );
+
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+
+
+        [Permission(PermissionKeys.GuiTinNhanAdd)]
+        [HttpPost("send-sms-scheduler-job")]
+        public async Task<ApiResponse> SendSmsSchedulerJob([FromBody] GuiTinNhanCoLichGuiDto dto)
+        {
+            try
+            {
+                await _guiTinNhanService.StartGuiTinNhanSchedulerJob(
+                    dto.IdChienDich,
+                    dto.IdDanhBa,
+                    dto.DanhSachSoDienThoai,
+                    dto.IsFlashSms,
+                    dto.IdBrandName ?? 0,
+                    dto.IsAccented,
+                    dto.NoiDung,
+                    dto.LichGui 
                 );
 
                 return new();
@@ -128,6 +181,34 @@ namespace thongbao.be.Controllers.GuiTinNhan
             }
         }
 
+
+
+
+        [Permission(PermissionKeys.GuiTinNhanAdd)]
+        [HttpPost("verify-send-sms-scheduler-job")]
+        public async Task<ApiResponse> VerifySendSmsSchedulerJob([FromBody] GuiTinNhanCoLichGuiDto dto)
+        {
+            try
+            {
+                var data = await _guiTinNhanService.GetSoLuongNguoiNhanVaTinNhanSchedulerJob(
+                    dto.IdChienDich,
+                    dto.IdDanhBa,
+                    dto.DanhSachSoDienThoai,
+                    dto.IdBrandName ?? 0,
+                    dto.IsFlashSms,
+                    dto.IsAccented,
+                    dto.NoiDung,
+                    dto.LichGui
+                );
+
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
         [Permission(PermissionKeys.GuiTinNhanAdd)]
         [HttpPost("du-tru-chi-phi")]
         public async Task<ApiResponse> GetChiPhiDuTruChienDich([FromBody] GuiTinNhanDto dto)
@@ -151,5 +232,24 @@ namespace thongbao.be.Controllers.GuiTinNhan
                 return OkException(ex);
             }
         }
+
+        [Permission(PermissionKeys.GuiTinNhanAdd)]
+        [HttpPost("cancel-send-sms")]
+        public async Task<ApiResponse> HuyJobSendSms([FromBody] HuyJobSendSmsDto dto)
+        {
+            try
+            {
+                await _guiTinNhanService.HuyChienDich(dto);
+
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+
+
     }
 }

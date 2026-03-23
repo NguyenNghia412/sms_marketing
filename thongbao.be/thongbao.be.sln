@@ -22,6 +22,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "thongbao.be.lib", "..\thongbao.be.lib\thongbao.be.lib.csproj", "{BF21C74A-A00A-43CA-966E-494E2E64CBEA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "thongbao.be.fake_stringee", "..\thongbao.be.fake_stringee\thongbao.be.fake_stringee.csproj", "{E41B4C74-36B6-45E5-A0EE-C1CE6928DA81}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,9 +60,16 @@ Global
 		{BF21C74A-A00A-43CA-966E-494E2E64CBEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF21C74A-A00A-43CA-966E-494E2E64CBEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF21C74A-A00A-43CA-966E-494E2E64CBEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E41B4C74-36B6-45E5-A0EE-C1CE6928DA81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E41B4C74-36B6-45E5-A0EE-C1CE6928DA81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E41B4C74-36B6-45E5-A0EE-C1CE6928DA81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E41B4C74-36B6-45E5-A0EE-C1CE6928DA81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E41B4C74-36B6-45E5-A0EE-C1CE6928DA81} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {062BBCD2-1B76-4CB2-8602-6BFADCA0D4B3}

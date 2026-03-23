@@ -9,5 +9,9 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
 {
     public class FindPagingChienDichLogDto : BaseRequestPagingDto
     {
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
+        public string? SapXepTheo { get; set; }
+        
     }
 }

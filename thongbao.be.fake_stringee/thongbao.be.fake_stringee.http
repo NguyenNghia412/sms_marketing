@@ -1,0 +1,6 @@
+@thongbao.be.fake_stringee_HostAddress = http://localhost:5070
+
+GET {{thongbao.be.fake_stringee_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,9 +1,11 @@
 import { IBaseResponse } from '@/shared/models/request-paging.base.models';
 import { Directive, inject, OnInit } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
+import { filter } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Directive()
 export abstract class BaseComponent implements OnInit {
@@ -16,15 +18,37 @@ export abstract class BaseComponent implements OnInit {
     ValidationMessages: Record<string, Record<string, string>> = {};
     MAX_PAGE_SIZE = 10;
     START_PAGE_NUMBER = 1;
-    form!: FormGroup; // declare, but not initialize
+    form!: FormGroup;
     loading: boolean = false;
     totalRecords: number = 100;
 
-    ngOnInit(): void {}
+    constructor() {
+        this.router.events.pipe(
+            filter(event => event instanceof NavigationEnd),
+            takeUntilDestroyed()
+        ).subscribe((event: any) => {
+            // Chỉ gọi onRouteActivated khi NavigationEnd đến đúng route của component này
+            const activatedUrl = this._activatedRoute.snapshot.pathFromRoot
+                .map(r => r.url.map(s => s.path).join('/'))
+                .filter(p => p)
+                .join('/');
+
+            const currentUrl = event.urlAfterRedirects.split('?')[0].replace(/^\//, '');
+
+            if (activatedUrl && currentUrl.startsWith(activatedUrl)) {
+                this.onRouteActivated();
+            }
+        });
+    }
+
+    ngOnInit(): void { }
+
+    // Override ở child component để reload data khi navigate back về trang
+    onRouteActivated(): void { }
 
     isFormInvalid() {
         if (this.form.invalid) {
-            this.form.markAllAsTouched(); // force show errors
+            this.form.markAllAsTouched();
             return true;
         }
         return false;
@@ -90,7 +114,7 @@ export abstract class BaseComponent implements OnInit {
         });
     }
 
-    confirmDelete(opt: {header: string, message: string} ,acceptCallback = () => {}) {
+    confirmDelete(opt: { header: string, message: string }, acceptCallback = () => { }) {
         this._confirmationService.confirm({
             message: opt.message,
             header: opt.header,
@@ -108,19 +132,18 @@ export abstract class BaseComponent implements OnInit {
             },
             accept: () => {
                 if (acceptCallback) {
-                    acceptCallback()
+                    acceptCallback();
                 }
             }
         });
     }
 
-    confirmAction(opt: {header: string, message: string} ,acceptCallback = () => {}) {
+    confirmAction(opt: { header: string, message: string }, acceptCallback = () => { }) {
         this._confirmationService.confirm({
             message: opt.message,
             header: opt.header,
             closable: true,
             closeOnEscape: true,
-            // icon: 'pi pi-exclamation-triangle',
             rejectButtonProps: {
                 label: 'Thoát',
                 severity: 'seconday',
@@ -132,9 +155,22 @@ export abstract class BaseComponent implements OnInit {
             },
             accept: () => {
                 if (acceptCallback) {
-                    acceptCallback()
+                    acceptCallback();
                 }
             }
         });
+    }
+
+    designToString(design: any): string {
+        return JSON.stringify(design);
+    }
+
+    stringToDesign(designString: string): any {
+        try {
+            return JSON.parse(designString);
+        } catch (error) {
+            console.error("Invalid design JSON string:", error);
+            return null;
+        }
     }
 }

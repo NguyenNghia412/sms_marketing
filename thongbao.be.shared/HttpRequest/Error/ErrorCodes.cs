@@ -40,6 +40,8 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int ChienDichErrorTrangThaiTrueCannotDelete = 305;
         public const int GuiTinNhanErrorNotEnoughBalance = 306;
         public const int GuiTinNhanErrorSmsCountExceeded = 307;
+        public const int GuiTinNhanErrorLichGuiKhongHopLe = 308;
+        public const int ChienDichErrorChuaDuocDatLenhKhongTheHuy = 309;
 
 
 
@@ -61,6 +63,8 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int DanhBaErrorMaSoNguoiDungFoundAtRow = 516;
         public const int DanhBaErrorDanhSachSoDienThoaiInvalid = 518;
         public const int DanhBaErrorDanhSachSoDienThoaiRequired = 519;
+        public const int DanhBaErrorThueBaoNotFound = 520;
+        public const int DanhBaErrorDanhBaDataNotFound = 521;
 
         public const int ToChucErrorNotFound = 601;
         public const int ToChucErrorLoaiToChucNotFound = 602;
@@ -96,6 +100,19 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int TraoBangErrorSinhVienDaTonTaiTrongHangDoi = 1007;
         public const int TraoBangErrorSinhVienTraoBangNotFound = 1008;
         public const int TraoBangErrorSinhVienTraoBangKhongThuocKhoaDangTrao = 1009;
+
+        public const int ConfigErrorNhaMangNotFound = 1101;
+        public const int ConfigErrorCauHinhDonGiaNotFound = 1102;
+        public const int ConfigErrorUserCreditsExist = 1103;
+        public const int ConfigErrorCauHinhDonGiaExists = 1104;
+        public const int ConfigErrorUserCreditsExceedAmountStringee = 1105;
+        public const int ConfigErrorUserCreditsQuaHanGiaHanHanMuc = 1106;
+        public const int ConfigErrorNhaCungCapDichVuNotFound = 1107;
+        public const int ConfigErrorNhaCungCapDichVuExists = 1108;  
+        public const int ConfigErrorBrandNameExitsted = 1109;
+        public const int ConfigErrorUserNhaCungCapDichVuExisted = 1110;
+        public const int ConfigErrorUserNhaCungCapDichVuNotFound = 1111;
+        public const int ConfigErrorThoiGianKhongHopLe = 1112;
 
 
 

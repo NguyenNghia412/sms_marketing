@@ -1,4 +1,4 @@
-import { ICreateChienDich, IFindPagingChienDich, IUpdateChienDich, IViewBrandname, IViewChienDich, IViewRowChienDich } from '@/models/sms.models';
+import { ICreateChienDich, IFindPagingChienDich, IHuyJobSendSms, IUpdateChienDich, IViewBrandname, IViewChienDich, IViewRowChienDich } from '@/models/sms.models';
 import { IBaseResponse, IBaseResponseWithData, IBaseResponsePaging } from '@/shared/models/request-paging.base.models';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -38,4 +38,5 @@ export class ChienDichService {
     duplicate(id:number){
         return this.http.post<IBaseResponse>(`${this.api}/${id}/duplicate`,null);
     }
+    
 }

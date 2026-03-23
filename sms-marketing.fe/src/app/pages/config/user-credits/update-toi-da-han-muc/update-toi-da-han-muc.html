@@ -1,0 +1,15 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <div class="mb-3">
+        <label for="toiDaHanMucCreditGiaHan" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tối đa hạn mức credit gia hạn <span class="text-red-500">*</span></label>
+        <p-inputNumber formControlName="toiDaHanMucCreditGiaHan" inputId="toiDaHanMucCreditGiaHan" styleClass="w-full" [useGrouping]="true" locale="vi-VN" [suffix]="' ' + donVi" />
+        @if (form.get('toiDaHanMucCreditGiaHan')?.hasError('required') && form.get('toiDaHanMucCreditGiaHan')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('toiDaHanMucCreditGiaHan') }} </p-message>
+        }
+    </div>
+
+    <div class="flex gap-2 mt-4" style="justify-content: flex-end;">
+        <p-button label="Hủy" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" />
+        <p-button label="Lưu" icon="pi pi-save" type="submit" (onClick)="onSubmit()" [loading]="loading" />
+    </div>
+</form>

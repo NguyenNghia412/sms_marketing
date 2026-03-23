@@ -21,8 +21,12 @@ using System.Text;
 using thongbao.be.application.Auth.Implements;
 using thongbao.be.application.Auth.Interfaces;
 using thongbao.be.application.Base;
+using thongbao.be.application.Config.Implements;
+using thongbao.be.application.Config.Interfaces;
 using thongbao.be.application.DanhBa.Implements;
 using thongbao.be.application.DanhBa.Interfaces;
+using thongbao.be.application.DashBoard.Implements;
+using thongbao.be.application.DashBoard.Interfaces;
 using thongbao.be.application.DiemDanh.Implements;
 using thongbao.be.application.DiemDanh.Interfaces;
 using thongbao.be.application.GuiTinNhan.Implements;
@@ -250,13 +254,20 @@ builder.Services.AddScoped<IChienDichService, ChienDichService>();
 builder.Services.AddScoped<IHopTrucTuyenService, HopTrucTuyenService>();
 builder.Services.AddScoped<IDanhBaService, DanhBaService>();
 builder.Services.AddScoped<IToChucService, ToChucService>();
-builder.Services.AddScoped<IMauNoiDungService, MauNoiDungService>();
+builder.Services.AddScoped<IMauNoiDungSmsService, MauNoiDungSmsService>();
+builder.Services.AddScoped<IMauNoiDungEmailService, MauNoiDungEmailService>();
 builder.Services.AddScoped<IGuiTinNhanJobService, GuiTinNhanJobService>();
+builder.Services.AddScoped<IGuiTinNhanSchedulerJobService, GuiTinNhanSchedulerJobService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISendSmsService, SendSmsService>();
 builder.Services.AddScoped<IGuiTinNhanLogService, GuiTinNhanLogService>();
 builder.Services.AddScoped<IGuiTinNhanService, GuiTinNhanService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<INhaMangService, NhaMangService>();
+builder.Services.AddScoped<IUserCreditsService, UserCreditsService>();
+builder.Services.AddScoped<INhaCungCapDichVuService, NhaCungCapDichVuService>();
+builder.Services.AddScoped<IUserCreditsJobService, UserCreditsJobService>();
+builder.Services.AddScoped<IDashBoardService, DashBoardService>();
 #endregion
 
 builder.Services.AddHttpClient();
@@ -322,9 +333,10 @@ using (var scope = app.Services.CreateScope())
 {
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var smDbContext = scope.ServiceProvider.GetRequiredService<SmDbContext>();
 
     await SeedUser.SeedAsync(userManager, roleManager);
-
+    await SeedToiDaCreditGiaHan.SeedAsync(smDbContext, userManager);
 }
 #endregion
 
@@ -345,6 +357,14 @@ app.MapControllers();
 app.MapHub<DemoHub>("/hub/sms").RequireCors("SignalRPolicy");
 
 app.UseHangfireDashboard();
+using (var scope = app.Services.CreateScope())
+{
+    var jobService = scope.ServiceProvider.GetRequiredService<IUserCreditsJobService>();
+    jobService.CronJobCreateUserCreditsMoiThang();
+    
+    
+}
+
 app.MapHealthChecks("/health");
 app.Run();
 

@@ -69,7 +69,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         where isSuperAdmin || cd.CreatedBy == currentUserId
                         join bn in _smDbContext.BrandName on cd.IdBrandName equals bn.Id into brandJoin
                         from brand in brandJoin.DefaultIfEmpty()
-                        join mnd in _smDbContext.MauNoiDungs on cd.IdMauNoiDung equals mnd.Id into mauNoiDungJoin
+                        join mnd in _smDbContext.MauNoiDungSms on cd.IdMauNoiDung equals mnd.Id into mauNoiDungJoin
                         from mauNoiDung in mauNoiDungJoin.DefaultIfEmpty()
                         join u in _userManager.Users on cd.CreatedBy equals u.Id
                         join logTrangThai in _smDbContext.ChienDichLogTrangThaiGuis on cd.Id equals logTrangThai.IdChienDich into logTrangThaiJoin
@@ -96,6 +96,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                             TenBrandName = brand != null ? brand.TenBrandName : string.Empty,
                             IsFlashSms = cd.IsFlashSms,
                             TrangThai = cd.TrangThai,
+                            LichGui = cd.LichGui,
                             SoLuongThueBao = cd.SoLuongThueBao,
                             SoLuongSmsDaGuiThanhCong = cd.TrangThai != 0 ? (log != null ? log.SmsSendSuccess : 0) : 0,
                             SoLuongSmsGuiThatBai = cd.TrangThai != 0 ? (log != null ? log.SmsSendFailed : 0) : 0,
@@ -231,6 +232,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 IsFlashSms = chienDich.IsFlashSms,
                 IsAccented = chienDich.IsAccented,
                 TrangThai = chienDich.TrangThai,
+                LichGui = chienDich.LichGui,
                 NoiDung = chienDich.NoiDung ?? string.Empty,
                 NgayBatDau = chienDich.NgayBatDau ?? DateTime.MinValue,
                 NgayKetThuc = chienDich.NgayKetThuc ?? DateTime.MinValue,
@@ -265,22 +267,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
 
         }
 
-        public List<GetListBrandNameResponseDto> GetListBrandName()
-        {
-            _logger.LogInformation($"{nameof(GetListBrandName)}");
-            var isSuperAdmin = IsSuperAdmin();
-            var currentUserId = getCurrentUserId();
-
-            var query = from bn in _smDbContext.BrandName
-                        where !bn.Deleted 
-                        orderby bn.CreatedDate descending
-                        select bn;
-
-            var data = query.ToList();
-            var result = _mapper.Map<List<GetListBrandNameResponseDto>>(data);
-
-            return result;
-        }
+     
         public void DuplicateChienDich(int idChienDich)
         {
             _logger.LogInformation($"{nameof(DuplicateChienDich)}, idChienDich={idChienDich}");

@@ -1,0 +1,51 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+        <label for="idNhaCungCapDichVu" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Nhà cung cấp dịch vụ <span class="text-red-500">*</span></label>
+        <p-select id="idNhaCungCapDichVu" formControlName="idNhaCungCapDichVu" [options]="listNhaCungCapDichVu" optionLabel="name" optionValue="id" [filter]="true" placeholder="Chọn nhà cung cấp dịch vụ" styleClass="w-full" class="mb-2" appendTo="body" (onChange)="onNhaCungCapChange($event.value)" />
+        @if (form.get('idNhaCungCapDichVu')?.hasError('required') && form.get('idNhaCungCapDichVu')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('idNhaCungCapDichVu') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="tenNhaMang" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Tên nhà mạng <span class="text-red-500">*</span></label>
+        <input pInputText formControlName="tenNhaMang" id="tenNhaMang" type="text" class="w-full mb-2" />
+        @if (form.get('tenNhaMang')?.hasError('required') && form.get('tenNhaMang')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('tenNhaMang') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="prefix" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Prefix <span class="text-red-500">*</span></label>
+        <input pInputText formControlName="prefix" id="prefix" type="text" class="w-full mb-2" />
+        @if (form.get('prefix')?.hasError('required') && form.get('prefix')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('prefix') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="idBrandName" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Brandname <span class="text-red-500">*</span></label>
+        <p-select id="idBrandName" formControlName="idBrandName" [options]="listBrandName" optionLabel="tenBrandName" optionValue="id" [filter]="true" placeholder="Chọn brandname" styleClass="w-full" class="mb-2" appendTo="body" />
+        @if (form.get('idBrandName')?.hasError('required') && form.get('idBrandName')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('idBrandName') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="donGia" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Đơn giá <span class="text-red-500">*</span></label>
+        <input pInputText formControlName="donGia" id="donGia" type="text" class="w-full mb-2" />
+        @if (form.get('donGia')?.hasError('required') && form.get('donGia')?.touched) {
+        <p-message severity="error" variant="simple" size="small">{{ getError('donGia') }} </p-message>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label for="thoiHan" class="block text-surface-900 dark:text-surface-0 font-medium mb-2">Thời hạn</label>
+        <p-datePicker formControlName="thoiHan" inputId="thoiHan" styleClass="w-full" [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" [showOnFocus]="false" />
+    </div>
+
+    <div class="flex gap-2 mt-4" style="justify-content: flex-end;">
+        <p-button label="Hủy" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" />
+        <p-button label="Lưu" icon="pi pi-save" type="submit" [loading]="loading" />
+    </div>
+</form>

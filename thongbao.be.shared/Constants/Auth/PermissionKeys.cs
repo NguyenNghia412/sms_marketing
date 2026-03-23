@@ -23,6 +23,7 @@ namespace thongbao.be.shared.Constants.Auth
         public const string MenuContact = Menu + "Contact";
         public const string MenuTemplate = Menu + "Template";
         public const string MenuReport = Menu + "Report";
+        public const string MenuConfig = Menu + "Config";
 
         public const string CategoryUser = "QL User";
         public const string UserAdd = Function + "UserAdd";
@@ -63,16 +64,48 @@ namespace thongbao.be.shared.Constants.Auth
         public const string ToChucDelete = Function + "ToChucDelete";
         public const string ToChucView = Function + "ToChucView";
 
-        public const string CategoryMauNoiDung = "QL Mẫu Nội Dung";
-        public const string MauNoiDungAdd = Function + "MauNoiDungAdd";
-        public const string MauNoiDungUpdate = Function + "MauNoiDungUpdate";
-        public const string MauNoiDungDelete = Function + "MauNoiDungDelete";
-        public const string MauNoiDungView = Function + "MauNoiDungView";
+        public const string CategoryMauNoiDungSms = "QL Mẫu Nội Dung Sms";
+        public const string MauNoiDungSmsAdd = Function + "MauNoiDungAddSms";
+        public const string MauNoiDungSmsUpdate = Function + "MauNoiDungUpdateSms";
+        public const string MauNoiDungSmsDelete = Function + "MauNoiDungDeleteSms";
+        public const string MauNoiDungSmsView = Function + "MauNoiDungViewSms";
+
+
+        public const string CategoryMauNoiDungEmail = "QL Mẫu Nội Dung Email";
+        public const string MauNoiDungEmailAdd = Function + "MauNoiDungEmailAdd";
+        public const string MauNoiDungEmailUpdate = Function + "MauNoiDungEmailUpdate";
+        public const string MauNoiDungEmailDelete = Function + "MauNoiDungEmailDelete";
+        public const string MauNoiDungEmailView = Function + "MauNoiDungEmailView";
 
 
         public const string CategoryGuiTinNhan = "QL Gửi tin nhắn";
         public const string GuiTinNhanAdd = Function + "GuiTinNhanAdd";
-        
+
+        public const string CategoryNhaMang = "QL Nhà Mạng";
+        public const string NhaMangAdd = Function + "NhaMangAdd";
+        public const string NhaMangUpdate = Function + "NhaMangUpdate";
+        public const string NhaMangDelete = Function + "NhaMangDelete";
+        public const string NhaMangView = Function + "NhaMangView";
+
+
+        public const string CategoryNhaCungCapDichVu = "QL Nhà Cung Cấp Dịch Vụ";
+        public const string NhaCungCapDichVuAdd = Function + "NhaCungCapDichVuAdd";
+        public const string NhaCungCapDichVuUpdate = Function + "NhaCungCapDichVuUpdate";
+        public const string NhaCungCapDichVuDelete = Function + "NhaCungCapDichVuDelete";
+        public const string NhaCungCapDichVuView = Function + "NhaCungCapDichVuView";
+
+
+        public const string CategoryUserCredits = "QL Hạn mức người dùng";
+        public const string UserCreditsAdd = Function + "UserCreditsAdd";
+        public const string UserCreditsUpdate = Function + "UserCreditsUpdate";
+        public const string UserCreditsDelete = Function + "UserCreditsDelete";
+        public const string UserCreditsView = Function + "UserCreditsView";
+        public const string UserCreditsViewForUser = Function + "UserCreditsViewForUser";
+
+
+        public const string CategoryDashBoard = "QL Dashboard";
+        public const string DashBoardView = Function + "DashBoardView";
+
 
 
 
@@ -95,6 +128,7 @@ namespace thongbao.be.shared.Constants.Auth
             (MenuContact, "Menu Danh bạ", "Menu"),
             (MenuTemplate, "Menu Template", "Menu"),
             (MenuReport, "Menu Báo cáo", "Menu"),
+            (MenuConfig, "Menu Cấu hình", "Menu"),
 
 
             (UserAdd, "Thêm user", CategoryUser),
@@ -130,15 +164,40 @@ namespace thongbao.be.shared.Constants.Auth
             (ToChucDelete, "Xoá Tổ chức", CategoryToChuc),
             (ToChucView, "Xem Tổ chức", CategoryToChuc),
 
-            (MauNoiDungAdd, "Thêm Mẫu Nội Dung ", CategoryMauNoiDung),
-            (MauNoiDungUpdate, "Cập nhật Mẫu Nội Dung", CategoryMauNoiDung),
-            (MauNoiDungDelete, "Xoá Mẫu Nội Dung", CategoryMauNoiDung),
-            (MauNoiDungView, "Xem Mẫu Nội Dung", CategoryMauNoiDung),
+            (MauNoiDungSmsAdd, "Thêm Mẫu Nội Dung Sms", CategoryMauNoiDungSms),
+            (MauNoiDungSmsUpdate, "Cập nhật Mẫu Nội Dung Sms", CategoryMauNoiDungSms),
+            (MauNoiDungSmsDelete, "Xoá Mẫu Nội Dung Sms", CategoryMauNoiDungSms),
+            (MauNoiDungSmsView, "Xem Mẫu Nội Dung Sms", CategoryMauNoiDungSms),
+
+
+            (MauNoiDungEmailAdd, "Thêm Mẫu Nội Dung Email ", CategoryMauNoiDungEmail),
+            (MauNoiDungEmailUpdate, "Cập nhật Mẫu Nội Dung Email", CategoryMauNoiDungEmail),
+            (MauNoiDungEmailDelete, "Xoá Mẫu Nội Dung Email", CategoryMauNoiDungEmail),
+            (MauNoiDungEmailView, "Xem Mẫu Nội Dung Email", CategoryMauNoiDungEmail),
+
+            (NhaMangAdd, "Thêm Nhà mạng ", CategoryNhaMang),
+            (NhaMangUpdate, "Cập nhật Nhà mạng", CategoryNhaMang),
+            (NhaMangDelete, "Xoá Nhà mạng", CategoryNhaMang),
+            (NhaMangView, "Xem Nhà mạng", CategoryNhaMang),
+
+            (NhaCungCapDichVuAdd, "Thêm Nhà cung cấp dịch vụ ", CategoryNhaCungCapDichVu),
+            (NhaCungCapDichVuUpdate, "Cập nhật Nhà cung cấp dịch vụ", CategoryNhaCungCapDichVu),
+            (NhaCungCapDichVuDelete, "Xoá Nhà cung cấp dịch vụ", CategoryNhaCungCapDichVu),
+            (NhaCungCapDichVuView, "Xem Nhà cung cấp dịch vụ", CategoryNhaCungCapDichVu),
+
+
+            (UserCreditsAdd, "Thêm Hạn mức người dùng ", CategoryUserCredits),
+            (UserCreditsUpdate, "Cập nhật Hạn mức người dùng", CategoryUserCredits),
+            (UserCreditsDelete, "Xoá Hạn mức người dùng", CategoryUserCredits),
+            (UserCreditsView, "Xem Hạn mức người dùng", CategoryUserCredits),
+            (UserCreditsViewForUser, "Xem Cước phí hàng tháng", CategoryUserCredits),
 
 
             (GuiTinNhanAdd,"Gửi tin nhắn", CategoryGuiTinNhan),
 
-            (StringeeProfileView, "Xem Stringee Profile", CategoryStringeeProfile)
+            (StringeeProfileView, "Xem Stringee Profile", CategoryStringeeProfile),
+
+            (DashBoardView, "Xem Dashboard", CategoryDashBoard),
 
 
         };

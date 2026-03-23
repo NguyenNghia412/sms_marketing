@@ -28,6 +28,7 @@ using thongbao.be.application.DanhBa.Dtos;
 using thongbao.be.application.DanhBa.Interfaces;
 using thongbao.be.application.DiemDanh.Dtos;
 using thongbao.be.application.GuiTinNhan.Dtos;
+using thongbao.be.domain.DanhBa;
 using thongbao.be.infrastructure.data;
 using thongbao.be.shared.Constants.DanhBa;
 using thongbao.be.shared.HttpRequest.BaseRequest;
@@ -84,6 +85,124 @@ namespace thongbao.be.application.DanhBa.Implements
             _smDbContext.DanhBas.Add(danhBa);
             _smDbContext.SaveChanges();
         }
+        // Đây là hàm tạo danh bạ từ các tin nhắn bị lỗi khi gửi 
+        public async Task CreateDanhBaFromGuiTinNhanLoi(CreateDanhBaFromTinNhanErrorDto dto)
+        {
+            var currentUserId = getCurrentUserId();
+            var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            const int BATCH_SIZE = 100;
+
+            var chienDich = await _smDbContext.ChienDiches
+                .FirstOrDefaultAsync(x => x.Id == dto.IdChienDich && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.ChienDichErrorNotFound, ErrorMessages.GetMessage(ErrorCodes.ChienDichErrorNotFound));
+
+            //var tenDanhBa = $"Danh sách các thuê bao gặp lỗi trong quá trình gửi tin nhắn của chiến dịch {chienDich.TenChienDich}";
+
+            var newDanhBa = new thongbao.be.domain.DanhBa.DanhBa
+            {
+                TenDanhBa = dto.TenDanhBa,
+                //Mota = tenDanhBa,
+                Type = 0,
+                CreatedBy = currentUserId,
+                CreatedDate = now
+            };
+            _smDbContext.DanhBas.Add(newDanhBa);
+            await _smDbContext.SaveChangesAsync();
+
+            var uniqueDanhBaIds = dto.Items.Select(x => x.IdDanhBa).Distinct().ToList();
+
+            var sourceTruongDatas = await _smDbContext.DanhBaTruongDatas
+                .Where(x => uniqueDanhBaIds.Contains(x.IdDanhBa) && !x.Deleted)
+                .ToListAsync();
+
+            var newTruongDatas = sourceTruongDatas
+                .GroupBy(x => x.TenTruong)
+                .Select(g => new DanhBaTruongData
+                {
+                    IdDanhBa = newDanhBa.Id,
+                    TenTruong = g.Key,
+                    Type = g.First().Type,
+                    CreatedBy = currentUserId,
+                    CreatedDate = now
+                })
+                .ToList();
+
+            _smDbContext.DanhBaTruongDatas.AddRange(newTruongDatas);
+            await _smDbContext.SaveChangesAsync();
+
+            var oldTruongIdToNewId = new Dictionary<int, int>();
+            foreach (var sourceTruong in sourceTruongDatas)
+            {
+                var matched = newTruongDatas.FirstOrDefault(x => x.TenTruong == sourceTruong.TenTruong);
+                if (matched != null)
+                    oldTruongIdToNewId[sourceTruong.Id] = matched.Id;
+            }
+
+            var allSourceSmsIds = dto.Items.Select(x => x.IdDanhBaSms).Distinct().ToList();
+
+            var allSourceSmsList = await _smDbContext.DanhBaSms
+                .Where(x => allSourceSmsIds.Contains(x.Id) && !x.Deleted)
+                .ToDictionaryAsync(x => x.Id);
+
+            var allSourceDanhBaDatas = await _smDbContext.DanhBaDatas
+                .Where(x => allSourceSmsIds.Contains(x.IdDanhBaChiTiet) && !x.Deleted)
+                .ToListAsync();
+
+            var sourceDanhBaDataLookup = allSourceDanhBaDatas
+                .GroupBy(x => x.IdDanhBaChiTiet)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var items = dto.Items.ToList();
+            for (int i = 0; i < items.Count; i += BATCH_SIZE)
+            {
+                var batch = items.Skip(i).Take(BATCH_SIZE).ToList();
+                var smsToInsert = new List<(ListTinNhanError item, DanhBaSms newSms)>();
+
+                foreach (var item in batch)
+                {
+                    if (!allSourceSmsList.TryGetValue(item.IdDanhBaSms, out var sourceSms))
+                        continue;
+
+                    smsToInsert.Add((item, new DanhBaSms
+                    {
+                        IdDanhBa = newDanhBa.Id,
+                        HoVaTen = sourceSms.HoVaTen,
+                        SoDienThoai = sourceSms.SoDienThoai,
+                        CreatedBy = currentUserId,
+                        CreatedDate = now
+                    }));
+                }
+
+                _smDbContext.DanhBaSms.AddRange(smsToInsert.Select(x => x.newSms));
+                await _smDbContext.SaveChangesAsync();
+
+                var dataToInsert = new List<DanhBaData>();
+                foreach (var (item, newSms) in smsToInsert)
+                {
+                    if (!sourceDanhBaDataLookup.TryGetValue(item.IdDanhBaSms, out var sourceDataList))
+                        continue;
+
+                    foreach (var sourceData in sourceDataList)
+                    {
+                        if (!oldTruongIdToNewId.TryGetValue(sourceData.IdTruongData, out int newTruongId))
+                            continue;
+
+                        dataToInsert.Add(new DanhBaData
+                        {
+                            IdDanhBa = newDanhBa.Id,
+                            IdDanhBaChiTiet = newSms.Id,
+                            IdTruongData = newTruongId,
+                            Data = sourceData.Data,
+                            CreatedBy = currentUserId,
+                            CreatedDate = now
+                        });
+                    }
+                }
+
+                _smDbContext.DanhBaDatas.AddRange(dataToInsert);
+                await _smDbContext.SaveChangesAsync();
+            }
+        }
 
         public void Update(int idDanhBa, UpdateDanhBaDto dto)
         {
@@ -117,7 +236,7 @@ namespace thongbao.be.application.DanhBa.Implements
             if (danhBaChiTietIds.Any())
             {
                 var danhBaDataList = _smDbContext.DanhBaDatas
-                    .Where(dbd => danhBaChiTietIds.Contains(dbd.IdDanhBaChienDich) && !dbd.Deleted)
+                    .Where(dbd => danhBaChiTietIds.Contains(dbd.IdDanhBa) && !dbd.Deleted)
                     .ToList();
 
                 foreach (var danhBaData in danhBaDataList)
@@ -178,17 +297,20 @@ namespace thongbao.be.application.DanhBa.Implements
             var idDanhBaChiTiets = items.Select(x => x.Id).ToList();
             var danhBaTruongDatas = _smDbContext.DanhBaTruongDatas.Where(x => x.IdDanhBa == idDanhBa && !x.Deleted).ToList();
             var danhBaDatas = _smDbContext.DanhBaDatas.Where(x => idDanhBaChiTiets.Contains(x.IdDanhBaChiTiet) && !x.Deleted).ToList();
+            var hiddenIds = dto.Items?.Select(x => x.IdDanhBaTruongData).ToHashSet() ?? new HashSet<int>();
 
             foreach (var item in items)
             {
-                item.Items = danhBaTruongDatas.Select(truong => new ViewDanhBaChiTietTruongDto
-                {
-                    Id = truong.Id,
-                    TenTruong = truong.TenTruong,
-                    Data = danhBaDatas.Where(d => d.IdTruongData == truong.Id && d.IdDanhBaChiTiet == item.Id)
+                item.Items = danhBaTruongDatas
+                    .Where(truong => !hiddenIds.Contains(truong.Id))
+                    .Select(truong => new ViewDanhBaChiTietTruongDto
+                    {
+                        Id = truong.Id,
+                        TenTruong = truong.TenTruong,
+                        Data = danhBaDatas.Where(d => d.IdTruongData == truong.Id && d.IdDanhBaChiTiet == item.Id)
                                       .Select(d => new ViewDanhBaChiTietDataDto { Id = d.Id, Data = d.Data })
                                       .FirstOrDefault()
-                }).ToList();
+                    }).ToList();
             }
 
             var response = new BaseResponsePagingDto<ViewDanhBaChiTietDto>
@@ -1591,7 +1713,7 @@ namespace thongbao.be.application.DanhBa.Implements
                         if (updateDanhBaChiTietIds.Any())
                         {
                             await _smDbContext.DanhBaDatas
-                                .Where(x => updateDanhBaChiTietIds.Contains(x.IdDanhBaChienDich) && !x.Deleted)
+                                .Where(x => updateDanhBaChiTietIds.Contains(x.IdDanhBa) && !x.Deleted)
                                 .BatchUpdateAsync(x => new domain.DanhBa.DanhBaData
                                 {
                                     Deleted = true,
@@ -1614,7 +1736,7 @@ namespace thongbao.be.application.DanhBa.Implements
                                 Data = mapping.CellValue,
                                 IdTruongData = truongDataId,
                                 IdDanhBaChiTiet = danhBaChiTietId,
-                                IdDanhBaChienDich = dto.IdDanhBa,
+                                IdDanhBa = dto.IdDanhBa,
                                 CreatedDate = vietnamNow,
                                 CreatedBy = currentUserId,
                                 Deleted = false
@@ -2037,7 +2159,7 @@ namespace thongbao.be.application.DanhBa.Implements
                                 Data = mapping.CellValue,
                                 IdTruongData = truongDataId,
                                 IdDanhBaChiTiet = danhBaChiTietId,
-                                IdDanhBaChienDich = idDanhBa,
+                                IdDanhBa = idDanhBa,
                                 CreatedDate = vietnamNow,
                                 CreatedBy = currentUserId,
                                 Deleted = false
@@ -2219,7 +2341,7 @@ namespace thongbao.be.application.DanhBa.Implements
                                 Data = cellData,
                                 IdTruongData = truongData.Id,
                                 IdDanhBaChiTiet = danhBaChiTietId,
-                                IdDanhBaChienDich = idDanhBa,
+                                IdDanhBa = idDanhBa,
                                 CreatedDate = vietnamNow,
                                 CreatedBy = currentUserId,
                                 Deleted = false
@@ -2497,7 +2619,7 @@ namespace thongbao.be.application.DanhBa.Implements
                                             Data = cellData,
                                             IdTruongData = truongDataId,
                                             IdDanhBaChiTiet = danhBaChiTietId,
-                                            IdDanhBaChienDich = idDanhBa,
+                                            IdDanhBa = idDanhBa,
                                             CreatedDate = vietnamNow,
                                             CreatedBy = currentUserId,
                                             Deleted = false
@@ -2583,6 +2705,100 @@ namespace thongbao.be.application.DanhBa.Implements
             return result;
         }
 
+
+
+
+        public ViewChiTietThueBaoNguoiNhanDto GetChiTietThueBaoNguoiNhanById (int idDanhBa,int idThueBao)
+        {
+            _logger.LogInformation($"{nameof(GetChiTietThueBaoNguoiNhanById)}  idDanhBa ={idDanhBa}; idThueBao = {idThueBao}");
+            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound);
+            var thueBao = _smDbContext.DanhBaSms.FirstOrDefault(x => x.Id == idThueBao && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorThueBaoNotFound);
+            var query = from tb in _smDbContext.DanhBaSms
+                        where tb.IdDanhBa == idDanhBa && tb.Id == idThueBao && !tb.Deleted
+                        join f in _smDbContext.DanhBaTruongDatas on tb.IdDanhBa equals f.IdDanhBa
+                        where f.IdDanhBa == idDanhBa && !f.Deleted
+                        join d in _smDbContext.DanhBaDatas on tb.Id equals d.IdDanhBaChiTiet
+                        where d.IdDanhBa == idDanhBa && !d.Deleted && d.IdTruongData == f.Id
+                        select new ViewChiTietThueBaoNguoiNhanDataByIdDto
+                        {
+                            IdTruong = f.Id,
+                            TenTruong = f.TenTruong,
+                            IdData = d.Id,
+                            Data = d.Data
+                        };
+            var data = query.ToList();  
+            var result = new ViewChiTietThueBaoNguoiNhanDto
+            {
+                Items = data
+            };
+            return result;
+
+
+        }
+
+
+        public void UpdateDataChiTietThueBao (UpdateDataChiTietThueBaoRequestDto dto)
+        {
+            _logger.LogInformation($"{nameof(UpdateDataChiTietThueBao)}  dto = {JsonSerializer.Serialize(dto)}");
+            var vietNamNow = GetVietnamTime();
+            var currentUserId = getCurrentUserId();
+            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == dto.IdDanhBa && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound);
+            var thueBao = _smDbContext.DanhBaSms.FirstOrDefault(x => x.Id == dto.IdThueBao && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorThueBaoNotFound);
+            
+            foreach (var item in dto.Items)
+            {
+                var data = _smDbContext.DanhBaDatas.FirstOrDefault(x => x.Id == item.IdData && !x.Deleted)
+                    ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorDanhBaDataNotFound);
+                data.Data = item.Data;
+                data.ModifiedDate = vietNamNow;
+                data.ModifiedBy = currentUserId;
+
+                _smDbContext.DanhBaDatas.Update(data);
+            }
+
+            _smDbContext.SaveChanges();
+        }
+
+
+        public ViewChiTietDanhBaSmsDto GetChiTietDanhBaSms ( int idDanhBa, int idThueBao)
+        {
+            _logger.LogInformation($"{nameof(GetChiTietDanhBaSms)}  idDanhBa ={idDanhBa}; idThueBao = {idThueBao}");
+            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == idDanhBa && !x.Deleted)
+               ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound);
+            var thueBao = _smDbContext.DanhBaSms.FirstOrDefault(x => x.Id == idThueBao && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorThueBaoNotFound);
+            var query = from tb in _smDbContext.DanhBaSms
+                        where tb.IdDanhBa == idDanhBa && tb.Id == idThueBao && !tb.Deleted
+                        select new ViewChiTietDanhBaSmsDto
+                        {
+                            HoVaTen = tb.HoVaTen,
+                            SoDienThoai = tb.SoDienThoai
+                        };
+            var result = query.FirstOrDefault();
+            return result;
+        }
+
+        public void UpdateDanhBaSms (UpdateDanhBaSmsRequestDto dto)
+        {
+            _logger.LogInformation($"{nameof(UpdateDanhBaSms)}  dto = {JsonSerializer.Serialize(dto)}");
+            var vietNamNow = GetVietnamTime();
+            var currentUserId = getCurrentUserId();
+            var danhBa = _smDbContext.DanhBas.FirstOrDefault(x => x.Id == dto.IdDanhBa && !x.Deleted)
+              ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorNotFound);
+            var thueBao = _smDbContext.DanhBaSms.FirstOrDefault(x => x.Id == dto.Id && !x.Deleted)
+                ?? throw new UserFriendlyException(ErrorCodes.DanhBaErrorThueBaoNotFound);
+            thueBao.HoVaTen = dto.HoVaTen;
+            thueBao.SoDienThoai = dto.SoDienThoai;
+            thueBao.ModifiedDate = vietNamNow;
+            thueBao.ModifiedBy = currentUserId;
+            _smDbContext.DanhBaSms.Update(thueBao);
+            _smDbContext.SaveChanges();
+
+        }
         private async Task<List<List<string>>> _getSheetData(string sheetUrl, string sheetName)
         {
             var serviceAccountPath = _configuration["Google:ServiceAccountPath"];

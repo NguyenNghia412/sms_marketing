@@ -41,6 +41,8 @@ export interface IViewChiTietChienDichReport {
     id?: number;
     hoVaTen?: string;
     //maSoNguoiDung?: string;
+    idDanhBa?: number;
+    idDanhBaSms?: number;
     soDienThoai?: string;
     brandName?: IBrandName;
     log?: ILogReport;
@@ -52,10 +54,15 @@ export interface IExportThongKeTheoThang{
     thang?: number;
     nam?: number;
 }
-export interface IFindPagingChienDichReport extends IBaseRequestPaging {}
+export interface IFindPagingChienDichReport extends IBaseRequestPaging {
+    fromDate?: Date
+    toDate?: Date
+    sapXepTheo?: string
+}
 
 export interface IFindPagingChiTietChienDichReport extends IBaseRequestPaging{
     idDanhBa?: number;
+    trangThai?: string;
 }
 
 export interface IChienDichLogCreatedBy{

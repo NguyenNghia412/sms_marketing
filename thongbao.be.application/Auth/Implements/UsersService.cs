@@ -179,5 +179,38 @@ namespace thongbao.be.application.Auth.Implements
             return user;
         }
 
+
+        public List<GetListUserDto> GetListUser()
+        {
+            _logger.LogInformation($"{nameof(GetListUser)}");
+
+            var superAdminRoleId = _smDbContext.Roles
+                .AsNoTracking()
+                .Where(r => r.Name == "SuperAdmin")
+                .Select(r => r.Id)
+                .FirstOrDefault();
+
+            var superAdminUserIds = _smDbContext.UserRoles
+                .AsNoTracking()
+                .Where(ur => ur.RoleId == superAdminRoleId)
+                .Select(ur => ur.UserId)
+                .ToList();
+
+            var users = _userManager.Users
+                .AsNoTracking()
+                .Where(u => !superAdminUserIds.Contains(u.Id))
+                .Select(u => new GetListUserDto
+                {
+                    Id = u.Id,
+                    UserName = u.UserName ?? "",
+                    Email = u.Email ?? "",
+                    FullName = u.FullName
+                })
+                .OrderBy(x => x.UserName)
+                .ToList();
+
+            return users;
+        }
+
     }
 }

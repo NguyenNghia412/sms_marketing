@@ -42,10 +42,21 @@ namespace thongbao.be.infrastructure.data
         public DbSet<ToChuc> ToChucs { get; set; }
         public DbSet<ToChucDanhBaChiTiet> ToChucDanhBaChiTiet { get; set; }
         public DbSet<BrandName> BrandName { get; set; }
-        public DbSet<MauNoiDung> MauNoiDungs { get; set; }
+        public DbSet<MauNoiDungSms> MauNoiDungSms { get; set; }
+        public DbSet<MauNoiDungEmail> MauNoiDungEmail { get; set; }
         public DbSet<ChienDichLogTrangThaiGui> ChienDichLogTrangThaiGuis { get; set; }
         public DbSet<GuiTinNhanLogChiTiet> GuiTinNhanLogChiTiets { get; set; }
         public DbSet<CauHinhDonGia> CauHinhDonGias { get; set; }
+        public DbSet<ChienDichBackgroundJob> ChienDichBackgroundJobs { get; set; }
+        public DbSet<ChienDichListSoDienThoai> ChienDichListSoDienThoais { get; set; }
+        public DbSet<NhaMang> NhaMangs { get; set; }
+        public DbSet<NhaCungCapDichVu> NhaCungCapDichVus { get; set; }
+
+        public DbSet<UserCredits> UserCredits { get; set; }
+        public DbSet<UserNhaCungCapDichVu> UserNhaCungCapDichVus { get; set; }
+        public DbSet<ToiDaHanMucCreditsGiaHan> ToiDaHanMucCreditsGiaHan { get; set; }
+
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -148,7 +159,12 @@ namespace thongbao.be.infrastructure.data
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
-            modelBuilder.Entity<MauNoiDung>(entity =>
+            modelBuilder.Entity<MauNoiDungSms>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<MauNoiDungEmail>(entity =>
             {
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
@@ -168,6 +184,46 @@ namespace thongbao.be.infrastructure.data
                 entity.Property(e => e.Deleted).HasDefaultValue(0);
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
             });
+            modelBuilder.Entity<ChienDichBackgroundJob>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<ChienDichListSoDienThoai>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+        
+
+            modelBuilder.Entity<NhaMang>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+
+            modelBuilder.Entity<UserCredits>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<NhaCungCapDichVu>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+      
+            modelBuilder.Entity<UserNhaCungCapDichVu>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<ToiDaHanMucCreditsGiaHan>(entity =>
+            {
+                entity.Property(e => e.Deleted).HasDefaultValue(0);
+                entity.Property(e => e.CreatedDate).HasDefaultValueSql("getdate()");
+            });
+
 
 
 

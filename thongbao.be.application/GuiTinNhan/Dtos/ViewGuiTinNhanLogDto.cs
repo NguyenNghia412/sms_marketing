@@ -13,7 +13,8 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
         public string HoVaTen { get; set; } = String.Empty;
         //public string MaSoNguoiDung { get; set; } = String.Empty;
         //public string SoDienThoai { get; set; } = String.Empty;
-
+        public int IdDanhBa { get; set; }
+        public int IdDanhBaSms { get; set; }
         public BrandNameDto BrandName { get; set; } = new BrandNameDto();
         public ViewGuiTinNhanLogDto Log { get; set; } = new ViewGuiTinNhanLogDto();
         public CreatedByGuiTinNhanLogDto Users { get; set; } = new CreatedByGuiTinNhanLogDto();
@@ -25,6 +26,7 @@ namespace thongbao.be.application.GuiTinNhan.Dtos
     }
     public class ViewGuiTinNhanLogDto
     {
+        
         public string SoDienThoai { get; set; } = String.Empty;
         public string NoiDungChiTiet { get; set; } = String.Empty;
         public int? Price { get; set; }

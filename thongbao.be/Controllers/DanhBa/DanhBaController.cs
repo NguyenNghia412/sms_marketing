@@ -273,11 +273,11 @@ namespace thongbao.be.Controllers.DanhBa
 
         [Permission(PermissionKeys.DanhBaDelete)]
         [HttpDelete("{idDanhBa}/nguoi-nhan/{idDanhBaChiTiet}")]
-        public ApiResponse DeleteDanhBaChiTiet([FromRoute]int idDanhBa,[FromRoute] int idDanhBaChiTiet)
+        public ApiResponse DeleteDanhBaChiTiet([FromRoute] int idDanhBa, [FromRoute] int idDanhBaChiTiet)
         {
             try
             {
-                _danhBaService.DeleteDanhBaChiTiet(idDanhBa,idDanhBaChiTiet);
+                _danhBaService.DeleteDanhBaChiTiet(idDanhBa, idDanhBaChiTiet);
                 return new();
             }
             catch (Exception ex)
@@ -315,11 +315,11 @@ namespace thongbao.be.Controllers.DanhBa
         }
         [Permission(PermissionKeys.DanhBaAdd)]
         [HttpPost("{idDanhBa}/quick-danh-ba-sms")]
-        public async Task<ApiResponse> CreateDanhBaSmsQuick([FromRoute] int idDanhBa,[FromBody] CreateDanhBaDataNhanhDto dto)
+        public async Task<ApiResponse> CreateDanhBaSmsQuick([FromRoute] int idDanhBa, [FromBody] CreateDanhBaDataNhanhDto dto)
         {
             try
             {
-                await  _danhBaService.CreateDanhBaSmsQuick(idDanhBa,dto);
+                await _danhBaService.CreateDanhBaSmsQuick(idDanhBa, dto);
                 return new();
             }
             catch (Exception ex)
@@ -329,11 +329,11 @@ namespace thongbao.be.Controllers.DanhBa
         }
         [Permission(PermissionKeys.DanhBaAdd)]
         [HttpPost("quick-danh-ba")]
-        public async Task<ApiResponse> CreateDanhBaChienDichQuick( [FromBody] CreateDanhBaChienDichNhanhDto dto)
+        public async Task<ApiResponse> CreateDanhBaChienDichQuick([FromBody] CreateDanhBaChienDichNhanhDto dto)
         {
             try
             {
-                await _danhBaService.CreateDanhBaChienDichNhanh( dto);
+                await _danhBaService.CreateDanhBaChienDichNhanh(dto);
                 return new();
             }
             catch (Exception ex)
@@ -347,7 +347,7 @@ namespace thongbao.be.Controllers.DanhBa
         {
             try
             {
-                 var data =  await _danhBaService.GetFileExcelInfor(dto);
+                var data = await _danhBaService.GetFileExcelInfor(dto);
                 return new(data);
             }
             catch (Exception ex)
@@ -369,7 +369,84 @@ namespace thongbao.be.Controllers.DanhBa
                 return OkException(ex);
             }
         }
+        [Permission(PermissionKeys.DanhBaView)]
+        [HttpGet("{idDanhBa}/thue-bao/{idThueBao}/chi-tiet-thue-bao")]
+        public ApiResponse GetChiTietThueBaoById([FromRoute] int idDanhBa, [FromRoute] int idThueBao)
+        {
+            try
+            {
+                var data = _danhBaService.GetChiTietThueBaoNguoiNhanById(idDanhBa, idThueBao);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
 
 
+        }
+
+
+        [Permission(PermissionKeys.DanhBaUpdate)]
+        [HttpPut("{idDanhBa}/thue-bao/{idThueBao}/chi-tiet-thue-bao")]
+        public ApiResponse UpdateChiTietThueBaoById([FromBody] UpdateDataChiTietThueBaoRequestDto dto)
+        {
+            try
+            {
+                _danhBaService.UpdateDataChiTietThueBao(dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        [Permission(PermissionKeys.DanhBaView)]
+        [HttpGet("{idDanhBa}/thue-bao/{idThueBao}/thue-bao")]
+        public ApiResponse GetThueBaoById([FromRoute] int idDanhBa, [FromRoute] int idThueBao)
+        {
+            try
+            {
+                var data = _danhBaService.GetChiTietDanhBaSms(idDanhBa, idThueBao);
+                return new(data);
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+
+
+        }
+
+        [Permission(PermissionKeys.DanhBaUpdate)]
+        [HttpPut("{idDanhBa}/thue-bao/{idThueBao}/thue-bao")]
+        public ApiResponse UpdateThueBaoById([FromBody] UpdateDanhBaSmsRequestDto dto)
+        {
+            try
+            {
+                _danhBaService.UpdateDanhBaSms(dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        [Permission(PermissionKeys.DanhBaAdd)]
+        [HttpPost("danh-ba-thue-bao-loi-gui-tin-nhan")]
+        public async Task<ApiResponse> CreateDanhBaThueBaoLoiGuiTinNhan([FromBody] CreateDanhBaFromTinNhanErrorDto dto)
+        {
+            try
+            {
+                await _danhBaService.CreateDanhBaFromGuiTinNhanLoi(dto);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
     }
 }

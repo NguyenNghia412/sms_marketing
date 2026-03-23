@@ -1,5 +1,5 @@
 import { IViewRowDanhBa } from '@/models/danh-ba.models';
-import { ISaveConfigChienDich, IVerifySendSms } from '@/models/gui-tin-nhan.models';
+import { ISaveConfigChienDich, IVerifySendSms, IVerifySendSmsLenLich } from '@/models/gui-tin-nhan.models';
 import { IViewBrandname } from '@/models/sms.models';
 import { ChienDichService } from '@/services/chien-dich.service';
 import { DanhBaService } from '@/services/danh-ba.service';
@@ -16,6 +16,8 @@ import { Import } from './import/import';
 import { CreateQuick } from './create-quick/create-quick';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { DialogPreview } from './dialog-preview/dialog-preview';
+import {  DialogLichGuiPreview } from './dialog-preview-lich-gui/dialog-preview-lich-gui';
+import { NhaCungCapDichVuService } from '@/services/nha-cung-cap-dich-vu.service';
 
 @Component({
     selector: 'app-gui-tin-nhan',
@@ -27,6 +29,7 @@ export class GuiTinNhan extends BaseComponent {
     private _danhBaService = inject(DanhBaService);
     private _chienDichService = inject(ChienDichService);
     private _guiTinNhanService = inject(GuiTinNhanService);
+    private _nhaCungCapDichVuService = inject(NhaCungCapDichVuService);
 
     items: MenuItem[] = [{ label: 'Danh sách chiến dịch', routerLink: '/channel/sms' }, { label: 'Gửi tin nhắn sms' }];
     home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
@@ -44,7 +47,8 @@ export class GuiTinNhan extends BaseComponent {
         ngayBatDau: new FormControl(new Date()),
         ngayKetThuc: new FormControl(new Date()),
         noiDung: new FormControl('', [Validators.required]),
-        isAccented: new FormControl(true)
+        lichGui: new FormControl(null),
+        isAccented: new FormControl(true),
     });
 
     override ValidationMessages: Record<string, Record<string, string>> = {
@@ -71,7 +75,7 @@ export class GuiTinNhan extends BaseComponent {
                 this.listDanhBa = value.data;
             }
         });
-        this._chienDichService.getListBrandname().subscribe({
+        this._nhaCungCapDichVuService.getListBrandNameByCurrentUser().subscribe({
             next: (value) => {
                 this.listBrandname = value.data;
             }
@@ -91,7 +95,9 @@ export class GuiTinNhan extends BaseComponent {
                             ngayBatDau: res.data.ngayBatDau,
                             ngayKetThuc: res.data.ngayKetThuc,
                             noiDung: res.data.noiDung,
-                            isAccented: res.data.isAccented ?? true
+                            isAccented: res.data.isAccented ?? true,
+                            lichGui: res.data.lichGui ?? null,
+
                         });
                         this.trangThaiChienDich = res.data.trangThai === 1;
                     }
@@ -103,6 +109,63 @@ export class GuiTinNhan extends BaseComponent {
     onNguoiNhanTypeChange() {
         this.updateValidation();
     }
+    onClickDatLich() {
+        if (this.isFormInvalid()) {
+            return;
+        }
+        const lenLichValue = this.form.value.lichGui;
+
+        const body: IVerifySendSmsLenLich = {
+            idChienDich: this.idChienDich,
+            idBrandName: this.form.value.idBrandName,
+            isAccented: this.form.value.isAccented ?? true,
+            noiDung: this.form.value.noiDung,
+            lichGui: lenLichValue ? new Date(lenLichValue).toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' }).replace(' ', 'T') : null
+
+        };
+        console.log(11111, body);
+        if (this.nguoiNhanType === 'danhBa') {
+            body.idDanhBa = this.form.value.idDanhBa;
+        } else {
+            const soDienThoaiText = this.form.value.soDienThoai || '';
+            const phoneNumbers = soDienThoaiText
+                .split(/[\n,;\s]+/) 
+                .map((s: string) => s.trim())
+                .filter((s: string) => s.length > 0);
+            
+            body.danhSachSoDienThoai = phoneNumbers.map((sdt: string) => ({ soDienThoai: sdt }));
+        }
+
+        this.loading = true;
+        this._guiTinNhanService.verifySendSms(body  ).subscribe({
+            next: (res) => {
+                this.loading = false;
+                if (this.isResponseSucceed(res)) {
+                    const ref = this._dialogService.open(DialogLichGuiPreview, {
+                        header: 'Xác nhận đặt lịch gửi tin nhắn',
+                        closable: true,
+                        modal: true,
+                        styleClass: 'w-[500px]',
+                        data: {
+                            verifyData: res.data,
+                            bodySendSmsLenLich: body
+                        }
+                    });
+
+                    ref.onClose.subscribe((result) => {
+                        if (result === 'success') {
+                            this.router.navigate(['/channel/sms']);
+                        }
+                    });
+                }
+            },
+            error: (err) => {
+                this.loading = false;
+                this.messageError(err?.message);
+            }
+        });
+    }
+    
 
     updateValidation() {
         const idDanhBaControl = this.form.get('idDanhBa');
