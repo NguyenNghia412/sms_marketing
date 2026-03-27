@@ -405,6 +405,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     var donGia = string.Join(" - ", donGiaRaw
                         .Select(x => x.SoLuongTinNhan > 0 ? (double)x.Price / x.SoLuongTinNhan : 0)
                         .Distinct()
+                        .Where(x => x > 0)
                         .OrderBy(x => x)
                         .Select(x => x % 1 == 0 ? ((long)x).ToString() : x.ToString("G")));
                     // =========================
