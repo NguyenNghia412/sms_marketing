@@ -389,12 +389,25 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         .Where(x => x.IdChienDich == idChienDich && x.CreatedDate.HasValue && x.CreatedDate.Value.Month == dto.Thang && x.CreatedDate.Value.Year == dto.Nam && !x.Deleted)
                         .SumAsync(x => x.SoLuongTinNhan);
 
-                    var idBrandName = chienDichLogs.FirstOrDefault()?.IdBrandName ?? 0;
-                    var donGia = _smDbContext.CauHinhDonGias
-                        .Where(x => x.IdBrandName == idBrandName && !x.Deleted)
-                        .OrderByDescending(x => x.CreatedDate)
-                        .Select(x => x.DonGia)
-                        .FirstOrDefault();
+                    // ===== TÍNH ĐƠN GIÁ =====
+                    // Group by Price ngay trên DB → chỉ kéo về (Price, SoLuongTinNhan) đại diện của mỗi Price
+                    var donGiaRaw = await _smDbContext.GuiTinNhanLogChiTiets
+                        .Where(x => x.IdChienDich == idChienDich
+                            && x.CreatedDate.HasValue
+                            && x.CreatedDate.Value.Month == dto.Thang
+                            && x.CreatedDate.Value.Year == dto.Nam
+                            && !x.Deleted)
+                        .GroupBy(x => x.Price)
+                        .Select(g => new { Price = g.Key, SoLuongTinNhan = g.Min(x => x.SoLuongTinNhan) })
+                        .ToListAsync();
+
+                    // Distinct Price → chia Price / SoLuongTinNhan → distinct đơn giá → sort tăng dần
+                    var donGia = string.Join(" - ", donGiaRaw
+                        .Select(x => x.SoLuongTinNhan > 0 ? (double)x.Price / x.SoLuongTinNhan : 0)
+                        .Distinct()
+                        .OrderBy(x => x)
+                        .Select(x => x % 1 == 0 ? ((long)x).ToString() : x.ToString("G")));
+                    // =========================
 
                     var nguoiGui = !string.IsNullOrEmpty(chienDich.CreatedBy)
                         ? _smDbContext.Users.FirstOrDefault(x => x.Id == chienDich.CreatedBy)?.FullName ?? ""

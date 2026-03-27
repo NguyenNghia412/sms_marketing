@@ -29,6 +29,7 @@ namespace thongbao.be.domain.GuiTinNhan
         public int IdBrandName { get; set; }
         public int? IdDanhBaSms { get; set; }
         public string SoDienThoai { get; set; } = String.Empty;
+        //public string DonGia { get; set; } = String.Empty;
         public int Price { get; set; }
         public int Code { get; set; }
         public string Message { get; set; } = String.Empty;
