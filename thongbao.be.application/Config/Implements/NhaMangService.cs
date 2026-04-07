@@ -117,24 +117,29 @@ namespace thongbao.be.application.Config.Implements
             nhaMang.ModifiedBy = currentUserId;
             _smDbContext.NhaMangs.Update(nhaMang);
             _smDbContext.SaveChanges();
+            var cauHinhList = _smDbContext.CauHinhDonGias
+                    .Where(x => x.IdNhaMang == dto.Id
+                           
+                           && !x.Deleted)
+                    .ToList();
             foreach (var item in brandNames)
             {
-                var cauHinhItem = _smDbContext.CauHinhDonGias
-                    .FirstOrDefault(x => x.IdNhaMang == dto.Id
-                           && x.IdBrandName == item.Id
-                           && !x.Deleted);
+                var cauHinhItem = cauHinhList
+                    .FirstOrDefault(x => x.IdBrandName == item.Id);
                 //cauHinhDonGia.IdBrandName = dto.IdBrandName;
                 if (cauHinhItem != null)
                 {
                     cauHinhDonGia.DonGia = dto.DonGia;
-                    cauHinhDonGia.IdBrandName = item.Id;
+                    //cauHinhDonGia.IdBrandName = item.Id;
                     cauHinhDonGia.ThoiHan = dto.ThoiHan;
                     cauHinhDonGia.ModifiedDate = vietNamNow;
                     cauHinhDonGia.ModifiedBy = currentUserId;
                     _smDbContext.CauHinhDonGias.Update(cauHinhDonGia);
-                    _smDbContext.SaveChanges();
+                    
                 }
+                
             }
+            _smDbContext.SaveChanges();
         }
 
         public void DeleteNhaMang(int id)
