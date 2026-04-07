@@ -29,7 +29,7 @@ export class UpdateNhaMang extends BaseComponent {
         idNhaCungCapDichVu: new FormControl(null, [Validators.required]),
         tenNhaMang: new FormControl('', [Validators.required]),
         prefix: new FormControl('', [Validators.required]),
-        idBrandName: new FormControl('', [Validators.required]),
+        //idBrandName: new FormControl('', [Validators.required]),
         donGia: new FormControl('', [Validators.required]),
         thoiHan: new FormControl(null),
     });
@@ -43,9 +43,9 @@ export class UpdateNhaMang extends BaseComponent {
         prefix: {
             required: 'Không được bỏ trống'
         },
-        idBrandName: {
+        /*idBrandName: {
             required: 'Không được bỏ trống'
-        },
+        },*/
         donGia: {
             required: 'Không được bỏ trống'
         },

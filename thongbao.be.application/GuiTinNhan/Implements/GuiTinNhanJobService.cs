@@ -184,14 +184,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     var recordIds = danhBaSmsList.Select(x => x.Id).ToList();
                     var allUserData = await GetDanhBaDataForBatch(recordIds, idChienDich);
 
-                    var networkCosts = new Dictionary<string, int>
-                    {
-                        ["Viettel"] = 420,
-                        ["Mobifone"] = 420,
-                        ["Vinaphone"] = 420,
-                        ["Vietnamobile"] = 700,
-                        ["Gmobile"] = 300
-                    };
+                    var networkCosts = await (from chdg in _smDbContext.CauHinhDonGias
+                                              join nm in _smDbContext.NhaMangs on chdg.IdNhaMang equals nm.Id
+                                              where chdg.IdBrandName == idBrandName && !chdg.Deleted && !nm.Deleted
+                                              select new { nm.TenNhaMang, chdg.DonGia })
+                         .ToDictionaryAsync(x => x.TenNhaMang, x => x.DonGia);
 
                     var viettelPrefixes = new[] { "96", "97", "98", "86", "32", "33", "34", "35", "36", "37", "38", "39" };
                     var mobifone = new[] { "90", "93", "89", "70", "76", "77", "78", "79" };
@@ -315,14 +312,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 //Mode: List số điện thoại
                 else
                 {
-                    var networkCosts = new Dictionary<string, int>
-                    {
-                        ["Viettel"] = 420,
-                        ["Mobifone"] = 420,
-                        ["Vinaphone"] = 420,
-                        ["Vietnamobile"] = 700,
-                        ["Gmobile"] = 300
-                    };
+                    var networkCosts = await (from chdg in _smDbContext.CauHinhDonGias
+                                              join nm in _smDbContext.NhaMangs on chdg.IdNhaMang equals nm.Id
+                                              where chdg.IdBrandName == idBrandName && !chdg.Deleted && !nm.Deleted
+                                              select new { nm.TenNhaMang, chdg.DonGia })
+                         .ToDictionaryAsync(x => x.TenNhaMang, x => x.DonGia);
                     var listsmsCount = danhSachSoDienThoai?.Count ?? 0;
                     var viettelPrefixes = new[] { "96", "97", "98", "86", "32", "33", "34", "35", "36", "37", "38", "39" };
                     var mobifone = new[] { "90", "93", "89", "70", "76", "77", "78", "79" };
@@ -673,14 +667,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             //var currentUserId = getCurrentUserId();
             var vietnamNow = GetVietnamTime();
 
-            var networkCosts = new Dictionary<string, int>
-            {
-                ["Viettel"] = 420,
-                ["Mobifone"] = 420,
-                ["Vinaphone"] = 420,
-                ["Vietnamobile"] = 700,
-                ["Gmobile"] = 300
-            };
+            var networkCosts = await (from chdg in _smDbContext.CauHinhDonGias
+                                      join nm in _smDbContext.NhaMangs on chdg.IdNhaMang equals nm.Id
+                                      where chdg.IdBrandName == idBrandName && !chdg.Deleted && !nm.Deleted
+                                      select new { nm.TenNhaMang, chdg.DonGia })
+                         .ToDictionaryAsync(x => x.TenNhaMang, x => x.DonGia);
 
             var smsMessages = new List<object>();
             int totalSuccess = 0;
@@ -1045,6 +1036,7 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 else return (int)Math.Ceiling((double)length / 153);
             }
         }
+        
         private async Task<bool> IsChienDichCancelled(int idChienDich)
         {
             var chienDich = await _smDbContext.ChienDiches

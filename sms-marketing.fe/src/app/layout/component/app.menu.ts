@@ -127,8 +127,8 @@ export class AppMenu {
                         expanded: true,
                         items: [
                             { label: 'SMS', heroIcon: 'heroChatBubbleBottomCenterText', routerLink: ['/channel/sms'], visible: this._sharedService.isGranted(PermissionConstants.MenuMarketingSms) },
-                            { label: 'Email', heroIcon: 'heroEnvelope', routerLink: ['/channel/email'], visible: this._sharedService.isGranted(PermissionConstants.MenuMarketingEmail) },
-                            { label: 'ZNS', heroIcon: 'heroSquare3Stack3d', routerLink: ['/channel/zns'], visible: this._sharedService.isGranted(PermissionConstants.MenuMarketingZns) }
+                            //{ label: 'Email', heroIcon: 'heroEnvelope', routerLink: ['/channel/email'], visible: this._sharedService.isGranted(PermissionConstants.MenuMarketingEmail) },
+                            //{ label: 'ZNS', heroIcon: 'heroSquare3Stack3d', routerLink: ['/channel/zns'], visible: this._sharedService.isGranted(PermissionConstants.MenuMarketingZns) }
                         ],
                     }
                 ],

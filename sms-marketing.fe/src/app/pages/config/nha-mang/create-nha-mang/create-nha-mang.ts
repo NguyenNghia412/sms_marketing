@@ -27,7 +27,7 @@ export class CreateNhaMang extends BaseComponent {
         idNhaCungCapDichVu: new FormControl(null, [Validators.required]),
         tenNhaMang: new FormControl('', [Validators.required]),
         prefix: new FormControl('', [Validators.required]),
-        idBrandName: new FormControl('', [Validators.required]),
+        //idBrandName: new FormControl('', [Validators.required]),
         donGia: new FormControl('', [Validators.required]),
         thoiHan: new FormControl(null),
     });
@@ -41,9 +41,9 @@ export class CreateNhaMang extends BaseComponent {
         prefix: {
             required: 'Không được bỏ trống'
         },
-        idBrandName: {
+        /*idBrandName: {
             required: 'Không được bỏ trống'
-        },
+        },*/
         donGia: {
             required: 'Không được bỏ trống'
         },
@@ -63,14 +63,14 @@ export class CreateNhaMang extends BaseComponent {
     }
 
     onNhaCungCapChange(idNhaCungCapDichVu: number) {
-        this.form.get('idBrandName')?.reset();
+        /*this.form.get('idBrandName')?.reset();
         this.listBrandName = [];
         if (idNhaCungCapDichVu) {
             this.getListBrandName(idNhaCungCapDichVu);
-        }
+        }*/
     }
 
-    getListBrandName(idNhaCungCapDichVu: number) {
+    /*getListBrandName(idNhaCungCapDichVu: number) {
         this._nhaCungCapDichVuService.getListBrandName(idNhaCungCapDichVu).subscribe({
             next: (res) => {
                 if (this.isResponseSucceed(res, false)) {
@@ -78,7 +78,7 @@ export class CreateNhaMang extends BaseComponent {
                 }
             }
         });
-    }
+    }*/
     onSubmit() {
         if (this.isFormInvalid()) {
             return;

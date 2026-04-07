@@ -1059,15 +1059,16 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         public async Task<int> GetChiPhiDuTruChienDich(int idChienDich, int? idDanhBa, List<ListSoDienThoaiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung)
         {
             await ValidateInput(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, noiDung);
+            var vietNamNow = GetVietnamTime();
 
-            var networkCosts = new Dictionary<string, decimal>
-            {
-                ["Viettel"] = 420,
-                ["Mobifone"] = 420,
-                ["Vinaphone"] = 420,
-                ["Vietnamobile"] = 700,
-                ["Gmobile"] = 300
-            };
+            var networkCosts = await (from cdg in _smDbContext.CauHinhDonGias
+                                      join nm in _smDbContext.NhaMangs on cdg.IdNhaMang equals nm.Id
+                                      where cdg.IdBrandName == idBrandName
+                                            && !cdg.Deleted
+                                            && !nm.Deleted
+                                            && (cdg.ThoiHan == null || cdg.ThoiHan >= vietNamNow)
+                                      select new { nm.TenNhaMang, cdg.DonGia })
+                             .ToDictionaryAsync(x => x.TenNhaMang, x => (decimal)x.DonGia);
 
 
             decimal totalCost = 0;
@@ -1127,15 +1128,15 @@ namespace thongbao.be.application.GuiTinNhan.Implements
         public async Task<int> GetChiPhiDuTruChienDichSchedulerJob(int idChienDich, int? idDanhBa, List<ListSoDienThoaiCoLichGuiDto> danhSachSoDienThoai, int idBrandName, bool IsFlashSms, bool IsAccented, string noiDung, DateTime lichgui)
         {
             await ValidateInputSchedulerJob(idChienDich, idDanhBa, danhSachSoDienThoai, idBrandName, noiDung,lichgui);
-
-            var networkCosts = new Dictionary<string, decimal>
-            {
-                ["Viettel"] = 420,
-                ["Mobifone"] = 420,
-                ["Vinaphone"] = 420,
-                ["Vietnamobile"] = 700,
-                ["Gmobile"] = 300
-            };
+            var vietNamNow = GetVietnamTime();
+            var networkCosts = await (from cdg in _smDbContext.CauHinhDonGias
+                                      join nm in _smDbContext.NhaMangs on cdg.IdNhaMang equals nm.Id
+                                      where cdg.IdBrandName == idBrandName
+                                            && !cdg.Deleted
+                                            && !nm.Deleted
+                                            && (cdg.ThoiHan == null || cdg.ThoiHan >= vietNamNow)
+                                      select new { nm.TenNhaMang, cdg.DonGia })
+                             .ToDictionaryAsync(x => x.TenNhaMang, x => (decimal)x.DonGia);
 
 
             decimal totalCost = 0;

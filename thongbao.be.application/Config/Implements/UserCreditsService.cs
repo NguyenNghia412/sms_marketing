@@ -124,7 +124,6 @@ namespace thongbao.be.application.Config.Implements
             using var transaction = await _smDbContext.Database.BeginTransactionAsync();
             try
             {
-                // Lấy tối đa hạn mức credit gia hạn
                 var toiDaHanMuc = await _smDbContext.ToiDaHanMucCreditsGiaHan
                     .Where(x => !x.Deleted)
                     .OrderByDescending(x => x.CreatedDate)
@@ -134,7 +133,6 @@ namespace thongbao.be.application.Config.Implements
                     ? Convert.ToInt64(toiDaHanMuc.ToiDaHanMucCreditGiaHan)
                     : Convert.ToInt64(SoTienMacDinhConstants.SoTienMacDinh);
 
-                // Lấy bản ghi hết hạn gần nhất của từng user
                 var latestUserCredit = await _smDbContext.UserCredits
                     .Where(x => !x.Deleted && x.ThoiGianKetThucApDungHanMuc < vietNamNow)
                     .GroupBy(x => x.UserId)
@@ -145,7 +143,6 @@ namespace thongbao.be.application.Config.Implements
                     })
                     .ToListAsync();
 
-                // Lấy các user đã có credit active trong kỳ mới → tránh tạo trùng
                 var usersAlreadyHaveActiveCredit = await _smDbContext.UserCredits
                     .Where(x => !x.Deleted
                         && x.ThoiGianBatDauApDungHanMuc < newPeriodEnd
@@ -158,20 +155,25 @@ namespace thongbao.be.application.Config.Implements
 
                 foreach (var userCredits in latestUserCredit)
                 {
-                    // Bỏ qua user đã có credit active trong kỳ mới
                     if (usersAlreadyHaveActiveCredit.Contains(userCredits.UserId))
                         continue;
 
+                    var lastCredit = userCredits.LastestCredit;
+
+                    long oldHanMuc = Convert.ToInt64(string.IsNullOrEmpty(lastCredit.HanMucCredit) ? "0" : lastCredit.HanMucCredit);
+                    long oldDaSuDung = Convert.ToInt64(string.IsNullOrEmpty(lastCredit.CreditDaSuDung) ? "0" : lastCredit.CreditDaSuDung);
+
+                    // creditConLaiThucTe = Hạn mức cũ - Đã sử dụng cũ
+                    long creditConLaiThucTe = (oldHanMuc - oldDaSuDung) > 0 ? (oldHanMuc - oldDaSuDung) : 0;
+
+                    lastCredit.CreditConSauKhiKetThucThoiGianApDungHanMuc = creditConLaiThucTe.ToString();
+                    _smDbContext.UserCredits.Update(lastCredit);
+
                     var soTienMacDinh = Convert.ToInt64(SoTienMacDinhConstants.SoTienMacDinh);
-                    var creditConLai = Convert.ToInt64(
-                        string.IsNullOrEmpty(userCredits.LastestCredit.CreditConSauKhiKetThucThoiGianApDungHanMuc)
-                        ? "0"
-                        : userCredits.LastestCredit.CreditConSauKhiKetThucThoiGianApDungHanMuc
-                    );
 
-                    var hanMucCreditMoi = soTienMacDinh + (creditConLai > 0 ? creditConLai : 0);
+                    // hanMucCreditMoi = Mức mặc định hệ thống + Số dư còn lại từ kỳ trước
+                    var hanMucCreditMoi = soTienMacDinh + creditConLaiThucTe;
 
-                    // Kiểm tra nếu hạn mức mới >= tối đa thì bỏ qua không add
                     if (hanMucCreditMoi >= toiDaHanMucValue)
                     {
                         _logger.LogInformation(
@@ -183,7 +185,7 @@ namespace thongbao.be.application.Config.Implements
                     var newUserCredits = new domain.Config.UserCredits
                     {
                         UserId = userCredits.UserId,
-                        IdNhaCungCapDichVu = userCredits.LastestCredit.IdNhaCungCapDichVu,
+                        IdNhaCungCapDichVu = lastCredit.IdNhaCungCapDichVu,
                         HanMucCredit = hanMucCreditMoi.ToString(),
                         CreditChuaSuDung = "0",
                         CreditDaSuDung = "0",
@@ -200,14 +202,15 @@ namespace thongbao.be.application.Config.Implements
                 if (newCredits.Any())
                 {
                     await _smDbContext.UserCredits.AddRangeAsync(newCredits);
-                    await _smDbContext.SaveChangesAsync();
                 }
 
+                await _smDbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
             }
-            catch
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+                _logger.LogError(ex, $"{nameof(AddCreditToUserCredits)} error");
                 throw;
             }
         }
@@ -229,10 +232,10 @@ namespace thongbao.be.application.Config.Implements
             }
 
             var thoiGianKetThucMoi = dto.ThoiGianKetThucApDungHanMuc ?? dto.ThoiGianBatDauApDungHanMuc.AddMonths(1);
-            if (dto.ThoiGianBatDauApDungHanMuc >= thoiGianKetThucMoi || dto.ThoiGianBatDauApDungHanMuc <= vietNamNow)
+            /*if (dto.ThoiGianBatDauApDungHanMuc >= thoiGianKetThucMoi || dto.ThoiGianBatDauApDungHanMuc <= vietNamNow)
             {
                 throw new UserFriendlyException(ErrorCodes.ConfigErrorThoiGianKhongHopLe);
-            }
+            }*/
             var isOverlap = _smDbContext.UserCredits.Any(
                 x => x.UserId == userCredits.UserId
                 && x.Id != dto.Id
@@ -277,13 +280,24 @@ namespace thongbao.be.application.Config.Implements
                 .Where(x => !x.Deleted)
                 .AsEnumerable()
                 .GroupBy(x => x.UserId)
-                .Select(g => g.OrderBy(x => Math.Abs((x.ThoiGianKetThucApDungHanMuc - vietNamNow).Ticks))
-                              .First().Id)
+                .Select(g =>
+                {
+                    var active = g.FirstOrDefault(x => !x.Deleted && x.ThoiGianBatDauApDungHanMuc <= vietNamNow && x.ThoiGianKetThucApDungHanMuc >= vietNamNow);
+
+                    if(active != null)
+                    {
+                        return active.Id;
+                    }
+
+                    return g.OrderByDescending(x => x.ThoiGianKetThucApDungHanMuc).First().Id;
+                })
                 .ToList();
 
             var query = from uc in _smDbContext.UserCredits
                         join u in _smDbContext.Users on uc.UserId equals u.Id
                         where !uc.Deleted && nearestIds.Contains(uc.Id)
+                        //&& uc.ThoiGianBatDauApDungHanMuc <= vietNamNow
+                        //&& uc.ThoiGianKetThucApDungHanMuc >= vietNamNow
                         select new ViewUserCreditsDto
                         {
                             User = new ViewUserDto
@@ -422,10 +436,12 @@ namespace thongbao.be.application.Config.Implements
         public BaseResponsePagingDto<ViewUserCreditsDto> FindPagingByUserId(FindPagingByUserIdDto dto)
         {
             _logger.LogInformation($"{nameof(FindPagingByUserId)} dto = {JsonSerializer.Serialize(dto)}");
-
+            var vietnamNow = GetVietnamTime();
             var query = from uc in _smDbContext.UserCredits
                         join u in _smDbContext.Users on uc.UserId equals u.Id
                         where !uc.Deleted && uc.UserId == dto.UserId
+                        //&& uc.ThoiGianBatDauApDungHanMuc <= vietnamNow
+                        //&& uc.ThoiGianKetThucApDungHanMuc >= vietnamNow
                         select new ViewUserCreditsDto
                         {
                             Id = uc.Id,

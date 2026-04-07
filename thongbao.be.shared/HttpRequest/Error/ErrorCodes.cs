@@ -113,6 +113,7 @@ namespace thongbao.be.shared.HttpRequest.Error
         public const int ConfigErrorUserNhaCungCapDichVuExisted = 1110;
         public const int ConfigErrorUserNhaCungCapDichVuNotFound = 1111;
         public const int ConfigErrorThoiGianKhongHopLe = 1112;
+        public const int ConfigErrorNhaMangExists = 1113;
 
 
 
