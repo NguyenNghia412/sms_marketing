@@ -8,7 +8,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { debounceTime, Subscription } from 'rxjs';
-import { LayoutService } from '../../layout/service/layout.service';
+import { LayoutService } from '../../../layout/service/layout.service';
 import { DashBoardService } from '@/services/dashboard.service';
 import { NhaCungCapDichVuService } from '@/services/nha-cung-cap-dich-vu.service';
 import { IGetListDropDownUserNhaCungCapDichVuDto } from '@/models/nha-cung-cap-dich-vu.models';
@@ -222,14 +222,14 @@ export class DashboardSms implements OnInit, OnDestroy {
         ctx.strokeRect(0.5, 0.5, W - 1, H - 1);
 
         const configMap: Record<string, { title: string; subtitle: string }> = {
-            credits: {
+            /*credits: {
                 title: 'Thống kê Credits',
                 subtitle: `Từ ngày ${this.formatDateLabel(this.creditsTuNgay)} đến ${this.formatDateLabel(this.creditsDenNgay)}`
             },
             sms: {
                 title: 'Thống kê tin nhắn',
                 subtitle: `Từ ngày ${this.formatDateLabel(this.smsTuNgay)} đến ${this.formatDateLabel(this.smsDenNgay)}`
-            },
+            },*/
             creditsByMonth: {
                 title: 'Thống kê Credits theo tháng của từng người dùng',
                 subtitle: `Từ ${this.formatMonthLabel(this.creditsByMonthTuThang)} đến ${this.formatMonthLabel(this.creditsByMonthDenThang)}`

@@ -182,20 +182,19 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                     var recordIds = danhBaSmsList.Select(x => x.Id).ToList();
                     var allUserData = await GetDanhBaDataForBatch(recordIds, idChienDich);
 
-                    var networkCosts = new Dictionary<string, int>
-                    {
-                        ["Viettel"] = 420,
-                        ["Mobifone"] = 420,
-                        ["Vinaphone"] = 420,
-                        ["Vietnamobile"] = 700,
-                        ["Gmobile"] = 300
-                    };
+                    var networkCosts = await (from chdg in _smDbContext.CauHinhDonGias
+                                              join nm in _smDbContext.NhaMangs on chdg.IdNhaMang equals nm.Id
+                                              where chdg.IdBrandName == idBrandName && !chdg.Deleted
+                                              select new { nm.TenNhaMang, chdg.DonGia })
+                         .ToDictionaryAsync(x => x.TenNhaMang, x => x.DonGia);
 
                     var viettelPrefixes = new[] { "96", "97", "98", "86", "32", "33", "34", "35", "36", "37", "38", "39" };
                     var mobifone = new[] { "90", "93", "89", "70", "76", "77", "78", "79" };
                     var vinaphone = new[] { "91", "94", "88", "81", "82", "83", "84", "85", "80" };
                     var vietnamobile = new[] { "92", "56", "58", "52" };
                     var gmobile = new[] { "99", "59" };
+                    var itel = new[] { "87" };
+                    var reddi = new[] { "55" };
                     int tongChiPhi = 0;
 
                     var chienDichLog = new ChienDichLogTrangThaiGui
@@ -232,6 +231,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         else if (vinaphone.Contains(prefix)) network = "Vinaphone";
                         else if (vietnamobile.Contains(prefix)) network = "Vietnamobile";
                         else if (gmobile.Contains(prefix)) network = "Gmobile";
+                        else if (itel.Contains(prefix)) network = "Itel";
+                        else if (reddi.Contains(prefix)) network = "Reddi";
 
                         var length = personalizedText.Length;
                         int smsCount;
@@ -311,20 +312,19 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                 //Mode: List số điện thoại
                 else
                 {
-                    var networkCosts = new Dictionary<string, int>
-                    {
-                        ["Viettel"] = 420,
-                        ["Mobifone"] = 420,
-                        ["Vinaphone"] = 420,
-                        ["Vietnamobile"] = 700,
-                        ["Gmobile"] = 300
-                    };
+                    var networkCosts = await (from chdg in _smDbContext.CauHinhDonGias
+                                              join nm in _smDbContext.NhaMangs on chdg.IdNhaMang equals nm.Id
+                                              where chdg.IdBrandName == idBrandName && !chdg.Deleted
+                                              select new { nm.TenNhaMang, chdg.DonGia })
+                         .ToDictionaryAsync(x => x.TenNhaMang, x => x.DonGia);
                     var listsmsCount = danhSachSoDienThoai?.Count ?? 0;
                     var viettelPrefixes = new[] { "96", "97", "98", "86", "32", "33", "34", "35", "36", "37", "38", "39" };
                     var mobifone = new[] { "90", "93", "89", "70", "76", "77", "78", "79" };
                     var vinaphone = new[] { "91", "94", "88", "81", "82", "83", "84", "85", "80" };
                     var vietnamobile = new[] { "92", "56", "58", "52" };
                     var gmobile = new[] { "99", "59" };
+                    var itel = new[] { "87" };
+                    var reddi = new[] { "55" };
                     int tongChiPhi = 0;
 
                 
@@ -363,6 +363,8 @@ namespace thongbao.be.application.GuiTinNhan.Implements
                         else if (vinaphone.Contains(prefix)) network = "Vinaphone";
                         else if (vietnamobile.Contains(prefix)) network = "Vietnamobile";
                         else if (gmobile.Contains(prefix)) network = "Gmobile";
+                        else if (itel.Contains(prefix)) network = "Itel";
+                        else if (reddi.Contains(prefix)) network = "Reddi";
 
                         var length = personalizedText.Length;
                         int smsCount;
@@ -661,14 +663,11 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             //var currentUserId = getCurrentUserId();
             var vietnamNow = GetVietnamTime();
 
-            var networkCosts = new Dictionary<string, int>
-            {
-                ["Viettel"] = 420,
-                ["Mobifone"] = 420,
-                ["Vinaphone"] = 420,
-                ["Vietnamobile"] = 700,
-                ["Gmobile"] = 300
-            };
+            var networkCosts = await (from chdg in _smDbContext.CauHinhDonGias
+                                      join nm in _smDbContext.NhaMangs on chdg.IdNhaMang equals nm.Id
+                                      where chdg.IdBrandName == idBrandName && !chdg.Deleted
+                                      select new { nm.TenNhaMang, chdg.DonGia })
+                         .ToDictionaryAsync(x => x.TenNhaMang, x => x.DonGia);
 
             var smsMessages = new List<object>();
             int totalSuccess = 0;
@@ -1001,12 +1000,16 @@ namespace thongbao.be.application.GuiTinNhan.Implements
             var vinaphone = new[] { "91", "94", "88", "81", "82", "83", "84", "85", "80" };
             var vietnamobile = new[] { "92", "56", "58", "52" };
             var gmobile = new[] { "99", "59" };
+            var itel = new[] { "87" };
+            var reddi = new[] { "55" };
 
             if (viettelPrefixes.Contains(prefix)) return "Viettel";
             else if (mobifone.Contains(prefix)) return "Mobifone";
             else if (vinaphone.Contains(prefix)) return "Vinaphone";
             else if (vietnamobile.Contains(prefix)) return "Vietnamobile";
             else if (gmobile.Contains(prefix)) return "Gmobile";
+            else if (itel.Contains(prefix)) return "Itel";
+            else if (reddi.Contains(prefix)) return "Reddi";
 
             return "Unknown";
         }
